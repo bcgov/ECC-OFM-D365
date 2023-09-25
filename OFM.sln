@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OFM.Infrastructure.WebAPI", "OFM.Infrastructure.WebAPI\OFM.Infrastructure.WebAPI.csproj", "{CA311625-78D9-4473-B452-A07ACE4800C0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03 Infrastructure", "03 Infrastructure", "{87F0B355-5C00-402A-B7DE-523D5CF186D8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01 Documents", "01 Documents", "{2EC28AE5-E46D-41D0-A44A-EE3795B3527B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 Core", "02 Core", "{0BA2E418-CA3A-4E61-9049-9B2A1EF519D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 Application", "04 Application", "{1CA8FF5C-99C4-4CC8-B4B2-4D0EC65F8CD1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CA311625-78D9-4473-B452-A07ACE4800C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA311625-78D9-4473-B452-A07ACE4800C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA311625-78D9-4473-B452-A07ACE4800C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA311625-78D9-4473-B452-A07ACE4800C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CA311625-78D9-4473-B452-A07ACE4800C0} = {87F0B355-5C00-402A-B7DE-523D5CF186D8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {87DC05FC-E203-4CDA-98A2-112CDF347531}
+	EndGlobalSection
+EndGlobal

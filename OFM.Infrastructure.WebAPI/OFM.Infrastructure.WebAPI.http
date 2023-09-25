@@ -1,0 +1,6 @@
+@OFM.Infrastructure.WebAPI_HostAddress = http://localhost:5074
+
+GET {{OFM.Infrastructure.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
