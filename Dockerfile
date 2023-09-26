@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 5091
 EXPOSE 5092
@@ -11,7 +11,7 @@ ENV ASPNETCORE_ENVIRONMENT=Development
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /
 COPY ["OFM.Infrastructure.WebAPI/OFM.Infrastructure.WebAPI.csproj", "OFM.Infrastructure.WebAPI/"]
 RUN dotnet restore "OFM.Infrastructure.WebAPI/OFM.Infrastructure.WebAPI.csproj"
