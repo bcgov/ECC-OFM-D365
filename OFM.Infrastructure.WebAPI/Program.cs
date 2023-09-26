@@ -76,7 +76,7 @@ app.MapGet("/api/health", () =>
 {
     return TypedResults.Ok("I am healthy!");
 
-}).WithTags("Environment").Produces(200).ProducesProblem(404);
+}).WithTags("Environment").Produces(200).ProducesProblem(404).AllowAnonymous();
 
 app.MapHealthChecks("/api/health");
 
