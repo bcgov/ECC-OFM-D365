@@ -99,7 +99,7 @@ objects:
       creationTimestamp:
       labels:
         app: '${APP_NAME}-${BRANCH}'
-      name: '${APP_NAME}-d365api
+      name: '${APP_NAME}-d365api'
     spec:
       ports:
         - name: 5091-tcp
