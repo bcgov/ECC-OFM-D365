@@ -15,12 +15,12 @@ objects:
       labels:
         app: '${APP_NAME}-${BRANCH}'
         branch: '${BRANCH}'
-      name: '${APP_NAME}-d365api-${BRANCH}'
+      name: '${APP_NAME}-d365api'
     spec:
       replicas: ${{MIN_REPLICAS}}
       selector:
         app: '${APP_NAME}-${BRANCH}'
-        deploymentconfig: '${APP_NAME}-d365api-${BRANCH}'
+        deploymentconfig: '${APP_NAME}-d365api'
       strategy:
         resources: {}
         type: Rolling
@@ -31,7 +31,7 @@ objects:
           creationTimestamp:
           labels:
             app: '${APP_NAME}-${BRANCH}'
-            deploymentconfig: '${APP_NAME}-d365api-${BRANCH}'
+            deploymentconfig: '${APP_NAME}-d365api'
         spec:
           containers:
             - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}-d365api-${BRANCH}:${TAG}
@@ -55,7 +55,7 @@ objects:
                 periodSeconds: 10
                 successThreshold: 1
                 timeoutSeconds: 5
-              name: '${APP_NAME}-d365api-${BRANCH}'
+              name: '${APP_NAME}-d365api'
               ports:
                 - containerPort: 5091
                   protocol: TCP
@@ -112,7 +112,7 @@ objects:
           targetPort: 443
       selector:
         app: '${APP_NAME}-${BRANCH}'
-        deploymentconfig: '${APP_NAME}-d365api-${BRANCH}'
+        deploymentconfig: '${APP_NAME}-d365api'
   - apiVersion: v1
     kind: Route
     metadata:
@@ -136,12 +136,12 @@ objects:
   - apiVersion: autoscaling/v2
     kind: HorizontalPodAutoscaler
     metadata:
-      name: '${APP_NAME}-d365api-${BRANCH}-cpu-autoscaler'
+      name: '${APP_NAME}-d365api-cpu-autoscaler'
     spec:
       scaleTargetRef:
         apiVersion: apps.openshift.io/v1
         kind: DeploymentConfig
-        name: '${APP_NAME}-d365api-${BRANCH}'
+        name: '${APP_NAME}-d365api'
         subresource: scale
       minReplicas: ${{MIN_REPLICAS}}
       maxReplicas: ${{MAX_REPLICAS}}
