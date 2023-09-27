@@ -98,7 +98,7 @@ objects:
       creationTimestamp:
       labels:
         app: '${APP_NAME}-${BRANCH}'
-      name: '${APP_NAME}-d365api-${BRANCH}'
+      name: '${APP_NAME}-d365api
     spec:
       ports:
         - name: 5091-tcp
@@ -112,6 +112,26 @@ objects:
       selector:
         app: '${APP_NAME}-${BRANCH}'
         deploymentconfig: '${APP_NAME}-d365api-${BRANCH}'
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: '${APP_NAME}-d365api-https'
+      labels:
+        app: '${APP_NAME}-${BRANCH}'
+      annotations:
+        openshift.io/host.generated: 'true'
+        haproxy.router.openshift.io/ip_whitelist: 204.107.153.66
+    spec:
+      to:
+        kind: Service
+        name: '${APP_NAME}-d365api'
+        weight: 100
+      port:
+        targetPort: 8080-tcp
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
   - apiVersion: autoscaling/v2
     kind: HorizontalPodAutoscaler
     metadata:
