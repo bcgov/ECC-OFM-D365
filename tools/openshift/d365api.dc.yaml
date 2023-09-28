@@ -116,7 +116,7 @@ objects:
   - apiVersion: v1
     kind: Route
     metadata:
-      name: '${APP_NAME}-d365api-https'
+      name: '${APP_NAME}-d365api'
       labels:
         app: '${APP_NAME}-${BRANCH}'
       annotations:
@@ -128,7 +128,7 @@ objects:
         name: '${APP_NAME}-d365api'
         weight: 100
       port:
-        targetPort: 8080-tcp
+        targetPort: 5091-tcp
       tls:
         termination: edge
         insecureEdgeTerminationPolicy: Redirect
