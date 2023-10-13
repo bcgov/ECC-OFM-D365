@@ -1,0 +1,191 @@
+---
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: '${REPO_NAME}-template'
+metadata:
+  name: '${REPO_NAME}-d365api-dc'
+objects:
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp:
+      labels:
+        app: '${APP_NAME}-${BRANCH}'
+        branch: '${BRANCH}'
+      name: '${APP_NAME}-d365api'
+    spec:
+      replicas: ${{MIN_REPLICAS}}
+      selector:
+        app: '${APP_NAME}-${BRANCH}'
+        deploymentconfig: '${APP_NAME}-d365api'
+      strategy:
+        resources: {}
+        type: Rolling
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp:
+          labels:
+            app: '${APP_NAME}-${BRANCH}'
+            deploymentconfig: '${APP_NAME}-d365api'
+        spec:
+          containers:
+            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}-d365api-${BRANCH}:${TAG}
+              imagePullPolicy: Always
+              volumeMounts:
+                # - name: tls-certs
+                #   mountPath: '/etc/tls-certs'
+                #   readOnly: true
+                - name: log-storage
+                  mountPath: /logs
+                - name: config-env
+                  mountPath: /app/appsettings.json
+                  subPath: appsettings.json
+              livenessProbe:
+                initialDelaySeconds: 20
+                failureThreshold: 5
+                httpGet:
+                  path: '/api/Health'
+                  port: 5091
+                  scheme: HTTP
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+              name: '${APP_NAME}-d365api'
+              ports:
+                - containerPort: 5091
+                  protocol: TCP
+                - containerPort: 443
+                  protocol: TCP
+              readinessProbe:
+                initialDelaySeconds: 10
+                failureThreshold: 5
+                httpGet:
+                  path: '/api/Health'
+                  port: 5091
+                  scheme: HTTP
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+              resources:
+                requests:
+                  cpu: '${MIN_CPU}'
+                  memory: '${MIN_MEM}'
+                limits:
+                  cpu: '${MAX_CPU}'
+                  memory: '${MAX_MEM}'
+          volumes:
+            - name: log-storage
+              emptyDir: {}
+            - name: config-env
+              configMap:
+                name: ofm-d365api-config-map
+          # - name: tls-certs
+          #   secret:
+          #     secretName: ofm-backend-cert
+      test: false
+      triggers:
+        - type: ConfigChange
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        service.alpha.openshift.io/serving-cert-secret-name: 'ofm-backend-cert'
+        openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp:
+      labels:
+        app: '${APP_NAME}-${BRANCH}'
+      name: '${APP_NAME}-d365api'
+    spec:
+      ports:
+        - name: 5091-tcp
+          port: 5091
+          protocol: TCP
+          targetPort: 5091
+        - name: 443-https
+          port: 443
+          protocol: TCP
+          targetPort: 443
+      selector:
+        app: '${APP_NAME}-${BRANCH}'
+        deploymentconfig: '${APP_NAME}-d365api'
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: '${APP_NAME}-d365api'
+      labels:
+        app: '${APP_NAME}-${BRANCH}'
+      annotations:
+        openshift.io/host.generated: 'true'
+        haproxy.router.openshift.io/ip_whitelist: >-
+          204.107.153.66 52.242.36.40 40.85.206.95 52.237.24.126 
+          52.242.35.152 40.82.184.43 40.82.184.6 40.69.106.240/28 40.69.111.0/27 13.71.170.208/28
+          13.71.175.160/27 20.48.200.192/27 20.48.200.224/28 52.139.111.0/27 52.139.111.32/28
+    spec:
+      to:
+        kind: Service
+        name: '${APP_NAME}-d365api'
+        weight: 100
+      port:
+        targetPort: 5091-tcp
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+  - apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    metadata:
+      name: '${APP_NAME}-d365api-cpu-autoscaler'
+    spec:
+      scaleTargetRef:
+        apiVersion: apps.openshift.io/v1
+        kind: DeploymentConfig
+        name: '${APP_NAME}-d365api'
+        subresource: scale
+      minReplicas: ${{MIN_REPLICAS}}
+      maxReplicas: ${{MAX_REPLICAS}}
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 90
+parameters:
+  - name: REPO_NAME
+    description: Application repository name
+    required: true
+  - name: BRANCH
+    description: Job identifier (i.e. 'pr-5' OR 'master')
+    required: true
+  - name: NAMESPACE
+    description: Target namespace reference (i.e. 'k8vopl-dev')
+    required: true
+  - name: APP_NAME
+    description: Application name
+    required: true
+  - name: TAG
+    description: The identifying tag for this specific deployment
+    required: true
+  - name: MIN_REPLICAS
+    description: The minimum amount of replicas
+    required: true
+  - name: MAX_REPLICAS
+    description: The maximum amount of replicas
+    required: true
+  - name: MIN_CPU
+    description: The minimum amount of cpu
+    required: true
+  - name: MAX_CPU
+    description: The maximum amount of cpu
+    required: true
+  - name: MIN_MEM
+    description: The minimum amount of memory
+    required: true
+  - name: MAX_MEM
+    description: The maximum amount of memory
+    required: true
