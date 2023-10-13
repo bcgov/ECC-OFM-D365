@@ -19,6 +19,7 @@ services.AddCustomProblemDetails();
 
 services.AddDistributedMemoryCache();
 services.TryAddSingleton(typeof(IDistributedCache<>), typeof(DistributedCache<>));
+services.TryAddSingleton(TimeProvider.System);
 
 services.TryAddSingleton<ID365TokenService, D365TokenService>(); // To Be Reviewed
 services.TryAddSingleton<ID365AppUserService, D365AppUserService>();
@@ -76,7 +77,7 @@ app.MapGet("/api/health", () =>
 {
     return TypedResults.Ok("I am healthy!");
 
-}).WithTags("Environment").Produces(200).ProducesProblem(404);
+}).WithTags("Environment").Produces(200).ProducesProblem(404).AllowAnonymous();
 
 app.MapHealthChecks("/api/health");
 

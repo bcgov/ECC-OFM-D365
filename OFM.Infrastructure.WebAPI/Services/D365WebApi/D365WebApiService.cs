@@ -38,7 +38,7 @@ public class D365WebAPIService : ID365WebApiService
         return await client.SendAsync(message);
     }
 
-    public async Task<HttpResponseMessage> SendUpdateRequestAsync(AZAppUser spn, string requestUrl, string body)
+    public async Task<HttpResponseMessage> SendPatchRequestAsync(AZAppUser spn, string requestUrl, string body)
     {
         var message = new HttpRequestMessage(HttpMethod.Patch, requestUrl);
         message.Content = new StringContent(body, Encoding.UTF8, "application/json");
@@ -47,11 +47,16 @@ public class D365WebAPIService : ID365WebApiService
         return await client.SendAsync(message);
     }
 
-    public async Task<HttpResponseMessage> SendDeleteRequestAsync(AZAppUser spn, string endPoint)
+    public async Task<HttpResponseMessage> SendPutRequestAsync(AZAppUser spn, string requestUrl, string content)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public async Task<HttpResponseMessage> SendDeleteRequestAsync(AZAppUser spn, string requestUri)
     {
         var client = await _authenticationService.GetHttpClientAsync(D365RequestType.CRUD, spn);
 
-        return await client.DeleteAsync(endPoint);
+        return await client.DeleteAsync(requestUri);
     }
 
     public async Task<HttpResponseMessage> SendSearchRequestAsync(AZAppUser spn, string body)
