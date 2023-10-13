@@ -30,7 +30,7 @@ public class D365AuthServiceMSAL : ID365AuthenticationService
     public async Task<HttpClient> GetHttpClientAsync(D365RequestType requestType, AZAppUser spn)
     {
         var accessToken = await _tokenService.FetchAccessToken(_authSettings.BaseUrl, spn);
-        var endpoint = requestType switch
+        var baseAddress = requestType switch
         {
             D365RequestType.Search => $"{_authSettings.BaseUrl}api/search/{_authSettings.SearchVersion}/query",
             D365RequestType.Batch => $"{_authSettings.BaseUrl}api/data/{_authSettings.ApiVersion}/$batch",
@@ -38,7 +38,7 @@ public class D365AuthServiceMSAL : ID365AuthenticationService
         };
         var client = _httpClientFactory.CreateClient(_authSettings.HttpClientName);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        client.BaseAddress = new Uri(endpoint);
+        client.BaseAddress = new Uri(baseAddress);
 
         return client;
     }

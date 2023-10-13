@@ -49,9 +49,9 @@ public class D365DocumentService : ID365DocumentService
             throw new KeyNotFoundException(_entityNameSet);
         }
 
-        ID365DocumentProvider provider = _documentProviders.FirstOrDefault(p => p.EntityNameSet == entityNameValue?.GetValue<string>()) ?? throw new NotImplementedException(nameof(ID365DocumentProvider));
+        ID365DocumentProvider provider = _documentProviders.First(p => p.EntityNameSet == entityNameValue?.GetValue<string>()) ?? throw new NotImplementedException(nameof(ID365DocumentProvider));
         var processingDocument = await provider.PrepareDocumentBodyAsync(jsonData, _appUserService, _d365webapiservice);
-        string entitySetName = entityNameValue?.GetValue<string>() ?? throw new KeyNotFoundException(_entityNameSet);
+        string entitySetName = entityNameValue!.GetValue<string>();
 
         return await _d365webapiservice.SendCreateRequestAsync(_appUserService.AZPortalAppUser, entitySetName, processingDocument); 
     }

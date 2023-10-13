@@ -34,7 +34,9 @@ public class DistributedCache<T> : IDistributedCache<T> where T : class
     public async Task SetAsync(string key, T item, int minutesToCache)
     {
         var cacheEntryOptions = new DistributedCacheEntryOptions
-        { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(minutesToCache) };
+        { 
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(minutesToCache) 
+        };
 
         var serialisedItemToCache = SerialiseForCaching(item);
 

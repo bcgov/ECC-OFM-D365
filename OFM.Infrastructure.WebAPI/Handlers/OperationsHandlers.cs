@@ -110,7 +110,7 @@ public static class OperationsHandlers
         string statement,
         [FromBody] dynamic jsonBody)
     {
-        HttpResponseMessage response = await d365WebApiService.SendUpdateRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
+        HttpResponseMessage response = await d365WebApiService.SendPatchRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
 
         if (response.IsSuccessStatusCode)
         {
