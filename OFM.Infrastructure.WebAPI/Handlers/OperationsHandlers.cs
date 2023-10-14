@@ -126,6 +126,29 @@ public static class OperationsHandlers
         }
     }
 
+    public static async Task<Results<ProblemHttpResult, Ok<JsonObject>>> PutAsync(
+       ID365WebApiService d365WebApiService,
+       ID365AppUserService appUserService,
+       ILogger<string> logger,
+       string statement,
+       [FromBody] dynamic jsonBody)
+    {
+        HttpResponseMessage response = await d365WebApiService.SendPutRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<JsonObject>();
+            logger.LogInformation("[Statement: {statement}]", statement);
+            return TypedResults.Ok(result);
+        }
+        else
+        {
+            string jsonString = jsonBody.ToString();
+            logger.LogError("API Failure: Failed to Update record.[Response: {response.ReasonPhrase}].[Statement: {statement}].[jsonBody: {jsonBody}]", response.ReasonPhrase, statement, jsonString);
+            return TypedResults.Problem($"Failed to Update record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
+        }
+    }
+
     public static async Task<Results<ProblemHttpResult, Ok<JsonObject>>> DeleteAsync(
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,

@@ -87,16 +87,16 @@ public static class ProviderProfileHandlers
                 result = currentValue!;
             }
 
-            //using (logger.BeginScope("ScopeProfile: {userName}", userName))
-            //{
-            //    logger.LogInformation("ScopeProfile: Response Time: {timer.ElapsedMilliseconds}", timeProvider.GetElapsedTime(startTime, endTime));
-            //}
+            using (logger.BeginScope("ScopeProfile: {userId}", userId))
+            {
+                logger.LogInformation("ScopeProfile: Response Time: {timer.ElapsedMilliseconds}", timeProvider.GetElapsedTime(startTime, endTime));
+            }
 
             var resultDeserialized = JsonSerializer.Deserialize<List<BCeIDFacility>>(result!.ToString());
 
             var myBCeID = new BCeID();
 
-            var facilityAccess = new List<FacilityPermission>();
+            var facilityPermission = new List<FacilityPermission>();
 
             foreach (var facility in resultDeserialized!)
             {
@@ -117,7 +117,7 @@ public static class ProviderProfileHandlers
                     statuscode = facility.ofm_bceid.parentcustomerid_account.statuscode
                 };
 
-                facilityAccess.Add(new FacilityPermission
+                facilityPermission.Add(new FacilityPermission
                 {
                     facility = new Facility
                     {
@@ -125,10 +125,10 @@ public static class ProviderProfileHandlers
                         accountnumber = facility.ofm_facility.accountnumber,
                         name = facility.ofm_facility.name,
                     },
-                    ofm_portal_access = true
+                    ofm_portal_access = facility.ofm_portal_access
                 });
             }
-            myBCeID.facility_permission = facilityAccess;
+            myBCeID.facility_permission = facilityPermission;
 
             return TypedResults.Ok(myBCeID);
         }
@@ -139,12 +139,12 @@ public static class ProviderProfileHandlers
             if (problemDetails?.Extensions.TryGetValue("traceId", out var currentValue) == true)
                 traceId = currentValue?.ToString();
 
-            //using (logger.BeginScope($"ScopeProfile: {userName}"))
-            //{
-            //    logger.LogWarning("API Failure: Failed to Retrieve profile: {userName}. Response: {response}. TraceId: {traceId}. " +
-            //        "Finished in {timer.ElapsedMilliseconds} miliseconds.", userName, response, traceId, timeProvider.GetElapsedTime(startTime, endTime));
-            return TypedResults.Problem($"Failed to Retrieve profile: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
-            //}
+            using (logger.BeginScope($"ScopeProfile: {userId}"))
+            {
+                logger.LogWarning("API Failure: Failed to Retrieve profile: {userName}. Response: {response}. TraceId: {traceId}. " +
+                    "Finished in {timer.ElapsedMilliseconds} miliseconds.", userId, response, traceId, timeProvider.GetElapsedTime(startTime, endTime));
+                return TypedResults.Problem($"Failed to Retrieve profile: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
+            }
         }
     }
 }

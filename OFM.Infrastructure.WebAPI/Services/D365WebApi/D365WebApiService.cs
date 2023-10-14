@@ -49,7 +49,11 @@ public class D365WebAPIService : ID365WebApiService
 
     public async Task<HttpResponseMessage> SendPutRequestAsync(AZAppUser spn, string requestUrl, string content)
     {
-        throw new NotImplementedException();
+        var message = new HttpRequestMessage(HttpMethod.Put, requestUrl);
+        message.Content = new StringContent(content, Encoding.UTF8, "application/json");
+
+        var client = await _authenticationService.GetHttpClientAsync(D365RequestType.CRUD, spn);
+        return await client.SendAsync(message);
     }
     
     public async Task<HttpResponseMessage> SendDeleteRequestAsync(AZAppUser spn, string requestUri)
