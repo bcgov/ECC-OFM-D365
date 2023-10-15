@@ -29,6 +29,7 @@ public record D365AuthSettings
     public required string ResourceUrl { get; set; }
     public required string WebApiUrl { get; set; }
     public required string BatchUrl { get; set; }
+    public required string BaseServiceUrl { get; set; } // Dynamics Base Service URL for Dataverse Search, Batch Operations etc.
     public required string RedirectUrl { get; set; }
     public required string ApiVersion { get; set; }
     public required Int16 TimeOutInSeconds { get; set; }

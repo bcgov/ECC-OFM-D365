@@ -32,6 +32,7 @@ public static class EndpointRouteBuilderExtensions
         myEndpoints.MapGet("", OperationsHandlers.GetAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
         myEndpoints.MapPost("", OperationsHandlers.PostAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
         myEndpoints.MapPatch("", OperationsHandlers.PatchAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
+        myEndpoints.MapPut("", OperationsHandlers.PutAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
         myEndpoints.MapDelete("", OperationsHandlers.DeleteAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
     }
 
