@@ -15,12 +15,12 @@ objects:
       labels:
         app: '${APP_NAME}-${BRANCH}'
         branch: '${BRANCH}'
-      name: '${APP_NAME}-d365api'
+      name: '${APP_NAME}-d365api-${ENVIRONMENT}'
     spec:
       replicas: ${{MIN_REPLICAS}}
       selector:
         app: '${APP_NAME}-${BRANCH}'
-        deploymentconfig: '${APP_NAME}-d365api'
+        deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
       strategy:
         resources: {}
         type: Rolling
@@ -31,7 +31,7 @@ objects:
           creationTimestamp:
           labels:
             app: '${APP_NAME}-${BRANCH}'
-            deploymentconfig: '${APP_NAME}-d365api'
+            deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
         spec:
           containers:
             - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}-d365api-${BRANCH}:${TAG}
@@ -55,7 +55,7 @@ objects:
                 periodSeconds: 10
                 successThreshold: 1
                 timeoutSeconds: 5
-              name: '${APP_NAME}-d365api'
+              name: '${APP_NAME}-d365api-${ENVIRONMENT}'
               ports:
                 - containerPort: 5091
                   protocol: TCP
@@ -83,7 +83,7 @@ objects:
               emptyDir: {}
             - name: config-env
               configMap:
-                name: ofm-d365api-config-map
+                name: ofm-d365api-${ENVIRONMENT}-config-map
           # - name: tls-certs
           #   secret:
           #     secretName: ofm-backend-cert
@@ -99,7 +99,7 @@ objects:
       creationTimestamp:
       labels:
         app: '${APP_NAME}-${BRANCH}'
-      name: '${APP_NAME}-d365api'
+      name: '${APP_NAME}-d365api-${ENVIRONMENT}'
     spec:
       ports:
         - name: 5091-tcp
@@ -112,11 +112,11 @@ objects:
           targetPort: 443
       selector:
         app: '${APP_NAME}-${BRANCH}'
-        deploymentconfig: '${APP_NAME}-d365api'
+        deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
   - apiVersion: v1
     kind: Route
     metadata:
-      name: '${APP_NAME}-d365api'
+      name: '${APP_NAME}-d365api--${ENVIRONMENT}'
       labels:
         app: '${APP_NAME}-${BRANCH}'
       annotations:
@@ -128,7 +128,7 @@ objects:
     spec:
       to:
         kind: Service
-        name: '${APP_NAME}-d365api'
+        name: '${APP_NAME}-d365api-${ENVIRONMENT}'
         weight: 100
       port:
         targetPort: 5091-tcp
@@ -139,7 +139,7 @@ objects:
   - apiVersion: autoscaling/v2
     kind: HorizontalPodAutoscaler
     metadata:
-      name: '${APP_NAME}-d365api-cpu-autoscaler'
+      name: '${APP_NAME}-d365api-cpu-autoscaler-${ENVIRONMENT}'
     spec:
       scaleTargetRef:
         apiVersion: apps.openshift.io/v1
@@ -164,6 +164,9 @@ parameters:
     required: true
   - name: NAMESPACE
     description: Target namespace reference (i.e. 'k8vopl-dev')
+    required: true
+  - name: ENVIRONMENT
+    description: The environment being created ('dev', 'test', 'uat', 'prod')
     required: true
   - name: APP_NAME
     description: Application name
