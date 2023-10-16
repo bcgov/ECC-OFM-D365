@@ -33,7 +33,7 @@ public static class DocumentsHandlers
     }
 
     public static async Task<Results<ProblemHttpResult, BadRequest<string>, Ok<string>>> PostAsync(
-        IOptionsMonitor<AppSettings> appSettings,
+        IOptions<AppSettings> appSettings,
         ID365DocumentService documentService,
         [FromBody] dynamic? jsonBody)
     {
@@ -45,7 +45,7 @@ public static class DocumentsHandlers
         if (jsonDom.Count == 0) return TypedResults.BadRequest("Invalid request.");
 
         // Validate file size limit
-        if (JsonSizeCalculator.Estimate(jsonDom, true) > appSettings.CurrentValue.MaxFileSize)
+        if (JsonSizeCalculator.Estimate(jsonDom, true) > appSettings.Value.MaxFileSize)
         {
             return TypedResults.Problem("The file size exceeds the limit allowed.", statusCode: StatusCodes.Status500InternalServerError);
         };
@@ -55,8 +55,8 @@ public static class DocumentsHandlers
         string fileName = fileNameNode?.GetValue<string>() ?? throw new InvalidEnumArgumentException("The filename is missing.");
         string[] fileNames = fileName.Split('.');
         string fileExt = fileNames[^1].ToLower();
-        string[] acceptedFileFormats = appSettings.CurrentValue.FileFommats.Split(",").Select(ext => ext.Trim()).ToArray();
-        if (Array.IndexOf(acceptedFileFormats, fileExt) == -1) return TypedResults.BadRequest(appSettings.CurrentValue.FileFormatErrorMessage);
+        string[] acceptedFileFormats = appSettings.Value.FileFommats.Split(",").Select(ext => ext.Trim()).ToArray();
+        if (Array.IndexOf(acceptedFileFormats, fileExt) == -1) return TypedResults.BadRequest(appSettings.Value.FileFormatErrorMessage);
       
         var response = await documentService.UploadAsync(jsonDom);
 

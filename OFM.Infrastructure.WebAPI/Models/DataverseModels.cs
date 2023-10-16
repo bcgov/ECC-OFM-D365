@@ -45,7 +45,7 @@ public class BusinessBCeID
     public string? ofm_last_name { get; set; }
     public Organization? organization { get; set; }
     public string? ofm_portal_role { get; set; }
-    public List<FacilityPermission>? facility_permission { get; set; }
+    public IList<FacilityPermission>? facility_permission { get; set; }
 
     public void MapBusinessBCeIDFacilityPermissions(IEnumerable<BCeIDFacility> permissions)
     {

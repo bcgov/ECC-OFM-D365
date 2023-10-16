@@ -22,7 +22,7 @@ public static class EndpointRouteBuilderExtensions
     {
         var searchesEndpoints = endpointRouteBuilder.MapGroup("/api/providerprofile");
 
-        searchesEndpoints.MapGet("", ProviderProfileHandlers.GetProfileAsync).WithTags("Providers").Produces(200).ProducesProblem(404);
+        searchesEndpoints.MapGet("", ProviderProfilesHandlers.GetProfileAsync).WithTags("Providers").Produces(200).ProducesProblem(404);
     }
 
     public static void RegisterOperationsEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)

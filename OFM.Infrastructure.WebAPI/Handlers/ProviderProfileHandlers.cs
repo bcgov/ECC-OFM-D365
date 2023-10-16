@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace OFM.Infrastructure.WebAPI.Handlers;
 
-public static class ProviderProfileHandlers
+public static class ProviderProfilesHandlers
 {
     public static async Task<Results<BadRequest<string>, NotFound<string>, ProblemHttpResult, Ok<BusinessBCeID>>> GetProfileAsync(
         ID365WebApiService d365WebApiService,

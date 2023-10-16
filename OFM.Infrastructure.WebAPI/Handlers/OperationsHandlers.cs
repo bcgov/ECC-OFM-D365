@@ -17,7 +17,7 @@ public static class OperationsHandlers
     static readonly string pageSizeParam = "pageSize";
     public static async Task<Results<BadRequest<string>, ProblemHttpResult, Ok<JsonObject>>> GetAsync(
         HttpContext context,
-        IOptionsMonitor<AppSettings> appSettings,
+        IOptions<AppSettings> appSettings,
         ID365AppUserService appUserService,
         ID365WebApiService d365WebApiService,
         ILogger<string> logger,
@@ -41,7 +41,7 @@ public static class OperationsHandlers
             statement = statementFormatted;
         }
 
-        int pagerTake = (pageSize > 0 && pageSize <= appSettings.CurrentValue.MaxPageSize) ? pageSize : appSettings.CurrentValue.MaxPageSize;
+        int pagerTake = (pageSize > 0 && pageSize <= appSettings.Value.MaxPageSize) ? pageSize : appSettings.Value.MaxPageSize;
         var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, statement, formatted: true, pagerTake);
 
         if (response.IsSuccessStatusCode)

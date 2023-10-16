@@ -14,10 +14,10 @@ public class ApiKeyMiddleware
         _next = next;
     }
     public async Task InvokeAsync(HttpContext context,
-        IOptionsMonitor<AuthenticationSettings> options)
+        IOptions<AuthenticationSettings> options)
     {
-        var apiKeys = options.CurrentValue.Schemes.ApiKeyScheme.Keys;
-        var apiKeyPresentInHeader = context.Request.Headers.TryGetValue(options.CurrentValue.Schemes.ApiKeyScheme.ApiKeyName ?? "", out var extractedApiKey);
+        var apiKeys = options.Value.Schemes.ApiKeyScheme.Keys;
+        var apiKeyPresentInHeader = context.Request.Headers.TryGetValue(options.Value.Schemes.ApiKeyScheme.ApiKeyName ?? "", out var extractedApiKey);
 
         if ((apiKeyPresentInHeader && apiKeys.Any(k => k.Value == extractedApiKey))
             || context.Request.Path.StartsWithSegments("/swagger"))
@@ -35,7 +35,7 @@ public class ApiKeyMiddleware
         }
 
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        await context.Response.WriteAsync(options.CurrentValue.Schemes.ApiKeyScheme.ApiKeyErrorMesssage);
+        await context.Response.WriteAsync(options.Value.Schemes.ApiKeyScheme.ApiKeyErrorMesssage);
     }
 }
 

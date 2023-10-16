@@ -14,9 +14,9 @@ namespace OFM.Infrastructure.WebAPI.Handlers;
     public static class EnvironmentHandlers
     {
         public static Results<ProblemHttpResult, Ok<JsonObject>> Get(
-            IOptionsMonitor<D365AuthSettings> options)
+            IOptions<D365AuthSettings> options)
         {
-             var _authConfig = options.CurrentValue;
+             var _authConfig = options.Value;
             _authConfig.AZAppUsers = new List<AZAppUser>();
 
             string jsonContent = JsonSerializer.Serialize<D365AuthSettings>(_authConfig, D365AuthSettingsSerializationContext.Default.D365AuthSettings);
