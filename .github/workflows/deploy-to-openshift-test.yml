@@ -19,7 +19,7 @@ env:
   IMAGE_REGISTRY_PASSWORD: ${{ github.token }}
 
   APP_NAME: 'ofm'
-  REPO_NAME: 'ecc-ofm'
+  REPO_NAME: 'ecc-ofm-d365'
   #grabs the branch name from github dynamically
   BRANCH: ${{ github.ref_name }}
   APP_NAME_BACKEND: 'd365api'
