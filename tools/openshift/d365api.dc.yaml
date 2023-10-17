@@ -116,7 +116,7 @@ objects:
   - apiVersion: v1
     kind: Route
     metadata:
-      name: '${APP_NAME}-d365api--${ENVIRONMENT}'
+      name: '${APP_NAME}-d365api-${ENVIRONMENT}'
       labels:
         app: '${APP_NAME}-${BRANCH}'
       annotations:
