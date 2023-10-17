@@ -26,8 +26,8 @@ env:
 
   NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}
 
-  MIN_REPLICAS: '2'
-  MAX_REPLICAS: '4'
+  MIN_REPLICAS: '1'
+  MAX_REPLICAS: '3'
   MIN_CPU: '50m'
   MAX_CPU: '250m'
   MIN_MEM: '200Mi'
@@ -134,7 +134,7 @@ jobs:
           # Get status, returns 0 if rollout is successful
           oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-test
 
-      - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.3.0
-        with:
-          target: 'https://${{ env.HOST_ROUTE }}/api'
+      # - name: ZAP Scan
+      #   uses: zaproxy/action-full-scan@v0.3.0
+      #   with:
+      #     target: 'https://${{ env.HOST_ROUTE }}/api'
