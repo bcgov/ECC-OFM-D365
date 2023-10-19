@@ -1,32 +1,56 @@
-# This is a basic workflow that is manually triggered
-
 name: Create Tag
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
+env:
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OPENSHIFT_NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}-dev
+
+  REPO_NAME: 'ecc-ofm'
+  BRANCH: ${{ github.ref_name }}
+  APP_NAME_BACKEND: 'd365api'
+
 on:
+  # https://docs.github.com/en/actions/reference/events-that-trigger-workflows
   workflow_dispatch:
-    # Inputs the workflow accepts.
     inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        default: 'World'
-        # Input has to be provided for the workflow to run
+      version:
+        description: 'Version Number'
         required: true
-        # The data type of the input
-        type: string
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  openshift-ci-cd:
+    name: Tag Image
+    # ubuntu-20.04 can also be used.
+    runs-on: ubuntu-20.04
+    environment: dev
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ inputs.name }}"
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ github.event.inputs.version }}',
+              sha: context.sha
+            })
+
+      - name: Install oc
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: 4
+
+        # https://github.com/redhat-actions/oc-login#readme
+      - uses: actions/checkout@v2
+      - name: Tag in OpenShift
+        run: |
+          set -eux
+          # Login to OpenShift and select project
+          oc login --token=${{ env.OPENSHIFT_TOKEN }} --server=${{ env.OPENSHIFT_SERVER }}
+          oc project ${{ env.OPENSHIFT_NAMESPACE }}
+
+          oc tag ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}:latest ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}:${{ github.event.inputs.version }}
