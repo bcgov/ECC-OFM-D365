@@ -15,22 +15,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 Application", "04 Applic
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OFM.Application.WebResources", "OFM.Application.WebResources\", "{6869D6B7-1D39-4C6E-AA46-427430F6A3D5}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_7080"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_58948"
 		Debug.AspNetCompiler.PhysicalPath = "OFM.Application.WebResources\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_7080\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_58948\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_7080"
+		Release.AspNetCompiler.VirtualPath = "/localhost_58948"
 		Release.AspNetCompiler.PhysicalPath = "OFM.Application.WebResources\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_7080\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_58948\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "7080"
+		VWDPort = "58948"
 		SlnRelativePath = "OFM.Application.WebResources\"
 	EndProjectSection
 EndProject
