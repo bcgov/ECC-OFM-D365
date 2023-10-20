@@ -32,47 +32,50 @@ public static class ProviderProfilesHandlers
         // For refrence only
         var fetchXml = $"""
                     <?xml version="1.0" encoding="utf-16"?>
-                    <fetch distinct="true" no-lock="true">
-                      <entity name="ofm_bceid_facility">
-                        <attribute name="ofm_bceid_facilityid" />
-                        <attribute name="ofm_facility" />
-                        <attribute name="ofm_name" />
-                        <attribute name="ofm_portal_access" />
-                        <attribute name="statecode" />
-                        <attribute name="statuscode" />
-                        <link-entity name="account" from="accountid" to="ofm_facility" link-type="inner" alias="Facility">
-                          <attribute name="accountid" />
-                          <attribute name="accountnumber" />
-                          <attribute name="name" />
-                          <attribute name="ccof_accounttype" />
+                    <fetch version="1.0" mapping="logical" distinct="true" no-lock="false">
+                      <entity name="contact">
+                        <attribute name="ofm_first_name" />
+                        <attribute name="ofm_last_name" />
+                        <attribute name="ofm_portal_role" />
+                        <attribute name="ccof_userid" />
+                        <attribute name="ccof_username" />
+                        <attribute name="contactid" />
+                        <attribute name="emailaddress1" />
+                        <attribute name="ofm_is_primary_contact" />
+                        <filter type="or">
+                          <condition attribute="ccof_userid" operator="eq" value="{userId}" />
+                          <condition attribute="ccof_username" operator="eq" value="{userName}" />
+                        </filter>
+                        <link-entity name="ofm_bceid_facility" from="ofm_bceid" to="contactid" link-type="outer" alias="Permission">
+                          <attribute name="ofm_bceid" />
+                          <attribute name="ofm_facility" />
+                          <attribute name="ofm_name" />
+                          <attribute name="ofm_portal_access" />
+                          <attribute name="ofm_bceid_facilityid" />
                           <attribute name="statecode" />
                           <attribute name="statuscode" />
-                        </link-entity>
-                        <link-entity name="contact" from="contactid" to="ofm_bceid" link-type="inner" alias="BCeID">
-                          <attribute name="ccof_userid" />
-                          <attribute name="ccof_username" />
-                          <attribute name="contactid" />
-                          <attribute name="emailaddress1" />
-                          <attribute name="ofm_first_name" />
-                          <attribute name="ofm_last_name" />
-                          <filter type="or">
-                              <condition attribute="ccof_userid" operator="eq" value="{userId}" />
-                              <condition attribute="ccof_username" operator="eq" value="{userName}" />
-                          </filter>
-                          <link-entity name="account" from="accountid" to="parentcustomerid" link-type="outer" alias="Organization">
+                          <link-entity name="account" from="accountid" to="ofm_facility" link-type="outer" alias="Facility">
                             <attribute name="accountid" />
                             <attribute name="accountnumber" />
                             <attribute name="ccof_accounttype" />
-                            <attribute name="name" />
                             <attribute name="statecode" />
                             <attribute name="statuscode" />
+                            <attribute name="name" />
                           </link-entity>
+                        </link-entity>
+                        <link-entity name="account" from="accountid" to="parentcustomerid" link-type="outer" alias="Organization">
+                          <attribute name="accountid" />
+                          <attribute name="accountnumber" />
+                          <attribute name="ccof_accounttype" />
+                          <attribute name="name" />
+                          <attribute name="statecode" />
+                          <attribute name="statuscode" />
                         </link-entity>
                       </entity>
                     </fetch>
                     """;
 
-        var requestUri = $"ofm_bceid_facilities?$select=ofm_bceid_facilityid,_ofm_facility_value,ofm_name,ofm_portal_access,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name,ccof_accounttype,statecode,statuscode),ofm_bceid($select=ccof_userid,ccof_username,contactid,emailaddress1,ofm_first_name,ofm_last_name;$expand=parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode))&$filter=(ofm_facility/accountid ne null) and (ofm_bceid/ccof_userid eq '{userId}' or ofm_bceid/ccof_username eq '{userName}')";
+        var requestUri = $"contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ccof_userid,ccof_username,contactid,emailaddress1,ofm_is_primary_contact&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode)&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}')";
         var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
 
         var endTime = timeProvider.GetTimestamp();
@@ -93,7 +96,7 @@ public static class ProviderProfilesHandlers
                 logger.LogInformation("ScopeProfile: Response Time: {timer.ElapsedMilliseconds}", timeProvider.GetElapsedTime(startTime, endTime));
             }
 
-            var serializedProfile = JsonSerializer.Deserialize<IEnumerable<BCeIDFacility>>(d365Result!.ToString());
+            var serializedProfile = JsonSerializer.Deserialize<IEnumerable<D365Contact>>(d365Result!.ToString());
 
             BusinessBCeID portalProfile = new();
             portalProfile.MapBusinessBCeIDFacilityPermissions(serializedProfile!);
