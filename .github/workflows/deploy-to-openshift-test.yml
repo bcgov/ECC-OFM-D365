@@ -1,5 +1,5 @@
-# OFM Dynamnics 365 DEV workflow
-name: 1 DEV - Deploy Dynamics API
+# OFM Backend TEST workflow
+name: 2 TEST - Deploy Dynamics API
 
 env:
   # 🖊️ EDIT your repository secrets to log into your OpenShift cluster and set up the context.
@@ -18,35 +18,34 @@ env:
   IMAGE_REGISTRY_USER: ${{ github.actor }}
   IMAGE_REGISTRY_PASSWORD: ${{ github.token }}
 
-  DOCKER_ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca/docker-remote
-  ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
-
   APP_NAME: 'ofm'
   REPO_NAME: 'ecc-ofm-d365'
+  #grabs the branch name from github dynamically
   BRANCH: ${{ github.ref_name }}
-  IMAGE_NAME: 'ecc-ofm-d365api'
   APP_NAME_BACKEND: 'd365api'
 
   NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}
-  #NAMESPACE_TOOLS: ${{ secrets.OFM_NAMESPACE_NO_ENV }}-tools
-  #COMMON_NAMESPACE: ${{ secrets.COMMON_NAMESPACE_NO_ENV }}
-  TAG: 'latest'
 
   MIN_REPLICAS: '1'
-  MAX_REPLICAS: '1'
+  MAX_REPLICAS: '3'
   MIN_CPU: '50m'
-  MAX_CPU: '100m'
+  MAX_CPU: '250m'
   MIN_MEM: '200Mi'
-  MAX_MEM: '250Mi'
+  MAX_MEM: '700Mi'
+  # SITE_URL should have no scheme or port. It will be prepended with https://
+  HOST_ROUTE: ${{ secrets.SITE_URL }}
+  CA_CERT: ${{ secrets.CA_CERT }}
+  CERTIFICATE: ${{ secrets.CERTIFICATE }}
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
 on:
   workflow_dispatch:
 
 jobs:
   openshift-ci-cd:
-    name: Build and deploy Backend to DEV
-    runs-on: ubuntu-20.04
-    environment: dev
+    name: Deploy Backend to TEST
+    runs-on: ubuntu-latest
+    environment: test
 
     outputs:
       ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
@@ -60,8 +59,6 @@ jobs:
             const secrets = {
               OPENSHIFT_SERVER: `${{ secrets.OPENSHIFT_SERVER }}`,
               OPENSHIFT_TOKEN: `${{ secrets.OPENSHIFT_TOKEN }}`,
-              DOCKER_HUB_USERNAME: `${{ secrets.DOCKER_HUB_USERNAME }}`,
-              DOCKER_HUB_ACCESS_TOKEN: `${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}`,
             };
 
             const GHCR = "ghcr.io";
@@ -93,50 +90,20 @@ jobs:
               core.info(`✅ All the required secrets are set`);
             }
 
-      - name: Check out repository
+      - name: Check out repository with branch [${{ env.BRANCH }}]
         uses: actions/checkout@v2
         with:
           ref: ${{ env.BRANCH }}
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          registry: ${{ env.DOCKER_ARTIFACTORY_REPO }}
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Build Dynamics from Dockerfile
-        id: build-image-backend
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.IMAGE_NAME }}
-          tags: 'latest'
-
-          # If you don't have a Dockerfile/Containerfile, refer to https://github.com/redhat-actions/buildah-build#scratch-build-inputs
-          # Or, perform a source-to-image build using https://github.com/redhat-actions/s2i-build
-          # Otherwise, point this to your Dockerfile/Containerfile relative to the repository root.
-          dockerfiles: |
-            ./Dockerfile
-          context: ./
-
-        # https://github.com/redhat-actions/push-to-registry#readme
-      - name: Push Dynamics API to registry
-        id: push-image-backend
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image-backend.outputs.image }}
-          tags: ${{ steps.build-image-backend.outputs.tags }}
-          registry: ${{ env.IMAGE_REGISTRY }}
-          username: ${{ env.IMAGE_REGISTRY_USER }}
-          password: ${{ env.IMAGE_REGISTRY_PASSWORD }}
+      - name: Get latest tag
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
 
       - name: Install oc
         uses: redhat-actions/openshift-tools-installer@v1
         with:
           oc: 4
 
-        # https://github.com/redhat-actions/oc-login#readme
-      #    - uses: actions/checkout@v2
       - name: Deploy
         run: |
           set -eux
@@ -147,21 +114,27 @@ jobs:
           oc rollout cancel dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }} 2> /dev/null \
           || true && echo "No rollout in progress"
 
-          # Create the image stream if it doesn't exist
-          oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
-
-          oc tag ${{ steps.push-image-backend.outputs.registry-path }} ${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          # Create tag for TEST env from DEV env image
+          # oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }} ${{ env.NAMESPACE }}-test/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.BRANCH }}:${{ steps.get-latest-tag.outputs.tag }}
 
           # Process and apply deployment template
           oc process -f tools/openshift/d365api.dc.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} \
-          -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ env.TAG }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
+          -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ steps.get-latest-tag.outputs.tag }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
           -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
-          -p ENVIRONMENT=dev \
+          -p ENVIRONMENT=test \
           | oc apply -f -
+
+          # Process update-configmap
+          # curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh | bash /dev/stdin test ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.SPLUNK_TOKEN }}
 
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }} 2> /dev/null \
           || true && echo "Rollout in progress"
 
           # Get status, returns 0 if rollout is successful
-          oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-dev
+          oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-test
+
+      # - name: ZAP Scan
+      #   uses: zaproxy/action-full-scan@v0.3.0
+      #   with:
+      #     target: 'https://${{ env.HOST_ROUTE }}/api'
