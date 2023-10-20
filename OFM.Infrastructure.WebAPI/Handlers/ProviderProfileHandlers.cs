@@ -22,9 +22,10 @@ public static class ProviderProfilesHandlers
         ID365AppUserService appUserService,
         TimeProvider timeProvider,
         ILogger<string> logger,
-        string userId)
+        string? userId,
+        string? userName)
     {
-        if (string.IsNullOrEmpty(userId)) return TypedResults.BadRequest("Invalid Request");
+        if (string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(userName)) return TypedResults.BadRequest("A UserId or a UserName is required.");
 
         var startTime = timeProvider.GetTimestamp();
 
@@ -54,8 +55,9 @@ public static class ProviderProfilesHandlers
                           <attribute name="emailaddress1" />
                           <attribute name="ofm_first_name" />
                           <attribute name="ofm_last_name" />
-                          <filter>
-                            <condition attribute="ccof_userid" operator="eq" value="" />
+                          <filter type="or">
+                              <condition attribute="ccof_userid" operator="eq" value="{userId}" />
+                              <condition attribute="ccof_username" operator="eq" value="{userName}" />
                           </filter>
                           <link-entity name="account" from="accountid" to="parentcustomerid" link-type="outer" alias="Organization">
                             <attribute name="accountid" />
@@ -70,8 +72,7 @@ public static class ProviderProfilesHandlers
                     </fetch>
                     """;
 
-        var requestUri = $"ofm_bceid_facilities?$select=ofm_bceid_facilityid,_ofm_facility_value,ofm_name,ofm_portal_access,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name,ccof_accounttype,statecode,statuscode),ofm_bceid($select=ccof_userid,ccof_username,contactid,emailaddress1,ofm_first_name,ofm_last_name,ofm_portal_role;$expand=parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode))&$filter=(ofm_facility/accountid%20ne%20null)%20and%20(ofm_bceid/ccof_userid%20eq%20%27{userId}%27)";
-
+        var requestUri = $"ofm_bceid_facilities?$select=ofm_bceid_facilityid,_ofm_facility_value,ofm_name,ofm_portal_access,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name,ccof_accounttype,statecode,statuscode),ofm_bceid($select=ccof_userid,ccof_username,contactid,emailaddress1,ofm_first_name,ofm_last_name;$expand=parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode))&$filter=(ofm_facility/accountid ne null) and (ofm_bceid/ccof_userid eq '{userId}' or ofm_bceid/ccof_username eq '{userName}')";
         var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
 
         var endTime = timeProvider.GetTimestamp();
@@ -83,7 +84,7 @@ public static class ProviderProfilesHandlers
             JsonNode d365Result = string.Empty;
             if (jsonDom?.TryGetPropertyValue("value", out var currentValue) == true)
             {
-                if (currentValue?.AsArray().Count == 0) { return TypedResults.NotFound($"User not found: {userId}"); }
+                if (currentValue?.AsArray().Count == 0) { return TypedResults.NotFound($"User not found."); }
                 d365Result = currentValue!;
             }
 
