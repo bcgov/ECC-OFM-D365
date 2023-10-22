@@ -5,11 +5,12 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
-#region BCeID Json objects for Portal
+#region Contact-related objects for Portal
 
 public record FacilityPermission
 {
-    public bool ofm_portal_access { get; set; }
+    public required string ofm_bceid_facilityid { get; set; }
+    public bool? ofm_portal_access { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
     public required Facility facility { get; set; }
@@ -35,7 +36,7 @@ public record Organization
     public int statuscode { get; set; }
 }
 
-public class BusinessBCeID
+public class ProviderProfile
 {
     public string? contactid { get; set; }
     public string? ccof_userid { get; set; }
@@ -48,9 +49,10 @@ public class BusinessBCeID
     public bool? ofm_is_primary_contact { get; set; }
     public IList<FacilityPermission>? facility_permission { get; set; }
 
-    public void MapBusinessBCeIDFacilityPermissions(IEnumerable<D365Contact> contacts)
+    public void MapProviderProfile(IEnumerable<D365Contact> contacts)
     {
         ArgumentNullException.ThrowIfNull(contacts);
+
         if (contacts.Count() == 0) throw new ArgumentException($"Must have at least one facility permission! {nameof(D365Contact)}");
 
         var facilityPermissions = new List<FacilityPermission>();
@@ -67,7 +69,7 @@ public class BusinessBCeID
 
         organization = new Organization
         {
-            accountid = firstContact.parentcustomerid_account.accountid,
+            accountid = firstContact!.parentcustomerid_account!.accountid!,
             accountnumber = firstContact.parentcustomerid_account.accountnumber,
             name = firstContact.parentcustomerid_account.name,
             ccof_accounttype = firstContact.parentcustomerid_account.ccof_accounttype,
@@ -75,17 +77,20 @@ public class BusinessBCeID
             statuscode = firstContact.parentcustomerid_account.statuscode
         };
 
-        for (int i = 0; i < firstContact.ofm_facility_business_bceid.Count(); i++)
+        for (int i = 0; i < firstContact.ofm_facility_business_bceid!.Count(); i++)
         {
             facilityPermissions.Add(new FacilityPermission
             {
+                ofm_bceid_facilityid = firstContact.ofm_facility_business_bceid![i].ofm_bceid_facilityid!,
                 facility = new Facility
                 {
-                    accountid = firstContact.ofm_facility_business_bceid[i].ofm_facility.accountid,
-                    accountnumber = firstContact.ofm_facility_business_bceid[i].ofm_facility.accountnumber,
-                    name = firstContact.ofm_facility_business_bceid[i].ofm_facility.name,
+                    accountid = firstContact.ofm_facility_business_bceid[i].ofm_facility!.accountid!,
+                    accountnumber = firstContact.ofm_facility_business_bceid[i].ofm_facility?.accountnumber,
+                    name = firstContact.ofm_facility_business_bceid[i].ofm_facility?.name,
                 },
-                ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access
+                ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
+                statecode = firstContact.ofm_facility_business_bceid[i].statecode,
+                statuscode = firstContact.ofm_facility_business_bceid[i].statuscode
             });
 
         }
@@ -96,54 +101,53 @@ public class BusinessBCeID
 }
     #endregion
 
-    #region Temp BCeID related objects for serialization
-
+#region Temp Contact-related objects for serialization
 
     public class D365Contact
     {
-        public string odataetag { get; set; }
-        public string ofm_first_name { get; set; }
-        public string ofm_last_name { get; set; }
-        public string ofm_portal_role { get; set; }
-        public string ccof_userid { get; set; }
-        public string ccof_username { get; set; }
-        public string contactid { get; set; }
-        public string emailaddress1 { get; set; }
+        public string? odataetag { get; set; }
+        public string? ofm_first_name { get; set; }
+        public string? ofm_last_name { get; set; }
+        public string? ofm_portal_role { get; set; }
+        public string? ccof_userid { get; set; }
+        public string? ccof_username { get; set; }
+        public string? contactid { get; set; }
+        public string? emailaddress1 { get; set; }
         public bool? ofm_is_primary_contact {  get; set; }
-        public Ofm_Facility_Business_Bceid[] ofm_facility_business_bceid { get; set; }
-        public Parentcustomerid_Account parentcustomerid_account { get; set; }
+        public Ofm_Facility_Business_Bceid[]? ofm_facility_business_bceid { get; set; }
+        public Parentcustomerid_Account? parentcustomerid_account { get; set; }
     }
 
-    public class Parentcustomerid_Account
+    public record Parentcustomerid_Account
     {
-        public string accountid { get; set; }
-        public string accountnumber { get; set; }
+        public string? accountid { get; set; }
+        public string? accountnumber { get; set; }
         public int ccof_accounttype { get; set; }
-        public string name { get; set; }
+        public string? name { get; set; }
         public int statecode { get; set; }
         public int statuscode { get; set; }
     }
 
-    public class Ofm_Facility_Business_Bceid
+    public record Ofm_Facility_Business_Bceid
     {
-        public string _ofm_bceid_value { get; set; }
-        public string _ofm_facility_value { get; set; }
-        public string ofm_name { get; set; }
-        public bool ofm_portal_access { get; set; }
-        public string ofm_bceid_facilityid { get; set; }
+        public string? _ofm_bceid_value { get; set; }
+        public string? _ofm_facility_value { get; set; }
+        public string? ofm_name { get; set; }
+        public bool? ofm_portal_access { get; set; }
+        public string? ofm_bceid_facilityid { get; set; }
         public int statecode { get; set; }
         public int statuscode { get; set; }
-        public Ofm_Facility ofm_facility { get; set; }
+        public Ofm_Facility? ofm_facility { get; set; }
     }
 
-    public class Ofm_Facility
+    public record Ofm_Facility
     {
-        public string accountid { get; set; }
-        public string accountnumber { get; set; }
+        public string? accountid { get; set; }
+        public string? accountnumber { get; set; }
         public int? ccof_accounttype { get; set; }
         public int statecode { get; set; }
         public int statuscode { get; set; }
-        public string name { get; set; }
+        public string? name { get; set; }
     }
 
 #endregion

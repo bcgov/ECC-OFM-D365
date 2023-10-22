@@ -17,7 +17,7 @@ namespace OFM.Infrastructure.WebAPI.Handlers;
 
 public static class ProviderProfilesHandlers
 {
-    public static async Task<Results<BadRequest<string>, NotFound<string>, ProblemHttpResult, Ok<BusinessBCeID>>> GetProfileAsync(
+    public static async Task<Results<BadRequest<string>, NotFound<string>, ProblemHttpResult, Ok<ProviderProfile>>> GetProfileAsync(
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
         TimeProvider timeProvider,
@@ -25,14 +25,14 @@ public static class ProviderProfilesHandlers
         string? userId,
         string? userName)
     {
-        if (string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(userName)) return TypedResults.BadRequest("A UserId or a UserName is required.");
+        if (string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(userName)) return TypedResults.BadRequest("A userId or a userName is required.");
 
         var startTime = timeProvider.GetTimestamp();
 
-        // For refrence only
+        // For Reference Only
         var fetchXml = $"""
                     <?xml version="1.0" encoding="utf-16"?>
-                    <fetch version="1.0" mapping="logical" distinct="true" no-lock="false">
+                    <fetch version="1.0" mapping="logical" distinct="true" no-lock="true">
                       <entity name="contact">
                         <attribute name="ofm_first_name" />
                         <attribute name="ofm_last_name" />
@@ -43,8 +43,11 @@ public static class ProviderProfilesHandlers
                         <attribute name="emailaddress1" />
                         <attribute name="ofm_is_primary_contact" />
                         <filter type="or">
-                          <condition attribute="ccof_userid" operator="eq" value="{userId}" />
-                          <condition attribute="ccof_username" operator="eq" value="{userName}" />
+                          <condition attribute="ccof_userid" operator="eq" value="" />
+                          <condition attribute="ccof_username" operator="eq" value="" />
+                        </filter>
+                        <filter type="and">
+                          <condition attribute="statuscode" operator="eq" value="1" />
                         </filter>
                         <link-entity name="ofm_bceid_facility" from="ofm_bceid" to="contactid" link-type="outer" alias="Permission">
                           <attribute name="ofm_bceid" />
@@ -54,6 +57,9 @@ public static class ProviderProfilesHandlers
                           <attribute name="ofm_bceid_facilityid" />
                           <attribute name="statecode" />
                           <attribute name="statuscode" />
+                          <filter>
+                            <condition attribute="statuscode" operator="eq" value="1" />
+                          </filter>
                           <link-entity name="account" from="accountid" to="ofm_facility" link-type="outer" alias="Facility">
                             <attribute name="accountid" />
                             <attribute name="accountnumber" />
@@ -61,6 +67,9 @@ public static class ProviderProfilesHandlers
                             <attribute name="statecode" />
                             <attribute name="statuscode" />
                             <attribute name="name" />
+                            <filter>
+                              <condition attribute="statuscode" operator="eq" value="1" />
+                            </filter>
                           </link-entity>
                         </link-entity>
                         <link-entity name="account" from="accountid" to="parentcustomerid" link-type="outer" alias="Organization">
@@ -70,12 +79,17 @@ public static class ProviderProfilesHandlers
                           <attribute name="name" />
                           <attribute name="statecode" />
                           <attribute name="statuscode" />
+                          <filter>
+                            <condition attribute="statuscode" operator="eq" value="1" />
+                          </filter>
                         </link-entity>
                       </entity>
                     </fetch>
                     """;
 
-        var requestUri = $"contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ccof_userid,ccof_username,contactid,emailaddress1,ofm_is_primary_contact&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode)&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}')";
+        var requestUri = $"""
+                         contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ccof_userid,ccof_username,contactid,emailaddress1,ofm_is_primary_contact&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name;$filter=(statuscode eq 1));$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode;$filter=(statuscode eq 1))&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1)
+                         """;
         var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
 
         var endTime = timeProvider.GetTimestamp();
@@ -84,6 +98,8 @@ public static class ProviderProfilesHandlers
         {
             var jsonDom = await response.Content.ReadFromJsonAsync<JsonObject>();
 
+            #region Validation
+
             JsonNode d365Result = string.Empty;
             if (jsonDom?.TryGetPropertyValue("value", out var currentValue) == true)
             {
@@ -91,21 +107,37 @@ public static class ProviderProfilesHandlers
                 d365Result = currentValue!;
             }
 
+            var serializedProfile = JsonSerializer.Deserialize<IEnumerable<D365Contact>>(d365Result!.ToString());
+
+            if (serializedProfile!.First().parentcustomerid_account is null ||
+                serializedProfile!.First().ofm_facility_business_bceid is null)
+                return TypedResults.NotFound($"No profile found.");
+
+            if (serializedProfile!.First().ofm_facility_business_bceid!.Count() == 0)
+                return TypedResults.NotFound($"No permissions.");
+
+            #endregion
+
+            #region Logging
+
             using (logger.BeginScope("ScopeProfile: {userId}", userId))
             {
                 logger.LogInformation("ScopeProfile: Response Time: {timer.ElapsedMilliseconds}", timeProvider.GetElapsedTime(startTime, endTime));
             }
 
-            var serializedProfile = JsonSerializer.Deserialize<IEnumerable<D365Contact>>(d365Result!.ToString());
+            #endregion
 
-            BusinessBCeID portalProfile = new();
-            portalProfile.MapBusinessBCeIDFacilityPermissions(serializedProfile!);
+            ProviderProfile portalProfile = new();
+            portalProfile.MapProviderProfile(serializedProfile!);
 
             return TypedResults.Ok(portalProfile);
         }
         else
         {
             var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+
+            #region Logging
+
             var traceId = "";
             if (problemDetails?.Extensions.TryGetValue("traceId", out var currentValue) == true)
                 traceId = currentValue?.ToString();
@@ -114,8 +146,10 @@ public static class ProviderProfilesHandlers
             {
                 logger.LogWarning("API Failure: Failed to Retrieve profile: {userName}. Response: {response}. TraceId: {traceId}. " +
                     "Finished in {timer.ElapsedMilliseconds} miliseconds.", userId, response, traceId, timeProvider.GetElapsedTime(startTime, endTime));
-                return TypedResults.Problem($"Failed to Retrieve profile: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
             }
+            #endregion
+
+            return TypedResults.Problem($"Failed to Retrieve profile: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
         }
     }
 }
