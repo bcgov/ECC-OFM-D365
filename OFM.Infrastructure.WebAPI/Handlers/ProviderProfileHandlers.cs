@@ -113,7 +113,7 @@ public static class ProviderProfilesHandlers
                 serializedProfile!.First().ofm_facility_business_bceid is null)
                 return TypedResults.NotFound($"No profile found.");
 
-            if (serializedProfile!.First().ofm_facility_business_bceid!.Count() == 0)
+            if (serializedProfile!.First().ofm_facility_business_bceid!.Length == 0)
                 return TypedResults.NotFound($"No permissions.");
 
             #endregion
