@@ -63,6 +63,7 @@ public static class OperationsHandlers
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
         ILogger<string> logger,
+        string userId,
         string statement,
         [FromBody] dynamic jsonBody)
     {
@@ -107,6 +108,7 @@ public static class OperationsHandlers
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
         ILogger<string> logger,
+        string userId,
         string statement,
         [FromBody] dynamic jsonBody)
     {
@@ -130,6 +132,7 @@ public static class OperationsHandlers
        ID365WebApiService d365WebApiService,
        ID365AppUserService appUserService,
        ILogger<string> logger,
+       string userId,
        string statement,
        [FromBody] dynamic jsonBody)
     {
@@ -153,6 +156,7 @@ public static class OperationsHandlers
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
         ILogger<string> logger,
+        string userId,
         string statement = "contacts(00000000-0000-0000-0000-000000000000)")
     {
         var response = await d365WebApiService.SendDeleteRequestAsync(appUserService.AZPortalAppUser, statement);
