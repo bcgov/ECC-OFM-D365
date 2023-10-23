@@ -13,14 +13,14 @@ OFM.Common = OFM.Common || { GLOBAL_FORM_CONTEXT: null };
  * @param {any} filterFetch Optional: filtering FetchXML for the lookup
  */
 OFM.Common.DefaultLookupIfSingle = function (formContext, fieldName, entityLogicalName, entityIdField, entityDisplayField, filterFetch) {
-   
+
     //Get Default View for lookup
     var defaultView = formContext.getControl(fieldName).getDefaultView();
 
     //Get Fetch XML for the View
     Xrm.WebApi.retrieveRecord("savedquery", defaultView, "?$select=fetchxml").then(
         function success(result) {
- 
+
             var fetchXML = result.fetchxml;
 
             if (filterFetch !== null && filterFetch.length > 0) {
@@ -29,8 +29,8 @@ OFM.Common.DefaultLookupIfSingle = function (formContext, fieldName, entityLogic
             }
 
             //Now retrieve records from Fetch
-            Xrm.WebApi.retrieveMultipleRecords(entityLogicalName, "?fetchXml=" +fetchXML).then(
-                function success(result) { 
+            Xrm.WebApi.retrieveMultipleRecords(entityLogicalName, "?fetchXml=" + fetchXML).then(
+                function success(result) {
 
                     if (result.entities.length === 1) {
                         //only 1 result, so populate dropdown with it
@@ -38,7 +38,7 @@ OFM.Common.DefaultLookupIfSingle = function (formContext, fieldName, entityLogic
                         var recordId = singleRecord[entityIdField];
                         var recordValue = singleRecord[entityDisplayField];
 
-                        formContext.getAttribute(fieldName).setValue([{ id: recordId, name: recordValue, entityType: entityLogicalName}]);
+                        formContext.getAttribute(fieldName).setValue([{ id: recordId, name: recordValue, entityType: entityLogicalName }]);
                     }
                     else {
                         //blank out lookup
@@ -47,7 +47,7 @@ OFM.Common.DefaultLookupIfSingle = function (formContext, fieldName, entityLogic
                 },
                 function (error) {
                 }
-       
+
             );
 
         },
@@ -56,4 +56,11 @@ OFM.Common.DefaultLookupIfSingle = function (formContext, fieldName, entityLogic
             // handle error conditions
         }
     );
+}
+
+OFM.Common.FilterLookup = function (formContext, lookupField, filterFetch) {
+
+    formContext.getControl(lookupField).addPreSearch(function () {
+        formContext.getControl(lookupField).addCustomFilter(filterFetch);
+    });
 }

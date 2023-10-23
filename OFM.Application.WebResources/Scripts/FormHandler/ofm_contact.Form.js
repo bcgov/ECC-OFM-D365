@@ -33,5 +33,14 @@ OFM.Contact.Form = {
 
     getTypeOfForm: function () {
 
+    },
+
+    //Filter Organization lookup to show only active organizations (Account type = Organization)
+    filterOrganizationLookup: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        formContext.getControl("parentcustomerid").setEntityTypes(["account"]);
+        var fetchXmlFilter = "<filter type='and'><condition attribute='ccof_accounttype' operator='eq' value='100000000' /></filter>";
+        OFM.Common.FilterLookup(formContext, "parentcustomerid", fetchXmlFilter);
     }
 };
