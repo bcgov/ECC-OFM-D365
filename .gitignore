@@ -397,3 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /OFM.Infrastructure.WebAPI/appsettings.Development.json
+/ECC.Core.DataContext/builderSettings.json

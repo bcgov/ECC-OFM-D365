@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f2ebb8b7-10b2-449d-9218-e10d23c3611c</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>ECC.Core.DataContext</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DataverseContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Entities\Entities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EntityOptionSetEnum.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OptionSets\OptionSets.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)generatorSettings.xml" />
+  </ItemGroup>
+</Project>
