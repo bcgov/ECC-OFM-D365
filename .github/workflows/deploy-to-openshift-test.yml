@@ -128,7 +128,7 @@ jobs:
           # curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh | bash /dev/stdin test ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.SPLUNK_TOKEN }}
 
           # Start rollout (if necessary) and follow it
-          oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }} 2> /dev/null \
+          oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-test 2> /dev/null \
           || true && echo "Rollout in progress"
 
           # Get status, returns 0 if rollout is successful

@@ -160,7 +160,7 @@ jobs:
           | oc apply -f -
 
           # Start rollout (if necessary) and follow it
-          oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }} 2> /dev/null \
+          oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-dev 2> /dev/null \
           || true && echo "Rollout in progress"
 
           # Get status, returns 0 if rollout is successful
