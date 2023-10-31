@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
 public enum BatchMethodName { GET, POST, PATCH, DELETE }
-public enum D365RequestType { Search, Batch, CRUD }
+public enum D365ServiceType { Search, Batch, CRUD }
 
 public static class CommonInfo
 {

@@ -27,22 +27,21 @@ public static class EndpointRouteBuilderExtensions
 
     public static void RegisterOperationsEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
-        var myEndpoints = endpointRouteBuilder.MapGroup("/api/operations");
+        var operationsEndpoints = endpointRouteBuilder.MapGroup("/api/operations");
 
-        myEndpoints.MapGet("", OperationsHandlers.GetAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
-        myEndpoints.MapPost("", OperationsHandlers.PostAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
-        myEndpoints.MapPatch("", OperationsHandlers.PatchAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
-        myEndpoints.MapPut("", OperationsHandlers.PutAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
-        myEndpoints.MapDelete("", OperationsHandlers.DeleteAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
+        operationsEndpoints.MapGet("", OperationsHandlers.GetAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
+        operationsEndpoints.MapPost("", OperationsHandlers.PostAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
+        operationsEndpoints.MapPatch("", OperationsHandlers.PatchAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
+        operationsEndpoints.MapDelete("", OperationsHandlers.DeleteAsync).WithTags("Operations").Produces(200).ProducesProblem(404);
     }
 
     public static void RegisterDocumentsEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
-        var myEndpoints = endpointRouteBuilder.MapGroup("/api/documents");
+        var documentsEndpoints = endpointRouteBuilder.MapGroup("/api/documents");
 
-        myEndpoints.MapGet("", DocumentsHandlers.GetAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
-        myEndpoints.MapPost("", DocumentsHandlers.PostAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
-        myEndpoints.MapDelete("", DocumentsHandlers.DeleteAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
+        documentsEndpoints.MapGet("", DocumentsHandlers.GetAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
+        documentsEndpoints.MapPost("", DocumentsHandlers.PostAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
+        documentsEndpoints.MapDelete("", DocumentsHandlers.DeleteAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
     }
 
     public static void RegisterBatchOperationsEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)

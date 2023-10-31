@@ -5,5 +5,5 @@ namespace OFM.Infrastructure.WebAPI.Services.D365WebApi;
 
 public interface ID365AuthenticationService
 {
-    Task<HttpClient> GetHttpClientAsync(D365RequestType type, AZAppUser spn);
+    Task<HttpClient> GetHttpClientAsync(D365ServiceType type, AZAppUser spn);
 }

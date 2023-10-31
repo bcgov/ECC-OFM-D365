@@ -14,14 +14,14 @@ public class D365WebAPIService : ID365WebApiService
         _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
     }
 
-    public async Task<HttpResponseMessage> SendRetrieveRequestAsync(AZAppUser spn, string requestUrl, bool formatted = false, int pageSize = 50)
+    public async Task<HttpResponseMessage> SendRetrieveRequestAsync(AZAppUser spn, string requestUri, bool formatted = false, int pageSize = 50)
     {
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
         request.Headers.Add("Prefer", "odata.maxpagesize=" + pageSize.ToString());
         if (formatted)
             request.Headers.Add("Prefer", "odata.include-annotations=OData.Community.Display.V1.FormattedValue");
 
-        var client = await _authenticationService.GetHttpClientAsync(D365RequestType.CRUD, spn);
+        var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 
         return await client.SendAsync(request);
     }
@@ -33,32 +33,23 @@ public class D365WebAPIService : ID365WebApiService
             Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
         };
 
-        var client = await _authenticationService.GetHttpClientAsync(D365RequestType.CRUD, spn);
+        var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 
         return await client.SendAsync(message);
     }
 
-    public async Task<HttpResponseMessage> SendPatchRequestAsync(AZAppUser spn, string requestUrl, string body)
+    public async Task<HttpResponseMessage> SendPatchRequestAsync(AZAppUser spn, string requestUri, string body)
     {
-        var message = new HttpRequestMessage(HttpMethod.Patch, requestUrl);
+        var message = new HttpRequestMessage(HttpMethod.Patch, requestUri);
         message.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
-        var client = await _authenticationService.GetHttpClientAsync(D365RequestType.CRUD, spn);
-        return await client.SendAsync(message);
-    }
-
-    public async Task<HttpResponseMessage> SendPutRequestAsync(AZAppUser spn, string requestUrl, string content)
-    {
-        var message = new HttpRequestMessage(HttpMethod.Put, requestUrl);
-        message.Content = new StringContent(content, Encoding.UTF8, "application/json");
-
-        var client = await _authenticationService.GetHttpClientAsync(D365RequestType.CRUD, spn);
+        var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
         return await client.SendAsync(message);
     }
     
     public async Task<HttpResponseMessage> SendDeleteRequestAsync(AZAppUser spn, string requestUri)
     {
-        var client = await _authenticationService.GetHttpClientAsync(D365RequestType.CRUD, spn);
+        var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 
         return await client.DeleteAsync(requestUri);
     }
@@ -71,7 +62,7 @@ public class D365WebAPIService : ID365WebApiService
             Method = HttpMethod.Post
         };
 
-        var client = await _authenticationService.GetHttpClientAsync(D365RequestType.Search, spn);
+        var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.Search, spn);
 
         return await client.SendAsync(message);
     }
@@ -88,7 +79,7 @@ public class D365WebAPIService : ID365WebApiService
         if (callerObjectId != null)
             request.Headers.Add("CallerObjectId", callerObjectId.ToString());
 
-        var client = await _authenticationService.GetHttpClientAsync(D365RequestType.Batch, spn);
+        var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.Batch, spn);
 
         return await client.SendAsync(request);
     }

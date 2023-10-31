@@ -58,12 +58,11 @@ public static class OperationsHandlers
         }
     }
 
-    public static async Task<Results<ProblemHttpResult, Ok<JsonObject>>> PostAsync(
+    public static async Task<Results<ProblemHttpResult, Ok<string>>> PostAsync(
         HttpContext context,
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
         ILogger<string> logger,
-        string userId,
         string statement,
         [FromBody] dynamic jsonBody)
     {
@@ -73,26 +72,26 @@ public static class OperationsHandlers
             statement = $"{statement}?{filters}";
         }
 
-        var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
+        HttpResponseMessage response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
 
         if (response.IsSuccessStatusCode)
         {
-            var entityUri = response.Headers.GetValues("OData-EntityId")[0];
+            var entityUri = response.Headers.GetValues("OData-EntityId").First();
             string pattern = @"(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}";
             Match m = Regex.Match(entityUri, pattern, RegexOptions.IgnoreCase);
-            var newRecordId = string.Empty;
+            var returnRecordId = string.Empty;
 
             if (m.Success)
             {
-                newRecordId = m.Value;
-                var result = await response.Content.ReadFromJsonAsync<JsonObject>();
-
+                returnRecordId = m.Value;
                 logger.LogInformation("[Statement: {statement}]", statement);
-                return TypedResults.Ok(result);
+
+                return TypedResults.Ok(returnRecordId ?? "");
             }
             else
             {
                 logger.LogError("Failed to Create record. Query: {statement}", statement);
+ 
                 return TypedResults.Problem($"Unable to create record at this time: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
             }
         }
@@ -104,11 +103,10 @@ public static class OperationsHandlers
         }
     }
 
-    public static async Task<Results<ProblemHttpResult, Ok<JsonObject>>> PatchAsync(
+    public static async Task<Results<ProblemHttpResult, NoContent>> PatchAsync(
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
         ILogger<string> logger,
-        string userId,
         string statement,
         [FromBody] dynamic jsonBody)
     {
@@ -116,38 +114,15 @@ public static class OperationsHandlers
 
         if (response.IsSuccessStatusCode)
         {
-            var result = await response.Content.ReadFromJsonAsync<JsonObject>();
             logger.LogInformation("[Statement: {statement}]", statement);
-            return TypedResults.Ok(result);
+
+            return TypedResults.NoContent();
         }
         else
         {
             string jsonString = jsonBody.ToString();
             logger.LogError("API Failure: Failed to Update record.[Response: {response.ReasonPhrase}].[Statement: {statement}].[jsonBody: {jsonBody}]", response.ReasonPhrase, statement, jsonString);
-            return TypedResults.Problem($"Failed to Update record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
-        }
-    }
-
-    public static async Task<Results<ProblemHttpResult, Ok<JsonObject>>> PutAsync(
-       ID365WebApiService d365WebApiService,
-       ID365AppUserService appUserService,
-       ILogger<string> logger,
-       string userId,
-       string statement,
-       [FromBody] dynamic jsonBody)
-    {
-        HttpResponseMessage response = await d365WebApiService.SendPutRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
-
-        if (response.IsSuccessStatusCode)
-        {
-            var result = await response.Content.ReadFromJsonAsync<JsonObject>();
-            logger.LogInformation("[Statement: {statement}]", statement);
-            return TypedResults.Ok(result);
-        }
-        else
-        {
-            string jsonString = jsonBody.ToString();
-            logger.LogError("API Failure: Failed to Update record.[Response: {response.ReasonPhrase}].[Statement: {statement}].[jsonBody: {jsonBody}]", response.ReasonPhrase, statement, jsonString);
+           
             return TypedResults.Problem($"Failed to Update record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
         }
     }
@@ -156,7 +131,6 @@ public static class OperationsHandlers
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
         ILogger<string> logger,
-        string userId,
         string statement = "contacts(00000000-0000-0000-0000-000000000000)")
     {
         var response = await d365WebApiService.SendDeleteRequestAsync(appUserService.AZPortalAppUser, statement);
