@@ -22,10 +22,10 @@ public static class ProviderProfilesHandlers
         ID365AppUserService appUserService,
         TimeProvider timeProvider,
         ILogger<string> logger,
-        string? userId,
-        string? userName)
+        string userName,
+        string? userId)
     {
-        if (string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(userName)) return TypedResults.BadRequest("A userId or a userName is required.");
+        if (string.IsNullOrEmpty(userName)) return TypedResults.BadRequest("The userName is required.");
 
         var startTime = timeProvider.GetTimestamp();
 
@@ -129,6 +129,22 @@ public static class ProviderProfilesHandlers
 
             ProviderProfile portalProfile = new();
             portalProfile.MapProviderProfile(serializedProfile!);
+
+            if (string.IsNullOrEmpty(portalProfile.ccof_userid) && !string.IsNullOrEmpty(userId))
+            {
+                // Update the contact in Dataverse with the userid
+                var statement = @$"contacts({portalProfile.contactid})";
+                var requestBody = JsonSerializer.Serialize(new { ccof_userid = userId });
+
+                var userResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZPortalAppUser, statement, requestBody);
+                if (!userResponse.IsSuccessStatusCode)
+                {
+                    using (logger.BeginScope($"ScopeProfile: {userId}"))
+                    {
+                        logger.LogError("Failed to update userId for {userName}. Response: {response}.", userName, userResponse);
+                    }
+                }
+            }
 
             return TypedResults.Ok(portalProfile);
         }
