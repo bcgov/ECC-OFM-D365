@@ -58,7 +58,7 @@ public static class OperationsHandlers
         }
     }
 
-    public static async Task<Results<ProblemHttpResult, Ok<string>>> PostAsync(
+    public static async Task<Results<ProblemHttpResult, Ok<JsonObject>>> PostAsync(
         HttpContext context,
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
@@ -74,33 +74,21 @@ public static class OperationsHandlers
 
         HttpResponseMessage response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
 
-        if (response.IsSuccessStatusCode)
-        {
-            var entityUri = response.Headers.GetValues("OData-EntityId").First();
-            string pattern = @"(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}";
-            Match m = Regex.Match(entityUri, pattern, RegexOptions.IgnoreCase);
-            var returnRecordId = string.Empty;
-
-            if (m.Success)
-            {
-                returnRecordId = m.Value;
-                logger.LogInformation("[Statement: {statement}]", statement);
-
-                return TypedResults.Ok(returnRecordId ?? "");
-            }
-            else
-            {
-                logger.LogError("Failed to Create record. Query: {statement}", statement);
- 
-                return TypedResults.Problem($"Unable to create record at this time: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
-            }
-        }
-        else
+        if (!response.IsSuccessStatusCode)
         {
             logger.LogError("Failed to Create record. Query: {statement}", statement);
 
-            return TypedResults.Problem($"Failed to Create record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
+            return TypedResults.Problem($"Failed to Create record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);      
         }
+
+        var result = await response.Content.ReadFromJsonAsync<JsonObject>();
+        if (result != null) {
+            result.Remove("@odata.context");
+            result.Remove("@odata.etag");
+        }
+        logger.LogInformation("[Result: {result}]", result);
+
+        return TypedResults.Ok(result);
     }
 
     public static async Task<Results<ProblemHttpResult, NoContent>> PatchAsync(
@@ -114,6 +102,7 @@ public static class OperationsHandlers
 
         if (response.IsSuccessStatusCode)
         {
+            var temp = response.Content.ReadAsStringAsync();
             logger.LogInformation("[Statement: {statement}]", statement);
 
             return TypedResults.NoContent();

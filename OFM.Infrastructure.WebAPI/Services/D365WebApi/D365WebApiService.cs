@@ -32,6 +32,7 @@ public class D365WebAPIService : ID365WebApiService
         {
             Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
         };
+        message.Headers.Add("Prefer", "return=representation");
 
         var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 
