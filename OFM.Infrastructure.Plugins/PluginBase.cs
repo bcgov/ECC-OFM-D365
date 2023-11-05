@@ -93,9 +93,9 @@ namespace OFM.Infrastructure.Plugins
         IOrganizationService PluginUserService { get; }
 
         /// <summary>
-        /// IPluginExecutionContext contains information that describes the run-time environment in which the plug-in executes, information related to the execution pipeline, and entity business information.
+        /// IPluginExecutionContext4 contains information that describes the run-time environment in which the plug-in executes, information related to the execution pipeline, and entity business information.
         /// </summary>
-        IPluginExecutionContext PluginExecutionContext { get; }
+        IPluginExecutionContext4 PluginExecutionContext { get; }
 
         /// <summary>
         /// Synchronous registered plug-ins can post the execution context to the Microsoft Azure Service Bus. <br/>
@@ -132,7 +132,7 @@ namespace OFM.Infrastructure.Plugins
         Entity Target { get; }
         Entity Current { get; }
         Entity Latest { get; }
-        //Entity PreImage { get; }
+
         void Set(string attribute, object value);
     }
 
@@ -152,9 +152,9 @@ namespace OFM.Infrastructure.Plugins
         public IOrganizationService PluginUserService { get; }
 
         /// <summary>
-        /// IPluginExecutionContext contains information that describes the run-time environment in which the plug-in executes, information related to the execution pipeline, and entity business information.
+        /// IPluginExecutionContext4 contains information that describes the run-time environment in which the plug-in executes, information related to the execution pipeline, and entity business information.
         /// </summary>
-        public IPluginExecutionContext PluginExecutionContext { get; }
+        public IPluginExecutionContext4 PluginExecutionContext { get; }
 
         /// <summary>
         /// Synchronous registered plug-ins can post the execution context to the Microsoft Azure Service Bus. <br/>
@@ -197,7 +197,7 @@ namespace OFM.Infrastructure.Plugins
 
             Logger = serviceProvider.Get<ILogger>();
 
-            PluginExecutionContext = serviceProvider.Get<IPluginExecutionContext>();
+            PluginExecutionContext = serviceProvider.Get<IPluginExecutionContext4>();
 
             TracingService = new LocalTracingService(serviceProvider);
 
@@ -266,22 +266,6 @@ namespace OFM.Infrastructure.Plugins
                 return _latest;
             }
         }
-
-        //private Entity _preImage;
-        //public Entity PreImage
-        //{
-        //    get
-        //    {
-        //        if (_preImage == null)
-        //        {
-        //            if (PluginExecutionContext.PreEntityImages.ContainsKey("Image"))
-        //            {
-        //                _preImage = PluginExecutionContext.PreEntityImages["Image"];
-        //            }
-        //        }
-        //        return _preImage;
-        //    }
-        //}
 
         private Entity GetLatest()
         {

@@ -4,6 +4,7 @@ using Microsoft.Xrm.Sdk.Messages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IdentityModel.Metadata;
 using System.Linq;
 using System.Runtime.Remoting.Services;
 using System.Text;
@@ -29,20 +30,20 @@ namespace OFM.Infrastructure.Plugins.Contact
         {
             if (localPluginContext == null)
             {
-                throw new ArgumentNullException(nameof(localPluginContext));
+                throw new InvalidPluginExecutionException(nameof(localPluginContext), new Dictionary<string, string>() { ["failedRecordId"] = localPluginContext.Target.Id.ToString() });
             }
 
             localPluginContext.Trace("Start GenerateFacilityPremissions Plug-in");
-            localPluginContext.Trace($"localPluginContext.PluginExecutionContext.Stage {localPluginContext.PluginExecutionContext.Stage}");
-  
+            //localPluginContext.Trace($"localPluginContext.PluginExecutionContext.Stage {localPluginContext.PluginExecutionContext.Stage}");
+
             if (localPluginContext.Target.Contains(ECC.Core.DataContext.Contact.Fields.ParentCustomerId))
             {
                 // Getting latest data to get the value
-                var oldOrganization = localPluginContext.Current.GetAttributeValue<EntityReference>(ECC.Core.DataContext.Contact.Fields.ParentCustomerId);
+                //var oldOrganization = localPluginContext.Current.GetAttributeValue<EntityReference>(ECC.Core.DataContext.Contact.Fields.ParentCustomerId);
                 var newOrganization = localPluginContext.Target.GetAttributeValue<EntityReference>(ECC.Core.DataContext.Contact.Fields.ParentCustomerId);
 
-                localPluginContext.Trace($"Old organization {oldOrganization.Id}");
-                localPluginContext.Trace($"New organization {newOrganization.Id}");
+                //localPluginContext.Trace($"Old organization {oldOrganization.Id}");
+                //localPluginContext.Trace($"New organization {newOrganization.Id}");
 
                 using (var crmContext = new DataverseContext(localPluginContext.PluginUserService))
                 {
@@ -63,14 +64,14 @@ namespace OFM.Infrastructure.Plugins.Contact
                             UpdateRequest updateRequest = new UpdateRequest { Target = entity };
                             crmContext.Execute(updateRequest);
 
-                            localPluginContext.Trace($"Facility {record.OfM_Facility.Name} removed from permissions for contact {localPluginContext.Target.Id}");
+                            //localPluginContext.Trace($"Facility {record.OfM_Facility.Name} removed from permissions for contact {localPluginContext.Target.Id}");
                         }
                     });
 
-                    var newFacilities = crmContext.AccountSet.Where(facility => facility.ParentAccountId.Id == newOrganization.Id).ToList();
-                    localPluginContext.Trace($"Total New child facilities count {newFacilities.Count}");
+                    var newFacilityPermissions = crmContext.AccountSet.Where(facility => facility.ParentAccountId.Id == newOrganization.Id).ToList();
+                    localPluginContext.Trace($"Total New child facilities count {newFacilityPermissions.Count}");
 
-                    newFacilities.ForEach(record =>
+                    newFacilityPermissions.ForEach(record =>
                     {
                         if (record.Attributes.Contains(Account.Fields.StatusCode) &&
                             record.GetAttributeValue<OptionSetValue>(Account.Fields.StatusCode).Value == Convert.ToInt32(Account_StatusCode.Active))
@@ -84,7 +85,7 @@ namespace OFM.Infrastructure.Plugins.Contact
                             CreateRequest createRequest = new CreateRequest { Target = entity };
                             crmContext.Execute(createRequest);
 
-                            localPluginContext.Trace($"Facility {record.Id} added to permissions for contact {localPluginContext.Target.Id}");
+                            //localPluginContext.Trace($"Facility {record.Id} added to permissions for contact {localPluginContext.Target.Id}");
                         }
                     });
 
