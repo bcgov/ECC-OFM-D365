@@ -38,7 +38,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ECC.Core.DataContext", "ECC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECC.Core.BusinessRules", "ECC.Core.BusinessRules\ECC.Core.BusinessRules.csproj", "{460BA0E0-A006-4B3A-8DDC-BF59326DDE14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OFM.Infrastructure.CustomWorkflowActivities", "OFM.Infrastructure.CustomWorkflowActivities\OFM.Infrastructure.CustomWorkflowActivities.csproj", "{A6CFE6D2-7ECE-4470-92DE-2BBF72897488}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OFM.Infrastructure.CustomWorkflowActivities", "OFM.Infrastructure.CustomWorkflowActivities\OFM.Infrastructure.CustomWorkflowActivities.csproj", "{A6CFE6D2-7ECE-4470-92DE-2BBF72897488}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OFM.Infrastructure.Plugins", "OFM.Infrastructure.Plugins\OFM.Infrastructure.Plugins.csproj", "{2BF26DE8-F149-487D-BB32-AFC45C19F88D}"
 EndProject
@@ -84,6 +84,8 @@ Global
 		SolutionGuid = {87DC05FC-E203-4CDA-98A2-112CDF347531}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		ECC.Core.DataContext\ECC.Core.DataContext.projitems*{2bf26de8-f149-487d-bb32-afc45c19f88d}*SharedItemsImports = 5
+		ECC.Core.DataContext\ECC.Core.DataContext.projitems*{a6cfe6d2-7ece-4470-92de-2bbf72897488}*SharedItemsImports = 5
 		ECC.Core.DataContext\ECC.Core.DataContext.projitems*{f2ebb8b7-10b2-449d-9218-e10d23c3611c}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

@@ -327,6 +327,26 @@ namespace ECC.Core.DataContext
 		Wholesale = 33,
 	}
 	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum Account_OfM_BusinessType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		LocalGovernment = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		NonProfitSociety = 100000005,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		PublicInstitutionCollegeUniversity = 100000003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		RegisteredCompany = 100000000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		SoleProprietororPartnership = 100000002,
+	}
+	
 	/// <summary>
 	/// Type of company ownership, such as public or private.
 	/// </summary>
@@ -3640,9 +3660,6 @@ namespace ECC.Core.DataContext
 		BookingTimestamp = 10618,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		BusinessBCeID = 2,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Case = 112,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -3665,6 +3682,9 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		ConnectionRole = 3231,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Contact = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		ContactLeads = 22,
@@ -9478,6 +9498,141 @@ namespace ECC.Core.DataContext
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Assistance_Request_OfM_Contact_Method
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Phone = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Portal = 1,
+	}
+	
+	/// <summary>
+	/// Status of the Assistance Request
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Assistance_Request_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Assistance Request
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Assistance_Request_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Assigned = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ClosedCancelled = 6,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ClosedComplete = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ReadytoResolve = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Submitted = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		WithProvider = 3,
+	}
+	
+	/// <summary>
+	/// Status of the BCeID Facility
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_BcEId_Facility_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the BCeID Facility
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_BcEId_Facility_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Conversation
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Conversation_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Conversation
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Conversation_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Facility Request
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Facility_Request_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Facility Request
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Facility_Request_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum OfM_Portal_Role
 	{
 		
@@ -9492,6 +9647,34 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Reporting = 4,
+	}
+	
+	/// <summary>
+	/// Status of the Request Category
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Request_Category_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Request Category
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Request_Category_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
 	}
 	
 	/// <summary>
@@ -9709,6 +9892,9 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		TablePermission = 18,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		UXComponent = 34,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		WebFile = 3,
@@ -11225,6 +11411,333 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Type of user.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_AccessMode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Administrative = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DelegatedAdmin = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Noninteractive = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Read = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ReadWrite = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		SupportUser = 3,
+	}
+	
+	/// <summary>
+	/// Type of address for address 1, such as billing, shipping, or primary address.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_Address1_AddressTypeCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DefaultValue = 1,
+	}
+	
+	/// <summary>
+	/// Method of shipment for address 1.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_Address1_ShippingMethodCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DefaultValue = 1,
+	}
+	
+	/// <summary>
+	/// Type of address for address 2, such as billing, shipping, or primary address.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_Address2_AddressTypeCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DefaultValue = 1,
+	}
+	
+	/// <summary>
+	/// Method of shipment for address 2.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_Address2_ShippingMethodCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DefaultValue = 1,
+	}
+	
+	/// <summary>
+	/// Azure state of user.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_AzureState
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Exists = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Notfoundorharddeleted = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Softdeleted = 1,
+	}
+	
+	/// <summary>
+	/// License type of user. This is used only in the on-premises version of the product. Online licenses are managed through Microsoft 365 Office Portal.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_CalType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Administrative = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Basic = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DeviceBasic = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DeviceEnterprise = 8,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DeviceEssential = 6,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DeviceProfessional = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Enterprise = 7,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Essential = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		FieldService = 11,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Professional = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ProjectService = 12,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Sales = 9,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Service = 10,
+	}
+	
+	/// <summary>
+	/// User delete state.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_DeletedState
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Notdeleted = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Softdeleted = 1,
+	}
+	
+	/// <summary>
+	/// Indicates the approval options for server-side synchronization or Email Router access.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_EmailRouterAccessApproval
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Approved = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Empty = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		PendingApproval = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Rejected = 3,
+	}
+	
+	/// <summary>
+	/// Incoming email delivery method for the user.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_IncomingEmailDeliveryMethod
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ForwardMailbox = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		MicrosoftDynamics365forOutlook = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		None = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ServerSideSynchronizationorEmailRouter = 2,
+	}
+	
+	/// <summary>
+	/// User invitation status.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_InviteStatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InvitationAccepted = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InvitationExpired = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InvitationNearExpired = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InvitationNotSent = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InvitationRejected = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InvitationRevoked = 6,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Invited = 1,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_Msdyn_AgentType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Applicationuser = 192350000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Botapplicationuser = 192350001,
+	}
+	
+	/// <summary>
+	/// Indicates the type of bot
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_Msdyn_BotProvider
+	{
+		
+		/// <summary>
+		/// Indicates that the user is not a bot
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		None = 192350002,
+		
+		/// <summary>
+		/// Other type of bot
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Other = 192350001,
+		
+		/// <summary>
+		/// CCI first party Bot
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		VirtualAgent = 192350000,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_Msdyn_UserType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		BOTUser = 192350001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		CRMUser = 192350000,
+	}
+	
+	/// <summary>
+	/// Outgoing email delivery method for the user.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_OutgoingEmailDeliveryMethod
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		MicrosoftDynamics365forOutlook = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		None = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ServerSideSynchronizationorEmailRouter = 2,
+	}
+	
+	/// <summary>
+	/// Preferred address for the user.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_PreferredAddressCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		MailingAddress = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		OtherAddress = 2,
+	}
+	
+	/// <summary>
+	/// Preferred email address for the user.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_PreferredEmailCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		DefaultValue = 1,
+	}
+	
+	/// <summary>
+	/// Preferred phone number for the user.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SystemUser_PreferredPhoneCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		HomePhone = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		MainPhone = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		MobilePhone = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		OtherPhone = 2,
+	}
+	
+	/// <summary>
 	/// Priority of the task.
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -11282,6 +11795,46 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Waitingonsomeoneelse = 4,
+	}
+	
+	/// <summary>
+	/// Information about team membership type.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum Team_MembershipType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Guests = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Members = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Membersandguests = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Owners = 2,
+	}
+	
+	/// <summary>
+	/// Information about team type.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum Team_TeamType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		AADOfficeGroup = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		AADSecurityGroup = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Access = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Owner = 0,
 	}
 	
 	/// <summary>

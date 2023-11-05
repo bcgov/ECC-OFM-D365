@@ -4,7 +4,6 @@ using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
-using ECC.Core.DataContext;
 
 namespace OFM.Infrastructure.CustomWorkflowActivities.Contact
 {
@@ -20,7 +19,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Contact
             IOrganizationServiceFactory serviceFactory = executionContext.GetExtension<IOrganizationServiceFactory>();
             IOrganizationService service = serviceFactory.CreateOrganizationService(context.InitiatingUserId);
 
-            tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: ValidateProjectRequest", DateTime.Now.ToLongTimeString());
+            tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: ValidateRequest", DateTime.Now.ToLongTimeString());
             var recordId = context.PrimaryEntityId;
             tracingService.Trace("{0}", "Loading data");
 

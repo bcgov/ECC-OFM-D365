@@ -252,6 +252,7 @@ contracttemplate|
 conversationtranscript|
 convertrule|
 convertruleitem|
+crc7e_newtable|
 credential|
 customapi|
 customapirequestparameter|
@@ -343,6 +344,7 @@ flowmachinegroup|
 flowmachineimage|
 flowmachineimageversion|
 flowmachinenetwork|
+flowrun|
 flowsession|
 fxexpression|
 globalsearchconfiguration|
@@ -1227,9 +1229,6 @@ notification|
 officedocument|
 officegraphdocument|
 offlinecommanddefinition|
-ofm_bceid_facility|
-ofm_contact|
-ofm_contact_organization_facility|
 opportunity|
 opportunityclose|
 opportunitycompetitors|
@@ -1458,7 +1457,6 @@ syncattributemappingprofile|
 syncerror|
 systemapplicationmetadata|
 systemform|
-systemuser|
 systemuserauthorizationchangetracker|
 systemuserbusinessunitentitymap|
 systemuserlicenses|
@@ -1468,7 +1466,6 @@ systemuserprofiles|
 systemuserroles|
 systemusersyncmappingprofiles|
 tdsmetadata|
-team|
 teammembership|
 teammobileofflineprofilemembership|
 teamprofiles|
@@ -1531,8 +1528,14 @@ activitypointer|
 businessunit|
 contact|
 email|
+ofm_assistance_request|
+ofm_bceid_facility|
+ofm_conversation|
+ofm_facility_request|
+ofm_request_category|
 systemuser|
 task|
+team|
 transactioncurrency</EntitiesWhitelist>
     <EntityAttributeSpecifiedNames />
     <EntityPrefixesToSkip />

@@ -164,6 +164,10 @@ namespace ECC.Core.DataContext
 			public const string IndustryCode = "industrycode";
 			public const string LastOnHoldTime = "lastonholdtime";
 			public const string LastUsedInCampaign = "lastusedincampaign";
+			public const string Lk_AccountBase_CreatedBy = "lk_accountbase_createdby";
+			public const string Lk_AccountBase_CreatedOnBehalfBy = "lk_accountbase_createdonbehalfby";
+			public const string Lk_AccountBase_ModifiedBy = "lk_accountbase_modifiedby";
+			public const string Lk_AccountBase_ModifiedOnBehalfBy = "lk_accountbase_modifiedonbehalfby";
 			public const string MarketCap = "marketcap";
 			public const string MarketCap_Base = "marketcap_base";
 			public const string MarketingOnly = "marketingonly";
@@ -209,7 +213,11 @@ namespace ECC.Core.DataContext
 			public const string MsFt_DataState = "msft_datastate";
 			public const string Name = "name";
 			public const string NumberOfEmployees = "numberofemployees";
+			public const string OfM_Business_BcEId_Facility = "OfM_Business_BcEId_Facility";
 			public const string OfM_Business_Number = "ofm_business_number";
+			public const string OfM_BusinessType = "ofm_businesstype";
+			public const string OfM_Facility_Request_Facility = "OfM_Facility_Request_Facility";
+			public const string OfM_FirstNationsLead = "ofm_firstnationslead";
 			public const string OfM_Is_Mailing_Address_Different = "ofm_is_mailing_address_different";
 			public const string OnHoldTime = "onholdtime";
 			public const string OpenDeals = "opendeals";
@@ -267,6 +275,8 @@ namespace ECC.Core.DataContext
 			public const string StateCode = "statecode";
 			public const string StatusCode = "statuscode";
 			public const string StockExchange = "stockexchange";
+			public const string System_User_Accounts = "system_user_accounts";
+			public const string Team_Accounts = "team_accounts";
 			public const string TeamsFollowed = "teamsfollowed";
 			public const string Telephone1 = "telephone1";
 			public const string Telephone2 = "telephone2";
@@ -280,6 +290,7 @@ namespace ECC.Core.DataContext
 			public const string TransactionCurrencyId = "transactioncurrencyid";
 			public const string TransactionCurrencyIdName = "transactioncurrencyidname";
 			public const string TraversedPath = "traversedpath";
+			public const string User_Accounts = "user_accounts";
 			public const string UtcConversionTimeZoneCode = "utcconversiontimezonecode";
 			public const string VersionNumber = "versionnumber";
 			public const string WebsiteUrl = "websiteurl";
@@ -2891,6 +2902,36 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_businesstype")]
+		public virtual Account_OfM_BusinessType? OfM_BusinessType
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((Account_OfM_BusinessType?)(EntityOptionSetEnum.GetEnum(this, "ofm_businesstype")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_businesstype", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_firstnationslead")]
+		public System.Nullable<bool> OfM_FirstNationsLead
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("ofm_firstnationslead");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_firstnationslead", value);
+			}
+		}
+		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_is_mailing_address_different")]
 		public System.Nullable<bool> OfM_Is_Mailing_Address_Different
 		{
@@ -3935,6 +3976,42 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// 1:N ofm_business_bceid_facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_business_bceid_facility")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_BcEId_Facility> OfM_Business_BcEId_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("ofm_business_bceid_facility", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("ofm_business_bceid_facility", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N ofm_facility_request_facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_request_facility")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Facility_Request> OfM_Facility_Request_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("ofm_facility_request_facility", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("ofm_facility_request_facility", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// N:1 account_master_account
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("masterid")]
@@ -3987,6 +4064,72 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// N:1 lk_accountbase_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_accountbase_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_AccountBase_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_accountbase_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_accountbase_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_accountbase_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_AccountBase_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_accountbase_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_accountbase_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_accountbase_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_accountbase_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_AccountBase_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_accountbase_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_accountbase_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_accountbase_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_AccountBase_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_accountbase_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_accountbase_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// N:1 msa_account_managingpartner
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msa_managingpartnerid")]
@@ -4021,6 +4164,53 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntity<ECC.Core.DataContext.Account>("msdyn_account_account_BillingAccount", Microsoft.Xrm.Sdk.EntityRole.Referencing, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 system_user_accounts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("preferredsystemuserid")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("system_user_accounts")]
+		public ECC.Core.DataContext.SystemUser System_User_Accounts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("system_user_accounts", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("system_user_accounts", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 team_accounts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_accounts")]
+		public ECC.Core.DataContext.Team Team_Accounts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_accounts", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 user_accounts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_accounts")]
+		public ECC.Core.DataContext.SystemUser User_Accounts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_accounts", null);
 			}
 		}
 		
@@ -4068,7 +4258,7 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
-	/// Person with whom a business unit has a relationship, such as customer, supplier, and colleague.
+	/// A provider contact record linked to a BCeID. This record is used to provide MyCCS portal access. This table is used by both OFM and CCOF applications 
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("contact")]
@@ -4207,10 +4397,12 @@ namespace ECC.Core.DataContext
 			public const string Contact_Customer_Accounts = "contact_customer_accounts";
 			public const string ReferencingContact_Customer_Contacts = "contact_customer_contacts";
 			public const string ReferencingContact_Master_Contact = "contact_master_contact";
+			public const string Contact_Owning_User = "contact_owning_user";
 			public const string ReferencingContact_Parent_Contact = "contact_parent_contact";
 			public const string Contact_Tasks = "Contact_Tasks";
 			public const string ContactId = "contactid";
 			public const string Id = "contactid";
+			public const string CRC7E_HasPortalAccess = "crc7e_hasportalaccess";
 			public const string CreatedBy = "createdby";
 			public const string CreatedByExternalParty = "createdbyexternalparty";
 			public const string CreatedByExternalPartyName = "createdbyexternalpartyname";
@@ -4263,6 +4455,10 @@ namespace ECC.Core.DataContext
 			public const string LastOnHoldTime = "lastonholdtime";
 			public const string LastUsedInCampaign = "lastusedincampaign";
 			public const string LeadSourceCode = "leadsourcecode";
+			public const string Lk_Contact_CreatedOnBehalfBy = "lk_contact_createdonbehalfby";
+			public const string Lk_Contact_ModifiedOnBehalfBy = "lk_contact_modifiedonbehalfby";
+			public const string Lk_ContactBase_CreatedBy = "lk_contactbase_createdby";
+			public const string Lk_ContactBase_ModifiedBy = "lk_contactbase_modifiedby";
 			public const string ManagerName = "managername";
 			public const string ManagerPhone = "managerphone";
 			public const string MarketingOnly = "marketingonly";
@@ -4298,6 +4494,8 @@ namespace ECC.Core.DataContext
 			public const string MsPp_UserPreferredLcId = "mspp_userpreferredlcid";
 			public const string Nickname = "nickname";
 			public const string NumberOfChildren = "numberofchildren";
+			public const string OfM_Assistance_Request_Contact = "OfM_Assistance_Request_Contact";
+			public const string OfM_Facility_Business_BcEId = "OfM_Facility_Business_BcEId";
 			public const string OfM_First_Name = "ofm_first_name";
 			public const string OfM_Is_Primary_Contact = "ofm_is_primary_contact";
 			public const string OfM_Last_Name = "ofm_last_name";
@@ -4348,6 +4546,8 @@ namespace ECC.Core.DataContext
 			public const string StatusCode = "statuscode";
 			public const string SubscriptionId = "subscriptionid";
 			public const string Suffix = "suffix";
+			public const string System_User_Contacts = "system_user_contacts";
+			public const string Team_Contacts = "team_contacts";
 			public const string TeamsFollowed = "teamsfollowed";
 			public const string Telephone1 = "telephone1";
 			public const string Telephone2 = "telephone2";
@@ -6445,7 +6645,7 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Business User Guid
+		/// Keycloak BCeID Guid
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_userid")]
 		public string CcOf_UserId
@@ -6554,6 +6754,21 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.ContactId = value;
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("crc7e_hasportalaccess")]
+		public System.Nullable<int> CRC7E_HasPortalAccess
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("crc7e_hasportalaccess");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("crc7e_hasportalaccess", value);
 			}
 		}
 		
@@ -8747,6 +8962,42 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// 1:N ofm_assistance_request_contact
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_assistance_request_contact")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Assistance_Request> OfM_Assistance_Request_Contact
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_assistance_request_contact", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_assistance_request_contact", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N ofm_facility_business_bceid
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_business_bceid")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_BcEId_Facility> OfM_Facility_Business_BcEId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("ofm_facility_business_bceid", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("ofm_facility_business_bceid", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// N:1 contact_customer_accounts
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("parentcustomerid")]
@@ -8799,6 +9050,20 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// N:1 contact_owning_user
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("contact_owning_user")]
+		public ECC.Core.DataContext.SystemUser Contact_Owning_User
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("contact_owning_user", null);
+			}
+		}
+		
+		/// <summary>
 		/// N:1 contact_parent_contact
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("parent_contactid")]
@@ -8818,6 +9083,72 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// N:1 lk_contact_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_contact_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_Contact_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_contact_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_contact_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_contact_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_contact_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_Contact_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_contact_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_contact_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_contactbase_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_contactbase_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_ContactBase_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_contactbase_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_contactbase_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_contactbase_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_ContactBase_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_contactbase_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
 		/// N:1 msa_contact_managingpartner
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msa_managingpartnerid")]
@@ -8833,6 +9164,39 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntity<ECC.Core.DataContext.Account>("msa_contact_managingpartner", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 system_user_contacts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("preferredsystemuserid")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("system_user_contacts")]
+		public ECC.Core.DataContext.SystemUser System_User_Contacts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("system_user_contacts", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("system_user_contacts", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 team_contacts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_contacts")]
+		public ECC.Core.DataContext.Team Team_Contacts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_contacts", null);
 			}
 		}
 		
@@ -8862,6 +9226,7101 @@ namespace ECC.Core.DataContext
                         Attributes["contactid"] = base.Id;
                         break;
                     case "contactid":
+                        var id = (System.Nullable<System.Guid>) value;
+                        if(id == null){ continue; }
+                        base.Id = id.Value;
+                        Attributes[name] = base.Id;
+                        break;
+                    case "formattedvalues":
+                        // Add Support for FormattedValues
+                        FormattedValues.AddRange((Microsoft.Xrm.Sdk.FormattedValueCollection)value);
+                        break;
+                    default:
+                        Attributes[name] = value;
+                        break;
+                }
+            }
+		}
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("ofm_assistance_request")]
+	public partial class OfM_Assistance_Request : Microsoft.Xrm.Sdk.Entity
+	{
+		
+		/// <summary>
+		/// Available fields, a the time of codegen, for the ofm_assistance_request entity
+		/// </summary>
+		public static partial class Fields
+		{
+			public const string CreatedBy = "createdby";
+			public const string CreatedByName = "createdbyname";
+			public const string CreatedOn = "createdon";
+			public const string CreatedOnBehalfBy = "createdonbehalfby";
+			public const string CreatedOnBehalfByName = "createdonbehalfbyname";
+			public const string ImportSequenceNumber = "importsequencenumber";
+			public const string Lk_OfM_Assistance_Request_CreatedBy = "lk_ofm_assistance_request_createdby";
+			public const string Lk_OfM_Assistance_Request_CreatedOnBehalfBy = "lk_ofm_assistance_request_createdonbehalfby";
+			public const string Lk_OfM_Assistance_Request_ModifiedBy = "lk_ofm_assistance_request_modifiedby";
+			public const string Lk_OfM_Assistance_Request_ModifiedOnBehalfBy = "lk_ofm_assistance_request_modifiedonbehalfby";
+			public const string ModifiedBy = "modifiedby";
+			public const string ModifiedByName = "modifiedbyname";
+			public const string ModifiedOn = "modifiedon";
+			public const string ModifiedOnBehalfBy = "modifiedonbehalfby";
+			public const string ModifiedOnBehalfByName = "modifiedonbehalfbyname";
+			public const string OfM_Assistance_Request_Category = "ofm_assistance_request_category";
+			public const string OfM_Assistance_Request_Contact = "ofm_assistance_request_contact";
+			public const string OfM_Assistance_Request_Tasks = "OfM_Assistance_Request_Tasks";
+			public const string OfM_Assistance_RequestId = "ofm_assistance_requestid";
+			public const string Id = "ofm_assistance_requestid";
+			public const string OfM_Contact = "ofm_contact";
+			public const string OfM_Contact_Method = "ofm_contact_method";
+			public const string OfM_ContactName = "ofm_contactname";
+			public const string OfM_Conversation_Request = "OfM_Conversation_Request";
+			public const string OfM_Facility_Request_Request = "OfM_Facility_Request_Request";
+			public const string OfM_Internal_Comment = "ofm_internal_comment";
+			public const string OfM_Name = "ofm_name";
+			public const string OfM_Request_Category = "ofm_request_category";
+			public const string OfM_Request_CategoryName = "ofm_request_categoryname";
+			public const string OfM_Request_Description = "ofm_request_description";
+			public const string OfM_Subject = "ofm_subject";
+			public const string OfM_Submission_Time = "ofm_submission_time";
+			public const string OfM_Telephone = "ofm_telephone";
+			public const string OverriddenCreatedOn = "overriddencreatedon";
+			public const string OwnerId = "ownerid";
+			public const string OwnerIdName = "owneridname";
+			public const string OwningBusinessUnit = "owningbusinessunit";
+			public const string OwningBusinessUnitName = "owningbusinessunitname";
+			public const string OwningTeam = "owningteam";
+			public const string OwningTeamName = "owningteamname";
+			public const string OwningUser = "owninguser";
+			public const string OwningUserName = "owningusername";
+			public const string StateCode = "statecode";
+			public const string StatusCode = "statuscode";
+			public const string Team_OfM_Assistance_Request = "team_ofm_assistance_request";
+			public const string TimeZoneRuleVersionNumber = "timezoneruleversionnumber";
+			public const string User_OfM_Assistance_Request = "user_ofm_assistance_request";
+			public const string UtcConversionTimeZoneCode = "utcconversiontimezonecode";
+			public const string VersionNumber = "versionnumber";
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Assistance_Request(System.Guid id) : 
+				base(EntityLogicalName, id)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Assistance_Request(string keyName, object keyValue) : 
+				base(EntityLogicalName, keyName, keyValue)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Assistance_Request(Microsoft.Xrm.Sdk.KeyAttributeCollection keyAttributes) : 
+				base(EntityLogicalName, keyAttributes)
+		{
+		}
+		
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Assistance_Request() : 
+				base(EntityLogicalName)
+		{
+		}
+		
+		public const string PrimaryIdAttribute = "ofm_assistance_requestid";
+		
+		public const string PrimaryNameAttribute = "ofm_name";
+		
+		public const string EntitySchemaName = "ofm_assistance_request";
+		
+		public const string EntityLogicalName = "ofm_assistance_request";
+		
+		public const string EntityLogicalCollectionName = "ofm_assistance_requests";
+		
+		public const string EntitySetName = "ofm_assistance_requests";
+		
+		/// <summary>
+		/// Unique identifier of the user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
+		public System.Nullable<System.DateTime> CreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("createdonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Sequence number of the import that created this record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
+		public System.Nullable<int> ImportSequenceNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("importsequencenumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("importsequencenumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was modified.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
+		public System.Nullable<System.DateTime> ModifiedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("modifiedonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for entity instances
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_assistance_requestid")]
+		public System.Nullable<System.Guid> OfM_Assistance_RequestId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("ofm_assistance_requestid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_assistance_requestid", value);
+				if (value.HasValue)
+				{
+					base.Id = value.Value;
+				}
+				else
+				{
+					base.Id = System.Guid.Empty;
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_assistance_requestid")]
+		public override System.Guid Id
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return base.Id;
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.OfM_Assistance_RequestId = value;
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_contact")]
+		public Microsoft.Xrm.Sdk.EntityReference OfM_Contact
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_contact");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_contact", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_contact_method")]
+		public virtual OfM_Assistance_Request_OfM_Contact_Method? OfM_Contact_Method
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Assistance_Request_OfM_Contact_Method?)(EntityOptionSetEnum.GetEnum(this, "ofm_contact_method")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_contact_method", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_internal_comment")]
+		public string OfM_Internal_Comment
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_internal_comment");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_internal_comment", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_name")]
+		public string OfM_Name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_name", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request_category")]
+		public Microsoft.Xrm.Sdk.EntityReference OfM_Request_Category
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_request_category");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_request_category", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request_description")]
+		public string OfM_Request_Description
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_request_description");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_request_description", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_subject")]
+		public string OfM_Subject
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_subject");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_subject", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_submission_time")]
+		public System.Nullable<System.DateTime> OfM_Submission_Time
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_submission_time");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_submission_time", value);
+			}
+		}
+		
+		/// <summary>
+		/// Secondary telephone number
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_telephone")]
+		public string OfM_Telephone
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_telephone");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_telephone", value);
+			}
+		}
+		
+		/// <summary>
+		/// Date and time that the record was migrated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overriddencreatedon")]
+		public System.Nullable<System.DateTime> OverriddenCreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("overriddencreatedon");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("overriddencreatedon", value);
+			}
+		}
+		
+		/// <summary>
+		/// Owner Id
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ownerid")]
+		public Microsoft.Xrm.Sdk.EntityReference OwnerId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ownerid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ownerid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the business unit that owns the record
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningbusinessunit")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningBusinessUnit
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningbusinessunit");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("owningbusinessunit", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the team that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningTeam
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningteam");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the user that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningUser
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owninguser");
+			}
+		}
+		
+		/// <summary>
+		/// Status of the Assistance Request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statecode")]
+		public virtual OfM_Assistance_Request_StateCode? StateCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Assistance_Request_StateCode?)(EntityOptionSetEnum.GetEnum(this, "statecode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Reason for the status of the Assistance Request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statuscode")]
+		public virtual OfM_Assistance_Request_StatusCode? StatusCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Assistance_Request_StatusCode?)(EntityOptionSetEnum.GetEnum(this, "statuscode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statuscode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("timezoneruleversionnumber")]
+		public System.Nullable<int> TimeZoneRuleVersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("timezoneruleversionnumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("timezoneruleversionnumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Time zone code that was in use when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("utcconversiontimezonecode")]
+		public System.Nullable<int> UtcConversionTimeZoneCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("utcconversiontimezonecode");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("utcconversiontimezonecode", value);
+			}
+		}
+		
+		/// <summary>
+		/// Version Number
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
+		public System.Nullable<long> VersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+			}
+		}
+		
+		/// <summary>
+		/// 1:N ofm_assistance_request_Tasks
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_assistance_request_Tasks")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Task> OfM_Assistance_Request_Tasks
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Task>("ofm_assistance_request_Tasks", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Task>("ofm_assistance_request_Tasks", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N ofm_conversation_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_conversation_request")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Conversation> OfM_Conversation_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("ofm_conversation_request", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("ofm_conversation_request", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N ofm_facility_request_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_request_request")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Facility_Request> OfM_Facility_Request_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("ofm_facility_request_request", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("ofm_facility_request_request", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_assistance_request_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_assistance_request_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Assistance_Request_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_assistance_request_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_assistance_request_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_assistance_request_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Assistance_Request_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_assistance_request_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_assistance_request_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_assistance_request_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_assistance_request_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Assistance_Request_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_assistance_request_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_assistance_request_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_assistance_request_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Assistance_Request_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_assistance_request_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_assistance_request_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_assistance_request_category
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request_category")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_assistance_request_category")]
+		public ECC.Core.DataContext.OfM_Request_Category OfM_Assistance_Request_Category
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.OfM_Request_Category>("ofm_assistance_request_category", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.OfM_Request_Category>("ofm_assistance_request_category", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_assistance_request_contact
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_contact")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_assistance_request_contact")]
+		public ECC.Core.DataContext.Contact OfM_Assistance_Request_Contact
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_assistance_request_contact", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_assistance_request_contact", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 team_ofm_assistance_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_assistance_request")]
+		public ECC.Core.DataContext.Team Team_OfM_Assistance_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_ofm_assistance_request", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 user_ofm_assistance_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_assistance_request")]
+		public ECC.Core.DataContext.SystemUser User_OfM_Assistance_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_ofm_assistance_request", null);
+			}
+		}
+		
+		/// <summary>
+		/// Constructor for populating via LINQ queries given a LINQ anonymous type
+		/// <param name="anonymousType">LINQ anonymous type.</param>
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Assistance_Request(object anonymousType) : 
+				this()
+		{
+            foreach (var p in anonymousType.GetType().GetProperties())
+            {
+                var value = p.GetValue(anonymousType, null);
+                var name = p.Name.ToLower();
+            
+                if (name.EndsWith("enum") && value.GetType().BaseType == typeof(System.Enum))
+                {
+                    value = new Microsoft.Xrm.Sdk.OptionSetValue((int) value);
+                    name = name.Remove(name.Length - "enum".Length);
+                }
+            
+                switch (name)
+                {
+                    case "id":
+                        base.Id = (System.Guid)value;
+                        Attributes["ofm_assistance_requestid"] = base.Id;
+                        break;
+                    case "ofm_assistance_requestid":
+                        var id = (System.Nullable<System.Guid>) value;
+                        if(id == null){ continue; }
+                        base.Id = id.Value;
+                        Attributes[name] = base.Id;
+                        break;
+                    case "formattedvalues":
+                        // Add Support for FormattedValues
+                        FormattedValues.AddRange((Microsoft.Xrm.Sdk.FormattedValueCollection)value);
+                        break;
+                    default:
+                        Attributes[name] = value;
+                        break;
+                }
+            }
+		}
+	}
+	
+	/// <summary>
+	/// The purpose of this table is to store facility permission records for a contact
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("ofm_bceid_facility")]
+	public partial class OfM_BcEId_Facility : Microsoft.Xrm.Sdk.Entity
+	{
+		
+		/// <summary>
+		/// Available fields, a the time of codegen, for the ofm_bceid_facility entity
+		/// </summary>
+		public static partial class Fields
+		{
+			public const string CreatedBy = "createdby";
+			public const string CreatedByName = "createdbyname";
+			public const string CreatedOn = "createdon";
+			public const string CreatedOnBehalfBy = "createdonbehalfby";
+			public const string CreatedOnBehalfByName = "createdonbehalfbyname";
+			public const string ImportSequenceNumber = "importsequencenumber";
+			public const string Lk_OfM_BcEId_Facility_CreatedBy = "lk_ofm_bceid_facility_createdby";
+			public const string Lk_OfM_BcEId_Facility_CreatedOnBehalfBy = "lk_ofm_bceid_facility_createdonbehalfby";
+			public const string Lk_OfM_BcEId_Facility_ModifiedBy = "lk_ofm_bceid_facility_modifiedby";
+			public const string Lk_OfM_BcEId_Facility_ModifiedOnBehalfBy = "lk_ofm_bceid_facility_modifiedonbehalfby";
+			public const string ModifiedBy = "modifiedby";
+			public const string ModifiedByName = "modifiedbyname";
+			public const string ModifiedOn = "modifiedon";
+			public const string ModifiedOnBehalfBy = "modifiedonbehalfby";
+			public const string ModifiedOnBehalfByName = "modifiedonbehalfbyname";
+			public const string OfM_BcEId = "ofm_bceid";
+			public const string OfM_BcEId_FacilityId = "ofm_bceid_facilityid";
+			public const string Id = "ofm_bceid_facilityid";
+			public const string OfM_BcEIdName = "ofm_bceidname";
+			public const string OfM_Business_BcEId_Facility = "ofm_business_bceid_facility";
+			public const string OfM_Facility = "ofm_facility";
+			public const string OfM_Facility_Business_BcEId = "ofm_facility_business_bceid";
+			public const string OfM_FacilityName = "ofm_facilityname";
+			public const string OfM_Name = "ofm_name";
+			public const string OfM_Portal_Access = "ofm_portal_access";
+			public const string OverriddenCreatedOn = "overriddencreatedon";
+			public const string OwnerId = "ownerid";
+			public const string OwnerIdName = "owneridname";
+			public const string OwningBusinessUnit = "owningbusinessunit";
+			public const string OwningBusinessUnitName = "owningbusinessunitname";
+			public const string OwningTeam = "owningteam";
+			public const string OwningTeamName = "owningteamname";
+			public const string OwningUser = "owninguser";
+			public const string OwningUserName = "owningusername";
+			public const string StateCode = "statecode";
+			public const string StatusCode = "statuscode";
+			public const string Team_OfM_BcEId_Facility = "team_ofm_bceid_facility";
+			public const string TimeZoneRuleVersionNumber = "timezoneruleversionnumber";
+			public const string User_OfM_BcEId_Facility = "user_ofm_bceid_facility";
+			public const string UtcConversionTimeZoneCode = "utcconversiontimezonecode";
+			public const string VersionNumber = "versionnumber";
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_BcEId_Facility(System.Guid id) : 
+				base(EntityLogicalName, id)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_BcEId_Facility(string keyName, object keyValue) : 
+				base(EntityLogicalName, keyName, keyValue)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_BcEId_Facility(Microsoft.Xrm.Sdk.KeyAttributeCollection keyAttributes) : 
+				base(EntityLogicalName, keyAttributes)
+		{
+		}
+		
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_BcEId_Facility() : 
+				base(EntityLogicalName)
+		{
+		}
+		
+		public const string PrimaryIdAttribute = "ofm_bceid_facilityid";
+		
+		public const string PrimaryNameAttribute = "ofm_name";
+		
+		public const string EntitySchemaName = "ofm_bceid_facility";
+		
+		public const string EntityLogicalName = "ofm_bceid_facility";
+		
+		public const string EntityLogicalCollectionName = "ofm_bceid_facilities";
+		
+		public const string EntitySetName = "ofm_bceid_facilities";
+		
+		/// <summary>
+		/// Unique identifier of the user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
+		public System.Nullable<System.DateTime> CreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("createdonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Sequence number of the import that created this record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
+		public System.Nullable<int> ImportSequenceNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("importsequencenumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("importsequencenumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was modified.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
+		public System.Nullable<System.DateTime> ModifiedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("modifiedonbehalfby", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_bceid")]
+		public Microsoft.Xrm.Sdk.EntityReference OfM_BcEId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_bceid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_bceid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for entity instances
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_bceid_facilityid")]
+		public System.Nullable<System.Guid> OfM_BcEId_FacilityId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("ofm_bceid_facilityid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_bceid_facilityid", value);
+				if (value.HasValue)
+				{
+					base.Id = value.Value;
+				}
+				else
+				{
+					base.Id = System.Guid.Empty;
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_bceid_facilityid")]
+		public override System.Guid Id
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return base.Id;
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.OfM_BcEId_FacilityId = value;
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility")]
+		public Microsoft.Xrm.Sdk.EntityReference OfM_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_facility");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facility", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_name")]
+		public string OfM_Name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_name", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_portal_access")]
+		public System.Nullable<bool> OfM_Portal_Access
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("ofm_portal_access");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_portal_access", value);
+			}
+		}
+		
+		/// <summary>
+		/// Date and time that the record was migrated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overriddencreatedon")]
+		public System.Nullable<System.DateTime> OverriddenCreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("overriddencreatedon");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("overriddencreatedon", value);
+			}
+		}
+		
+		/// <summary>
+		/// Owner Id
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ownerid")]
+		public Microsoft.Xrm.Sdk.EntityReference OwnerId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ownerid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ownerid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the business unit that owns the record
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningbusinessunit")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningBusinessUnit
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningbusinessunit");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("owningbusinessunit", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the team that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningTeam
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningteam");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the user that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningUser
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owninguser");
+			}
+		}
+		
+		/// <summary>
+		/// Status of the BCeID Facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statecode")]
+		public virtual OfM_BcEId_Facility_StateCode? StateCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_BcEId_Facility_StateCode?)(EntityOptionSetEnum.GetEnum(this, "statecode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Reason for the status of the BCeID Facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statuscode")]
+		public virtual OfM_BcEId_Facility_StatusCode? StatusCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_BcEId_Facility_StatusCode?)(EntityOptionSetEnum.GetEnum(this, "statuscode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statuscode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("timezoneruleversionnumber")]
+		public System.Nullable<int> TimeZoneRuleVersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("timezoneruleversionnumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("timezoneruleversionnumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Time zone code that was in use when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("utcconversiontimezonecode")]
+		public System.Nullable<int> UtcConversionTimeZoneCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("utcconversiontimezonecode");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("utcconversiontimezonecode", value);
+			}
+		}
+		
+		/// <summary>
+		/// Version Number
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
+		public System.Nullable<long> VersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_bceid_facility_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_bceid_facility_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_BcEId_Facility_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_bceid_facility_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_bceid_facility_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_bceid_facility_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_BcEId_Facility_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_bceid_facility_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_bceid_facility_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_bceid_facility_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_bceid_facility_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_BcEId_Facility_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_bceid_facility_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_bceid_facility_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_bceid_facility_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_BcEId_Facility_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_bceid_facility_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_bceid_facility_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_business_bceid_facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_business_bceid_facility")]
+		public ECC.Core.DataContext.Account OfM_Business_BcEId_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Account>("ofm_business_bceid_facility", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.Account>("ofm_business_bceid_facility", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_facility_business_bceid
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_bceid")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_business_bceid")]
+		public ECC.Core.DataContext.Contact OfM_Facility_Business_BcEId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_facility_business_bceid", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_facility_business_bceid", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 team_ofm_bceid_facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_bceid_facility")]
+		public ECC.Core.DataContext.Team Team_OfM_BcEId_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_ofm_bceid_facility", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 user_ofm_bceid_facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_bceid_facility")]
+		public ECC.Core.DataContext.SystemUser User_OfM_BcEId_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_ofm_bceid_facility", null);
+			}
+		}
+		
+		/// <summary>
+		/// Constructor for populating via LINQ queries given a LINQ anonymous type
+		/// <param name="anonymousType">LINQ anonymous type.</param>
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_BcEId_Facility(object anonymousType) : 
+				this()
+		{
+            foreach (var p in anonymousType.GetType().GetProperties())
+            {
+                var value = p.GetValue(anonymousType, null);
+                var name = p.Name.ToLower();
+            
+                if (name.EndsWith("enum") && value.GetType().BaseType == typeof(System.Enum))
+                {
+                    value = new Microsoft.Xrm.Sdk.OptionSetValue((int) value);
+                    name = name.Remove(name.Length - "enum".Length);
+                }
+            
+                switch (name)
+                {
+                    case "id":
+                        base.Id = (System.Guid)value;
+                        Attributes["ofm_bceid_facilityid"] = base.Id;
+                        break;
+                    case "ofm_bceid_facilityid":
+                        var id = (System.Nullable<System.Guid>) value;
+                        if(id == null){ continue; }
+                        base.Id = id.Value;
+                        Attributes[name] = base.Id;
+                        break;
+                    case "formattedvalues":
+                        // Add Support for FormattedValues
+                        FormattedValues.AddRange((Microsoft.Xrm.Sdk.FormattedValueCollection)value);
+                        break;
+                    default:
+                        Attributes[name] = value;
+                        break;
+                }
+            }
+		}
+	}
+	
+	/// <summary>
+	/// A message on a conversation for OFM app
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("ofm_conversation")]
+	public partial class OfM_Conversation : Microsoft.Xrm.Sdk.Entity
+	{
+		
+		/// <summary>
+		/// Available fields, a the time of codegen, for the ofm_conversation entity
+		/// </summary>
+		public static partial class Fields
+		{
+			public const string CreatedBy = "createdby";
+			public const string CreatedByName = "createdbyname";
+			public const string CreatedOn = "createdon";
+			public const string CreatedOnBehalfBy = "createdonbehalfby";
+			public const string CreatedOnBehalfByName = "createdonbehalfbyname";
+			public const string ImportSequenceNumber = "importsequencenumber";
+			public const string Lk_OfM_Conversation_CreatedBy = "lk_ofm_conversation_createdby";
+			public const string Lk_OfM_Conversation_CreatedOnBehalfBy = "lk_ofm_conversation_createdonbehalfby";
+			public const string Lk_OfM_Conversation_ModifiedBy = "lk_ofm_conversation_modifiedby";
+			public const string Lk_OfM_Conversation_ModifiedOnBehalfBy = "lk_ofm_conversation_modifiedonbehalfby";
+			public const string ModifiedBy = "modifiedby";
+			public const string ModifiedByName = "modifiedbyname";
+			public const string ModifiedOn = "modifiedon";
+			public const string ModifiedOnBehalfBy = "modifiedonbehalfby";
+			public const string ModifiedOnBehalfByName = "modifiedonbehalfbyname";
+			public const string OfM_Conversation_Request = "ofm_conversation_request";
+			public const string OfM_ConversationId = "ofm_conversationid";
+			public const string Id = "ofm_conversationid";
+			public const string OfM_Message = "ofm_message";
+			public const string OfM_Name = "ofm_name";
+			public const string OfM_Request = "ofm_request";
+			public const string OfM_RequestName = "ofm_requestname";
+			public const string OverriddenCreatedOn = "overriddencreatedon";
+			public const string OwnerId = "ownerid";
+			public const string OwnerIdName = "owneridname";
+			public const string OwningBusinessUnit = "owningbusinessunit";
+			public const string OwningBusinessUnitName = "owningbusinessunitname";
+			public const string OwningTeam = "owningteam";
+			public const string OwningTeamName = "owningteamname";
+			public const string OwningUser = "owninguser";
+			public const string OwningUserName = "owningusername";
+			public const string StateCode = "statecode";
+			public const string StatusCode = "statuscode";
+			public const string Team_OfM_Conversation = "team_ofm_conversation";
+			public const string TimeZoneRuleVersionNumber = "timezoneruleversionnumber";
+			public const string User_OfM_Conversation = "user_ofm_conversation";
+			public const string UtcConversionTimeZoneCode = "utcconversiontimezonecode";
+			public const string VersionNumber = "versionnumber";
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Conversation(System.Guid id) : 
+				base(EntityLogicalName, id)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Conversation(string keyName, object keyValue) : 
+				base(EntityLogicalName, keyName, keyValue)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Conversation(Microsoft.Xrm.Sdk.KeyAttributeCollection keyAttributes) : 
+				base(EntityLogicalName, keyAttributes)
+		{
+		}
+		
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Conversation() : 
+				base(EntityLogicalName)
+		{
+		}
+		
+		public const string PrimaryIdAttribute = "ofm_conversationid";
+		
+		public const string PrimaryNameAttribute = "ofm_name";
+		
+		public const string EntitySchemaName = "ofm_conversation";
+		
+		public const string EntityLogicalName = "ofm_conversation";
+		
+		public const string EntityLogicalCollectionName = "ofm_conversations";
+		
+		public const string EntitySetName = "ofm_conversations";
+		
+		/// <summary>
+		/// Unique identifier of the user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
+		public System.Nullable<System.DateTime> CreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("createdonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Sequence number of the import that created this record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
+		public System.Nullable<int> ImportSequenceNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("importsequencenumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("importsequencenumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was modified.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
+		public System.Nullable<System.DateTime> ModifiedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("modifiedonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for entity instances
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_conversationid")]
+		public System.Nullable<System.Guid> OfM_ConversationId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("ofm_conversationid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_conversationid", value);
+				if (value.HasValue)
+				{
+					base.Id = value.Value;
+				}
+				else
+				{
+					base.Id = System.Guid.Empty;
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_conversationid")]
+		public override System.Guid Id
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return base.Id;
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.OfM_ConversationId = value;
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_message")]
+		public string OfM_Message
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_message");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_message", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_name")]
+		public string OfM_Name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_name", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request")]
+		public Microsoft.Xrm.Sdk.EntityReference OfM_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_request");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_request", value);
+			}
+		}
+		
+		/// <summary>
+		/// Date and time that the record was migrated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overriddencreatedon")]
+		public System.Nullable<System.DateTime> OverriddenCreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("overriddencreatedon");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("overriddencreatedon", value);
+			}
+		}
+		
+		/// <summary>
+		/// Owner Id
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ownerid")]
+		public Microsoft.Xrm.Sdk.EntityReference OwnerId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ownerid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ownerid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the business unit that owns the record
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningbusinessunit")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningBusinessUnit
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningbusinessunit");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("owningbusinessunit", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the team that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningTeam
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningteam");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the user that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningUser
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owninguser");
+			}
+		}
+		
+		/// <summary>
+		/// Status of the Conversation
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statecode")]
+		public virtual OfM_Conversation_StateCode? StateCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Conversation_StateCode?)(EntityOptionSetEnum.GetEnum(this, "statecode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Reason for the status of the Conversation
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statuscode")]
+		public virtual OfM_Conversation_StatusCode? StatusCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Conversation_StatusCode?)(EntityOptionSetEnum.GetEnum(this, "statuscode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statuscode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("timezoneruleversionnumber")]
+		public System.Nullable<int> TimeZoneRuleVersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("timezoneruleversionnumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("timezoneruleversionnumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Time zone code that was in use when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("utcconversiontimezonecode")]
+		public System.Nullable<int> UtcConversionTimeZoneCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("utcconversiontimezonecode");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("utcconversiontimezonecode", value);
+			}
+		}
+		
+		/// <summary>
+		/// Version Number
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
+		public System.Nullable<long> VersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_conversation_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_conversation_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Conversation_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_conversation_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_conversation_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_conversation_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Conversation_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_conversation_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_conversation_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_conversation_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_conversation_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Conversation_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_conversation_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_conversation_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_conversation_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Conversation_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_conversation_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_conversation_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_conversation_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_conversation_request")]
+		public ECC.Core.DataContext.OfM_Assistance_Request OfM_Conversation_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_conversation_request", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_conversation_request", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 team_ofm_conversation
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_conversation")]
+		public ECC.Core.DataContext.Team Team_OfM_Conversation
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_ofm_conversation", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 user_ofm_conversation
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_conversation")]
+		public ECC.Core.DataContext.SystemUser User_OfM_Conversation
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_ofm_conversation", null);
+			}
+		}
+		
+		/// <summary>
+		/// Constructor for populating via LINQ queries given a LINQ anonymous type
+		/// <param name="anonymousType">LINQ anonymous type.</param>
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Conversation(object anonymousType) : 
+				this()
+		{
+            foreach (var p in anonymousType.GetType().GetProperties())
+            {
+                var value = p.GetValue(anonymousType, null);
+                var name = p.Name.ToLower();
+            
+                if (name.EndsWith("enum") && value.GetType().BaseType == typeof(System.Enum))
+                {
+                    value = new Microsoft.Xrm.Sdk.OptionSetValue((int) value);
+                    name = name.Remove(name.Length - "enum".Length);
+                }
+            
+                switch (name)
+                {
+                    case "id":
+                        base.Id = (System.Guid)value;
+                        Attributes["ofm_conversationid"] = base.Id;
+                        break;
+                    case "ofm_conversationid":
+                        var id = (System.Nullable<System.Guid>) value;
+                        if(id == null){ continue; }
+                        base.Id = id.Value;
+                        Attributes[name] = base.Id;
+                        break;
+                    case "formattedvalues":
+                        // Add Support for FormattedValues
+                        FormattedValues.AddRange((Microsoft.Xrm.Sdk.FormattedValueCollection)value);
+                        break;
+                    default:
+                        Attributes[name] = value;
+                        break;
+                }
+            }
+		}
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("ofm_facility_request")]
+	public partial class OfM_Facility_Request : Microsoft.Xrm.Sdk.Entity
+	{
+		
+		/// <summary>
+		/// Available fields, a the time of codegen, for the ofm_facility_request entity
+		/// </summary>
+		public static partial class Fields
+		{
+			public const string CreatedBy = "createdby";
+			public const string CreatedByName = "createdbyname";
+			public const string CreatedOn = "createdon";
+			public const string CreatedOnBehalfBy = "createdonbehalfby";
+			public const string CreatedOnBehalfByName = "createdonbehalfbyname";
+			public const string ImportSequenceNumber = "importsequencenumber";
+			public const string Lk_OfM_Facility_Request_CreatedBy = "lk_ofm_facility_request_createdby";
+			public const string Lk_OfM_Facility_Request_CreatedOnBehalfBy = "lk_ofm_facility_request_createdonbehalfby";
+			public const string Lk_OfM_Facility_Request_ModifiedBy = "lk_ofm_facility_request_modifiedby";
+			public const string Lk_OfM_Facility_Request_ModifiedOnBehalfBy = "lk_ofm_facility_request_modifiedonbehalfby";
+			public const string ModifiedBy = "modifiedby";
+			public const string ModifiedByName = "modifiedbyname";
+			public const string ModifiedOn = "modifiedon";
+			public const string ModifiedOnBehalfBy = "modifiedonbehalfby";
+			public const string ModifiedOnBehalfByName = "modifiedonbehalfbyname";
+			public const string OfM_Facility = "ofm_facility";
+			public const string OfM_Facility_Request_Facility = "ofm_facility_request_facility";
+			public const string OfM_Facility_Request_Request = "ofm_facility_request_request";
+			public const string OfM_Facility_RequestId = "ofm_facility_requestid";
+			public const string Id = "ofm_facility_requestid";
+			public const string OfM_FacilityName = "ofm_facilityname";
+			public const string OfM_Name = "ofm_name";
+			public const string OfM_Request = "ofm_request";
+			public const string OfM_RequestName = "ofm_requestname";
+			public const string OverriddenCreatedOn = "overriddencreatedon";
+			public const string OwnerId = "ownerid";
+			public const string OwnerIdName = "owneridname";
+			public const string OwningBusinessUnit = "owningbusinessunit";
+			public const string OwningBusinessUnitName = "owningbusinessunitname";
+			public const string OwningTeam = "owningteam";
+			public const string OwningTeamName = "owningteamname";
+			public const string OwningUser = "owninguser";
+			public const string OwningUserName = "owningusername";
+			public const string StateCode = "statecode";
+			public const string StatusCode = "statuscode";
+			public const string Team_OfM_Facility_Request = "team_ofm_facility_request";
+			public const string TimeZoneRuleVersionNumber = "timezoneruleversionnumber";
+			public const string User_OfM_Facility_Request = "user_ofm_facility_request";
+			public const string UtcConversionTimeZoneCode = "utcconversiontimezonecode";
+			public const string VersionNumber = "versionnumber";
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Facility_Request(System.Guid id) : 
+				base(EntityLogicalName, id)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Facility_Request(string keyName, object keyValue) : 
+				base(EntityLogicalName, keyName, keyValue)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Facility_Request(Microsoft.Xrm.Sdk.KeyAttributeCollection keyAttributes) : 
+				base(EntityLogicalName, keyAttributes)
+		{
+		}
+		
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Facility_Request() : 
+				base(EntityLogicalName)
+		{
+		}
+		
+		public const string PrimaryIdAttribute = "ofm_facility_requestid";
+		
+		public const string PrimaryNameAttribute = "ofm_name";
+		
+		public const string EntitySchemaName = "ofm_facility_request";
+		
+		public const string EntityLogicalName = "ofm_facility_request";
+		
+		public const string EntityLogicalCollectionName = "ofm_facility_requests";
+		
+		public const string EntitySetName = "ofm_facility_requests";
+		
+		/// <summary>
+		/// Unique identifier of the user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
+		public System.Nullable<System.DateTime> CreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("createdonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Sequence number of the import that created this record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
+		public System.Nullable<int> ImportSequenceNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("importsequencenumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("importsequencenumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was modified.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
+		public System.Nullable<System.DateTime> ModifiedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("modifiedonbehalfby", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility")]
+		public Microsoft.Xrm.Sdk.EntityReference OfM_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_facility");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facility", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for entity instances
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility_requestid")]
+		public System.Nullable<System.Guid> OfM_Facility_RequestId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("ofm_facility_requestid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facility_requestid", value);
+				if (value.HasValue)
+				{
+					base.Id = value.Value;
+				}
+				else
+				{
+					base.Id = System.Guid.Empty;
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility_requestid")]
+		public override System.Guid Id
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return base.Id;
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.OfM_Facility_RequestId = value;
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_name")]
+		public string OfM_Name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_name", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request")]
+		public Microsoft.Xrm.Sdk.EntityReference OfM_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_request");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_request", value);
+			}
+		}
+		
+		/// <summary>
+		/// Date and time that the record was migrated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overriddencreatedon")]
+		public System.Nullable<System.DateTime> OverriddenCreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("overriddencreatedon");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("overriddencreatedon", value);
+			}
+		}
+		
+		/// <summary>
+		/// Owner Id
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ownerid")]
+		public Microsoft.Xrm.Sdk.EntityReference OwnerId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ownerid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ownerid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the business unit that owns the record
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningbusinessunit")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningBusinessUnit
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningbusinessunit");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("owningbusinessunit", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the team that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningTeam
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningteam");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the user that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningUser
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owninguser");
+			}
+		}
+		
+		/// <summary>
+		/// Status of the Facility Request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statecode")]
+		public virtual OfM_Facility_Request_StateCode? StateCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Facility_Request_StateCode?)(EntityOptionSetEnum.GetEnum(this, "statecode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Reason for the status of the Facility Request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statuscode")]
+		public virtual OfM_Facility_Request_StatusCode? StatusCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Facility_Request_StatusCode?)(EntityOptionSetEnum.GetEnum(this, "statuscode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statuscode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("timezoneruleversionnumber")]
+		public System.Nullable<int> TimeZoneRuleVersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("timezoneruleversionnumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("timezoneruleversionnumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Time zone code that was in use when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("utcconversiontimezonecode")]
+		public System.Nullable<int> UtcConversionTimeZoneCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("utcconversiontimezonecode");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("utcconversiontimezonecode", value);
+			}
+		}
+		
+		/// <summary>
+		/// Version Number
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
+		public System.Nullable<long> VersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_facility_request_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_facility_request_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Facility_Request_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_facility_request_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_facility_request_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_facility_request_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Facility_Request_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_facility_request_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_facility_request_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_facility_request_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_facility_request_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Facility_Request_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_facility_request_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_facility_request_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_facility_request_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Facility_Request_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_facility_request_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_facility_request_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_facility_request_facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_request_facility")]
+		public ECC.Core.DataContext.Account OfM_Facility_Request_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Account>("ofm_facility_request_facility", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.Account>("ofm_facility_request_facility", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_facility_request_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_request_request")]
+		public ECC.Core.DataContext.OfM_Assistance_Request OfM_Facility_Request_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_facility_request_request", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_facility_request_request", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 team_ofm_facility_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_facility_request")]
+		public ECC.Core.DataContext.Team Team_OfM_Facility_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_ofm_facility_request", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 user_ofm_facility_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_facility_request")]
+		public ECC.Core.DataContext.SystemUser User_OfM_Facility_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_ofm_facility_request", null);
+			}
+		}
+		
+		/// <summary>
+		/// Constructor for populating via LINQ queries given a LINQ anonymous type
+		/// <param name="anonymousType">LINQ anonymous type.</param>
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Facility_Request(object anonymousType) : 
+				this()
+		{
+            foreach (var p in anonymousType.GetType().GetProperties())
+            {
+                var value = p.GetValue(anonymousType, null);
+                var name = p.Name.ToLower();
+            
+                if (name.EndsWith("enum") && value.GetType().BaseType == typeof(System.Enum))
+                {
+                    value = new Microsoft.Xrm.Sdk.OptionSetValue((int) value);
+                    name = name.Remove(name.Length - "enum".Length);
+                }
+            
+                switch (name)
+                {
+                    case "id":
+                        base.Id = (System.Guid)value;
+                        Attributes["ofm_facility_requestid"] = base.Id;
+                        break;
+                    case "ofm_facility_requestid":
+                        var id = (System.Nullable<System.Guid>) value;
+                        if(id == null){ continue; }
+                        base.Id = id.Value;
+                        Attributes[name] = base.Id;
+                        break;
+                    case "formattedvalues":
+                        // Add Support for FormattedValues
+                        FormattedValues.AddRange((Microsoft.Xrm.Sdk.FormattedValueCollection)value);
+                        break;
+                    default:
+                        Attributes[name] = value;
+                        break;
+                }
+            }
+		}
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("ofm_request_category")]
+	public partial class OfM_Request_Category : Microsoft.Xrm.Sdk.Entity
+	{
+		
+		/// <summary>
+		/// Available fields, a the time of codegen, for the ofm_request_category entity
+		/// </summary>
+		public static partial class Fields
+		{
+			public const string CreatedBy = "createdby";
+			public const string CreatedByName = "createdbyname";
+			public const string CreatedOn = "createdon";
+			public const string CreatedOnBehalfBy = "createdonbehalfby";
+			public const string CreatedOnBehalfByName = "createdonbehalfbyname";
+			public const string ImportSequenceNumber = "importsequencenumber";
+			public const string Lk_OfM_Request_Category_CreatedBy = "lk_ofm_request_category_createdby";
+			public const string Lk_OfM_Request_Category_CreatedOnBehalfBy = "lk_ofm_request_category_createdonbehalfby";
+			public const string Lk_OfM_Request_Category_ModifiedBy = "lk_ofm_request_category_modifiedby";
+			public const string Lk_OfM_Request_Category_ModifiedOnBehalfBy = "lk_ofm_request_category_modifiedonbehalfby";
+			public const string ModifiedBy = "modifiedby";
+			public const string ModifiedByName = "modifiedbyname";
+			public const string ModifiedOn = "modifiedon";
+			public const string ModifiedOnBehalfBy = "modifiedonbehalfby";
+			public const string ModifiedOnBehalfByName = "modifiedonbehalfbyname";
+			public const string OfM_Assistance_Request_Category = "OfM_Assistance_Request_Category";
+			public const string OfM_Name = "ofm_name";
+			public const string OfM_Request_Category_Number = "ofm_request_category_number";
+			public const string OfM_Request_CategoryId = "ofm_request_categoryid";
+			public const string Id = "ofm_request_categoryid";
+			public const string OverriddenCreatedOn = "overriddencreatedon";
+			public const string OwnerId = "ownerid";
+			public const string OwnerIdName = "owneridname";
+			public const string OwningBusinessUnit = "owningbusinessunit";
+			public const string OwningBusinessUnitName = "owningbusinessunitname";
+			public const string OwningTeam = "owningteam";
+			public const string OwningTeamName = "owningteamname";
+			public const string OwningUser = "owninguser";
+			public const string OwningUserName = "owningusername";
+			public const string StateCode = "statecode";
+			public const string StatusCode = "statuscode";
+			public const string Team_OfM_Request_Category = "team_ofm_request_category";
+			public const string TimeZoneRuleVersionNumber = "timezoneruleversionnumber";
+			public const string User_OfM_Request_Category = "user_ofm_request_category";
+			public const string UtcConversionTimeZoneCode = "utcconversiontimezonecode";
+			public const string VersionNumber = "versionnumber";
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Request_Category(System.Guid id) : 
+				base(EntityLogicalName, id)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Request_Category(string keyName, object keyValue) : 
+				base(EntityLogicalName, keyName, keyValue)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Request_Category(Microsoft.Xrm.Sdk.KeyAttributeCollection keyAttributes) : 
+				base(EntityLogicalName, keyAttributes)
+		{
+		}
+		
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Request_Category() : 
+				base(EntityLogicalName)
+		{
+		}
+		
+		public const string PrimaryIdAttribute = "ofm_request_categoryid";
+		
+		public const string PrimaryNameAttribute = "ofm_name";
+		
+		public const string EntitySchemaName = "ofm_request_category";
+		
+		public const string EntityLogicalName = "ofm_request_category";
+		
+		public const string EntityLogicalCollectionName = "ofm_request_categories";
+		
+		public const string EntitySetName = "ofm_request_categories";
+		
+		/// <summary>
+		/// Unique identifier of the user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
+		public System.Nullable<System.DateTime> CreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who created the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("createdonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Sequence number of the import that created this record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
+		public System.Nullable<int> ImportSequenceNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("importsequencenumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("importsequencenumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the record was modified.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
+		public System.Nullable<System.DateTime> ModifiedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who modified the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("modifiedonbehalfby", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_name")]
+		public string OfM_Name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_name", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request_category_number")]
+		public System.Nullable<int> OfM_Request_Category_Number
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("ofm_request_category_number");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_request_category_number", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for entity instances
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request_categoryid")]
+		public System.Nullable<System.Guid> OfM_Request_CategoryId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("ofm_request_categoryid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_request_categoryid", value);
+				if (value.HasValue)
+				{
+					base.Id = value.Value;
+				}
+				else
+				{
+					base.Id = System.Guid.Empty;
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request_categoryid")]
+		public override System.Guid Id
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return base.Id;
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.OfM_Request_CategoryId = value;
+			}
+		}
+		
+		/// <summary>
+		/// Date and time that the record was migrated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overriddencreatedon")]
+		public System.Nullable<System.DateTime> OverriddenCreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("overriddencreatedon");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("overriddencreatedon", value);
+			}
+		}
+		
+		/// <summary>
+		/// Owner Id
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ownerid")]
+		public Microsoft.Xrm.Sdk.EntityReference OwnerId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ownerid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ownerid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the business unit that owns the record
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningbusinessunit")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningBusinessUnit
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningbusinessunit");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("owningbusinessunit", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the team that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningTeam
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningteam");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the user that owns the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		public Microsoft.Xrm.Sdk.EntityReference OwningUser
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owninguser");
+			}
+		}
+		
+		/// <summary>
+		/// Status of the Request Category
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statecode")]
+		public virtual OfM_Request_Category_StateCode? StateCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Request_Category_StateCode?)(EntityOptionSetEnum.GetEnum(this, "statecode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Reason for the status of the Request Category
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statuscode")]
+		public virtual OfM_Request_Category_StatusCode? StatusCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((OfM_Request_Category_StatusCode?)(EntityOptionSetEnum.GetEnum(this, "statuscode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("statuscode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("timezoneruleversionnumber")]
+		public System.Nullable<int> TimeZoneRuleVersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("timezoneruleversionnumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("timezoneruleversionnumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Time zone code that was in use when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("utcconversiontimezonecode")]
+		public System.Nullable<int> UtcConversionTimeZoneCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("utcconversiontimezonecode");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("utcconversiontimezonecode", value);
+			}
+		}
+		
+		/// <summary>
+		/// Version Number
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
+		public System.Nullable<long> VersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+			}
+		}
+		
+		/// <summary>
+		/// 1:N ofm_assistance_request_category
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_assistance_request_category")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Assistance_Request> OfM_Assistance_Request_Category
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_assistance_request_category", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_assistance_request_category", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_request_category_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_request_category_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Request_Category_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_request_category_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_request_category_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_request_category_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Request_Category_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_request_category_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_request_category_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_request_category_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_request_category_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Request_Category_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_request_category_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_ofm_request_category_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_request_category_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_OfM_Request_Category_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_request_category_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_request_category_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 team_ofm_request_category
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_request_category")]
+		public ECC.Core.DataContext.Team Team_OfM_Request_Category
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_ofm_request_category", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 user_ofm_request_category
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_request_category")]
+		public ECC.Core.DataContext.SystemUser User_OfM_Request_Category
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_ofm_request_category", null);
+			}
+		}
+		
+		/// <summary>
+		/// Constructor for populating via LINQ queries given a LINQ anonymous type
+		/// <param name="anonymousType">LINQ anonymous type.</param>
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public OfM_Request_Category(object anonymousType) : 
+				this()
+		{
+            foreach (var p in anonymousType.GetType().GetProperties())
+            {
+                var value = p.GetValue(anonymousType, null);
+                var name = p.Name.ToLower();
+            
+                if (name.EndsWith("enum") && value.GetType().BaseType == typeof(System.Enum))
+                {
+                    value = new Microsoft.Xrm.Sdk.OptionSetValue((int) value);
+                    name = name.Remove(name.Length - "enum".Length);
+                }
+            
+                switch (name)
+                {
+                    case "id":
+                        base.Id = (System.Guid)value;
+                        Attributes["ofm_request_categoryid"] = base.Id;
+                        break;
+                    case "ofm_request_categoryid":
+                        var id = (System.Nullable<System.Guid>) value;
+                        if(id == null){ continue; }
+                        base.Id = id.Value;
+                        Attributes[name] = base.Id;
+                        break;
+                    case "formattedvalues":
+                        // Add Support for FormattedValues
+                        FormattedValues.AddRange((Microsoft.Xrm.Sdk.FormattedValueCollection)value);
+                        break;
+                    default:
+                        Attributes[name] = value;
+                        break;
+                }
+            }
+		}
+	}
+	
+	/// <summary>
+	/// Person with access to the Microsoft CRM system and who owns objects in the Microsoft CRM database.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("systemuser")]
+	public partial class SystemUser : Microsoft.Xrm.Sdk.Entity
+	{
+		
+		/// <summary>
+		/// Available fields, a the time of codegen, for the systemuser entity
+		/// </summary>
+		public static partial class Fields
+		{
+			public const string AccessMode = "accessmode";
+			public const string Address1_AddressId = "address1_addressid";
+			public const string Address1_AddressTypeCode = "address1_addresstypecode";
+			public const string Address1_City = "address1_city";
+			public const string Address1_Composite = "address1_composite";
+			public const string Address1_Country = "address1_country";
+			public const string Address1_County = "address1_county";
+			public const string Address1_Fax = "address1_fax";
+			public const string Address1_Latitude = "address1_latitude";
+			public const string Address1_Line1 = "address1_line1";
+			public const string Address1_Line2 = "address1_line2";
+			public const string Address1_Line3 = "address1_line3";
+			public const string Address1_Longitude = "address1_longitude";
+			public const string Address1_Name = "address1_name";
+			public const string Address1_PostalCode = "address1_postalcode";
+			public const string Address1_PostofficeBox = "address1_postofficebox";
+			public const string Address1_ShippingMethodCode = "address1_shippingmethodcode";
+			public const string Address1_StateOrProvince = "address1_stateorprovince";
+			public const string Address1_Telephone1 = "address1_telephone1";
+			public const string Address1_Telephone2 = "address1_telephone2";
+			public const string Address1_Telephone3 = "address1_telephone3";
+			public const string Address1_UpsZone = "address1_upszone";
+			public const string Address1_UtcOffset = "address1_utcoffset";
+			public const string Address2_AddressId = "address2_addressid";
+			public const string Address2_AddressTypeCode = "address2_addresstypecode";
+			public const string Address2_City = "address2_city";
+			public const string Address2_Composite = "address2_composite";
+			public const string Address2_Country = "address2_country";
+			public const string Address2_County = "address2_county";
+			public const string Address2_Fax = "address2_fax";
+			public const string Address2_Latitude = "address2_latitude";
+			public const string Address2_Line1 = "address2_line1";
+			public const string Address2_Line2 = "address2_line2";
+			public const string Address2_Line3 = "address2_line3";
+			public const string Address2_Longitude = "address2_longitude";
+			public const string Address2_Name = "address2_name";
+			public const string Address2_PostalCode = "address2_postalcode";
+			public const string Address2_PostofficeBox = "address2_postofficebox";
+			public const string Address2_ShippingMethodCode = "address2_shippingmethodcode";
+			public const string Address2_StateOrProvince = "address2_stateorprovince";
+			public const string Address2_Telephone1 = "address2_telephone1";
+			public const string Address2_Telephone2 = "address2_telephone2";
+			public const string Address2_Telephone3 = "address2_telephone3";
+			public const string Address2_UpsZone = "address2_upszone";
+			public const string Address2_UtcOffset = "address2_utcoffset";
+			public const string ApplicationId = "applicationid";
+			public const string ApplicationIdUri = "applicationiduri";
+			public const string AzureActiveDirectoryObjectId = "azureactivedirectoryobjectid";
+			public const string AzureDeletedOn = "azuredeletedon";
+			public const string AzureState = "azurestate";
+			public const string BusinessUnitId = "businessunitid";
+			public const string BusinessUnitIdName = "businessunitidname";
+			public const string CalendarId = "calendarid";
+			public const string CalendarIdName = "calendaridname";
+			public const string CalType = "caltype";
+			public const string Contact_Owning_User = "Contact_Owning_User";
+			public const string CreatedBy = "createdby";
+			public const string CreatedByName = "createdbyname";
+			public const string CreatedOn = "createdon";
+			public const string CreatedOnBehalfBy = "createdonbehalfby";
+			public const string CreatedOnBehalfByName = "createdonbehalfbyname";
+			public const string DefaultFiltersPopulated = "defaultfilterspopulated";
+			public const string DefaultMailbox = "defaultmailbox";
+			public const string DefaultMailboxName = "defaultmailboxname";
+			public const string DefaultOdbFolderName = "defaultodbfoldername";
+			public const string DeletedState = "deletedstate";
+			public const string DisabledReason = "disabledreason";
+			public const string DisplayInServiceViews = "displayinserviceviews";
+			public const string DomainName = "domainname";
+			public const string EmailRouterAccessApproval = "emailrouteraccessapproval";
+			public const string EmployeeId = "employeeid";
+			public const string EntityImage = "entityimage";
+			public const string EntityImage_Timestamp = "entityimage_timestamp";
+			public const string EntityImage_Url = "entityimage_url";
+			public const string EntityImageId = "entityimageid";
+			public const string EntityImageIdName = "entityimageidname";
+			public const string ExchangerAte = "exchangerate";
+			public const string FirstName = "firstname";
+			public const string FullName = "fullname";
+			public const string GovernmentId = "governmentid";
+			public const string HomePhone = "homephone";
+			public const string IdentityId = "identityid";
+			public const string ImportSequenceNumber = "importsequencenumber";
+			public const string IncomingEmailDeliveryMethod = "incomingemaildeliverymethod";
+			public const string InternalEmailAddress = "internalemailaddress";
+			public const string InviteStatusCode = "invitestatuscode";
+			public const string IsDisabled = "isdisabled";
+			public const string IsEmailAddressApprovedByO365Admin = "isemailaddressapprovedbyo365admin";
+			public const string IsIntegrationUser = "isintegrationuser";
+			public const string IsLicensed = "islicensed";
+			public const string IsSyncWithDirectory = "issyncwithdirectory";
+			public const string JobTitle = "jobtitle";
+			public const string LastName = "lastname";
+			public const string Lk_AccountBase_CreatedBy = "Lk_AccountBase_CreatedBy";
+			public const string Lk_AccountBase_CreatedOnBehalfBy = "Lk_AccountBase_CreatedOnBehalfBy";
+			public const string Lk_AccountBase_ModifiedBy = "Lk_AccountBase_ModifiedBy";
+			public const string Lk_AccountBase_ModifiedOnBehalfBy = "Lk_AccountBase_ModifiedOnBehalfBy";
+			public const string Lk_Contact_CreatedOnBehalfBy = "Lk_Contact_CreatedOnBehalfBy";
+			public const string Lk_Contact_ModifiedOnBehalfBy = "Lk_Contact_ModifiedOnBehalfBy";
+			public const string Lk_ContactBase_CreatedBy = "Lk_ContactBase_CreatedBy";
+			public const string Lk_ContactBase_ModifiedBy = "Lk_ContactBase_ModifiedBy";
+			public const string Lk_OfM_Assistance_Request_CreatedBy = "Lk_OfM_Assistance_Request_CreatedBy";
+			public const string Lk_OfM_Assistance_Request_CreatedOnBehalfBy = "Lk_OfM_Assistance_Request_CreatedOnBehalfBy";
+			public const string Lk_OfM_Assistance_Request_ModifiedBy = "Lk_OfM_Assistance_Request_ModifiedBy";
+			public const string Lk_OfM_Assistance_Request_ModifiedOnBehalfBy = "Lk_OfM_Assistance_Request_ModifiedOnBehalfBy";
+			public const string Lk_OfM_BcEId_Facility_CreatedBy = "Lk_OfM_BcEId_Facility_CreatedBy";
+			public const string Lk_OfM_BcEId_Facility_CreatedOnBehalfBy = "Lk_OfM_BcEId_Facility_CreatedOnBehalfBy";
+			public const string Lk_OfM_BcEId_Facility_ModifiedBy = "Lk_OfM_BcEId_Facility_ModifiedBy";
+			public const string Lk_OfM_BcEId_Facility_ModifiedOnBehalfBy = "Lk_OfM_BcEId_Facility_ModifiedOnBehalfBy";
+			public const string Lk_OfM_Conversation_CreatedBy = "Lk_OfM_Conversation_CreatedBy";
+			public const string Lk_OfM_Conversation_CreatedOnBehalfBy = "Lk_OfM_Conversation_CreatedOnBehalfBy";
+			public const string Lk_OfM_Conversation_ModifiedBy = "Lk_OfM_Conversation_ModifiedBy";
+			public const string Lk_OfM_Conversation_ModifiedOnBehalfBy = "Lk_OfM_Conversation_ModifiedOnBehalfBy";
+			public const string Lk_OfM_Facility_Request_CreatedBy = "Lk_OfM_Facility_Request_CreatedBy";
+			public const string Lk_OfM_Facility_Request_CreatedOnBehalfBy = "Lk_OfM_Facility_Request_CreatedOnBehalfBy";
+			public const string Lk_OfM_Facility_Request_ModifiedBy = "Lk_OfM_Facility_Request_ModifiedBy";
+			public const string Lk_OfM_Facility_Request_ModifiedOnBehalfBy = "Lk_OfM_Facility_Request_ModifiedOnBehalfBy";
+			public const string Lk_OfM_Request_Category_CreatedBy = "Lk_OfM_Request_Category_CreatedBy";
+			public const string Lk_OfM_Request_Category_CreatedOnBehalfBy = "Lk_OfM_Request_Category_CreatedOnBehalfBy";
+			public const string Lk_OfM_Request_Category_ModifiedBy = "Lk_OfM_Request_Category_ModifiedBy";
+			public const string Lk_OfM_Request_Category_ModifiedOnBehalfBy = "Lk_OfM_Request_Category_ModifiedOnBehalfBy";
+			public const string ReferencingLk_SystemUser_CreatedOnBehalfBy = "lk_systemuser_createdonbehalfby";
+			public const string ReferencingLk_SystemUser_ModifiedOnBehalfBy = "lk_systemuser_modifiedonbehalfby";
+			public const string ReferencingLk_SystemUserBase_CreatedBy = "lk_systemuserbase_createdby";
+			public const string ReferencingLk_SystemUserBase_ModifiedBy = "lk_systemuserbase_modifiedby";
+			public const string Lk_Task_CreatedBy = "Lk_Task_CreatedBy";
+			public const string Lk_Task_CreatedOnBehalfBy = "Lk_Task_CreatedOnBehalfBy";
+			public const string Lk_Task_ModifiedBy = "Lk_Task_ModifiedBy";
+			public const string Lk_Task_ModifiedOnBehalfBy = "Lk_Task_ModifiedOnBehalfBy";
+			public const string Lk_Team_CreatedOnBehalfBy = "Lk_Team_CreatedOnBehalfBy";
+			public const string Lk_Team_ModifiedOnBehalfBy = "Lk_Team_ModifiedOnBehalfBy";
+			public const string Lk_TeamBase_AdministratorId = "Lk_TeamBase_AdministratorId";
+			public const string Lk_TeamBase_CreatedBy = "Lk_TeamBase_CreatedBy";
+			public const string Lk_TeamBase_ModifiedBy = "Lk_TeamBase_ModifiedBy";
+			public const string MiddleName = "middlename";
+			public const string MobileAlertEmail = "mobilealertemail";
+			public const string MobileOfflineProfileId = "mobileofflineprofileid";
+			public const string MobileOfflineProfileIdName = "mobileofflineprofileidname";
+			public const string MobilePhone = "mobilephone";
+			public const string ModifiedBy = "modifiedby";
+			public const string ModifiedByName = "modifiedbyname";
+			public const string ModifiedOn = "modifiedon";
+			public const string ModifiedOnBehalfBy = "modifiedonbehalfby";
+			public const string ModifiedOnBehalfByName = "modifiedonbehalfbyname";
+			public const string Msdyn_AgentType = "msdyn_agentType";
+			public const string Msdyn_BotApplicationId = "msdyn_botapplicationid";
+			public const string Msdyn_BotDescription = "msdyn_botdescription";
+			public const string Msdyn_BotEndpoint = "msdyn_botendpoint";
+			public const string Msdyn_BotHandle = "msdyn_bothandle";
+			public const string Msdyn_BotProvider = "msdyn_botprovider";
+			public const string Msdyn_BotSecretKeys = "msdyn_botsecretkeys";
+			public const string Msdyn_Capacity = "msdyn_capacity";
+			public const string Msdyn_DefaultPresenceIdUser = "msdyn_defaultpresenceiduser";
+			public const string Msdyn_DefaultPresenceIdUserName = "msdyn_defaultpresenceidusername";
+			public const string Msdyn_GdPrOptOut = "msdyn_gdproptout";
+			public const string Msdyn_GridWrapperControlField = "msdyn_gridwrappercontrolfield";
+			public const string Msdyn_IsExpertEnabledForSwarm = "msdyn_isexpertenabledforswarm";
+			public const string Msdyn_OwningEnvironmentId = "msdyn_owningenvironmentid";
+			public const string Msdyn_UserType = "msdyn_usertype";
+			public const string Nickname = "nickname";
+			public const string OrganizationId = "organizationid";
+			public const string OrganizationIdName = "organizationidname";
+			public const string OutgoingEmailDeliveryMethod = "outgoingemaildeliverymethod";
+			public const string OverriddenCreatedOn = "overriddencreatedon";
+			public const string ParentSystemUserId = "parentsystemuserid";
+			public const string ParentSystemUserIdName = "parentsystemuseridname";
+			public const string PassportHi = "passporthi";
+			public const string PassportLo = "passportlo";
+			public const string PersonalEmailAddress = "personalemailaddress";
+			public const string PhotoUrl = "photourl";
+			public const string PositionId = "positionid";
+			public const string PositionIdName = "positionidname";
+			public const string PreferredAddressCode = "preferredaddresscode";
+			public const string PreferredEmailCode = "preferredemailcode";
+			public const string PreferredPhoneCode = "preferredphonecode";
+			public const string ProcessId = "processid";
+			public const string QueueId = "queueid";
+			public const string QueueIdName = "queueidname";
+			public const string ReferencedLk_SystemUser_CreatedOnBehalfBy = "ReferencedLk_SystemUser_CreatedOnBehalfBy";
+			public const string ReferencedLk_SystemUser_ModifiedOnBehalfBy = "ReferencedLk_SystemUser_ModifiedOnBehalfBy";
+			public const string ReferencedLk_SystemUserBase_CreatedBy = "ReferencedLk_SystemUserBase_CreatedBy";
+			public const string ReferencedLk_SystemUserBase_ModifiedBy = "ReferencedLk_SystemUserBase_ModifiedBy";
+			public const string ReferencedUser_Parent_User = "ReferencedUser_Parent_User";
+			public const string Salutation = "salutation";
+			public const string SetupUser = "setupuser";
+			public const string SharePointEmailAddress = "sharepointemailaddress";
+			public const string SiteId = "siteid";
+			public const string SiteIdName = "siteidname";
+			public const string Skills = "skills";
+			public const string StageId = "stageid";
+			public const string StageIdName = "stageidname";
+			public const string System_User_Accounts = "System_User_Accounts";
+			public const string System_User_Contacts = "System_User_Contacts";
+			public const string SystemUserId = "systemuserid";
+			public const string Id = "systemuserid";
+			public const string TeamMembership_Association = "teammembership_association";
+			public const string TerritoryId = "territoryid";
+			public const string TerritoryIdName = "territoryidname";
+			public const string TimeZoneRuleVersionNumber = "timezoneruleversionnumber";
+			public const string Title = "title";
+			public const string TransactionCurrencyId = "transactioncurrencyid";
+			public const string TransactionCurrencyIdName = "transactioncurrencyidname";
+			public const string TraversedPath = "traversedpath";
+			public const string User_Accounts = "User_Accounts";
+			public const string User_OfM_Assistance_Request = "User_OfM_Assistance_Request";
+			public const string User_OfM_BcEId_Facility = "User_OfM_BcEId_Facility";
+			public const string User_OfM_Conversation = "User_OfM_Conversation";
+			public const string User_OfM_Facility_Request = "User_OfM_Facility_Request";
+			public const string User_OfM_Request_Category = "User_OfM_Request_Category";
+			public const string ReferencingUser_Parent_User = "user_parent_user";
+			public const string User_Task = "User_Task";
+			public const string UserLicenseType = "userlicensetype";
+			public const string UserPuid = "userpuid";
+			public const string UtcConversionTimeZoneCode = "utcconversiontimezonecode";
+			public const string VersionNumber = "versionnumber";
+			public const string WindowsLiveId = "windowsliveid";
+			public const string YammerEmailAddress = "yammeremailaddress";
+			public const string YammerUserId = "yammeruserid";
+			public const string YomiFirstName = "yomifirstname";
+			public const string YomiFullName = "yomifullname";
+			public const string YomiLastName = "yomilastname";
+			public const string YomiMiddleName = "yomimiddlename";
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public SystemUser(System.Guid id) : 
+				base(EntityLogicalName, id)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public SystemUser(string keyName, object keyValue) : 
+				base(EntityLogicalName, keyName, keyValue)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public SystemUser(Microsoft.Xrm.Sdk.KeyAttributeCollection keyAttributes) : 
+				base(EntityLogicalName, keyAttributes)
+		{
+		}
+		
+		public const string AlternateKeys = "azureactivedirectoryobjectid";
+		
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public SystemUser() : 
+				base(EntityLogicalName)
+		{
+		}
+		
+		public const string PrimaryIdAttribute = "systemuserid";
+		
+		public const string PrimaryNameAttribute = "fullname";
+		
+		public const string EntitySchemaName = "SystemUser";
+		
+		public const string EntityLogicalName = "systemuser";
+		
+		public const string EntityLogicalCollectionName = "systemusers";
+		
+		public const string EntitySetName = "systemusers";
+		
+		/// <summary>
+		/// Type of user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("accessmode")]
+		public virtual SystemUser_AccessMode? AccessMode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_AccessMode?)(EntityOptionSetEnum.GetEnum(this, "accessmode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("accessmode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_addressid")]
+		public System.Nullable<System.Guid> Address1_AddressId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("address1_addressid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_addressid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Type of address for address 1, such as billing, shipping, or primary address.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_addresstypecode")]
+		public virtual SystemUser_Address1_AddressTypeCode? Address1_AddressTypeCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_Address1_AddressTypeCode?)(EntityOptionSetEnum.GetEnum(this, "address1_addresstypecode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_addresstypecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// City name for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_city")]
+		public string Address1_City
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_city");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_city", value);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the complete primary address.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_composite")]
+		public string Address1_Composite
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_composite");
+			}
+		}
+		
+		/// <summary>
+		/// Country/region name in address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_country")]
+		public string Address1_Country
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_country");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_country", value);
+			}
+		}
+		
+		/// <summary>
+		/// County name for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_county")]
+		public string Address1_County
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_county");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_county", value);
+			}
+		}
+		
+		/// <summary>
+		/// Fax number for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_fax")]
+		public string Address1_Fax
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_fax");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_fax", value);
+			}
+		}
+		
+		/// <summary>
+		/// Latitude for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_latitude")]
+		public System.Nullable<double> Address1_Latitude
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<double>>("address1_latitude");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_latitude", value);
+			}
+		}
+		
+		/// <summary>
+		/// First line for entering address 1 information.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_line1")]
+		public string Address1_Line1
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_line1");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_line1", value);
+			}
+		}
+		
+		/// <summary>
+		/// Second line for entering address 1 information.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_line2")]
+		public string Address1_Line2
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_line2");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_line2", value);
+			}
+		}
+		
+		/// <summary>
+		/// Third line for entering address 1 information.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_line3")]
+		public string Address1_Line3
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_line3");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_line3", value);
+			}
+		}
+		
+		/// <summary>
+		/// Longitude for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_longitude")]
+		public System.Nullable<double> Address1_Longitude
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<double>>("address1_longitude");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_longitude", value);
+			}
+		}
+		
+		/// <summary>
+		/// Name to enter for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_name")]
+		public string Address1_Name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_name", value);
+			}
+		}
+		
+		/// <summary>
+		/// ZIP Code or postal code for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_postalcode")]
+		public string Address1_PostalCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_postalcode");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_postalcode", value);
+			}
+		}
+		
+		/// <summary>
+		/// Post office box number for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_postofficebox")]
+		public string Address1_PostofficeBox
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_postofficebox");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_postofficebox", value);
+			}
+		}
+		
+		/// <summary>
+		/// Method of shipment for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_shippingmethodcode")]
+		public virtual SystemUser_Address1_ShippingMethodCode? Address1_ShippingMethodCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_Address1_ShippingMethodCode?)(EntityOptionSetEnum.GetEnum(this, "address1_shippingmethodcode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_shippingmethodcode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// State or province for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_stateorprovince")]
+		public string Address1_StateOrProvince
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_stateorprovince");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_stateorprovince", value);
+			}
+		}
+		
+		/// <summary>
+		/// First telephone number associated with address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_telephone1")]
+		public string Address1_Telephone1
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_telephone1");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_telephone1", value);
+			}
+		}
+		
+		/// <summary>
+		/// Second telephone number associated with address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_telephone2")]
+		public string Address1_Telephone2
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_telephone2");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_telephone2", value);
+			}
+		}
+		
+		/// <summary>
+		/// Third telephone number associated with address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_telephone3")]
+		public string Address1_Telephone3
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_telephone3");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_telephone3", value);
+			}
+		}
+		
+		/// <summary>
+		/// United Parcel Service (UPS) zone for address 1.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_upszone")]
+		public string Address1_UpsZone
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address1_upszone");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_upszone", value);
+			}
+		}
+		
+		/// <summary>
+		/// UTC offset for address 1. This is the difference between local time and standard Coordinated Universal Time.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address1_utcoffset")]
+		public System.Nullable<int> Address1_UtcOffset
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("address1_utcoffset");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address1_utcoffset", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_addressid")]
+		public System.Nullable<System.Guid> Address2_AddressId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("address2_addressid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_addressid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Type of address for address 2, such as billing, shipping, or primary address.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_addresstypecode")]
+		public virtual SystemUser_Address2_AddressTypeCode? Address2_AddressTypeCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_Address2_AddressTypeCode?)(EntityOptionSetEnum.GetEnum(this, "address2_addresstypecode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_addresstypecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// City name for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_city")]
+		public string Address2_City
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_city");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_city", value);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the complete secondary address.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_composite")]
+		public string Address2_Composite
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_composite");
+			}
+		}
+		
+		/// <summary>
+		/// Country/region name in address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_country")]
+		public string Address2_Country
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_country");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_country", value);
+			}
+		}
+		
+		/// <summary>
+		/// County name for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_county")]
+		public string Address2_County
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_county");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_county", value);
+			}
+		}
+		
+		/// <summary>
+		/// Fax number for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_fax")]
+		public string Address2_Fax
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_fax");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_fax", value);
+			}
+		}
+		
+		/// <summary>
+		/// Latitude for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_latitude")]
+		public System.Nullable<double> Address2_Latitude
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<double>>("address2_latitude");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_latitude", value);
+			}
+		}
+		
+		/// <summary>
+		/// First line for entering address 2 information.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_line1")]
+		public string Address2_Line1
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_line1");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_line1", value);
+			}
+		}
+		
+		/// <summary>
+		/// Second line for entering address 2 information.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_line2")]
+		public string Address2_Line2
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_line2");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_line2", value);
+			}
+		}
+		
+		/// <summary>
+		/// Third line for entering address 2 information.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_line3")]
+		public string Address2_Line3
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_line3");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_line3", value);
+			}
+		}
+		
+		/// <summary>
+		/// Longitude for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_longitude")]
+		public System.Nullable<double> Address2_Longitude
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<double>>("address2_longitude");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_longitude", value);
+			}
+		}
+		
+		/// <summary>
+		/// Name to enter for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_name")]
+		public string Address2_Name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_name", value);
+			}
+		}
+		
+		/// <summary>
+		/// ZIP Code or postal code for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_postalcode")]
+		public string Address2_PostalCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_postalcode");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_postalcode", value);
+			}
+		}
+		
+		/// <summary>
+		/// Post office box number for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_postofficebox")]
+		public string Address2_PostofficeBox
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_postofficebox");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_postofficebox", value);
+			}
+		}
+		
+		/// <summary>
+		/// Method of shipment for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_shippingmethodcode")]
+		public virtual SystemUser_Address2_ShippingMethodCode? Address2_ShippingMethodCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_Address2_ShippingMethodCode?)(EntityOptionSetEnum.GetEnum(this, "address2_shippingmethodcode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_shippingmethodcode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// State or province for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_stateorprovince")]
+		public string Address2_StateOrProvince
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_stateorprovince");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_stateorprovince", value);
+			}
+		}
+		
+		/// <summary>
+		/// First telephone number associated with address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_telephone1")]
+		public string Address2_Telephone1
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_telephone1");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_telephone1", value);
+			}
+		}
+		
+		/// <summary>
+		/// Second telephone number associated with address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_telephone2")]
+		public string Address2_Telephone2
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_telephone2");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_telephone2", value);
+			}
+		}
+		
+		/// <summary>
+		/// Third telephone number associated with address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_telephone3")]
+		public string Address2_Telephone3
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_telephone3");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_telephone3", value);
+			}
+		}
+		
+		/// <summary>
+		/// United Parcel Service (UPS) zone for address 2.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_upszone")]
+		public string Address2_UpsZone
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("address2_upszone");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_upszone", value);
+			}
+		}
+		
+		/// <summary>
+		/// UTC offset for address 2. This is the difference between local time and standard Coordinated Universal Time.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("address2_utcoffset")]
+		public System.Nullable<int> Address2_UtcOffset
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("address2_utcoffset");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("address2_utcoffset", value);
+			}
+		}
+		
+		/// <summary>
+		/// The identifier for the application. This is used to access data in another application.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("applicationid")]
+		public System.Nullable<System.Guid> ApplicationId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("applicationid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("applicationid", value);
+			}
+		}
+		
+		/// <summary>
+		/// The URI used as a unique logical identifier for the external app. This can be used to validate the application.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("applicationiduri")]
+		public string ApplicationIdUri
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("applicationiduri");
+			}
+		}
+		
+		/// <summary>
+		/// This is the application directory object Id.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("azureactivedirectoryobjectid")]
+		public System.Nullable<System.Guid> AzureActiveDirectoryObjectId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("azureactivedirectoryobjectid");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the user was set as soft deleted in Azure.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("azuredeletedon")]
+		public System.Nullable<System.DateTime> AzureDeletedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("azuredeletedon");
+			}
+		}
+		
+		/// <summary>
+		/// Azure state of user
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("azurestate")]
+		public virtual SystemUser_AzureState? AzureState
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_AzureState?)(EntityOptionSetEnum.GetEnum(this, "azurestate")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("azurestate", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the business unit with which the user is associated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("businessunitid")]
+		public Microsoft.Xrm.Sdk.EntityReference BusinessUnitId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("businessunitid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("businessunitid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Fiscal calendar associated with the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("calendarid")]
+		public Microsoft.Xrm.Sdk.EntityReference CalendarId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("calendarid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("calendarid", value);
+			}
+		}
+		
+		/// <summary>
+		/// License type of user. This is used only in the on-premises version of the product. Online licenses are managed through Microsoft 365 Office Portal
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("caltype")]
+		public virtual SystemUser_CalType? CalType
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_CalType?)(EntityOptionSetEnum.GetEnum(this, "caltype")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("caltype", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who created the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the user was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
+		public System.Nullable<System.DateTime> CreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who created the systemuser.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("createdonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Indicates if default outlook filters have been populated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("defaultfilterspopulated")]
+		public System.Nullable<bool> DefaultFiltersPopulated
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("defaultfilterspopulated");
+			}
+		}
+		
+		/// <summary>
+		/// Select the mailbox associated with this user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("defaultmailbox")]
+		public Microsoft.Xrm.Sdk.EntityReference DefaultMailbox
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("defaultmailbox");
+			}
+		}
+		
+		/// <summary>
+		/// Type a default folder name for the user's OneDrive For Business location.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("defaultodbfoldername")]
+		public string DefaultOdbFolderName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("defaultodbfoldername");
+			}
+		}
+		
+		/// <summary>
+		/// User delete state
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("deletedstate")]
+		public virtual SystemUser_DeletedState? DeletedState
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_DeletedState?)(EntityOptionSetEnum.GetEnum(this, "deletedstate")));
+			}
+		}
+		
+		/// <summary>
+		/// Reason for disabling the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("disabledreason")]
+		public string DisabledReason
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("disabledreason");
+			}
+		}
+		
+		/// <summary>
+		/// Whether to display the user in service views.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("displayinserviceviews")]
+		public System.Nullable<bool> DisplayInServiceViews
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("displayinserviceviews");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("displayinserviceviews", value);
+			}
+		}
+		
+		/// <summary>
+		/// Active Directory domain of which the user is a member.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("domainname")]
+		public string DomainName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("domainname");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("domainname", value);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the status of the primary email address.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("emailrouteraccessapproval")]
+		public virtual SystemUser_EmailRouterAccessApproval? EmailRouterAccessApproval
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_EmailRouterAccessApproval?)(EntityOptionSetEnum.GetEnum(this, "emailrouteraccessapproval")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("emailrouteraccessapproval", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Employee identifier for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("employeeid")]
+		public string EmployeeId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("employeeid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("employeeid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the default image for the record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("entityimage")]
+		public byte[] EntityImage
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<byte[]>("entityimage");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("entityimage", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("entityimage_timestamp")]
+		public System.Nullable<long> EntityImage_Timestamp
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<long>>("entityimage_timestamp");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("entityimage_url")]
+		public string EntityImage_Url
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("entityimage_url");
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("entityimageid")]
+		public System.Nullable<System.Guid> EntityImageId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("entityimageid");
+			}
+		}
+		
+		/// <summary>
+		/// Exchange rate for the currency associated with the systemuser with respect to the base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("exchangerate")]
+		public System.Nullable<decimal> ExchangerAte
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("exchangerate");
+			}
+		}
+		
+		/// <summary>
+		/// First name of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("firstname")]
+		public string FirstName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("firstname");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("firstname", value);
+			}
+		}
+		
+		/// <summary>
+		/// Full name of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("fullname")]
+		public string FullName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("fullname");
+			}
+		}
+		
+		/// <summary>
+		/// Government identifier for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("governmentid")]
+		public string GovernmentId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("governmentid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("governmentid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Home phone number for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("homephone")]
+		public string HomePhone
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("homephone");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("homephone", value);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("identityid")]
+		public System.Nullable<int> IdentityId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("identityid");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the data import or data migration that created this record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
+		public System.Nullable<int> ImportSequenceNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("importsequencenumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("importsequencenumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Incoming email delivery method for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("incomingemaildeliverymethod")]
+		public virtual SystemUser_IncomingEmailDeliveryMethod? IncomingEmailDeliveryMethod
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_IncomingEmailDeliveryMethod?)(EntityOptionSetEnum.GetEnum(this, "incomingemaildeliverymethod")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("incomingemaildeliverymethod", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Internal email address for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("internalemailaddress")]
+		public string InternalEmailAddress
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("internalemailaddress");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("internalemailaddress", value);
+			}
+		}
+		
+		/// <summary>
+		/// User invitation status.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("invitestatuscode")]
+		public virtual SystemUser_InviteStatusCode? InviteStatusCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_InviteStatusCode?)(EntityOptionSetEnum.GetEnum(this, "invitestatuscode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("invitestatuscode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Information about whether the user is enabled.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("isdisabled")]
+		public System.Nullable<bool> IsDisabled
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("isdisabled");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("isdisabled", value);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the status of approval of the email address by O365 Admin.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("isemailaddressapprovedbyo365admin")]
+		public System.Nullable<bool> IsEmailAddressApprovedByO365Admin
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("isemailaddressapprovedbyo365admin");
+			}
+		}
+		
+		/// <summary>
+		/// Check if user is an integration user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("isintegrationuser")]
+		public System.Nullable<bool> IsIntegrationUser
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("isintegrationuser");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("isintegrationuser", value);
+			}
+		}
+		
+		/// <summary>
+		/// Information about whether the user is licensed.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("islicensed")]
+		public System.Nullable<bool> IsLicensed
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("islicensed");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("islicensed", value);
+			}
+		}
+		
+		/// <summary>
+		/// Information about whether the user is synced with the directory.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("issyncwithdirectory")]
+		public System.Nullable<bool> IsSyncWithDirectory
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("issyncwithdirectory");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("issyncwithdirectory", value);
+			}
+		}
+		
+		/// <summary>
+		/// Job title of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("jobtitle")]
+		public string JobTitle
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("jobtitle");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("jobtitle", value);
+			}
+		}
+		
+		/// <summary>
+		/// Last name of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("lastname")]
+		public string LastName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("lastname");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("lastname", value);
+			}
+		}
+		
+		/// <summary>
+		/// Middle name of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("middlename")]
+		public string MiddleName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("middlename");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("middlename", value);
+			}
+		}
+		
+		/// <summary>
+		/// Mobile alert email address for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("mobilealertemail")]
+		public string MobileAlertEmail
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("mobilealertemail");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("mobilealertemail", value);
+			}
+		}
+		
+		/// <summary>
+		/// Items contained with a particular SystemUser.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("mobileofflineprofileid")]
+		public Microsoft.Xrm.Sdk.EntityReference MobileOfflineProfileId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("mobileofflineprofileid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("mobileofflineprofileid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Mobile phone number for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("mobilephone")]
+		public string MobilePhone
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("mobilephone");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("mobilephone", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who last modified the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the user was last modified.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
+		public System.Nullable<System.DateTime> ModifiedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who last modified the systemuser.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("modifiedonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Type of user - Application user or Bot application user
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_agentType")]
+		public virtual SystemUser_Msdyn_AgentType? Msdyn_AgentType
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_Msdyn_AgentType?)(EntityOptionSetEnum.GetEnum(this, "msdyn_agentType")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_agentType", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Application ID of the bot.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_botapplicationid")]
+		public string Msdyn_BotApplicationId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("msdyn_botapplicationid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_botapplicationid", value);
+			}
+		}
+		
+		/// <summary>
+		/// BOT User Description
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_botdescription")]
+		public string Msdyn_BotDescription
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("msdyn_botdescription");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_botdescription", value);
+			}
+		}
+		
+		/// <summary>
+		/// Bot User Endpoint
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_botendpoint")]
+		public string Msdyn_BotEndpoint
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("msdyn_botendpoint");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_botendpoint", value);
+			}
+		}
+		
+		/// <summary>
+		/// Bot handle
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_bothandle")]
+		public string Msdyn_BotHandle
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("msdyn_bothandle");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_bothandle", value);
+			}
+		}
+		
+		/// <summary>
+		/// Indicates the type of bot
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_botprovider")]
+		public virtual SystemUser_Msdyn_BotProvider? Msdyn_BotProvider
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_Msdyn_BotProvider?)(EntityOptionSetEnum.GetEnum(this, "msdyn_botprovider")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_botprovider", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Bot User Secret Keys
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_botsecretkeys")]
+		public string Msdyn_BotSecretKeys
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("msdyn_botsecretkeys");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_botsecretkeys", value);
+			}
+		}
+		
+		/// <summary>
+		/// Capacity associated with the User.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_capacity")]
+		public System.Nullable<int> Msdyn_Capacity
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("msdyn_capacity");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_capacity", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for Presence associated with User.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_defaultpresenceiduser")]
+		public Microsoft.Xrm.Sdk.EntityReference Msdyn_DefaultPresenceIdUser
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("msdyn_defaultpresenceiduser");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_defaultpresenceiduser", value);
+			}
+		}
+		
+		/// <summary>
+		/// Describes whether user is opted out or not
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_gdproptout")]
+		public System.Nullable<bool> Msdyn_GdPrOptOut
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("msdyn_gdproptout");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_gdproptout", value);
+			}
+		}
+		
+		/// <summary>
+		/// Field to bind grid wrapper control
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_gridwrappercontrolfield")]
+		public string Msdyn_GridWrapperControlField
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("msdyn_gridwrappercontrolfield");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_gridwrappercontrolfield", value);
+			}
+		}
+		
+		/// <summary>
+		/// Check if swarm is enabled for the experts.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_isexpertenabledforswarm")]
+		public System.Nullable<bool> Msdyn_IsExpertEnabledForSwarm
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("msdyn_isexpertenabledforswarm");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_isexpertenabledforswarm", value);
+			}
+		}
+		
+		/// <summary>
+		/// Environment Id of the CDS environment that owns the bot user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_owningenvironmentid")]
+		public string Msdyn_OwningEnvironmentId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("msdyn_owningenvironmentid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_owningenvironmentid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Type of user - CRM or BOT user
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msdyn_usertype")]
+		public virtual SystemUser_Msdyn_UserType? Msdyn_UserType
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_Msdyn_UserType?)(EntityOptionSetEnum.GetEnum(this, "msdyn_usertype")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("msdyn_usertype", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Nickname of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("nickname")]
+		public string Nickname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("nickname");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("nickname", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the organization associated with the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("organizationid")]
+		public System.Nullable<System.Guid> OrganizationId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("organizationid");
+			}
+		}
+		
+		/// <summary>
+		/// Outgoing email delivery method for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("outgoingemaildeliverymethod")]
+		public virtual SystemUser_OutgoingEmailDeliveryMethod? OutgoingEmailDeliveryMethod
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_OutgoingEmailDeliveryMethod?)(EntityOptionSetEnum.GetEnum(this, "outgoingemaildeliverymethod")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("outgoingemaildeliverymethod", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Date and time that the record was migrated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overriddencreatedon")]
+		public System.Nullable<System.DateTime> OverriddenCreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("overriddencreatedon");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("overriddencreatedon", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the manager of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("parentsystemuserid")]
+		public Microsoft.Xrm.Sdk.EntityReference ParentSystemUserId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("parentsystemuserid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("parentsystemuserid", value);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("passporthi")]
+		public System.Nullable<int> PassportHi
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("passporthi");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("passporthi", value);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("passportlo")]
+		public System.Nullable<int> PassportLo
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("passportlo");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("passportlo", value);
+			}
+		}
+		
+		/// <summary>
+		/// Personal email address of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("personalemailaddress")]
+		public string PersonalEmailAddress
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("personalemailaddress");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("personalemailaddress", value);
+			}
+		}
+		
+		/// <summary>
+		/// URL for the Website on which a photo of the user is located.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("photourl")]
+		public string PhotoUrl
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("photourl");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("photourl", value);
+			}
+		}
+		
+		/// <summary>
+		/// User's position in hierarchical security model.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("positionid")]
+		public Microsoft.Xrm.Sdk.EntityReference PositionId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("positionid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("positionid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Preferred address for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("preferredaddresscode")]
+		public virtual SystemUser_PreferredAddressCode? PreferredAddressCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_PreferredAddressCode?)(EntityOptionSetEnum.GetEnum(this, "preferredaddresscode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("preferredaddresscode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Preferred email address for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("preferredemailcode")]
+		public virtual SystemUser_PreferredEmailCode? PreferredEmailCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_PreferredEmailCode?)(EntityOptionSetEnum.GetEnum(this, "preferredemailcode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("preferredemailcode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Preferred phone number for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("preferredphonecode")]
+		public virtual SystemUser_PreferredPhoneCode? PreferredPhoneCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((SystemUser_PreferredPhoneCode?)(EntityOptionSetEnum.GetEnum(this, "preferredphonecode")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("preferredphonecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the ID of the process.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("processid")]
+		public System.Nullable<System.Guid> ProcessId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("processid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("processid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the default queue for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("queueid")]
+		public Microsoft.Xrm.Sdk.EntityReference QueueId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("queueid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("queueid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Salutation for correspondence with the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("salutation")]
+		public string Salutation
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("salutation");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("salutation", value);
+			}
+		}
+		
+		/// <summary>
+		/// Check if user is a setup user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("setupuser")]
+		public System.Nullable<bool> SetupUser
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("setupuser");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("setupuser", value);
+			}
+		}
+		
+		/// <summary>
+		/// SharePoint Work Email Address
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("sharepointemailaddress")]
+		public string SharePointEmailAddress
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("sharepointemailaddress");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("sharepointemailaddress", value);
+			}
+		}
+		
+		/// <summary>
+		/// Site at which the user is located.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("siteid")]
+		public Microsoft.Xrm.Sdk.EntityReference SiteId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("siteid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("siteid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Skill set of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("skills")]
+		public string Skills
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("skills");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("skills", value);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the ID of the stage.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("stageid")]
+		public System.Nullable<System.Guid> StageId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("stageid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("stageid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("systemuserid")]
+		public System.Nullable<System.Guid> SystemUserId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("systemuserid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("systemuserid", value);
+				if (value.HasValue)
+				{
+					base.Id = value.Value;
+				}
+				else
+				{
+					base.Id = System.Guid.Empty;
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("systemuserid")]
+		public override System.Guid Id
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return base.Id;
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SystemUserId = value;
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the territory to which the user is assigned.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("territoryid")]
+		public Microsoft.Xrm.Sdk.EntityReference TerritoryId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("territoryid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("territoryid", value);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("timezoneruleversionnumber")]
+		public System.Nullable<int> TimeZoneRuleVersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("timezoneruleversionnumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("timezoneruleversionnumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Title of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("title")]
+		public string Title
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("title");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("title", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the currency associated with the systemuser.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("transactioncurrencyid")]
+		public Microsoft.Xrm.Sdk.EntityReference TransactionCurrencyId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("transactioncurrencyid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("transactioncurrencyid", value);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("traversedpath")]
+		public string TraversedPath
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("traversedpath");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("traversedpath", value);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the type of user license.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("userlicensetype")]
+		public System.Nullable<int> UserLicenseType
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("userlicensetype");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("userlicensetype", value);
+			}
+		}
+		
+		/// <summary>
+		///  User PUID User Identifiable Information
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("userpuid")]
+		public string UserPuid
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("userpuid");
+			}
+		}
+		
+		/// <summary>
+		/// Time zone code that was in use when the record was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("utcconversiontimezonecode")]
+		public System.Nullable<int> UtcConversionTimeZoneCode
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("utcconversiontimezonecode");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("utcconversiontimezonecode", value);
+			}
+		}
+		
+		/// <summary>
+		/// Version number of the user.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
+		public System.Nullable<long> VersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+			}
+		}
+		
+		/// <summary>
+		/// Windows Live ID
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("windowsliveid")]
+		public string WindowsLiveId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("windowsliveid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("windowsliveid", value);
+			}
+		}
+		
+		/// <summary>
+		/// User's Yammer login email address
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("yammeremailaddress")]
+		public string YammerEmailAddress
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("yammeremailaddress");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("yammeremailaddress", value);
+			}
+		}
+		
+		/// <summary>
+		/// User's Yammer ID
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("yammeruserid")]
+		public string YammerUserId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("yammeruserid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("yammeruserid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Pronunciation of the first name of the user, written in phonetic hiragana or katakana characters.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("yomifirstname")]
+		public string YomiFirstName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("yomifirstname");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("yomifirstname", value);
+			}
+		}
+		
+		/// <summary>
+		/// Pronunciation of the full name of the user, written in phonetic hiragana or katakana characters.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("yomifullname")]
+		public string YomiFullName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("yomifullname");
+			}
+		}
+		
+		/// <summary>
+		/// Pronunciation of the last name of the user, written in phonetic hiragana or katakana characters.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("yomilastname")]
+		public string YomiLastName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("yomilastname");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("yomilastname", value);
+			}
+		}
+		
+		/// <summary>
+		/// Pronunciation of the middle name of the user, written in phonetic hiragana or katakana characters.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("yomimiddlename")]
+		public string YomiMiddleName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("yomimiddlename");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("yomimiddlename", value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N contact_owning_user
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("contact_owning_user")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Contact> Contact_Owning_User
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Contact>("contact_owning_user", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Contact>("contact_owning_user", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_accountbase_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_accountbase_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Account> Lk_AccountBase_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Account>("lk_accountbase_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Account>("lk_accountbase_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_accountbase_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_accountbase_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Account> Lk_AccountBase_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Account>("lk_accountbase_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Account>("lk_accountbase_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_accountbase_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_accountbase_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Account> Lk_AccountBase_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Account>("lk_accountbase_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Account>("lk_accountbase_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_accountbase_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_accountbase_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Account> Lk_AccountBase_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Account>("lk_accountbase_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Account>("lk_accountbase_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_contact_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_contact_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Contact> Lk_Contact_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Contact>("lk_contact_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Contact>("lk_contact_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_contact_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_contact_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Contact> Lk_Contact_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Contact>("lk_contact_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Contact>("lk_contact_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_contactbase_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_contactbase_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Contact> Lk_ContactBase_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Contact>("lk_contactbase_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Contact>("lk_contactbase_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_contactbase_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_contactbase_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Contact> Lk_ContactBase_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Contact>("lk_contactbase_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Contact>("lk_contactbase_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_assistance_request_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_assistance_request_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Assistance_Request> Lk_OfM_Assistance_Request_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("lk_ofm_assistance_request_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("lk_ofm_assistance_request_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_assistance_request_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_assistance_request_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Assistance_Request> Lk_OfM_Assistance_Request_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("lk_ofm_assistance_request_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("lk_ofm_assistance_request_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_assistance_request_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_assistance_request_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Assistance_Request> Lk_OfM_Assistance_Request_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("lk_ofm_assistance_request_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("lk_ofm_assistance_request_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_assistance_request_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_assistance_request_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Assistance_Request> Lk_OfM_Assistance_Request_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("lk_ofm_assistance_request_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("lk_ofm_assistance_request_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_bceid_facility_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_bceid_facility_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_BcEId_Facility> Lk_OfM_BcEId_Facility_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("lk_ofm_bceid_facility_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("lk_ofm_bceid_facility_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_bceid_facility_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_bceid_facility_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_BcEId_Facility> Lk_OfM_BcEId_Facility_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("lk_ofm_bceid_facility_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("lk_ofm_bceid_facility_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_bceid_facility_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_bceid_facility_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_BcEId_Facility> Lk_OfM_BcEId_Facility_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("lk_ofm_bceid_facility_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("lk_ofm_bceid_facility_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_bceid_facility_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_bceid_facility_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_BcEId_Facility> Lk_OfM_BcEId_Facility_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("lk_ofm_bceid_facility_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("lk_ofm_bceid_facility_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_conversation_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_conversation_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Conversation> Lk_OfM_Conversation_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("lk_ofm_conversation_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("lk_ofm_conversation_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_conversation_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_conversation_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Conversation> Lk_OfM_Conversation_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("lk_ofm_conversation_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("lk_ofm_conversation_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_conversation_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_conversation_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Conversation> Lk_OfM_Conversation_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("lk_ofm_conversation_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("lk_ofm_conversation_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_conversation_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_conversation_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Conversation> Lk_OfM_Conversation_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("lk_ofm_conversation_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("lk_ofm_conversation_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_facility_request_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_facility_request_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Facility_Request> Lk_OfM_Facility_Request_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("lk_ofm_facility_request_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("lk_ofm_facility_request_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_facility_request_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_facility_request_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Facility_Request> Lk_OfM_Facility_Request_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("lk_ofm_facility_request_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("lk_ofm_facility_request_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_facility_request_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_facility_request_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Facility_Request> Lk_OfM_Facility_Request_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("lk_ofm_facility_request_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("lk_ofm_facility_request_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_facility_request_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_facility_request_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Facility_Request> Lk_OfM_Facility_Request_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("lk_ofm_facility_request_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("lk_ofm_facility_request_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_request_category_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_request_category_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Request_Category> Lk_OfM_Request_Category_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("lk_ofm_request_category_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("lk_ofm_request_category_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_request_category_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_request_category_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Request_Category> Lk_OfM_Request_Category_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("lk_ofm_request_category_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("lk_ofm_request_category_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_request_category_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_request_category_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Request_Category> Lk_OfM_Request_Category_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("lk_ofm_request_category_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("lk_ofm_request_category_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_ofm_request_category_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_ofm_request_category_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Request_Category> Lk_OfM_Request_Category_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("lk_ofm_request_category_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("lk_ofm_request_category_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_systemuser_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_systemuser_createdonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referenced)]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.SystemUser> ReferencedLk_SystemUser_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.SystemUser>("lk_systemuser_createdonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referenced);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.SystemUser>("lk_systemuser_createdonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referenced, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_systemuser_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_systemuser_modifiedonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referenced)]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.SystemUser> ReferencedLk_SystemUser_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.SystemUser>("lk_systemuser_modifiedonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referenced);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.SystemUser>("lk_systemuser_modifiedonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referenced, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_systemuserbase_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_systemuserbase_createdby", Microsoft.Xrm.Sdk.EntityRole.Referenced)]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.SystemUser> ReferencedLk_SystemUserBase_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.SystemUser>("lk_systemuserbase_createdby", Microsoft.Xrm.Sdk.EntityRole.Referenced);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.SystemUser>("lk_systemuserbase_createdby", Microsoft.Xrm.Sdk.EntityRole.Referenced, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_systemuserbase_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_systemuserbase_modifiedby", Microsoft.Xrm.Sdk.EntityRole.Referenced)]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.SystemUser> ReferencedLk_SystemUserBase_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.SystemUser>("lk_systemuserbase_modifiedby", Microsoft.Xrm.Sdk.EntityRole.Referenced);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.SystemUser>("lk_systemuserbase_modifiedby", Microsoft.Xrm.Sdk.EntityRole.Referenced, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_task_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_task_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Task> Lk_Task_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Task>("lk_task_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Task>("lk_task_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_task_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_task_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Task> Lk_Task_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Task>("lk_task_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Task>("lk_task_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_task_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_task_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Task> Lk_Task_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Task>("lk_task_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Task>("lk_task_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_task_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_task_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Task> Lk_Task_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Task>("lk_task_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Task>("lk_task_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_team_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_team_createdonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Team> Lk_Team_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Team>("lk_team_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Team>("lk_team_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_team_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_team_modifiedonbehalfby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Team> Lk_Team_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Team>("lk_team_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Team>("lk_team_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_teambase_administratorid
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_teambase_administratorid")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Team> Lk_TeamBase_AdministratorId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Team>("lk_teambase_administratorid", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Team>("lk_teambase_administratorid", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_teambase_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_teambase_createdby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Team> Lk_TeamBase_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Team>("lk_teambase_createdby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Team>("lk_teambase_createdby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N lk_teambase_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_teambase_modifiedby")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Team> Lk_TeamBase_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Team>("lk_teambase_modifiedby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Team>("lk_teambase_modifiedby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N system_user_accounts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("system_user_accounts")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Account> System_User_Accounts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Account>("system_user_accounts", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Account>("system_user_accounts", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N system_user_contacts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("system_user_contacts")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Contact> System_User_Contacts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Contact>("system_user_contacts", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Contact>("system_user_contacts", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N user_accounts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_accounts")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Account> User_Accounts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Account>("user_accounts", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Account>("user_accounts", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N user_ofm_assistance_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_assistance_request")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Assistance_Request> User_OfM_Assistance_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("user_ofm_assistance_request", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("user_ofm_assistance_request", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N user_ofm_bceid_facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_bceid_facility")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_BcEId_Facility> User_OfM_BcEId_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("user_ofm_bceid_facility", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("user_ofm_bceid_facility", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N user_ofm_conversation
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_conversation")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Conversation> User_OfM_Conversation
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("user_ofm_conversation", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("user_ofm_conversation", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N user_ofm_facility_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_facility_request")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Facility_Request> User_OfM_Facility_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("user_ofm_facility_request", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("user_ofm_facility_request", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N user_ofm_request_category
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_ofm_request_category")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Request_Category> User_OfM_Request_Category
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("user_ofm_request_category", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("user_ofm_request_category", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N user_parent_user
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_parent_user", Microsoft.Xrm.Sdk.EntityRole.Referenced)]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.SystemUser> ReferencedUser_Parent_User
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.SystemUser>("user_parent_user", Microsoft.Xrm.Sdk.EntityRole.Referenced);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.SystemUser>("user_parent_user", Microsoft.Xrm.Sdk.EntityRole.Referenced, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N user_task
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_task")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Task> User_Task
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Task>("user_task", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Task>("user_task", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:N teammembership_association
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("teammembership_association")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Team> TeamMembership_Association
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Team>("teammembership_association", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Team>("teammembership_association", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_systemuser_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_systemuser_createdonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referencing)]
+		public ECC.Core.DataContext.SystemUser ReferencingLk_SystemUser_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_systemuser_createdonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referencing);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_systemuser_createdonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referencing, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_systemuser_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_systemuser_modifiedonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referencing)]
+		public ECC.Core.DataContext.SystemUser ReferencingLk_SystemUser_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_systemuser_modifiedonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referencing);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_systemuser_modifiedonbehalfby", Microsoft.Xrm.Sdk.EntityRole.Referencing, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_systemuserbase_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_systemuserbase_createdby", Microsoft.Xrm.Sdk.EntityRole.Referencing)]
+		public ECC.Core.DataContext.SystemUser ReferencingLk_SystemUserBase_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_systemuserbase_createdby", Microsoft.Xrm.Sdk.EntityRole.Referencing);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_systemuserbase_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_systemuserbase_modifiedby", Microsoft.Xrm.Sdk.EntityRole.Referencing)]
+		public ECC.Core.DataContext.SystemUser ReferencingLk_SystemUserBase_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_systemuserbase_modifiedby", Microsoft.Xrm.Sdk.EntityRole.Referencing);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 user_parent_user
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("parentsystemuserid")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_parent_user", Microsoft.Xrm.Sdk.EntityRole.Referencing)]
+		public ECC.Core.DataContext.SystemUser ReferencingUser_Parent_User
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_parent_user", Microsoft.Xrm.Sdk.EntityRole.Referencing);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_parent_user", Microsoft.Xrm.Sdk.EntityRole.Referencing, value);
+			}
+		}
+		
+		/// <summary>
+		/// Constructor for populating via LINQ queries given a LINQ anonymous type
+		/// <param name="anonymousType">LINQ anonymous type.</param>
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public SystemUser(object anonymousType) : 
+				this()
+		{
+            foreach (var p in anonymousType.GetType().GetProperties())
+            {
+                var value = p.GetValue(anonymousType, null);
+                var name = p.Name.ToLower();
+            
+                if (name.EndsWith("enum") && value.GetType().BaseType == typeof(System.Enum))
+                {
+                    value = new Microsoft.Xrm.Sdk.OptionSetValue((int) value);
+                    name = name.Remove(name.Length - "enum".Length);
+                }
+            
+                switch (name)
+                {
+                    case "id":
+                        base.Id = (System.Guid)value;
+                        Attributes["systemuserid"] = base.Id;
+                        break;
+                    case "systemuserid":
                         var id = (System.Nullable<System.Guid>) value;
                         if(id == null){ continue; }
                         base.Id = id.Value;
@@ -8916,12 +16375,17 @@ namespace ECC.Core.DataContext
 			public const string IsRegularActivity = "isregularactivity";
 			public const string IsWorkflowCreated = "isworkflowcreated";
 			public const string LastOnHoldTime = "lastonholdtime";
+			public const string Lk_Task_CreatedBy = "lk_task_createdby";
+			public const string Lk_Task_CreatedOnBehalfBy = "lk_task_createdonbehalfby";
+			public const string Lk_Task_ModifiedBy = "lk_task_modifiedby";
+			public const string Lk_Task_ModifiedOnBehalfBy = "lk_task_modifiedonbehalfby";
 			public const string ModifiedBy = "modifiedby";
 			public const string ModifiedByName = "modifiedbyname";
 			public const string ModifiedOn = "modifiedon";
 			public const string ModifiedOnBehalfBy = "modifiedonbehalfby";
 			public const string ModifiedOnBehalfByName = "modifiedonbehalfbyname";
 			public const string MsFt_DataState = "msft_datastate";
+			public const string OfM_Assistance_Request_Tasks = "ofm_assistance_request_Tasks";
 			public const string OnHoldTime = "onholdtime";
 			public const string OverriddenCreatedOn = "overriddencreatedon";
 			public const string OwnerId = "ownerid";
@@ -8954,10 +16418,12 @@ namespace ECC.Core.DataContext
 			public const string Subcategory = "subcategory";
 			public const string Subject = "subject";
 			public const string SubscriptionId = "subscriptionid";
+			public const string Team_Task = "team_task";
 			public const string TimeZoneRuleVersionNumber = "timezoneruleversionnumber";
 			public const string TransactionCurrencyId = "transactioncurrencyid";
 			public const string TransactionCurrencyIdName = "transactioncurrencyidname";
 			public const string TraversedPath = "traversedpath";
+			public const string User_Task = "user_task";
 			public const string UtcConversionTimeZoneCode = "utcconversiontimezonecode";
 			public const string VersionNumber = "versionnumber";
 		}
@@ -9890,6 +17356,119 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// N:1 lk_task_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_task_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_Task_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_task_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_task_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_task_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_Task_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_task_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_task_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_task_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_task_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_Task_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_task_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_task_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_task_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_Task_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_task_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_task_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_assistance_request_Tasks
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("regardingobjectid")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_assistance_request_Tasks")]
+		public ECC.Core.DataContext.OfM_Assistance_Request OfM_Assistance_Request_Tasks
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_assistance_request_Tasks", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.OfM_Assistance_Request>("ofm_assistance_request_Tasks", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 team_task
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_task")]
+		public ECC.Core.DataContext.Team Team_Task
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_task", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 user_task
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("user_task")]
+		public ECC.Core.DataContext.SystemUser User_Task
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("user_task", null);
+			}
+		}
+		
+		/// <summary>
 		/// Constructor for populating via LINQ queries given a LINQ anonymous type
 		/// <param name="anonymousType">LINQ anonymous type.</param>
 		/// </summary>
@@ -9915,6 +17494,980 @@ namespace ECC.Core.DataContext
                         Attributes["activityid"] = base.Id;
                         break;
                     case "activityid":
+                        var id = (System.Nullable<System.Guid>) value;
+                        if(id == null){ continue; }
+                        base.Id = id.Value;
+                        Attributes[name] = base.Id;
+                        break;
+                    case "formattedvalues":
+                        // Add Support for FormattedValues
+                        FormattedValues.AddRange((Microsoft.Xrm.Sdk.FormattedValueCollection)value);
+                        break;
+                    default:
+                        Attributes[name] = value;
+                        break;
+                }
+            }
+		}
+	}
+	
+	/// <summary>
+	/// Collection of system users that routinely collaborate. Teams can be used to simplify record sharing and provide team members with common access to organization data when team members belong to different Business Units.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("team")]
+	public partial class Team : Microsoft.Xrm.Sdk.Entity
+	{
+		
+		/// <summary>
+		/// Available fields, a the time of codegen, for the team entity
+		/// </summary>
+		public static partial class Fields
+		{
+			public const string AdministratorId = "administratorid";
+			public const string AdministratorIdName = "administratoridname";
+			public const string AzureActiveDirectoryObjectId = "azureactivedirectoryobjectid";
+			public const string BusinessUnitId = "businessunitid";
+			public const string BusinessUnitIdName = "businessunitidname";
+			public const string CreatedBy = "createdby";
+			public const string CreatedByName = "createdbyname";
+			public const string CreatedOn = "createdon";
+			public const string CreatedOnBehalfBy = "createdonbehalfby";
+			public const string CreatedOnBehalfByName = "createdonbehalfbyname";
+			public const string DelegatedAuthorizationId = "delegatedauthorizationid";
+			public const string DelegatedAuthorizationIdName = "delegatedauthorizationidname";
+			public const string Description = "description";
+			public const string EmailAddress = "emailaddress";
+			public const string ExchangerAte = "exchangerate";
+			public const string ImportSequenceNumber = "importsequencenumber";
+			public const string IsDefault = "isdefault";
+			public const string IsSasTokenSet = "issastokenset";
+			public const string Lk_Team_CreatedOnBehalfBy = "lk_team_createdonbehalfby";
+			public const string Lk_Team_ModifiedOnBehalfBy = "lk_team_modifiedonbehalfby";
+			public const string Lk_TeamBase_AdministratorId = "lk_teambase_administratorid";
+			public const string Lk_TeamBase_CreatedBy = "lk_teambase_createdby";
+			public const string Lk_TeamBase_ModifiedBy = "lk_teambase_modifiedby";
+			public const string MembershipType = "membershiptype";
+			public const string ModifiedBy = "modifiedby";
+			public const string ModifiedByName = "modifiedbyname";
+			public const string ModifiedOn = "modifiedon";
+			public const string ModifiedOnBehalfBy = "modifiedonbehalfby";
+			public const string ModifiedOnBehalfByName = "modifiedonbehalfbyname";
+			public const string MsFt_DataState = "msft_datastate";
+			public const string Name = "name";
+			public const string OrganizationId = "organizationid";
+			public const string OrganizationIdName = "organizationidname";
+			public const string OverriddenCreatedOn = "overriddencreatedon";
+			public const string ProcessId = "processid";
+			public const string QueueId = "queueid";
+			public const string QueueIdName = "queueidname";
+			public const string RegardingObjectId = "regardingobjectid";
+			public const string RegardingObjectIdName = "regardingobjectidname";
+			public const string ShareLinkQualifier = "sharelinkqualifier";
+			public const string StageId = "stageid";
+			public const string StageIdName = "stageidname";
+			public const string SystemManaged = "systemmanaged";
+			public const string Team_Accounts = "Team_Accounts";
+			public const string Team_Contacts = "Team_Contacts";
+			public const string Team_OfM_Assistance_Request = "Team_OfM_Assistance_Request";
+			public const string Team_OfM_BcEId_Facility = "Team_OfM_BcEId_Facility";
+			public const string Team_OfM_Conversation = "Team_OfM_Conversation";
+			public const string Team_OfM_Facility_Request = "Team_OfM_Facility_Request";
+			public const string Team_OfM_Request_Category = "Team_OfM_Request_Category";
+			public const string Team_Task = "Team_Task";
+			public const string TeamId = "teamid";
+			public const string Id = "teamid";
+			public const string TeamMembership_Association = "teammembership_association";
+			public const string TeamTemplateId = "teamtemplateid";
+			public const string TeamTemplateIdName = "teamtemplateidname";
+			public const string TeamType = "teamtype";
+			public const string TransactionCurrencyId = "transactioncurrencyid";
+			public const string TransactionCurrencyIdName = "transactioncurrencyidname";
+			public const string TraversedPath = "traversedpath";
+			public const string VersionNumber = "versionnumber";
+			public const string YomiName = "yominame";
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public Team(System.Guid id) : 
+				base(EntityLogicalName, id)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public Team(string keyName, object keyValue) : 
+				base(EntityLogicalName, keyName, keyValue)
+		{
+		}
+		
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public Team(Microsoft.Xrm.Sdk.KeyAttributeCollection keyAttributes) : 
+				base(EntityLogicalName, keyAttributes)
+		{
+		}
+		
+		public const string AlternateKeys = "azureactivedirectoryobjectid,membershiptype";
+		
+		/// <summary>
+		/// Default Constructor.
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public Team() : 
+				base(EntityLogicalName)
+		{
+		}
+		
+		public const string PrimaryIdAttribute = "teamid";
+		
+		public const string PrimaryNameAttribute = "name";
+		
+		public const string EntitySchemaName = "Team";
+		
+		public const string EntityLogicalName = "team";
+		
+		public const string EntityLogicalCollectionName = "teams";
+		
+		public const string EntitySetName = "teams";
+		
+		/// <summary>
+		/// Unique identifier of the user primary responsible for the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("administratorid")]
+		public Microsoft.Xrm.Sdk.EntityReference AdministratorId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("administratorid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("administratorid", value);
+			}
+		}
+		
+		/// <summary>
+		/// The Azure active directory object Id for a group.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("azureactivedirectoryobjectid")]
+		public System.Nullable<System.Guid> AzureActiveDirectoryObjectId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("azureactivedirectoryobjectid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("azureactivedirectoryobjectid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the business unit with which the team is associated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("businessunitid")]
+		public Microsoft.Xrm.Sdk.EntityReference BusinessUnitId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("businessunitid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("businessunitid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who created the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the team was created.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
+		public System.Nullable<System.DateTime> CreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who created the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("createdonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// The delegated authorization context for the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("delegatedauthorizationid")]
+		public Microsoft.Xrm.Sdk.EntityReference DelegatedAuthorizationId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("delegatedauthorizationid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("delegatedauthorizationid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Description of the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("description")]
+		public string Description
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("description");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("description", value);
+			}
+		}
+		
+		/// <summary>
+		/// Email address for the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("emailaddress")]
+		public string EmailAddress
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("emailaddress");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("emailaddress", value);
+			}
+		}
+		
+		/// <summary>
+		/// Exchange rate for the currency associated with the team with respect to the base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("exchangerate")]
+		public System.Nullable<decimal> ExchangerAte
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("exchangerate");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the data import or data migration that created this record.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
+		public System.Nullable<int> ImportSequenceNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("importsequencenumber");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("importsequencenumber", value);
+			}
+		}
+		
+		/// <summary>
+		/// Information about whether the team is a default business unit team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("isdefault")]
+		public System.Nullable<bool> IsDefault
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("isdefault");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("issastokenset")]
+		public System.Nullable<bool> IsSasTokenSet
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("issastokenset");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("membershiptype")]
+		public virtual Team_MembershipType? MembershipType
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((Team_MembershipType?)(EntityOptionSetEnum.GetEnum(this, "membershiptype")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("membershiptype", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the user who last modified the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time when the team was last modified.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
+		public System.Nullable<System.DateTime> ModifiedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the delegate user who last modified the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		public Microsoft.Xrm.Sdk.EntityReference ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("modifiedonbehalfby", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("msft_datastate")]
+		public virtual MsFt_DataState? MsFt_DataState
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((MsFt_DataState?)(EntityOptionSetEnum.GetEnum(this, "msft_datastate")));
+			}
+		}
+		
+		/// <summary>
+		/// Name of the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("name")]
+		public string Name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("name", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the organization associated with the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("organizationid")]
+		public System.Nullable<System.Guid> OrganizationId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("organizationid");
+			}
+		}
+		
+		/// <summary>
+		/// Date and time that the record was migrated.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overriddencreatedon")]
+		public System.Nullable<System.DateTime> OverriddenCreatedOn
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("overriddencreatedon");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("overriddencreatedon", value);
+			}
+		}
+		
+		/// <summary>
+		/// Shows the ID of the process.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("processid")]
+		public System.Nullable<System.Guid> ProcessId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("processid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("processid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the default queue for the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("queueid")]
+		public Microsoft.Xrm.Sdk.EntityReference QueueId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("queueid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("queueid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Choose the record that the team relates to.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("regardingobjectid")]
+		public Microsoft.Xrm.Sdk.EntityReference RegardingObjectId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("regardingobjectid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("regardingobjectid", value);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("sharelinkqualifier")]
+		public string ShareLinkQualifier
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("sharelinkqualifier");
+			}
+		}
+		
+		/// <summary>
+		/// Shows the ID of the stage.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("stageid")]
+		public System.Nullable<System.Guid> StageId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("stageid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("stageid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Select whether the team will be managed by the system.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("systemmanaged")]
+		public System.Nullable<bool> SystemManaged
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("systemmanaged");
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("teamid")]
+		public System.Nullable<System.Guid> TeamId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("teamid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("teamid", value);
+				if (value.HasValue)
+				{
+					base.Id = value.Value;
+				}
+				else
+				{
+					base.Id = System.Guid.Empty;
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("teamid")]
+		public override System.Guid Id
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return base.Id;
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.TeamId = value;
+			}
+		}
+		
+		/// <summary>
+		/// Shows the team template that is associated with the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("teamtemplateid")]
+		public Microsoft.Xrm.Sdk.EntityReference TeamTemplateId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("teamtemplateid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("teamtemplateid", value);
+			}
+		}
+		
+		/// <summary>
+		/// Select the team type.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("teamtype")]
+		public virtual Team_TeamType? TeamType
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((Team_TeamType?)(EntityOptionSetEnum.GetEnum(this, "teamtype")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("teamtype", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier of the currency associated with the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("transactioncurrencyid")]
+		public Microsoft.Xrm.Sdk.EntityReference TransactionCurrencyId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("transactioncurrencyid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("transactioncurrencyid", value);
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("traversedpath")]
+		public string TraversedPath
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("traversedpath");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("traversedpath", value);
+			}
+		}
+		
+		/// <summary>
+		/// Version number of the team.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
+		public System.Nullable<long> VersionNumber
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+			}
+		}
+		
+		/// <summary>
+		/// Pronunciation of the full name of the team, written in phonetic hiragana or katakana characters.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("yominame")]
+		public string YomiName
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("yominame");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("yominame", value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N team_accounts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_accounts")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Account> Team_Accounts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Account>("team_accounts", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Account>("team_accounts", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N team_contacts
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_contacts")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Contact> Team_Contacts
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Contact>("team_contacts", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Contact>("team_contacts", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N team_ofm_assistance_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_assistance_request")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Assistance_Request> Team_OfM_Assistance_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("team_ofm_assistance_request", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Assistance_Request>("team_ofm_assistance_request", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N team_ofm_bceid_facility
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_bceid_facility")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_BcEId_Facility> Team_OfM_BcEId_Facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("team_ofm_bceid_facility", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_BcEId_Facility>("team_ofm_bceid_facility", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N team_ofm_conversation
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_conversation")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Conversation> Team_OfM_Conversation
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("team_ofm_conversation", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Conversation>("team_ofm_conversation", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N team_ofm_facility_request
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_facility_request")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Facility_Request> Team_OfM_Facility_Request
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("team_ofm_facility_request", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Facility_Request>("team_ofm_facility_request", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N team_ofm_request_category
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_request_category")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.OfM_Request_Category> Team_OfM_Request_Category
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("team_ofm_request_category", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.OfM_Request_Category>("team_ofm_request_category", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N team_task
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_task")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Task> Team_Task
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Task>("team_task", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Task>("team_task", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:N teammembership_association
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("teammembership_association")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.SystemUser> TeamMembership_Association
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.SystemUser>("teammembership_association", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.SystemUser>("teammembership_association", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_team_createdonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_team_createdonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_Team_CreatedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_team_createdonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_team_createdonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_team_modifiedonbehalfby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_team_modifiedonbehalfby")]
+		public ECC.Core.DataContext.SystemUser Lk_Team_ModifiedOnBehalfBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_team_modifiedonbehalfby", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_team_modifiedonbehalfby", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_teambase_administratorid
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("administratorid")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_teambase_administratorid")]
+		public ECC.Core.DataContext.SystemUser Lk_TeamBase_AdministratorId
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_teambase_administratorid", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_teambase_administratorid", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_teambase_createdby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_teambase_createdby")]
+		public ECC.Core.DataContext.SystemUser Lk_TeamBase_CreatedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_teambase_createdby", null);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 lk_teambase_modifiedby
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("lk_teambase_modifiedby")]
+		public ECC.Core.DataContext.SystemUser Lk_TeamBase_ModifiedBy
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_teambase_modifiedby", null);
+			}
+		}
+		
+		/// <summary>
+		/// Constructor for populating via LINQ queries given a LINQ anonymous type
+		/// <param name="anonymousType">LINQ anonymous type.</param>
+		/// </summary>
+		[System.Diagnostics.DebuggerNonUserCode()]
+		public Team(object anonymousType) : 
+				this()
+		{
+            foreach (var p in anonymousType.GetType().GetProperties())
+            {
+                var value = p.GetValue(anonymousType, null);
+                var name = p.Name.ToLower();
+            
+                if (name.EndsWith("enum") && value.GetType().BaseType == typeof(System.Enum))
+                {
+                    value = new Microsoft.Xrm.Sdk.OptionSetValue((int) value);
+                    name = name.Remove(name.Length - "enum".Length);
+                }
+            
+                switch (name)
+                {
+                    case "id":
+                        base.Id = (System.Guid)value;
+                        Attributes["teamid"] = base.Id;
+                        break;
+                    case "teamid":
                         var id = (System.Nullable<System.Guid>) value;
                         if(id == null){ continue; }
                         base.Id = id.Value;
