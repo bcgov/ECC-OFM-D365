@@ -3,15 +3,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Models;
+using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
 public class ApiKeyMiddleware
 {
     private readonly RequestDelegate _next;
-    public ApiKeyMiddleware(RequestDelegate next)
+    private readonly ILogger<ApiKeyMiddleware> _logger;
+
+    public ApiKeyMiddleware(RequestDelegate next, ILogger<ApiKeyMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
     public async Task InvokeAsync(HttpContext context,
         IOptions<AuthenticationSettings> options)
@@ -22,7 +26,16 @@ public class ApiKeyMiddleware
         if ((apiKeyPresentInHeader && apiKeys.Any(k => k.Value == extractedApiKey))
             || context.Request.Path.StartsWithSegments("/swagger"))
         {
-            await _next(context);
+            string newKeyValue = extractedApiKey.ToString();
+            //var emailPattern = @"(?<=[\w]{1})[\w-\._\+%]*(?=[\w]{1}@)";
+            var pattern = @"(?<=[\w]{5})[\w-\._\+%]*(?=[\w]{3})";
+            var maskedKey = Regex.Replace(newKeyValue ?? "", pattern, m => new string('*', m.Length));
+
+            using (_logger.BeginScope("x-ofm-apikey:{maskedKey}", maskedKey))
+            {
+                await _next(context);
+            }
+
             return;
         }
 
@@ -30,6 +43,7 @@ public class ApiKeyMiddleware
         var isAllowAnonymous = endpoint?.Metadata.Any(x => x.GetType() == typeof(AllowAnonymousAttribute));
         if (isAllowAnonymous == true)
         {
+            _logger.LogWarning("Anonymous user detected.");
             await _next(context);
             return;
         }

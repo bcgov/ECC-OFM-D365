@@ -13,6 +13,7 @@ public static class CommonInfo
         public static string Portal => "P";
         public static string System => "S";
     }
+
     public static readonly JsonSerializerOptions s_writeOptions = new()
     {
         WriteIndented = true
@@ -35,7 +36,25 @@ public static class CommonInfo
     {
         var authSettingsSection = config.GetSection(nameof(AuthenticationSettings));
         var authSettings = authSettingsSection.Get<AuthenticationSettings>();
- 
+
         return authSettings ?? throw new KeyNotFoundException(nameof(AuthenticationSettings));
     }
+}
+
+public class LogCategory
+{
+    public const string ProviderProfile = "OFM.Portal.ProviderProfile";
+    public const string Operations = "OFM.Portal.Operations";
+
+    public const string D365Contact = "OFM.D365.Contact";
+}
+
+public class CustomLogEvents
+{
+    #region Portal events
+
+    public const int ProviderProfile = 1001;
+    public const int Operations = 1100;
+
+    #endregion
 }

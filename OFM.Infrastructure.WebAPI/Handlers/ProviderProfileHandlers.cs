@@ -17,20 +17,35 @@ namespace OFM.Infrastructure.WebAPI.Handlers;
 
 public static class ProviderProfilesHandlers
 {
-    public static async Task<Results<BadRequest<string>, NotFound<string>, ProblemHttpResult, Ok<ProviderProfile>>> GetProfileAsync(
+    /// <summary>
+    /// Get the Provider Profile by a Business BCeID
+    /// </summary>
+    /// <param name="d365WebApiService"></param>
+    /// <param name="appUserService"></param>
+    /// <param name="timeProvider"></param>
+    /// <param name="loggerFactory"></param>
+    /// <param name="userName" example="ofmqa05"></param>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public static async Task<Results<BadRequest<string>, NotFound<string>, UnauthorizedHttpResult, ProblemHttpResult, Ok<ProviderProfile>>> GetProfileAsync(
         ID365WebApiService d365WebApiService,
         ID365AppUserService appUserService,
         TimeProvider timeProvider,
-        ILogger<string> logger,
+        ILoggerFactory loggerFactory,
         string userName,
         string? userId)
     {
-        if (string.IsNullOrEmpty(userName)) return TypedResults.BadRequest("The userName is required.");
+        var logger = loggerFactory.CreateLogger(LogCategory.ProviderProfile);
+        using (logger.BeginScope("ScopeProvider: {userId}", userId))
+        {
+            logger.LogDebug(CustomLogEvents.ProviderProfile, "Getting provider profile in D365 for userName:{userName}/userId:{userId}", userName, userId);
 
-        var startTime = timeProvider.GetTimestamp();
+            if (string.IsNullOrEmpty(userName)) return TypedResults.BadRequest("The userName is required.");
 
-        // For Reference Only
-        var fetchXml = $"""
+            var startTime = timeProvider.GetTimestamp();
+
+            // For Reference Only
+            var fetchXml = $"""
                     <fetch version="1.0" mapping="logical" distinct="true" no-lock="true">
                       <entity name="contact">
                         <attribute name="ofm_first_name" />
@@ -87,15 +102,38 @@ public static class ProviderProfilesHandlers
                     </fetch>
                     """;
 
-        var requestUri = $"""
+            var requestUri = $"""
                          contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ccof_userid,ccof_username,contactid,emailaddress1,ofm_is_primary_contact,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name;$filter=(statuscode eq 1));$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode;$filter=(statuscode eq 1))&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1)
                          """;
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
 
-        var endTime = timeProvider.GetTimestamp();
+            logger.LogDebug(CustomLogEvents.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
 
-        if (response.IsSuccessStatusCode)
-        {
+            var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
+
+            var endTime = timeProvider.GetTimestamp();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>() ?? new ProblemDetails();
+
+                #region Logging
+
+                var traceId = string.Empty;
+                if (problemDetails?.Extensions.TryGetValue("traceId", out var traceIdValue) == true)
+                    traceId = traceIdValue?.ToString();
+
+                using (logger.BeginScope($"ScopeProvider: {userId}"))
+                {
+                    logger.LogWarning(CustomLogEvents.ProviderProfile, "API Failure: Failed to retrieve profile for {userName}. Response message: {response}. TraceId: {traceId}. " +
+                        "Finished in {timer.ElapsedMilliseconds} miliseconds.", userId, response, traceId, timeProvider.GetElapsedTime(startTime, endTime).TotalMilliseconds);
+                }
+
+                #endregion
+
+                return TypedResults.Problem($"Failed to Retrieve profile: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
+
+            }
+
             var jsonDom = await response.Content.ReadFromJsonAsync<JsonObject>();
 
             #region Validation
@@ -103,33 +141,29 @@ public static class ProviderProfilesHandlers
             JsonNode d365Result = string.Empty;
             if (jsonDom?.TryGetPropertyValue("value", out var currentValue) == true)
             {
-                if (currentValue?.AsArray().Count == 0) { return TypedResults.NotFound($"User not found."); }
+                if (currentValue?.AsArray().Count == 0)
+                {
+                    logger.LogDebug(CustomLogEvents.ProviderProfile, "User not found.");
+
+                    return TypedResults.NotFound($"User not found.");
+                }
                 d365Result = currentValue!;
             }
 
             var serializedProfile = JsonSerializer.Deserialize<IEnumerable<D365Contact>>(d365Result!.ToString());
 
             if (serializedProfile!.First().parentcustomerid_account is null ||
-                serializedProfile!.First().ofm_facility_business_bceid is null)
-                return TypedResults.NotFound($"No profile found.");
-
-            if (serializedProfile!.First().ofm_facility_business_bceid!.Length == 0)
-                return TypedResults.NotFound($"No permissions.");
-
-            #endregion
-
-            #region Logging
-
-            using (logger.BeginScope("ScopeProfile: {userId}", userId))
+                serializedProfile!.First().ofm_facility_business_bceid is null ||
+                serializedProfile!.First().ofm_facility_business_bceid!.Length == 0)
             {
-                logger.LogInformation("ScopeProfile: Response Time: {timer.ElapsedMilliseconds}", timeProvider.GetElapsedTime(startTime, endTime));
+                logger.LogDebug(CustomLogEvents.ProviderProfile, "Organization or facility permissions not found.");
+                return TypedResults.Unauthorized();
             }
 
             #endregion
 
             ProviderProfile portalProfile = new();
             portalProfile.MapProviderProfile(serializedProfile!);
-
             if (string.IsNullOrEmpty(portalProfile.ccof_userid) && !string.IsNullOrEmpty(userId))
             {
                 // Update the contact in Dataverse with the userid
@@ -146,26 +180,10 @@ public static class ProviderProfilesHandlers
                 }
             }
 
+            logger.LogDebug(CustomLogEvents.ProviderProfile, "Return provider profile {portalProfile}", portalProfile);
+            logger.LogInformation(CustomLogEvents.ProviderProfile, "Querying provider profile finished in {totalElapsedTime} miliseconds", timeProvider.GetElapsedTime(startTime, endTime).TotalMilliseconds);
+
             return TypedResults.Ok(portalProfile);
-        }
-        else
-        {
-            var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-
-            #region Logging
-
-            var traceId = "";
-            if (problemDetails?.Extensions.TryGetValue("traceId", out var currentValue) == true)
-                traceId = currentValue?.ToString();
-
-            using (logger.BeginScope($"ScopeProfile: {userId}"))
-            {
-                logger.LogWarning("API Failure: Failed to Retrieve profile: {userName}. Response: {response}. TraceId: {traceId}. " +
-                    "Finished in {timer.ElapsedMilliseconds} miliseconds.", userId, response, traceId, timeProvider.GetElapsedTime(startTime, endTime));
-            }
-            #endregion
-
-            return TypedResults.Problem($"Failed to Retrieve profile: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
         }
     }
 }

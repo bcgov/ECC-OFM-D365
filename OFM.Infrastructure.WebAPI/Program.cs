@@ -7,21 +7,30 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Documents;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
+
 var services = builder.Services;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
-services.AddSwaggerGen(config => config.AddSwaggerApiKeySecurity(builder.Configuration));
+services.AddSwaggerGen(config =>
+{
+    config.AddSwaggerApiKeySecurity(builder.Configuration);
+    var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+    config.IncludeXmlComments(xmlCommentsFullPath);
+});
 services.AddCustomProblemDetails();
 
 services.AddDistributedMemoryCache();
 services.TryAddSingleton(typeof(IDistributedCache<>), typeof(DistributedCache<>));
 services.TryAddSingleton(TimeProvider.System);
 
-services.TryAddSingleton<ID365TokenService, D365TokenService>(); // To Be Reviewed
+services.TryAddSingleton<ID365TokenService, D365TokenService>();
 services.TryAddSingleton<ID365AppUserService, D365AppUserService>();
 services.TryAddSingleton<ID365WebApiService, D365WebAPIService>();
 services.TryAddSingleton<ID365AuthenticationService, D365AuthServiceMSAL>();
@@ -73,8 +82,10 @@ app.RegisterOperationsEndpoints();
 
 #region Api Health
 
-app.MapGet("/api/health", () =>
+app.MapGet("/api/health", (ILogger<string> logger) =>
 {
+    logger.LogInformation("Health checked on {currentTime}(PST)", DateTime.Now);
+
     return TypedResults.Ok("I am healthy!");
 
 }).WithTags("Environment").Produces(200).ProducesProblem(404).AllowAnonymous();

@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OFM.Infrastructure.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.EnvironmentHandlers.Get(Microsoft.Extensions.Options.IOptions{OFM.Infrastructure.WebAPI.Models.D365AuthSettings})">
+            <summary>
+            Returns the current environment information including the server timestamp
+            </summary>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.OperationsHandlers.GetAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Options.IOptions{OFM.Infrastructure.WebAPI.Models.AppSettings},OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,Microsoft.Extensions.Logging.ILoggerFactory,System.String,System.Int32)">
+            <summary>
+            A generic endpoint for D365 queries 
+            </summary>
+            <param name="context"></param>
+            <param name="appSettings"></param>
+            <param name="appUserService"></param>
+            <param name="d365WebApiService"></param>
+            <param name="loggerFactory"></param>
+            <param name="statement" example="emails?$select=subject,description,lastopenedtime"></param>
+            <param name="pageSize"></param>
+            <returns></returns>
+            <exception cref="T:System.FormatException"></exception>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.OperationsHandlers.PostAsync(Microsoft.AspNetCore.Http.HttpContext,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,Microsoft.Extensions.Logging.ILoggerFactory,System.String,System.Object)">
+            <summary>
+            A generic endpoint for D365 record creation
+            </summary>
+            <param name="context"></param>
+            <param name="d365WebApiService"></param>
+            <param name="appUserService"></param>
+            <param name="loggerFactory"></param>
+            <param name="statement"></param>
+            <param name="jsonBody"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.OperationsHandlers.PatchAsync(OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,Microsoft.Extensions.Logging.ILoggerFactory,System.String,System.Object)">
+            <summary>
+            A generic endpoint for D365 record update
+            </summary>
+            <param name="d365WebApiService"></param>
+            <param name="appUserService"></param>
+            <param name="loggerFactory"></param>
+            <param name="statement"></param>
+            <param name="jsonBody"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.OperationsHandlers.DeleteAsync(OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,Microsoft.Extensions.Logging.ILoggerFactory,System.String)">
+            <summary>
+            A generic endpoint to delete a D365 record
+            </summary>
+            <param name="d365WebApiService"></param>
+            <param name="appUserService"></param>
+            <param name="loggerFactory"></param>
+            <param name="statement" example="emails(00000000-0000-0000-0000-000000000000)"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.ProviderProfilesHandlers.GetProfileAsync(OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,System.TimeProvider,Microsoft.Extensions.Logging.ILoggerFactory,System.String,System.String)">
+            <summary>
+            Get the Provider Profile by a Business BCeID
+            </summary>
+            <param name="d365WebApiService"></param>
+            <param name="appUserService"></param>
+            <param name="timeProvider"></param>
+            <param name="loggerFactory"></param>
+            <param name="userName" example="ofmqa05"></param>
+            <param name="userId"></param>
+            <returns></returns>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.AppSettings.MaxRetries">
+            <summary>
+            Maximum number of times to re-try when service protection limits hit
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettings.GetAccessToken">
+            <summary>
+            A function provided by the client application to return an access token.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.AZAppUser">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.D365AuthSettings">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.ListAZAppUser">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.FuncTaskString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.Int16">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.String">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.Default">
+            <summary>
+            The default <see cref="T:System.Text.Json.Serialization.JsonSerializerContext"/> associated with a default <see cref="T:System.Text.Json.JsonSerializerOptions"/> instance.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.GeneratedSerializerOptions">
+            <summary>
+            The source-generated options associated with this context.
+            </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.#ctor">
+            <inheritdoc/>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.#ctor(System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.GetTypeInfo(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.D365WebApi.D365AuthServiceMSAL">
+            <summary>
+            New and preferred Authentication Service with MSAL library
+            </summary>
+        </member>
+    </members>
+</doc>

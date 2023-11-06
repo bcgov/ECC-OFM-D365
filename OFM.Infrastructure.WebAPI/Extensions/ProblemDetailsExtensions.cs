@@ -5,17 +5,17 @@ public static class ProblemDetailsExtensions
 {
     public static IServiceCollection AddCustomProblemDetails(this IServiceCollection services)
     {
-        services.AddProblemDetails(opts =>
+        services.AddProblemDetails(config =>
         {
-            opts.IncludeExceptionDetails = (ctx, ex) => false;
-            opts.OnBeforeWriteDetails = (ctx, dtls) =>
+            config.IncludeExceptionDetails = (context, exception) => false;
+            config.OnBeforeWriteDetails = (context, details) =>
             {
-                if (dtls.Status == 500)
+                if (details.Status == 500)
                 {
-                    dtls.Detail = "An error occurred in the custom API. Use the trace id when contacting the support team.";
+                    details.Detail = "An error occurred in the custom API. Use the trace id when contacting the support team.";
                 }
             };
-            opts.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
+            config.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
         });
 
         return services;
