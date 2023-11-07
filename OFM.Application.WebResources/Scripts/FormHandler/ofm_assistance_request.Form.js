@@ -24,7 +24,7 @@ OFM.AssistanceRequest.Form = {
             case 6: //bulkedit
                 break;
         }
-        verifyAssociatedAccountsGrid(executionContext);
+        verifyRequestFacilityGrid(executionContext);
     },
 
     //A function called on save
@@ -36,7 +36,7 @@ OFM.AssistanceRequest.Form = {
 
     },
 
-    verifyAssociatedAccountsGrid: function (executionContext) {
+    verifyRequestFacilityGrid: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
         var grid = formContext.getControl("Subgrid_new_1");
