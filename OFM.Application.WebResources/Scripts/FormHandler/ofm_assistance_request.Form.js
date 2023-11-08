@@ -46,7 +46,7 @@ OFM.AssistanceRequest.Form = {
             Xrm.WebApi.retrieveMultipleRecords("ofm_facility_request", "?$filter=(_ofm_request_value eq " + requestId.replace("{", "").replace("}", "") + " and statecode eq 0)").then(
                 function success(results) {
                     console.log(results);
-                    if (results.entities.length < 0) {
+                    if (results.entities.length <= 0) {
                         formContext.ui.setFormNotification("A minimum of 1 facility is required - enter the facility in the Request Facility", "WARNING", "facilityRequired");
                     }
                     else {
