@@ -24,7 +24,7 @@ OFM.AssistanceRequest.Form = {
             case 6: //bulkedit
                 break;
         }
-        verifyRequestFacilityGrid(executionContext);
+        OFM.AssistanceRequest.Form.verifyRequestFacilityGrid(executionContext);
     },
 
     //A function called on save
