@@ -81,19 +81,26 @@ public class ProviderProfile
 
         for (int i = 0; i < firstContact.ofm_facility_business_bceid!.Count(); i++)
         {
-            facilityPermissions.Add(new FacilityPermission
+            if (firstContact.ofm_facility_business_bceid![i] is not null &&
+                firstContact.ofm_facility_business_bceid[i].ofm_facility is not null)
             {
-                ofm_bceid_facilityid = firstContact.ofm_facility_business_bceid![i].ofm_bceid_facilityid!,
-                facility = new Facility
+                var facility = firstContact.ofm_facility_business_bceid[i].ofm_facility!;
+                facilityPermissions.Add(new FacilityPermission
                 {
-                    accountid = firstContact.ofm_facility_business_bceid[i].ofm_facility!.accountid!,
-                    accountnumber = firstContact.ofm_facility_business_bceid[i].ofm_facility?.accountnumber,
-                    name = firstContact.ofm_facility_business_bceid[i].ofm_facility?.name,
-                },
-                ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
-                statecode = firstContact.ofm_facility_business_bceid[i].statecode,
-                statuscode = firstContact.ofm_facility_business_bceid[i].statuscode
-            });
+                    ofm_bceid_facilityid = firstContact.ofm_facility_business_bceid![i].ofm_bceid_facilityid!,
+                    facility = new Facility
+                    {
+                        accountid = facility.accountid ?? "",
+                        accountnumber = facility.accountnumber,
+                        name = facility.name,
+                        statecode = facility.statecode,
+                        statuscode = facility.statuscode
+                    },
+                    ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
+                    statecode = firstContact.ofm_facility_business_bceid[i].statecode,
+                    statuscode = firstContact.ofm_facility_business_bceid[i].statuscode
+                });
+            }
         }
 
         facility_permission = facilityPermissions;
@@ -143,7 +150,7 @@ public record ofm_Facility_Business_Bceid
 
 public record ofm_Facility
 {
-    public string? accountid { get; set; }
+    public required string accountid { get; set; }
     public string? accountnumber { get; set; }
     public int? ccof_accounttype { get; set; }
     public int statecode { get; set; }

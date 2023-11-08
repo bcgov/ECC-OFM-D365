@@ -27,7 +27,7 @@
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.OperationsHandlers.PostAsync(Microsoft.AspNetCore.Http.HttpContext,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,Microsoft.Extensions.Logging.ILoggerFactory,System.String,System.Object)">
             <summary>
-            A generic endpoint for D365 record creation
+            A generic endpoint to create D365 records
             </summary>
             <param name="context"></param>
             <param name="d365WebApiService"></param>
@@ -39,7 +39,7 @@
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.OperationsHandlers.PatchAsync(OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,Microsoft.Extensions.Logging.ILoggerFactory,System.String,System.Object)">
             <summary>
-            A generic endpoint for D365 record update
+            A generic endpoint to update D365 records
             </summary>
             <param name="d365WebApiService"></param>
             <param name="appUserService"></param>

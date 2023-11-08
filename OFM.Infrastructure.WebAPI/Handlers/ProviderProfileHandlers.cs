@@ -75,7 +75,7 @@ public static class ProviderProfilesHandlers
                           <filter>
                             <condition attribute="statuscode" operator="eq" value="1" />
                           </filter>
-                          <link-entity name="account" from="accountid" to="ofm_facility" link-type="outer" alias="Facility">
+                          <link-entity name="account" from="accountid" to="ofm_facility" link-type="inner" alias="Facility">
                             <attribute name="accountid" />
                             <attribute name="accountnumber" />
                             <attribute name="ccof_accounttype" />
@@ -103,7 +103,7 @@ public static class ProviderProfilesHandlers
                     """;
 
             var requestUri = $"""
-                         contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ccof_userid,ccof_username,contactid,emailaddress1,ofm_is_primary_contact,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name;$filter=(statuscode eq 1));$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode;$filter=(statuscode eq 1))&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1)
+                         contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ccof_userid,ccof_username,contactid,emailaddress1,ofm_is_primary_contact,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name);$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode;$filter=(statuscode eq 1))&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1)
                          """;
 
             logger.LogDebug(CustomLogEvents.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
@@ -173,10 +173,7 @@ public static class ProviderProfilesHandlers
                 var userResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZPortalAppUser, statement, requestBody);
                 if (!userResponse.IsSuccessStatusCode)
                 {
-                    using (logger.BeginScope($"ScopeProfile: {userId}"))
-                    {
-                        logger.LogError("Failed to update userId for {userName}. Response: {response}.", userName, userResponse);
-                    }
+                    logger.LogError("Failed to update the userId for {userName}. Response: {response}.", userName, userResponse);
                 }
             }
 
