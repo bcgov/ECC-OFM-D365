@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using OFM.Infrastructure.WebAPI.Services.Documents;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 
 namespace OFM.Infrastructure.WebAPI.Handlers;
 public static class DocumentsHandlers
@@ -21,25 +22,34 @@ public static class DocumentsHandlers
 
         var response = await documentService.GetAsync(annotationId);
 
-        if (response.IsSuccessStatusCode)
-        {
-            var result = await response.Content.ReadFromJsonAsync<JsonObject>();
-            return TypedResults.Ok(result);
-        }
-        else
+        if (!response.IsSuccessStatusCode)
         {
             return TypedResults.Problem($"Failed to Retrieve record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
         }
+
+        var result = await response.Content.ReadFromJsonAsync<JsonObject>();
+        return TypedResults.Ok(result);
     }
 
     public static async Task<Results<ProblemHttpResult, BadRequest<string>, Ok<string>>> PostAsync(
         IOptions<AppSettings> appSettings,
         ID365DocumentService documentService,
-        [FromBody] dynamic? jsonBody)
+        ILoggerFactory loggerFactory,
+        IFormFileCollection documents,
+       [FromForm] string metadata = """
+        [
+        {"filename": "f1.docx","subject": "subject 1","notetext": "note 1","entity_name_set":"ofm_applications","regarding":"00000000-0000-0000-0000-000000000000"},
+        {"filename": "f2.pdf","subject": "subject 2","notetext": "note 2","entity_name_set":"ofm_assistance_request","regarding":"00000000-0000-0000-0000-000000000000"}]
+        """)
     {
-        if (string.IsNullOrEmpty(jsonBody)) return TypedResults.BadRequest("Invalid Query.");
+        if (documents is null || metadata == null) return TypedResults.BadRequest("Invalid Query.");
 
-        JsonObject jsonDom = JsonSerializer.Deserialize<JsonObject>(jsonBody?.ToString(), CommonInfo.s_readOptions!);
+        foreach (var document in documents!)
+        {
+            var fn = document.FileName;
+        }
+
+        JsonObject jsonDom = JsonSerializer.Deserialize<JsonObject>(metadata?.ToString(), CommonInfo.s_readOptions!);
 
         // Validate empty request
         if (jsonDom.Count == 0) return TypedResults.BadRequest("Invalid request.");
@@ -57,7 +67,7 @@ public static class DocumentsHandlers
         string fileExt = fileNames[^1].ToLower();
         string[] acceptedFileFormats = appSettings.Value.FileFommats.Split(",").Select(ext => ext.Trim()).ToArray();
         if (Array.IndexOf(acceptedFileFormats, fileExt) == -1) return TypedResults.BadRequest(appSettings.Value.FileFormatErrorMessage);
-      
+
         var response = await documentService.UploadAsync(jsonDom);
 
         if (response.IsSuccessStatusCode)

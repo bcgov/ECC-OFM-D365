@@ -4,7 +4,7 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Documents;
 
-public class DocumentProvider : ID365DocumentProvider
+public class D365DocumentProvider : ID365DocumentProvider
 { 
     public string EntityNameSet { get => "annotations"; }
 
