@@ -1,9 +1,12 @@
 ﻿using OFM.Infrastructure.WebAPI.Handlers;
+using OFM.Infrastructure.WebAPI.Handlers.D365;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
 public static class EndpointRouteBuilderExtensions
 {
+    #region Portal
+
     public static void RegisterEnvironmentEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
         var endpoints = endpointRouteBuilder.MapGroup("/api/environment");
@@ -50,4 +53,20 @@ public static class EndpointRouteBuilderExtensions
 
         searchesEndpoints.MapPost("", BatchOperationsHandlers.BatchOperationAsync).WithTags("Batches").Produces(200).ProducesProblem(404);
     }
+
+    #endregion
+
+    #region D365
+
+    public static void RegisterBatchProcessesEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
+    {
+        var requestsEndpoints = endpointRouteBuilder.MapGroup("/api/processes");
+
+        requestsEndpoints.MapPost("/1", BatchProcessesHandlers.BP1_CloseInactiveRequestsAsync).WithTags("D365 Processes");
+
+        requestsEndpoints.MapPost("/2", BatchProcessesHandlers.BP2).WithTags("D365 Batches");
+
+    }
+
+    #endregion
 }

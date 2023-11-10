@@ -45,8 +45,10 @@ public class LogCategory
 {
     public const string ProviderProfile = "OFM.Portal.ProviderProfile";
     public const string Operations = "OFM.Portal.Operations";
-
     public const string D365Contact = "OFM.D365.Contact";
+    public const string D365Requests = "OFM.D365.Requests";
+    public const string BatchProcesses = "OFM.D365.BatchProcesses";
+
 }
 
 public class CustomLogEvents
@@ -55,6 +57,13 @@ public class CustomLogEvents
 
     public const int ProviderProfile = 1001;
     public const int Operations = 1100;
+    public const int Documents = 1200;
+
+    #endregion
+
+    #region D365 events
+
+    public const int BatchProcesses = 2000;
 
     #endregion
 }

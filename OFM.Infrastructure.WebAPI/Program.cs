@@ -77,6 +77,7 @@ if (app.Configuration.GetValue<bool>("Features:Batch:Enable"))
 if (app.Configuration.GetValue<bool>("Features:Search:Enable"))
     app.RegisterSearchesEndpoints();
 
+app.RegisterBatchProcessesEndpoints();
 app.RegisterProviderProfileEndpoints();
 app.RegisterOperationsEndpoints();
 

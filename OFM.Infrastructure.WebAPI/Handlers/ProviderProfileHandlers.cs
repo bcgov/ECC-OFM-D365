@@ -24,7 +24,7 @@ public static class ProviderProfilesHandlers
     /// <param name="appUserService"></param>
     /// <param name="timeProvider"></param>
     /// <param name="loggerFactory"></param>
-    /// <param name="userName" example="ofmqa05"></param>
+    /// <param name="userName" example="BCeIDTest"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
     public static async Task<Results<BadRequest<string>, NotFound<string>, UnauthorizedHttpResult, ProblemHttpResult, Ok<ProviderProfile>>> GetProfileAsync(
