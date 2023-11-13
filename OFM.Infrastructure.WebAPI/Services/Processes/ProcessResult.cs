@@ -1,9 +1,12 @@
-﻿namespace OFM.Infrastructure.WebAPI.Services.Processes;
+﻿using System.Diagnostics;
+
+namespace OFM.Infrastructure.WebAPI.Services.Processes;
 
 public class ProcessResult
 {
-    private ProcessResult(bool result, IEnumerable<string>? errors, string status, int processed, int totalRecords)
+    private ProcessResult(Int16 processId,bool result, IEnumerable<string>? errors, string status, int processed, int totalRecords)
     {
+        ProcessId = processId;
         CompletedNoErrors = result;
         Errors = errors ?? Array.Empty<string>();
         Status = status;
@@ -13,6 +16,7 @@ public class ProcessResult
         ResultMessage = CompletedNoErrors? "All records have been successfully processed with no warnings.": "Errors happened.";
     }
 
+    public Int16 ProcessId { get; }
     public bool CompletedNoErrors { get; }
     public string Status { get; }
     public int TotalProcessed { get; }
@@ -22,7 +26,7 @@ public class ProcessResult
 
     public IEnumerable<string> Errors { get; }
 
-    public static ProcessResult Success(int processed, int totalRecords) => new(true, null, "Successful", processed, totalRecords);
-    public static ProcessResult PartialSuccess(int processed, int totalRecords) => new(true, null, "PartialSuccess", processed, totalRecords);
-    public static ProcessResult Failure(IEnumerable<string> errors, int processed, int totalRecords) => new(false, errors,"Failed", processed, totalRecords);
+    public static ProcessResult Success(Int16 processId, int processed, int totalRecords) => new(processId, true, null, "Successful",  processed, totalRecords);
+    public static ProcessResult PartialSuccess(Int16 processId, int processed, int totalRecords) => new(processId, true, null, "PartialSuccess", processed, totalRecords);
+    public static ProcessResult Failure(Int16 processId, IEnumerable<string> errors, int processed, int totalRecords) => new(processId, false, errors,"Failed", processed, totalRecords);
 }

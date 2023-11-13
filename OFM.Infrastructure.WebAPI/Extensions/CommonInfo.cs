@@ -18,13 +18,13 @@ public static class CommonInfo
     {
         public static class Request
         {
-            public const int CloseInactiveRequestsId = 100;
+            public const Int16 CloseInactiveRequestsId = 100;
             public const string CloseInactiveRequestsName = "Cancel inactive requests";
         }
 
         public static class Email
         {
-            public const int SendEmailRemindersId = 200;
+            public const Int16 SendEmailRemindersId = 200;
             public const string SendEmailRemindersName = "Send nightly email reminders";
         }
     }

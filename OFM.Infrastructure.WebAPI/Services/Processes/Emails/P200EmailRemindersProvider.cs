@@ -30,7 +30,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public int ProcessId => CommonInfo.ProcessInfo.Email.SendEmailRemindersId;
+    public Int16 ProcessId => CommonInfo.ProcessInfo.Email.SendEmailRemindersId;
     public string ProcessName => CommonInfo.ProcessInfo.Email.SendEmailRemindersName;
     public string RequestUri
     {
@@ -135,7 +135,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             var endTime = _timeProvider.GetTimestamp();
 
             _logger.LogInformation(CustomLogEvents.BatchProcesses, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
-            return ProcessResult.Success(serializedData.Count(), serializedData.Count());
+            return ProcessResult.Success(ProcessId,serializedData.Count(), serializedData.Count());
         }
     }
 

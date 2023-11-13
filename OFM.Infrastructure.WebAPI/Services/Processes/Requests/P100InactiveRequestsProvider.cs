@@ -27,7 +27,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public int ProcessId => CommonInfo.ProcessInfo.Request.CloseInactiveRequestsId;
+    public Int16 ProcessId => CommonInfo.ProcessInfo.Request.CloseInactiveRequestsId;
     public string ProcessName => CommonInfo.ProcessInfo.Request.CloseInactiveRequestsName;
     public string RequestUri
     {
@@ -139,7 +139,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
             //var endTime = _timeProvider.GetTimestamp();
 
             _logger.LogInformation(CustomLogEvents.BatchProcesses, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
-             return ProcessResult.Success(localData.Data.AsArray().Count, localData.Data.AsArray().Count);
+             return ProcessResult.Success(ProcessId,localData.Data.AsArray().Count, localData.Data.AsArray().Count);
         }
     }
 }
