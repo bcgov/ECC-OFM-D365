@@ -25,6 +25,7 @@
   <ItemGroup>
     <Compile Remove="Extensions\UserScopeMiddleware.cs" />
     <Compile Remove="Services\Documents\ApplicationDocumentService.cs" />
+    <Compile Remove="Services\Processes\FileName.cs" />
   </ItemGroup>
 
   <ItemGroup>

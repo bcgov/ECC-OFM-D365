@@ -134,12 +134,12 @@ public static class ProviderProfilesHandlers
 
             }
 
-            var jsonDom = await response.Content.ReadFromJsonAsync<JsonObject>();
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
 
             #region Validation
 
             JsonNode d365Result = string.Empty;
-            if (jsonDom?.TryGetPropertyValue("value", out var currentValue) == true)
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
             {
                 if (currentValue?.AsArray().Count == 0)
                 {

@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
-
-namespace OFM.Infrastructure.WebAPI.Models;
+﻿namespace OFM.Infrastructure.WebAPI.Models;
 
 #region Contact-related objects for Portal
 
@@ -159,3 +154,44 @@ public record ofm_Facility
 }
 
 #endregion
+
+public record D365Email
+{
+    public string? sender { get; set; }
+    public string? _regardingobjectid_value { get; set; }
+    public int statecode { get; set; }
+    public int statuscode { get; set; }
+    public string? subject { get; set; }
+    public string? torecipients { get; set; }
+    public string? _ofm_communication_type_value { get; set; }
+    public int Toparticipationtypemask { get; set; }
+    public bool? isworkflowcreated { get; set; }
+    public DateTime? emailreminderexpirytime { get; set; }
+    public DateTime? senton { get; set; }
+    public DateTime? lastopenedtime { get; set; }
+
+    public bool IsCompleted
+    {
+        get
+        {
+            if (statecode == 0)
+                return true;
+
+            return false;
+        }
+    }
+
+    public bool IsNewAndUnread
+    {
+        get
+        {
+            if (senton is null)
+                return false;
+
+            if (senton.Value.Date.Equals(DateTime.Now.Date) && lastopenedtime is null)
+                return true;
+
+            return false;
+        }
+    }
+}

@@ -1,6 +1,4 @@
-﻿using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Models;
-using OFM.Infrastructure.WebAPI.Services.AppUsers;
+﻿using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
 using System.Text.Json.Nodes;
@@ -49,13 +47,12 @@ public class D365DocumentService : ID365DocumentService
             throw new KeyNotFoundException(_entityNameSet);
         }
 
-        ID365DocumentProvider provider = _documentProviders.First(p => p.EntityNameSet == entityNameValue?.GetValue<string>()) ?? throw new NotImplementedException(nameof(ID365DocumentProvider));
+        ID365DocumentProvider provider = _documentProviders.First(p => p.EntityNameSet == entityNameValue?.GetValue<string>());
         var processingDocument = await provider.PrepareDocumentBodyAsync(jsonData, _appUserService, _d365webapiservice);
         string entitySetName = entityNameValue!.GetValue<string>();
 
         return await _d365webapiservice.SendCreateRequestAsync(_appUserService.AZPortalAppUser, entitySetName, processingDocument); 
-    }
-    
+    }   
     public async Task<HttpResponseMessage> RemoveAsync(string annotationId)
     {
         return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, $"annotations({annotationId})");

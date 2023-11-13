@@ -62,9 +62,7 @@ public static class EndpointRouteBuilderExtensions
     {
         var requestsEndpoints = endpointRouteBuilder.MapGroup("/api/processes");
 
-        requestsEndpoints.MapPost("/1", BatchProcessesHandlers.BP1_CloseInactiveRequestsAsync).WithTags("D365 Processes");
-
-        requestsEndpoints.MapPost("/2", BatchProcessesHandlers.BP2).WithTags("D365 Batches");
+        requestsEndpoints.MapPost("/{processId}", BatchProcessesHandlers.RunProcessById).WithTags("D365 Processes");
 
     }
 

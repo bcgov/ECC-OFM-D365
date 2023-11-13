@@ -14,6 +14,21 @@ public static class CommonInfo
         public static string System => "S";
     }
 
+    public static class ProcessInfo
+    {
+        public static class Request
+        {
+            public const int CloseInactiveRequestsId = 100;
+            public const string CloseInactiveRequestsName = "Cancel inactive requests";
+        }
+
+        public static class Email
+        {
+            public const int SendEmailRemindersId = 200;
+            public const string SendEmailRemindersName = "Send nightly email reminders";
+        }
+    }
+
     public static readonly JsonSerializerOptions s_writeOptions = new()
     {
         WriteIndented = true
@@ -48,7 +63,6 @@ public class LogCategory
     public const string D365Contact = "OFM.D365.Contact";
     public const string D365Requests = "OFM.D365.Requests";
     public const string BatchProcesses = "OFM.D365.BatchProcesses";
-
 }
 
 public class CustomLogEvents

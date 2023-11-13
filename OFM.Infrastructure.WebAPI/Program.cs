@@ -7,6 +7,9 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Documents;
+using OFM.Infrastructure.WebAPI.Services.Processes;
+using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
+using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +41,11 @@ services.TryAddSingleton<ID365DocumentProvider, DocumentProvider>();
 services.TryAddSingleton<ID365DocumentProvider, ApplicationDocumentProvider>();
 services.TryAddSingleton<ID365DocumentService, D365DocumentService>();
 
+services.AddScoped<ID365ProcessService, ProcessService>();
+services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
+services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
+services.AddScoped<D365Email>();
+
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
 services.AddAuthentication();
@@ -47,6 +55,9 @@ services.AddHealthChecks();
 services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
 services.Configure<AuthenticationSettings>(builder.Configuration.GetSection(nameof(AuthenticationSettings)));
 services.Configure<D365AuthSettings>(builder.Configuration.GetSection(nameof(D365AuthSettings)));
+services.Configure<DocumentSettings>(builder.Configuration.GetSection(nameof(DocumentSettings)));
+services.Configure<NotificationSettings>(builder.Configuration.GetSection(nameof(NotificationSettings)));
+services.Configure<ProcessSettings>(builder.Configuration.GetSection(nameof(ProcessSettings)));
 //======== <<<
 
 // Wait 30 seconds for graceful shutdown.

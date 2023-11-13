@@ -41,10 +41,14 @@ public class D365WebAPIService : ID365WebApiService
 
     public async Task<HttpResponseMessage> SendPatchRequestAsync(AZAppUser spn, string requestUri, string requestBody)
     {
-        var message = new HttpRequestMessage(HttpMethod.Patch, requestUri);
-        message.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+        var message = new HttpRequestMessage(HttpMethod.Patch, requestUri)
+        {
+            Content = new StringContent(requestBody, Encoding.UTF8, "application/json")
+        };
+        message.Headers.Add("Prefer", "return=representation");
 
         var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
+
         return await client.SendAsync(message);
     }
     
