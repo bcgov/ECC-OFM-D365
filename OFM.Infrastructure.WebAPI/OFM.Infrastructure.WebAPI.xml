@@ -70,6 +70,134 @@
             <param name="userId"></param>
             <returns></returns>
         </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.BatchRequest.ContinueOnError">
+            <summary>
+            Sets the Prefer: odata.continue-on-error request header for the request.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.BatchRequest.ChangeSets">
+            <summary>
+            Sets the ChangeSets to be included in the request.
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.BatchRequest.Requests">
+            <summary>
+            Sets any requests to be sent outside of any ChangeSet
+            </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.BatchRequest.ToMessageContent(System.Net.Http.HttpRequestMessage)">
+            <summary>
+            Converts a HttpRequestMessage to HttpMessageContent
+            </summary>
+            <param name="request">The HttpRequestMessage to convert.</param>
+            <returns>HttpMessageContent with the correct headers.</returns>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.BatchResponse.HttpResponseMessages">
+            <summary>
+            Gets the responses from the batch operation
+            </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.BatchResponse.ParseMultipartContent(System.Net.Http.HttpContent)">
+            <summary>
+            Processes the Multi-part content returned from the batch into a list of responses.
+            </summary>
+            <param name="content">The Content of the response.</param>
+            <returns></returns>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.ChangeSet.Requests">
+            <summary>
+            Sets Requests to send with the change set
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Messages.CreateRequest">
+            <summary>
+            Contains the data to create a record.
+            </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.CreateRequest.#ctor(System.String,System.Text.Json.Nodes.JsonObject,System.Boolean,System.String)">
+            <summary>
+            Intializes the CreateRequest
+            </summary>
+            <param name="entitySetName">The name of the entity set.</param>
+            <param name="record">Contains the data for the record to create.</param>
+            <param name="preventDuplicateRecord">Whether to throw an error when a duplicate record is detected.</param>
+            <param name="partitionId">The partition key to use.</param>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.EntityReference.#ctor(System.String,System.Nullable{System.Guid})">
+            <summary>
+            Creates an EntityReference with EntitySetName and Guid Id
+            </summary>
+            <param name="entitySetName">The entity set name</param>
+            <param name="id">The Guid Id value.</param>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.EntityReference.#ctor(System.String)">
+            <summary>
+            Creates an entity reference from a URI
+            </summary>
+            <param name="uri">An absolute or relative URI to a record.</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.EntityReference.#ctor(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Creates an EntityReference with alternate keys
+            </summary>
+            <param name="setName">The entity set name</param>
+            <param name="keyAttributes">The key attributes to use.</param>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.EntityReference.Id">
+            <summary>
+            The primary key value
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.EntityReference.KeyAttributes">
+            <summary>
+            Alternate key values
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.EntityReference.SetName">
+            <summary>
+            The EntitySet name
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.EntityReference.Path">
+            <summary>
+            The calculated relative Uri to the record.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Messages.UpdateRequest">
+            <summary>
+            Contains the data to update a record
+            </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.UpdateRequest.#ctor(OFM.Infrastructure.WebAPI.Messages.EntityReference,System.Text.Json.Nodes.JsonObject,System.Boolean,System.String,System.String)">
+            <summary>
+            Initializes the UpdateRequest
+            </summary>
+            <param name="entityReference">A reference to the record to update.</param>
+            <param name="record">Contains the data to update</param>
+            <param name="preventDuplicateRecord">Whether to throw an error when a duplicate record is detected.</param>
+            <param name="partitionId">The partition key to use.</param>
+            <param name="eTag">The current ETag value to compare.</param>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Messages.UpsertRequest">
+            <summary>
+            Contains the data to upsert a record.
+            </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.UpsertRequest.#ctor(OFM.Infrastructure.WebAPI.Messages.EntityReference,System.Text.Json.Nodes.JsonObject,OFM.Infrastructure.WebAPI.Messages.UpsertBehavior)">
+            <summary>
+            Initializes the UpsertRequest
+            </summary>
+            <param name="entityReference">A reference to a record. This should use alternate keys.</param>
+            <param name="record">The data to create or update.</param>
+            <param name="upsertBehavior">Control the upsert behavior.</param>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Messages.UpsertBehavior">
+            <summary>
+            Specifies the behavior for an Upsert operation.
+            </summary>
+        </member>
         <member name="P:OFM.Infrastructure.WebAPI.Models.AppSettings.MaxRetries">
             <summary>
             Maximum number of times to re-try when service protection limits hit

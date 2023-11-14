@@ -9,5 +9,5 @@ public interface ID365WebApiService
     Task<HttpResponseMessage> SendPatchRequestAsync(AZAppUser spn, string requestUrl, string content);
     Task<HttpResponseMessage> SendDeleteRequestAsync(AZAppUser spn, string requestUrl);
     Task<HttpResponseMessage> SendSearchRequestAsync(AZAppUser spn, string requestBody);
-    Task<HttpResponseMessage> SendBatchMessageAsync(AZAppUser spn, string requestBody, string batchName, Guid? callerObjectId);
+    Task<HttpResponseMessage> SendBatchMessageAsync(AZAppUser spn, List<HttpRequestMessage> requestMessages, Guid? callerObjectId);
 }

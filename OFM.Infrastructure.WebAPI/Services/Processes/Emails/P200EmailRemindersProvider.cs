@@ -26,7 +26,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.BatchProcesses); ;
+        _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
 
@@ -54,7 +54,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                     <attribute name="regardingobjectid" />
                     <filter type="and">
                       <condition attribute="lastopenedtime" operator="null" />
-                      <condition attribute="emailreminderexpirytime" operator="next-x-days" value="1" />
+                      <condition attribute="emailreminderexpirytime" operator="next-x-days" value="29" />
                       <condition attribute="torecipients" operator="not-null" />
                       <filter type="and">
                         <!--<condition attribute="senton" operator="not-null" />-->
@@ -87,7 +87,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     {
         using (_logger.BeginScope("ScopeProcess: ProcessId {processId}", ProcessId))
         {
-            _logger.LogDebug(CustomLogEvents.BatchProcesses, "Calling GetData of {nameof}", nameof(P200EmailReminderProvider));
+            _logger.LogDebug(CustomLogEvents.Process, "Calling GetData of {nameof}", nameof(P200EmailReminderProvider));
 
             if (_data is null)
             {
@@ -99,7 +99,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                 {
                     if (currentValue?.AsArray().Count == 0)
                     {
-                        _logger.LogInformation(CustomLogEvents.BatchProcesses, "No emails found with query {requestUri}", RequestUri);
+                        _logger.LogInformation(CustomLogEvents.Process, "No emails found with query {requestUri}", RequestUri);
                     }
                     d365Result = currentValue!;
                 }
@@ -110,17 +110,18 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
         return await Task.FromResult(_data);
     }
+
     public async Task<ProcessResult> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
     {
         using (_logger.BeginScope("ScopeProcess: Running processs {processId} - {processName}", ProcessId, ProcessName))
         {
-            _logger.LogDebug(CustomLogEvents.BatchProcesses, "Getting due emails with query {requestUri}", RequestUri);
+            _logger.LogDebug(CustomLogEvents.Process, "Getting due emails with query {requestUri}", RequestUri);
 
             var startTime = _timeProvider.GetTimestamp();
 
             var localData = await GetData();
 
-            _logger.LogDebug(CustomLogEvents.BatchProcesses, "Query Result {localData}", localData.Data);
+            _logger.LogDebug(CustomLogEvents.Process, "Query Result {localData}", localData.Data);
             var serializedData = JsonSerializer.Deserialize<List<D365Email>>(localData.Data.ToJsonString());
 
             var filtered = serializedData!.Where(e => e.IsCompleted && (e.IsNewAndUnread || IsUnreadReminderRequired(e))).ToList();
@@ -134,7 +135,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             }
             var endTime = _timeProvider.GetTimestamp();
 
-            _logger.LogInformation(CustomLogEvents.BatchProcesses, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
+            _logger.LogInformation(CustomLogEvents.Process, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
             return ProcessResult.Success(ProcessId,serializedData.Count(), serializedData.Count());
         }
     }

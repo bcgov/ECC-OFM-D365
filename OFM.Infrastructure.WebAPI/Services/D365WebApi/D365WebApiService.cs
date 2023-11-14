@@ -1,4 +1,6 @@
-﻿using OFM.Infrastructure.WebAPI.Extensions;
+﻿using Microsoft.Extensions.Options;
+using OFM.Infrastructure.WebAPI.Extensions;
+using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using System.Net.Http.Headers;
 using System.Text;
@@ -8,10 +10,12 @@ namespace OFM.Infrastructure.WebAPI.Services.D365WebApi;
 public class D365WebAPIService : ID365WebApiService
 {
     private readonly ID365AuthenticationService _authenticationService;
+    private readonly D365AuthSettings _d365AuthSettings;
 
-    public D365WebAPIService(ID365AuthenticationService authenticationService)
+    public D365WebAPIService(ID365AuthenticationService authenticationService, IOptions<D365AuthSettings> d365AuthSettings)
     {
         _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
+        _d365AuthSettings = d365AuthSettings.Value;
     }
 
     public async Task<HttpResponseMessage> SendRetrieveRequestAsync(AZAppUser spn, string requestUri, bool formatted = false, int pageSize = 50)
@@ -72,20 +76,15 @@ public class D365WebAPIService : ID365WebApiService
         return await client.SendAsync(message);
     }
 
-    public async Task<HttpResponseMessage> SendBatchMessageAsync(AZAppUser spn, string body, string batchName, Guid? callerObjectId)
+    public async Task<HttpResponseMessage> SendBatchMessageAsync(AZAppUser spn, List<HttpRequestMessage> requestMessages, Guid? callerObjectId)
     {
-        HttpRequestMessage request = new()
+        BatchRequest batchRequest = new(_d365AuthSettings)
         {
-            Content = new StringContent(body, Encoding.UTF8, "application/json"),
-            Method = HttpMethod.Post
+            Requests = requestMessages
         };
-        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/mixed;boundary=" + batchName);
-
-        if (callerObjectId != null)
-            request.Headers.Add("CallerObjectId", callerObjectId.ToString());
 
         var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.Batch, spn);
 
-        return await client.SendAsync(request);
+        return await client.SendAsync(batchRequest);
     }
 }

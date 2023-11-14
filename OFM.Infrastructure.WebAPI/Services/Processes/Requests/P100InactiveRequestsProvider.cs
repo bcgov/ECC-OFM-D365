@@ -23,7 +23,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
         _processSettings = processSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.BatchProcesses); ;
+        _logger = loggerFactory.CreateLogger(LogCategory.Process); ;
         _timeProvider = timeProvider;
     }
 
@@ -67,7 +67,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
     {
         using (_logger.BeginScope("ScopeProcess: Running processs {processId} - {processName}", ProcessId, ProcessName))
         {
-            _logger.LogDebug(CustomLogEvents.BatchProcesses, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
+            _logger.LogDebug(CustomLogEvents.Process, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
 
             if (_data is null)
             {
@@ -81,7 +81,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
                 {
                     if (currentValue?.AsArray().Count == 0)
                     {
-                        _logger.LogInformation(CustomLogEvents.BatchProcesses, "No inactive requests found with query {requestUri}", RequestUri);
+                        _logger.LogInformation(CustomLogEvents.Process, "No inactive requests found with query {requestUri}", RequestUri);
                     }
                     d365Result = currentValue!;
                 }
@@ -116,13 +116,13 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
 
         using (_logger.BeginScope("ScopeProcess: Running processs {processId} - {processName}", ProcessId, ProcessName))
         {
-            _logger.LogDebug(CustomLogEvents.BatchProcesses, "Getting due emails with query {requestUri}", RequestUri);
+            _logger.LogDebug(CustomLogEvents.Process, "Getting due emails with query {requestUri}", RequestUri);
 
             var startTime = _timeProvider.GetTimestamp();
 
             var localData = await GetData();
 
-            _logger.LogDebug(CustomLogEvents.BatchProcesses, "Return Result {localData}", localData.Data);
+            _logger.LogDebug(CustomLogEvents.Process, "Return Result {localData}", localData.Data);
             var endTime = _timeProvider.GetTimestamp();
 
             //var serializedData = JsonSerializer.Deserialize<IEnumerable<D365Email>>(localData.Data.ToString());
@@ -138,7 +138,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
             //}
             //var endTime = _timeProvider.GetTimestamp();
 
-            _logger.LogInformation(CustomLogEvents.BatchProcesses, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
+            _logger.LogInformation(CustomLogEvents.Process, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
              return ProcessResult.Success(ProcessId,localData.Data.AsArray().Count, localData.Data.AsArray().Count);
         }
     }

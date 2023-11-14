@@ -59,10 +59,11 @@ public static class CommonInfo
 public class LogCategory
 {
     public const string ProviderProfile = "OFM.Portal.ProviderProfile";
-    public const string Operations = "OFM.Portal.Operations";
-    public const string D365Contact = "OFM.D365.Contact";
-    public const string D365Requests = "OFM.D365.Requests";
-    public const string BatchProcesses = "OFM.D365.BatchProcesses";
+    public const string Operation = "OFM.Portal.Operation";
+    public const string Contact = "OFM.D365.Contact";
+    public const string Request = "OFM.D365.Request";
+    public const string Process = "OFM.D365.Process";
+    public const string Batch = "OFM.D365.Batch";
 }
 
 public class CustomLogEvents
@@ -70,14 +71,15 @@ public class CustomLogEvents
     #region Portal events
 
     public const int ProviderProfile = 1001;
-    public const int Operations = 1100;
-    public const int Documents = 1200;
+    public const int Operation = 1100;
+    public const int Document = 1200;
+    public const int Batch = 1500;
 
     #endregion
 
     #region D365 events
 
-    public const int BatchProcesses = 2000;
+    public const int Process = 2000;
 
     #endregion
 }

@@ -14,6 +14,7 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
+builder.Logging.AddFilter(LogCategory.Batch, LogLevel.Debug);
 
 var services = builder.Services;
 

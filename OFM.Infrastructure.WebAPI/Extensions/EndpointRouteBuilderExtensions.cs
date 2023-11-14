@@ -49,9 +49,9 @@ public static class EndpointRouteBuilderExtensions
 
     public static void RegisterBatchOperationsEndpoints(this IEndpointRouteBuilder endpointRouteBuilder)
     {
-        var searchesEndpoints = endpointRouteBuilder.MapGroup("/api/batches");
+        var batchEndpoints = endpointRouteBuilder.MapGroup("/api/batches");
 
-        searchesEndpoints.MapPost("", BatchOperationsHandlers.BatchOperationAsync).WithTags("Batches").Produces(200).ProducesProblem(404);
+        batchEndpoints.MapPost("", BatchOperationsHandlers.BatchOperationsAsync).WithTags("Batches").Produces(200).ProducesProblem(404);
     }
 
     #endregion
@@ -62,7 +62,7 @@ public static class EndpointRouteBuilderExtensions
     {
         var requestsEndpoints = endpointRouteBuilder.MapGroup("/api/processes");
 
-        requestsEndpoints.MapPost("/{processId}", BatchProcessesHandlers.RunProcessById).WithTags("D365 Processes");
+        requestsEndpoints.MapPost("/{processId}", ProcessesHandlers.RunProcessById).WithTags("D365 Processes");
 
     }
 

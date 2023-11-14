@@ -6,7 +6,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes;
 
 namespace OFM.Infrastructure.WebAPI.Handlers.D365;
 
-public static class BatchProcessesHandlers
+public static class ProcessesHandlers
 {
     public static async Task<Results<ProblemHttpResult, Ok<ProcessResult>>> RunProcessById(
         ID365AppUserService appUserService,
@@ -18,10 +18,10 @@ public static class BatchProcessesHandlers
         string initiator,
         Guid? callerObjectId)
     {
-        ILogger logger = loggerFactory.CreateLogger(LogCategory.BatchProcesses);
+        ILogger logger = loggerFactory.CreateLogger(LogCategory.Process);
         using (logger.BeginScope("ScopeProcess: ProcessId {processId}",processId))
         {
-            logger.LogInformation(CustomLogEvents.BatchProcesses, "Batch process started by user {initiator}", initiator);
+            logger.LogInformation(CustomLogEvents.Process, "Batch process started by user {initiator}", initiator);
 
             var startTime = timeProvider.GetTimestamp();
 
@@ -29,7 +29,7 @@ public static class BatchProcessesHandlers
             
             var endTime = timeProvider.GetTimestamp();
 
-            logger.LogInformation(CustomLogEvents.BatchProcesses, "Process completed in {totalElapsedTime} minutes with the result {result}", timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, result);
+            logger.LogInformation(CustomLogEvents.Process, "Process completed in {totalElapsedTime} minutes with the result {result}", timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, result);
 
             return TypedResults.Ok(result);
         }
