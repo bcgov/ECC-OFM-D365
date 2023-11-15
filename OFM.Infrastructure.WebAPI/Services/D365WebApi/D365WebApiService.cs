@@ -47,7 +47,19 @@ public class D365WebAPIService : ID365WebApiService
         var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
         return await client.SendAsync(message);
     }
-    
+
+    public async Task<HttpResponseMessage> SendDocumentPatchRequestAsync(AZAppUser spn, string requestUri, byte[] requestBody,string fileName)
+    {
+        var message = new HttpRequestMessage(HttpMethod.Patch, requestUri);
+        //message.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
+        message.Content = new ByteArrayContent(requestBody);
+        message.Content.Headers.Add("content-type", "application/octet-stream");
+        message.Content.Headers.Add("x-ms-file-name", fileName);
+
+        var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
+        return await client.SendAsync(message);
+    }
+
     public async Task<HttpResponseMessage> SendDeleteRequestAsync(AZAppUser spn, string requestUri)
     {
         var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);

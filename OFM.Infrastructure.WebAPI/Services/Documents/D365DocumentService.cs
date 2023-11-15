@@ -56,8 +56,8 @@ public class D365DocumentService : ID365DocumentService
         return await _d365webapiservice.SendCreateRequestAsync(_appUserService.AZPortalAppUser, entitySetName, processingDocument); 
     }
     
-    public async Task<HttpResponseMessage> RemoveAsync(string annotationId)
+    public async Task<HttpResponseMessage> RemoveAsync(string queryString)
     {
-        return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, $"annotations({annotationId})");
+        return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, queryString);
     }
 }

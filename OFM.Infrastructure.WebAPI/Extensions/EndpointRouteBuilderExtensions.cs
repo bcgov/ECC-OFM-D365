@@ -41,6 +41,7 @@ public static class EndpointRouteBuilderExtensions
 
         documentsEndpoints.MapGet("", DocumentsHandlers.GetAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
         documentsEndpoints.MapPost("", DocumentsHandlers.PostAsync).WithTags("Documents").Produces(200).ProducesProblem(404).DisableAntiforgery();
+        documentsEndpoints.MapPatch("", DocumentsHandlers.PatchAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
         documentsEndpoints.MapDelete("", DocumentsHandlers.DeleteAsync).WithTags("Documents").Produces(200).ProducesProblem(404);
     }
 
