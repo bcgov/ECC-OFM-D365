@@ -1,8 +1,12 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
+using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -34,26 +38,27 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
         get
         {
             // Note: FetchXMl limit is 5000
-            var days = _processSettings.MaxRequestInactiveDays;
+            var inactiveDays = _processSettings.MaxRequestInactiveDays;
 
             // Note: FetchXMl limit is 5000
             var fetchXml = $"""
-                <fetch distinct="true" no-lock="true">
-                  <entity name="ofm_assistance_request">
-                    <attribute name="ofm_assistance_requestid" />
-                    <attribute name="ofm_name" />
-                    <attribute name="ofm_subject" />
-                    <attribute name="ofm_request_category" />
-                    <attribute name="ofm_contact" />
-                    <attribute name="modifiedon" />
-                    <attribute name="statecode" />
-                    <attribute name="statuscode" />
-                    <filter>
-                      <condition attribute="statuscode" operator="eq" value="4" />
-                    </filter>
-                  </entity>
-                </fetch>
-                """;
+                    <fetch distinct="true" no-lock="true">
+                      <entity name="ofm_assistance_request">
+                        <attribute name="ofm_assistance_requestid" />
+                        <attribute name="ofm_name" />
+                        <attribute name="ofm_subject" />
+                        <attribute name="ofm_request_category" />
+                        <attribute name="ofm_contact" />
+                        <attribute name="modifiedon" />
+                        <attribute name="statecode" />
+                        <attribute name="statuscode" />
+                        <filter>
+                          <condition attribute="statuscode" operator="eq" value="4" />
+                          <condition attribute="ofm_last_action_time" operator="olderthan-x-days" value="{inactiveDays}" />
+                        </filter>
+                      </entity>
+                    </fetch>
+                    """;
 
             var requestUri = $"""
                          ofm_assistance_requests?fetchXml={WebUtility.UrlEncode(fetchXml)}
@@ -65,14 +70,12 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
 
     public async Task<ProcessData> GetData()
     {
-        using (_logger.BeginScope("ScopeProcess: Running processs {processId} - {processName}", ProcessId, ProcessName))
-        {
+        //using (_logger.BeginScope("ScopeProcess: Running processs {processId} - {processName}", ProcessId, ProcessName))
+        //{
             _logger.LogDebug(CustomLogEvents.Process, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
 
             if (_data is null)
             {
-                var maxInactiveDays = _processSettings.MaxRequestInactiveDays;
-
                 var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri);
                 var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
 
@@ -88,32 +91,13 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
 
                 _data = new ProcessData(d365Result);
             }
-        }
+        //}
 
         return await Task.FromResult(_data);
     }
 
     public async Task<ProcessResult> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
     {
-        //get the data to process
-        //var data = await Data;
-
-        // log the data to process for debugging
-
-        //process the data
-        //var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, RequestUri);
-
-        //log the result
-
-        //if (!response.IsSuccessStatusCode)
-        //{
-        //    var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>() ?? new ProblemDetails();
-
-        //    return TypedResults.Problem($"Failed to Retrieve inactive requests: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
-        //}
-
-        //var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
         using (_logger.BeginScope("ScopeProcess: Running processs {processId} - {processName}", ProcessId, ProcessName))
         {
             _logger.LogDebug(CustomLogEvents.Process, "Getting due emails with query {requestUri}", RequestUri);
@@ -123,20 +107,36 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
             var localData = await GetData();
 
             _logger.LogDebug(CustomLogEvents.Process, "Return Result {localData}", localData.Data);
+
+            List<HttpRequestMessage> requests = new() {};
+
+            //process the data
+            foreach (var request in localData.Data.AsArray())
+            {
+                //Update the request
+                var requestId = request["ofm_assistance_requestid"].ToString();
+
+                var body = new JsonObject()
+                {
+                    ["statecode"] = 1,
+                    ["statuscode"] = 5,
+                    ["ofm_closing_reason"] = "No Action"
+                };
+
+                requests.Add(new UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
+
+            }
+
+            HttpResponseMessage response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+
+                return ProcessResult.Failure(ProcessId, new String[] {response.ReasonPhrase}, 0, localData.Data.AsArray().Count);
+
+            }
+
             var endTime = _timeProvider.GetTimestamp();
-
-            //var serializedData = JsonSerializer.Deserialize<IEnumerable<D365Email>>(localData.Data.ToString());
-
-            //var filtered = serializedData!.AsQueryable().Where(e => e.IsCompleted && (e.IsNewAndUnread || ValidateIsUnread(e))).ToList();
-
-            //// Send only one email per contact
-            //var filtered2 = filtered.GroupBy(e => e.torecipients).ToList();
-
-            //foreach (var item in filtered2)
-            //{
-            //    //Add to bulk email create
-            //}
-            //var endTime = _timeProvider.GetTimestamp();
 
             _logger.LogInformation(CustomLogEvents.Process, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
              return ProcessResult.Success(ProcessId,localData.Data.AsArray().Count, localData.Data.AsArray().Count);
