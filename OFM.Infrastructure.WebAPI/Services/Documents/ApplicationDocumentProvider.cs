@@ -36,7 +36,7 @@ sealed class ApplicationDocumentProvider : ID365DocumentProvider
         var appFacilityDocsResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         if (appFacilityDocsResult?.TryGetPropertyValue("value", out JsonNode? myResult) == true && myResult is not null)
         {
-            JsonObject? jsonDom = myResult[0].Deserialize<JsonObject>(CommonInfo.s_readOptions!);
+            JsonObject? jsonObject = myResult[0].Deserialize<JsonObject>(CommonInfo.s_readOptions!);
 
             string jsonBody = $$"""
                                 {
@@ -45,7 +45,7 @@ sealed class ApplicationDocumentProvider : ID365DocumentProvider
                                     "notetext": {{jsonData["notetext"]}},                         
                                     "ccof_applicationid": {{jsonData["ccof_applicationid"]}},
                                     "ccof_facility": {{jsonData["ccof_facility"]}},
-                                    "objectid_ccof_application_facility_document@odata.bind":"/ccof_application_facility_documents({{jsonDom?["ccof_application_facility_documentid"]}}")",                    
+                                    "objectid_ccof_application_facility_document@odata.bind":"/ccof_application_facility_documents({{jsonObject?["ccof_application_facility_documentid"]}}")",                    
                                     "documentbody":{{jsonData["documentbody"]}}
                                 }
                                 """;

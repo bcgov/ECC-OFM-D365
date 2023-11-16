@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
-using System.ComponentModel;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using OFM.Infrastructure.WebAPI.Services.Documents;
@@ -39,26 +38,26 @@ public static class DocumentsHandlers
     {
         if (string.IsNullOrEmpty(jsonBody)) return TypedResults.BadRequest("Invalid Query.");
 
-        JsonObject jsonDom = JsonSerializer.Deserialize<JsonObject>(jsonBody?.ToString(), CommonInfo.s_readOptions!);
+        JsonObject jsonObject = JsonSerializer.Deserialize<JsonObject>(jsonBody?.ToString(), CommonInfo.s_readOptions!);
 
         // Validate empty request
-        if (jsonDom.Count == 0) return TypedResults.BadRequest("Invalid request.");
+        if (jsonObject.Count == 0) return TypedResults.BadRequest("Invalid request.");
 
         // Validate file size limit
-        if (JsonSizeCalculator.Estimate(jsonDom, true) > appSettings.Value.MaxFileSize)
-        {
-            return TypedResults.Problem("The file size exceeds the limit allowed.", statusCode: StatusCodes.Status500InternalServerError);
-        };
+        //if (JsonSizeCalculator.Estimate(jsonObject, true) > appSettings.Value.MaxFileSize)
+        //{
+        //    return TypedResults.Problem("The file size exceeds the limit allowed.", statusCode: StatusCodes.Status500InternalServerError);
+        //};
 
         //Validate file types
-        jsonDom.TryGetPropertyValue("filename", out JsonNode? fileNameNode);
-        string fileName = fileNameNode?.GetValue<string>() ?? throw new InvalidEnumArgumentException("The filename is missing.");
-        string[] fileNames = fileName.Split('.');
-        string fileExt = fileNames[^1].ToLower();
-        string[] acceptedFileFormats = appSettings.Value.FileFommats.Split(",").Select(ext => ext.Trim()).ToArray();
-        if (Array.IndexOf(acceptedFileFormats, fileExt) == -1) return TypedResults.BadRequest(appSettings.Value.FileFormatErrorMessage);
+        //jsonObject.TryGetPropertyValue("filename", out JsonNode? fileNameNode);
+        //string fileName = fileNameNode?.GetValue<string>() ?? throw new InvalidEnumArgumentException("The filename is missing.");
+        //string[] fileNames = fileName.Split('.');
+        //string fileExt = fileNames[^1].ToLower();
+        //string[] acceptedFileFormats = appSettings.Value.FileFommats.Split(",").Select(ext => ext.Trim()).ToArray();
+        //if (Array.IndexOf(acceptedFileFormats, fileExt) == -1) return TypedResults.BadRequest(appSettings.Value.FileFormatErrorMessage);
       
-        var response = await documentService.UploadAsync(jsonDom);
+        var response = await documentService.UploadAsync(jsonObject);
 
         if (response.IsSuccessStatusCode)
         {
@@ -75,7 +74,7 @@ public static class DocumentsHandlers
         var response = await documentService.RemoveAsync(annotationid);
 
         if (response.IsSuccessStatusCode)
-            return TypedResults.Ok($"Record was removed.");
+            return TypedResults.Ok($"Record was removed successfully.");
         else
             return TypedResults.Problem($"Failed to Delete record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
     }
