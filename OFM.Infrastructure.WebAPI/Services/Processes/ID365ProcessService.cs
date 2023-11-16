@@ -4,5 +4,5 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes;
 
 public interface ID365ProcessService
 {
-    Task<ProcessResult> RunProcessByIdAsync(int id);
+    Task<ProcessResult> RunProcessByIdAsync(int processId, ProcessParameter processParams);
 }

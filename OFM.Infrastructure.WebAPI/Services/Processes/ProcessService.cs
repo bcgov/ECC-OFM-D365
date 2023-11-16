@@ -16,10 +16,10 @@ public class ProcessService : ID365ProcessService
         _processProviders = processProviders;
     }
 
-    public Task<ProcessResult> RunProcessByIdAsync(int id)
+    public Task<ProcessResult> RunProcessByIdAsync(int processId, ProcessParameter processParams) 
     {
-        var provider = _processProviders.First(p => p.ProcessId == id);
+        var provider = _processProviders.First(p => p.ProcessId == processId);
 
-        return provider.RunProcessAsync(_appUserService, _d365webapiservice);
+        return provider.RunProcessAsync(_appUserService, _d365webapiservice, processParams);
     }
 }

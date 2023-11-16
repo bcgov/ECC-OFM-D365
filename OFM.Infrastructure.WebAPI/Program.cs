@@ -13,8 +13,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
-builder.Logging.AddFilter(LogCategory.Batch, LogLevel.Debug);
+//builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
 
 var services = builder.Services;
 
@@ -46,6 +45,7 @@ services.AddScoped<ID365ProcessService, ProcessService>();
 services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<D365Email>();
+services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
 
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();

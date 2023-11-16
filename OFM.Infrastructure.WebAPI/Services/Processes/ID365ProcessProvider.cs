@@ -8,5 +8,5 @@ public interface ID365ProcessProvider
     Int16 ProcessId { get; }
     string ProcessName { get; }
     Task<ProcessData> GetData();
-    Task<ProcessResult> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService);
+    Task<ProcessResult> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService,ProcessParameter processParams);
 }

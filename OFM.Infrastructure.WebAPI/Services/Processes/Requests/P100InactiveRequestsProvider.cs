@@ -1,14 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using System;
 using System.Net;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Requests;
@@ -37,8 +33,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
     {
         get
         {
-            // Note: FetchXMl limit is 5000
-            var inactiveDays = _processSettings.MaxRequestInactiveDays;
+            var maxInactiveDays = _processSettings.MaxRequestInactiveDays;
 
             // Note: FetchXMl limit is 5000
             var fetchXml = $"""
@@ -54,7 +49,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
                         <attribute name="statuscode" />
                         <filter>
                           <condition attribute="statuscode" operator="eq" value="4" />
-                          <condition attribute="ofm_last_action_time" operator="olderthan-x-days" value="{inactiveDays}" />
+                          <condition attribute="ofm_last_action_time" operator="olderthan-x-days" value="{maxInactiveDays}" />
                         </filter>
                       </entity>
                     </fetch>
@@ -70,76 +65,64 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
 
     public async Task<ProcessData> GetData()
     {
-        //using (_logger.BeginScope("ScopeProcess: Running processs {processId} - {processName}", ProcessId, ProcessName))
-        //{
-            _logger.LogDebug(CustomLogEvents.Process, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
+        _logger.LogDebug(CustomLogEvents.Process, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
 
-            if (_data is null)
+        if (_data is null)
+        {
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri);
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
             {
-                var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri);
-                var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-                JsonNode d365Result = string.Empty;
-                if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+                if (currentValue?.AsArray().Count == 0)
                 {
-                    if (currentValue?.AsArray().Count == 0)
-                    {
-                        _logger.LogInformation(CustomLogEvents.Process, "No inactive requests found with query {requestUri}", RequestUri);
-                    }
-                    d365Result = currentValue!;
+                    _logger.LogInformation(CustomLogEvents.Process, "No inactive requests found with query {requestUri}", RequestUri);
                 }
-
-                _data = new ProcessData(d365Result);
+                d365Result = currentValue!;
             }
-        //}
 
+            _data = new ProcessData(d365Result);
+        }
         return await Task.FromResult(_data);
     }
 
-    public async Task<ProcessResult> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
+    public async Task<ProcessResult> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        using (_logger.BeginScope("ScopeProcess: Running processs {processId} - {processName}", ProcessId, ProcessName))
+        _logger.LogDebug(CustomLogEvents.Process, "Getting due emails with query {requestUri}", RequestUri);
+
+        var startTime = _timeProvider.GetTimestamp();
+
+        var localData = await GetData();
+
+        _logger.LogDebug(CustomLogEvents.Process, "Return Result {localData}", localData.Data);
+
+        List<HttpRequestMessage> requests = new() { };
+
+        foreach (var request in localData.Data.AsArray())
         {
-            _logger.LogDebug(CustomLogEvents.Process, "Getting due emails with query {requestUri}", RequestUri);
+            var requestId = request!["ofm_assistance_requestid"]!.ToString();
 
-            var startTime = _timeProvider.GetTimestamp();
-
-            var localData = await GetData();
-
-            _logger.LogDebug(CustomLogEvents.Process, "Return Result {localData}", localData.Data);
-
-            List<HttpRequestMessage> requests = new() {};
-
-            //process the data
-            foreach (var request in localData.Data.AsArray())
+            var body = new JsonObject()
             {
-                //Update the request
-                var requestId = request["ofm_assistance_requestid"].ToString();
+                ["statecode"] = 1,
+                ["statuscode"] = 5,
+                ["ofm_closing_reason"] = "No Action"
+            };
 
-                var body = new JsonObject()
-                {
-                    ["statecode"] = 1,
-                    ["statuscode"] = 5,
-                    ["ofm_closing_reason"] = "No Action"
-                };
-
-                requests.Add(new UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
-
-            }
-
-            HttpResponseMessage response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);
-
-            if (!response.IsSuccessStatusCode)
-            {
-
-                return ProcessResult.Failure(ProcessId, new String[] {response.ReasonPhrase}, 0, localData.Data.AsArray().Count);
-
-            }
-
-            var endTime = _timeProvider.GetTimestamp();
-
-            _logger.LogInformation(CustomLogEvents.Process, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
-             return ProcessResult.Success(ProcessId,localData.Data.AsArray().Count, localData.Data.AsArray().Count);
+            requests.Add(new UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
         }
+
+        HttpResponseMessage response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);
+        var endTime = _timeProvider.GetTimestamp();
+
+        _logger.LogInformation(CustomLogEvents.Process, "Querying data finished in {totalElapsedTime} seconds", _timeProvider.GetElapsedTime(startTime, endTime).TotalSeconds);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return ProcessResult.Failure(ProcessId, new String[] { response.ReasonPhrase }, 0, localData.Data.AsArray().Count);
+        }
+
+        return ProcessResult.Success(ProcessId, localData.Data.AsArray().Count, localData.Data.AsArray().Count);
     }
 }

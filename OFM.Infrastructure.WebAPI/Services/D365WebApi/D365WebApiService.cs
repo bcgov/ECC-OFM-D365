@@ -80,7 +80,8 @@ public class D365WebAPIService : ID365WebApiService
     {
         BatchRequest batchRequest = new(_d365AuthSettings)
         {
-            Requests = requestMessages
+            Requests = requestMessages,
+            ContinueOnError = true
         };
 
         var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.Batch, spn);

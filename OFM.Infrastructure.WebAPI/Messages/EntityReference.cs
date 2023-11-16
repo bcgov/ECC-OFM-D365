@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Messages;
 
@@ -115,12 +115,11 @@ namespace OFM.Infrastructure.WebAPI.Messages;
             return $"{{'@odata.id':'{Path}'}}";
         }
 
-        public JObject AsJObject(string entityLogicalName, string primaryKeyLogicalName)
+        public JsonObject AsJObject(string entityLogicalName, string primaryKeyLogicalName)
         {
-
             if (Id.HasValue)
             {
-                return new JObject(){
+                return new JsonObject(){
 
                     { primaryKeyLogicalName,Id },
                     { "@odata.type",$"Microsoft.Dynamics.CRM.{entityLogicalName}"}
