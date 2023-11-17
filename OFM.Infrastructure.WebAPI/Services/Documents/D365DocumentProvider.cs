@@ -28,11 +28,11 @@ public class DocumentProvider : ID365DocumentProvider
     {
         var requestBody = new JsonObject()
         {
-            ["ofm_filename"] = document.ofm_filename,
+            ["ofm_subject"] = document.ofm_subject,
             ["ofm_extension"] = document.ofm_extension,
             ["ofm_file_size"] = document.ofm_file_size,
             ["ofm_description"] = document.ofm_description,
-            ["ofm_regardingid@odata.bind"] = $"/{document.entity_name_set}({document.regardingid})",
+            [$"ofm_regardingid_{(document.entity_name_set).TrimEnd('s')}@odata.bind"] = $"/{document.entity_name_set}({document.regardingid})",
         };
 
         var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZPortalAppUser, EntityNameSet, requestBody.ToString());

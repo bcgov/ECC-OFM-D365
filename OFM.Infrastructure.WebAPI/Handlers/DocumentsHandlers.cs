@@ -43,7 +43,7 @@ public static class DocumentsHandlers
     ///
     ///  [
     ///    {
-    ///       "ofm_filename": "licence_01.jpg",
+    ///       "ofm_subject": "licence_01.jpg",
     ///       "ofm_extension": ".jpg",
     ///       "ofm_file_size": 95.5,
     ///       "ofm_description": "description 01",
@@ -51,7 +51,7 @@ public static class DocumentsHandlers
     ///       "regardingid": "00000000-0000-0000-0000-000000000000"
     ///    },
     ///    {
-    ///       "ofm_filename": "licence_02.png",
+    ///       "ofm_subject": "licence_02.png",
     ///       "ofm_extension": ".png",
     ///       "ofm_file_size": 1000.5,
     ///       "ofm_description": "description 02",

@@ -61,7 +61,7 @@ public class D365DocumentService : ID365DocumentService
 
         foreach (var file in files)
         {
-            var fileDetail = fileMappings.First(doc => doc.ofm_filename == file.FileName);
+            var fileDetail = fileMappings.First(doc => doc.ofm_subject == file.FileName);
             var newDocument = await provider.CreateDocumentAsync(fileDetail, _appUserService, _d365webapiservice);
 
             if (newDocument is not null && newDocument.ContainsKey("ofm_documentid"))
