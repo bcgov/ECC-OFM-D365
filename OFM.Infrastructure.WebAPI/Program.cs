@@ -37,9 +37,9 @@ services.TryAddSingleton<ID365TokenService, D365TokenService>();
 services.TryAddSingleton<ID365AppUserService, D365AppUserService>();
 services.TryAddSingleton<ID365WebApiService, D365WebAPIService>();
 services.TryAddSingleton<ID365AuthenticationService, D365AuthServiceMSAL>();
-services.TryAddSingleton<ID365DocumentService, D365DocumentService>();
-services.TryAddSingleton<ID365DocumentProvider, D365DocumentProvider>();
+services.TryAddSingleton<ID365DocumentProvider, DocumentProvider>();
 services.TryAddSingleton<ID365DocumentProvider, ApplicationDocumentProvider>();
+services.TryAddSingleton<ID365DocumentService, D365DocumentService>();
 
 services.AddScoped<ID365ProcessService, ProcessService>();
 services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();

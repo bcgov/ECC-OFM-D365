@@ -27,48 +27,63 @@ public static class DocumentsHandlers
         return TypedResults.Ok(result);
     }
 
-    public static async Task<Results<ProblemHttpResult, BadRequest<string>, Ok<string>>> PostAsync(
-        IOptions<AppSettings> appSettings,
+    /// <summary>
+    /// Upload multiple documents "<see cref="FileMapping"/>".
+    /// </summary>
+    /// <response code="201">Returns a list with the uploaded documentIds.</response>
+    /// <param name="documentService"></param>
+    /// <param name="loggerFactory"></param>
+    /// <param name="files"></param>
+    /// <param name="fileMapping" example=""></param>
+    /// <returns></returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    /// POST api/documents
+    ///
+    ///  [
+    ///    {
+    ///       "ofm_filename": "licence_01.jpg",
+    ///       "ofm_extension": ".jpg",
+    ///       "ofm_file_size": 95.5,
+    ///       "ofm_description": "description 01",
+    ///       "entity_name_set": "ofm_assistance_requests",
+    ///       "regardingid": "00000000-0000-0000-0000-000000000000"
+    ///    },
+    ///    {
+    ///       "ofm_filename": "licence_02.png",
+    ///       "ofm_extension": ".png",
+    ///       "ofm_file_size": 1000.5,
+    ///       "ofm_description": "description 02",
+    ///       "entity_name_set": "ofm_assistance_requests",
+    ///       "regardingid": "00000000-0000-0000-0000-000000000000"
+    ///    }
+    ///  ]
+    /// </remarks>
+    public static async Task<Results<ProblemHttpResult, BadRequest<string>, Ok<ProcessResult>>> PostAsync(
         ID365DocumentService documentService,
-        [FromBody] dynamic? jsonBody)
+        ILoggerFactory loggerFactory,
+        IFormFileCollection files,
+        [FromForm] string fileMapping)
     {
-        if (string.IsNullOrEmpty(jsonBody)) return TypedResults.BadRequest("Invalid Query.");
-
-        JsonObject jsonDom = JsonSerializer.Deserialize<JsonObject>(jsonBody?.ToString(), CommonInfo.s_readOptions!);
-
-        // Validate empty request
-        if (jsonDom.Count == 0) return TypedResults.BadRequest("Invalid request.");
-
-        // Validate file size limit
-        if (JsonSizeCalculator.Estimate(jsonDom, true) > appSettings.Value.MaxFileSize)
+        var logger = loggerFactory.CreateLogger(LogCategory.Process);
+        using (logger.BeginScope("ScopeDocument"))
         {
-            return TypedResults.Problem("The file size exceeds the limit allowed.", statusCode: StatusCodes.Status500InternalServerError);
-        };
+            if (fileMapping.Length == 0 || !files.Any()) { return TypedResults.BadRequest("Invalid Query."); }
+           
+            var mappings = JsonSerializer.Deserialize<List<FileMapping>>(fileMapping)?.ToList();
 
-        //Validate file types
-        jsonDom.TryGetPropertyValue("filename", out JsonNode? fileNameNode);
-        string fileName = fileNameNode?.GetValue<string>() ?? throw new InvalidEnumArgumentException("The filename is missing.");
-        string[] fileNames = fileName.Split('.');
-        string fileExt = fileNames[^1].ToLower();
-        string[] acceptedFileFormats = appSettings.Value.FileFommats.Split(",").Select(ext => ext.Trim()).ToArray();
-        if (Array.IndexOf(acceptedFileFormats, fileExt) == -1) return TypedResults.BadRequest(appSettings.Value.FileFormatErrorMessage);
-      
-        var response = await documentService.UploadAsync(jsonDom);
+            var uploadResult = await documentService.UploadAsync(files, mappings!);
 
-        if (response.IsSuccessStatusCode)
-        {
-            return TypedResults.Ok("File Uploaded.");
+            return TypedResults.Ok(uploadResult);
         }
-        else
-            return TypedResults.Problem($"Failed to Create record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
     }
 
-    //statement=ofm_documentses(<ofm_documentsid>)/ofm_file
     public static async Task<Results<ProblemHttpResult, Ok<string>>> DeleteAsync(
           ID365DocumentService documentService,
-          string annotationid)
+          string documentId)
     {
-        var response = await documentService.RemoveAsync(annotationid);
+        var response = await documentService.RemoveAsync(documentId);
 
         if (response.IsSuccessStatusCode)
             return TypedResults.Ok($"Record was removed successfully.");
