@@ -55,7 +55,15 @@ public class D365WebAPIService : ID365WebApiService
 
         return await client.SendAsync(message);
     }
-    
+
+    public async Task<HttpResponseMessage> SendDocumentRequestAsync(AZAppUser spn, string entityNameSet,Guid id, Byte[] data, string fileName)
+    {
+        var request = new UploadFileRequest(new EntityReference(entityNameSet, id), columnName: "ofm_file", data, fileName);
+        var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
+
+        return await client.SendAsync(request);
+    }
+
     public async Task<HttpResponseMessage> SendDeleteRequestAsync(AZAppUser spn, string requestUri)
     {
         var client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);

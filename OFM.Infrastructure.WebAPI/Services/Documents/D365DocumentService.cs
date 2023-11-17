@@ -1,5 +1,7 @@
-﻿using OFM.Infrastructure.WebAPI.Services.AppUsers;
+﻿using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Net;
 using System.Text.Json.Nodes;
 
@@ -7,7 +9,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Documents;
 
 public class D365DocumentService : ID365DocumentService
 {
-    static readonly string _entityNameSet = "entity_name_set";
+    static readonly string _entityNameSet = "ofm_documents";
     protected readonly ID365WebApiService _d365webapiservice;
     private readonly IEnumerable<ID365DocumentProvider> _documentProviders;
     private readonly ID365AppUserService _appUserService;
@@ -19,7 +21,7 @@ public class D365DocumentService : ID365DocumentService
         _appUserService = appUserService;
     }
 
-    public async Task<HttpResponseMessage> GetAsync(string annotationId)
+    public async Task<HttpResponseMessage> GetAsync(string documentId)
     {
         string fetchXML = $$"""
                             <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>
@@ -30,7 +32,7 @@ public class D365DocumentService : ID365DocumentService
                                     <attribute name='subject' />
                                     <attribute name='documentbody' />
                                     <filter>
-                                      <condition attribute='annotationid' operator='eq' value= '{{annotationId}}' />
+                                      <condition attribute='annotationid' operator='eq' value= '{{documentId}}' />
                                     </filter>
                                   </entity>
                             </fetch>
@@ -40,21 +42,61 @@ public class D365DocumentService : ID365DocumentService
 
         return await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZPortalAppUser, statement);
     }
-    public async Task<HttpResponseMessage> UploadAsync(JsonObject jsonData)
+
+    public async Task<HttpResponseMessage> RemoveAsync(string documentId)
     {
-        if (!jsonData.TryGetPropertyValue(_entityNameSet, out JsonNode? entityNameValue))
+        return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, $"annotations({documentId})");
+    }
+
+    public async Task<ProcessResult> UploadAsync(IFormFileCollection files, IEnumerable<FileMapping> fileMappings)
+    {
+        //if (files.Count == 0 || fileMappings.Count() == 0 || files.Count != fileMappings.Count())
+        //    throw new InvalidEnumArgumentException($"UploadAsync: {nameof(D365DocumentService)}");
+
+        ID365DocumentProvider provider = _documentProviders.First(p => p.EntityNameSet == _entityNameSet);
+
+        Int16 processedCount = 0;
+        List<JsonObject> documentsResult = new List<JsonObject>() { };
+        List<string> errors = new List<string>() { };
+
+        foreach (var file in files)
         {
-            throw new KeyNotFoundException(_entityNameSet);
+            var fileDetail = fileMappings.First(doc => doc.ofm_filename == file.FileName);
+            var newDocument = await provider.CreateDocumentAsync(fileDetail, _appUserService, _d365webapiservice);
+
+            if (newDocument is not null && newDocument.ContainsKey("ofm_documentid"))
+            {
+                documentsResult.Add(newDocument);
+
+                if (file.Length > 0)
+                {
+                    using (MemoryStream memStream = new MemoryStream())
+                    {
+                        await file.CopyToAsync(memStream);
+
+                        // Attach the file to the new document record
+                        HttpResponseMessage response = await _d365webapiservice.SendDocumentRequestAsync(_appUserService.AZPortalAppUser, _entityNameSet, new Guid(newDocument["ofm_documentid"].ToString()), memStream.ToArray(), file.FileName);
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            //log the error
+                            errors.Add(file.FileName);
+                            continue;
+                        }
+                    }
+                    processedCount++;
+                }
+            }
+            else
+            {
+                errors.Add(file.FileName);
+            }
         }
 
-        ID365DocumentProvider provider = _documentProviders.First(p => p.EntityNameSet == entityNameValue?.GetValue<string>());
-        var processingDocument = await provider.PrepareDocumentBodyAsync(jsonData, _appUserService, _d365webapiservice);
-        string entitySetName = entityNameValue!.GetValue<string>();
+        if (errors.Any() && processedCount == 0) { return await Task.FromResult<ProcessResult>(ProcessResult.Failure(errors, processedCount, files.Count)); }
 
-        return await _d365webapiservice.SendCreateRequestAsync(_appUserService.AZPortalAppUser, entitySetName, processingDocument); 
-    }   
-    public async Task<HttpResponseMessage> RemoveAsync(string annotationId)
-    {
-        return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, $"annotations({annotationId})");
+        if (errors.Any() && processedCount < files.Count) { return await Task.FromResult<ProcessResult>(ProcessResult.PartialSuccess(documentsResult, errors, processedCount, files.Count)); }
+
+        return await Task.FromResult<ProcessResult>(ProcessResult.Success(documentsResult, processedCount, files.Count));
     }
 }

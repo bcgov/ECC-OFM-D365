@@ -5,6 +5,7 @@ namespace OFM.Infrastructure.WebAPI.Extensions;
 
 public enum BatchMethodName { GET, POST, PATCH, DELETE }
 public enum D365ServiceType { Search, Batch, CRUD }
+public enum ProcessStatus { Successful, Completed, Partial, Failed }
 
 public static class CommonInfo
 {
@@ -60,6 +61,8 @@ public class LogCategory
 {
     public const string ProviderProfile = "OFM.Portal.ProviderProfile";
     public const string Operation = "OFM.Portal.Operation";
+    public const string Document = "OFM.Portal.Document";
+
     public const string Contact = "OFM.D365.Contact";
     public const string Request = "OFM.D365.Request";
     public const string Process = "OFM.D365.Process";

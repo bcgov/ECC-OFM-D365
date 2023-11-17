@@ -10,7 +10,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Documents;
 
 sealed class ApplicationDocumentProvider : ID365DocumentProvider
 {
-    public string EntityNameSet => "ccof_application_facility_document";
+    public string EntityNameSet => "ofm_applications";
 
     public async Task<string> PrepareDocumentBodyAsync(JsonObject jsonData,ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
     {
@@ -53,5 +53,10 @@ sealed class ApplicationDocumentProvider : ID365DocumentProvider
         }
 
         return await Task.FromResult(jsonData.ToJsonString());
+    }
+
+    Task<JsonObject> ID365DocumentProvider.CreateDocumentAsync(FileMapping document, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
+    {
+        throw new NotImplementedException();
     }
 }

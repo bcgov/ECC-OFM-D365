@@ -13,7 +13,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
-//builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
+builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
 
 var services = builder.Services;
 

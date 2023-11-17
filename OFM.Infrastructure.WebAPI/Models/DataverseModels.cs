@@ -195,3 +195,13 @@ public record D365Email
         }
     }
 }
+
+public record FileMapping
+{
+    public required string ofm_filename { get; set; }
+    public required string ofm_description { get; set; }
+    public required string ofm_extension { get; set; }
+    public decimal ofm_file_size { get; set; }
+    public required string entity_name_set { get; set; }
+    public required string regardingid { get; set; }
+}
