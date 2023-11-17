@@ -24,7 +24,7 @@ public static class ProviderProfilesHandlers
     /// <param name="appUserService"></param>
     /// <param name="timeProvider"></param>
     /// <param name="loggerFactory"></param>
-    /// <param name="userName" example="ofmqa05"></param>
+    /// <param name="userName" example="BCeIDTest"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
     public static async Task<Results<BadRequest<string>, NotFound<string>, UnauthorizedHttpResult, ProblemHttpResult, Ok<ProviderProfile>>> GetProfileAsync(
@@ -134,12 +134,12 @@ public static class ProviderProfilesHandlers
 
             }
 
-            var jsonDom = await response.Content.ReadFromJsonAsync<JsonObject>();
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
 
             #region Validation
 
             JsonNode d365Result = string.Empty;
-            if (jsonDom?.TryGetPropertyValue("value", out var currentValue) == true)
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
             {
                 if (currentValue?.AsArray().Count == 0)
                 {

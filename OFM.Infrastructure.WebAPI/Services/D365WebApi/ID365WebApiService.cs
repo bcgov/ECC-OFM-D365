@@ -10,5 +10,6 @@ public interface ID365WebApiService
     Task<HttpResponseMessage> SendDocumentPatchRequestAsync(AZAppUser spn, string requestUrl, byte[] content, string fileName);
     Task<HttpResponseMessage> SendDeleteRequestAsync(AZAppUser spn, string requestUrl);
     Task<HttpResponseMessage> SendSearchRequestAsync(AZAppUser spn, string requestBody);
-    Task<HttpResponseMessage> SendBatchMessageAsync(AZAppUser spn, string requestBody, string batchName, Guid? callerObjectId);
+    Task<HttpResponseMessage> SendBatchMessageAsync(AZAppUser spn, List<HttpRequestMessage> requestMessages, Guid? callerObjectId);
+    Task<HttpResponseMessage> SendDocumentRequestAsync(AZAppUser spn, string entityNameSet, Guid id, Byte[] data, string fileName);
 }
