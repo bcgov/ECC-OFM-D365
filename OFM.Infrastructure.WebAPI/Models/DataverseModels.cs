@@ -157,18 +157,20 @@ public record ofm_Facility
 
 public record D365Email
 {
-    public string? sender { get; set; }
-    public string? _regardingobjectid_value { get; set; }
+    public string? subject { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
-    public string? subject { get; set; }
+    public string? sender { get; set; }
     public string? torecipients { get; set; }
     public string? _ofm_communication_type_value { get; set; }
-    public int Toparticipationtypemask { get; set; }
+    public int? Toparticipationtypemask { get; set; }
     public bool? isworkflowcreated { get; set; }
-    public DateTime? emailreminderexpirytime { get; set; }
-    public DateTime? senton { get; set; }
     public DateTime? lastopenedtime { get; set; }
+    public DateTime? scheduledstart { get; set; }
+    public DateTime? scheduledend { get; set; }
+    public string? _regardingobjectid_value { get; set; }
+
+    public Email_Activity_Parties[]? email_activity_parties { get; set; }
 
     public bool IsCompleted
     {
@@ -185,10 +187,10 @@ public record D365Email
     {
         get
         {
-            if (senton is null)
+            if (scheduledstart is null)
                 return false;
 
-            if (senton.Value.Date.Equals(DateTime.Now.Date) && lastopenedtime is null)
+            if (scheduledstart.Value.Date.Equals(DateTime.Now.Date) && lastopenedtime is null)
                 return true;
 
             return false;
@@ -204,4 +206,12 @@ public record FileMapping
     public decimal ofm_file_size { get; set; }
     public required string entity_name_set { get; set; }
     public required string regardingid { get; set; }
+}
+
+public record Email_Activity_Parties
+{
+    public int? participationtypemask { get; set; }
+    public string? _partyid_value { get; set; }
+    public string? _activityid_value { get; set; }
+    public string? activitypartyid { get; set; }
 }

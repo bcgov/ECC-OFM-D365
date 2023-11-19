@@ -13,7 +13,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
+//builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
 
 var services = builder.Services;
 
@@ -37,13 +37,14 @@ services.TryAddSingleton<ID365TokenService, D365TokenService>();
 services.TryAddSingleton<ID365AppUserService, D365AppUserService>();
 services.TryAddSingleton<ID365WebApiService, D365WebAPIService>();
 services.TryAddSingleton<ID365AuthenticationService, D365AuthServiceMSAL>();
-services.TryAddSingleton<ID365DocumentProvider, DocumentProvider>();
-services.TryAddSingleton<ID365DocumentProvider, ApplicationDocumentProvider>();
-services.TryAddSingleton<ID365DocumentService, D365DocumentService>();
 
-services.AddScoped<ID365ProcessService, ProcessService>();
-services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
-services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
+services.AddScoped<ID365DocumentProvider, DocumentProvider>();
+services.AddScoped<ID365DocumentProvider, ApplicationDocumentProvider>();
+services.AddScoped<ID365DocumentService, D365DocumentService>();
+
+services.AddScoped<ID365ScheduledProcessService, ProcessService>();
+services.AddScoped<ID365ScheduledProcessProvider, P100InactiveRequestProvider>();
+services.AddScoped<ID365ScheduledProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
 
@@ -101,7 +102,7 @@ app.MapGet("/api/health", (ILogger<string> logger) =>
 
     return TypedResults.Ok("I am healthy!");
 
-}).WithTags("Environment").Produces(200).ProducesProblem(404).AllowAnonymous();
+}).WithTags("Portal Environment").Produces(200).ProducesProblem(404).AllowAnonymous();
 
 app.MapHealthChecks("/api/health");
 

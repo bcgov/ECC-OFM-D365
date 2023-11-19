@@ -36,15 +36,15 @@ public class DocumentProvider : ID365DocumentProvider
         };
 
         var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZPortalAppUser, EntityNameSet, requestBody.ToString());
-       
+
         if (!response.IsSuccessStatusCode)
         {
             //log the error
-            return await Task.FromResult<JsonObject>(new JsonObject() {});
+            return await Task.FromResult<JsonObject>(new JsonObject() { });
         }
 
-        var newDocument = response.Content.ReadFromJsonAsync<JsonObject>();
+        var newDocument = await response.Content.ReadFromJsonAsync<JsonObject>();
 
-        return await newDocument;
+        return await Task.FromResult<JsonObject>(newDocument!);
     }
 }

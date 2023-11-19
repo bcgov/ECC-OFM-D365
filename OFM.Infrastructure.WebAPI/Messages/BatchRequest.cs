@@ -4,10 +4,14 @@ namespace OFM.Infrastructure.WebAPI.Messages;
 
 public class BatchRequest : HttpRequestMessage
 {
+    private readonly D365AuthSettings _d365AuthSettings;
     public BatchRequest(D365AuthSettings d365AuthSettings)
     {
+        _d365AuthSettings = d365AuthSettings;
+        var path = $"{d365AuthSettings.WebApiUrl}$batch";
+
         Method = HttpMethod.Post;
-        RequestUri = new Uri($"{d365AuthSettings.WebApiUrl}/$batch", UriKind.Absolute);
+        RequestUri = new Uri(path, UriKind.Absolute);
         Content = new MultipartContent("mixed", $"batch_{Guid.NewGuid().ToString()}");
         ServiceBaseAddress = new Uri($"{d365AuthSettings.WebApiUrl}");
 
@@ -111,7 +115,7 @@ public class BatchRequest : HttpRequestMessage
         //Relative URI is not allowed with MultipartContent
         request.RequestUri = new Uri(
            baseUri: ServiceBaseAddress!,
-           relativeUri: $"/api/data/v9.2/{request.RequestUri.ToString()}");
+           relativeUri: $"/api/data/v{_d365AuthSettings.ApiVersion}/{request.RequestUri}");
 
         if (request.Content != null)
         {

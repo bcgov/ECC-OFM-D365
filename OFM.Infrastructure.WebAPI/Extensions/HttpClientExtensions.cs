@@ -51,38 +51,6 @@ public static class HttpClientExtensions
             );
     }
 
-    public static async Task<string> ToBatchRequestRawString(this HttpRequestMessage request)
-    {
-        var sb = new StringBuilder();
-
-        var line1 = $"{request.Method} {request.RequestUri} HTTP/{request.Version}";
-        sb.AppendLine(line1);
-
-        foreach (var (key, value) in request.Headers)
-            foreach (var val in value)
-            {
-                var header = $"{key}: {val}";
-                sb.AppendLine(header);
-            }
-
-        if (request.Content?.Headers != null)
-        {
-            foreach (var (key, value) in request.Content.Headers)
-                foreach (var val in value)
-                {
-                    var header = $"{key}: {val}";
-                    sb.AppendLine(header);
-                }
-        }
-        sb.AppendLine();
-
-        var body = await (request.Content?.ReadAsStringAsync() ?? Task.FromResult<string>(null));
-        if (!string.IsNullOrWhiteSpace(body))
-            sb.AppendLine(body);
-
-        return sb.ToString();
-    }
-
     public static async Task<string> ToRawString(this HttpRequestMessage request)
     {
         var sb = new StringBuilder();
@@ -143,5 +111,24 @@ public static class HttpClientExtensions
             sb.AppendLine(body);
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Converts HttpResponseMessage to derived type
+    /// </summary>
+    /// <typeparam name="T">The type derived from HttpResponseMessage</typeparam>
+    /// <param name="response">The HttpResponseMessage</param>
+    /// <returns></returns>
+    public static T As<T>(this HttpResponseMessage response) where T : HttpResponseMessage
+    {
+        T? typedResponse = (T)Activator.CreateInstance(typeof(T));
+
+        //Copy the properties
+        typedResponse.StatusCode = response.StatusCode;
+        response.Headers.ToList().ForEach(h => {
+            typedResponse.Headers.TryAddWithoutValidation(h.Key, h.Value);
+        });
+        typedResponse.Content = response.Content;
+        return typedResponse;
     }
 }

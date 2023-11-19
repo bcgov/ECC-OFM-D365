@@ -50,14 +50,11 @@ public class D365DocumentService : ID365DocumentService
 
     public async Task<ProcessResult> UploadAsync(IFormFileCollection files, IEnumerable<FileMapping> fileMappings)
     {
-        //if (files.Count == 0 || fileMappings.Count() == 0 || files.Count != fileMappings.Count())
-        //    throw new InvalidEnumArgumentException($"UploadAsync: {nameof(D365DocumentService)}");
-
         ID365DocumentProvider provider = _documentProviders.First(p => p.EntityNameSet == _entityNameSet);
 
         Int16 processedCount = 0;
-        List<JsonObject> documentsResult = new List<JsonObject>() { };
-        List<string> errors = new List<string>() { };
+        List<JsonObject> documentsResult = new() { };
+        List<string> errors = new() { };
 
         foreach (var file in files)
         {
@@ -93,10 +90,10 @@ public class D365DocumentService : ID365DocumentService
             }
         }
 
-        if (errors.Any() && processedCount == 0) { return await Task.FromResult<ProcessResult>(ProcessResult.Failure(errors, processedCount, files.Count)); }
+        if (errors.Any() && processedCount == 0) { return await Task.FromResult<ProcessResult>(ProcessResult.ODFailure(errors, processedCount, files.Count)); }
 
-        if (errors.Any() && processedCount < files.Count) { return await Task.FromResult<ProcessResult>(ProcessResult.PartialSuccess(documentsResult, errors, processedCount, files.Count)); }
+        if (errors.Any() && processedCount < files.Count) { return await Task.FromResult<ProcessResult>(ProcessResult.ODPartialSuccess(documentsResult, errors, processedCount, files.Count)); }
 
-        return await Task.FromResult<ProcessResult>(ProcessResult.Success(documentsResult, processedCount, files.Count));
+        return await Task.FromResult<ProcessResult>(ProcessResult.ODSuccess(documentsResult, processedCount, files.Count));
     }
 }

@@ -7,7 +7,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes;
 
 public class ProcessResult
 {
-    private ProcessResult(bool completed, IEnumerable<JsonObject>? result, IEnumerable<string>? errors, ProcessStatus status, int processed, int totalRecords)
+    private ProcessResult(bool completed, IEnumerable<JsonObject>? result, IEnumerable<string>? errors, string status, int processed, int totalRecords)
     {
         CompletedWithNoErrors = completed;
         Errors = errors ?? Array.Empty<string>();
@@ -20,7 +20,7 @@ public class ProcessResult
             (status == ProcessStatus.Completed) ? "The process has been triggered successfully. The result should be logged once the process is completed." : "Check the logs for warnings or errors.";
     }
 
-    private ProcessResult(Int16 processId, bool completed, IEnumerable<string>? errors, ProcessStatus status, int processed, int totalRecords)
+    private ProcessResult(Int16 processId, bool completed, IEnumerable<string>? errors, string status, int processed, int totalRecords)
     {
         ProcessId = processId;
         CompletedWithNoErrors = completed;
@@ -30,12 +30,12 @@ public class ProcessResult
         TotalRecords = totalRecords;
         CompletedAt = DateTime.Now;
         ResultMessage = (status == ProcessStatus.Successful) ? "All records have been successfully processed with no warnings." :
-            (status == ProcessStatus.Completed) ? "The process has been triggered successfully. The result should be logged once the process is completed." : "Check errors and the logs for warnings or error details.";
+            (status == ProcessStatus.Completed) ? "The process has been triggered successfully. The result is logged once the process is completed." : "Check the logs for warnings or error details.";
     }
 
     public Int16 ProcessId { get; }
     public bool CompletedWithNoErrors { get; }
-    public ProcessStatus Status { get; }
+    public string Status { get; }
     public int TotalProcessed { get; }
     public int TotalRecords { get; }
     public DateTime CompletedAt { get; }
@@ -43,18 +43,36 @@ public class ProcessResult
     public string ResultMessage { get; }
     public IEnumerable<string> Errors { get; }
 
-    #region Common Process Results
-    public static ProcessResult Success(Int16 processId, int processed, int totalRecords) => new(processId, true, null, ProcessStatus.Successful, processed, totalRecords);
-    public static ProcessResult PartialSuccess(Int16 processId, int processed, int totalRecords) => new(processId, true, null, ProcessStatus.Partial, processed, totalRecords);
+    #region Set Scheduled Process Results
+
+    public static ProcessResult Success(Int16 processId, int totalRecords) => new(processId, true, null, ProcessStatus.Successful, totalRecords, totalRecords);
+    public static ProcessResult PartialSuccess(Int16 processId, IEnumerable<string> errors, int processed, int totalRecords) => new(processId, true, errors, ProcessStatus.Partial, processed, totalRecords);
     public static ProcessResult Failure(Int16 processId, IEnumerable<string> errors, int processed, int totalRecords) => new(processId, false, errors, ProcessStatus.Failed, processed, totalRecords);
     public static ProcessResult Completed(Int16 processId) => new(processId, true, null, ProcessStatus.Completed, 0, 0);
+    
     #endregion
 
-    #region Non-Process Results
+    #region Set On-Demand Results
 
-    public static ProcessResult Success(IEnumerable<JsonObject> result, int processed, int totalRecords) => new(true, result, null, ProcessStatus.Successful, processed, totalRecords);
-    public static ProcessResult PartialSuccess(IEnumerable<JsonObject>? result, IEnumerable<string>? errors, int processed, int totalRecords) => new(true, result, errors, ProcessStatus.Partial, processed, totalRecords);
-    public static ProcessResult Failure(IEnumerable<string>? errors, int processed, int totalRecords) => new(false, null, errors, ProcessStatus.Failed, processed, totalRecords);
-    public static ProcessResult Completed() => new(true, null, null, ProcessStatus.Completed, 0, 0);
+    public static ProcessResult ODSuccess(IEnumerable<JsonObject> result, int processed, int totalRecords) => new(true, result, null, ProcessStatus.Successful, processed, totalRecords);
+    public static ProcessResult ODPartialSuccess(IEnumerable<JsonObject>? result, IEnumerable<string>? errors, int processed, int totalRecords) => new(true, result, errors, ProcessStatus.Partial, processed, totalRecords);
+    public static ProcessResult ODFailure(IEnumerable<string>? errors, int processed, int totalRecords) => new(false, null, errors, ProcessStatus.Failed, processed, totalRecords);
+    public static ProcessResult ODCompleted() => new(true, null, null, ProcessStatus.Completed, 0, 0);
+
+    #endregion
+
+    #region Output
+
+    public JsonObject SimpleProcessResult {
+        get {
+            return new JsonObject() {
+                { "processId",ProcessId},
+                { "status",Status},
+                { "completedAt",CompletedAt},
+                { "resultMessage",ResultMessage}
+            };
+        } 
+    }
+
     #endregion
 }

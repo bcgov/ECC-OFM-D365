@@ -10,13 +10,14 @@ namespace OFM.Infrastructure.WebAPI.Extensions;
 public class ApiKeyMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<ApiKeyMiddleware> _logger;
+    private readonly ILogger _logger;
 
-    public ApiKeyMiddleware(RequestDelegate next, ILogger<ApiKeyMiddleware> logger)
+    public ApiKeyMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
     {
         _next = next;
-        _logger = logger;
+        _logger = loggerFactory.CreateLogger(LogCategory.API);
     }
+
     public async Task InvokeAsync(HttpContext context,
         IOptions<AuthenticationSettings> options)
     {
@@ -31,10 +32,9 @@ public class ApiKeyMiddleware
             var pattern = @"(?<=[\w]{5})[\w-\._\+%]*(?=[\w]{3})";
             var maskedKey = Regex.Replace(newKeyValue ?? "", pattern, m => new string('*', m.Length));
 
-            using (_logger.BeginScope("x-ofm-apikey:{maskedKey}", maskedKey))
-            {
-                await _next(context);
-            }
+            _logger.LogInformation(CustomLogEvents.API, "x-ofm-apikey:{maskedKey}", maskedKey);
+
+            await _next(context);
 
             return;
         }
@@ -43,7 +43,7 @@ public class ApiKeyMiddleware
         var isAllowAnonymous = endpoint?.Metadata.Any(x => x.GetType() == typeof(AllowAnonymousAttribute));
         if (isAllowAnonymous == true)
         {
-            _logger.LogWarning("Anonymous user detected.");
+            _logger.LogWarning(CustomLogEvents.API, "Anonymous user detected.");
             await _next(context);
             return;
         }

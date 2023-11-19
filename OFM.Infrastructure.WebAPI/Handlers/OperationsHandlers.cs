@@ -58,7 +58,7 @@ public static class OperationsHandlers
             }
 
             int pagerTake = (pageSize > 0 && pageSize <= appSettings.Value.MaxPageSize) ? pageSize : appSettings.Value.MaxPageSize;
-            
+
             logger.LogDebug(CustomLogEvents.Operation, "Quering data with the statement {statement} and pageSize {pagerTake}", statement, pagerTake);
 
             var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, statement, formatted: true, pagerTake);
@@ -72,7 +72,8 @@ public static class OperationsHandlers
             }
             else
             {
-                logger.LogError(CustomLogEvents.Operation, "API Failure: failed to query data by the statement {statement} with a server response {response.ReasonPhrase}", statement, response.ReasonPhrase);
+                var responseBody = await response.Content.ReadAsStringAsync();
+                logger.LogError(CustomLogEvents.Operation, "Failed to query data by the statement {statement} with a server response error {responseBody}", statement, responseBody);
 
                 return TypedResults.Problem($"Failed to Retrieve records: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
             }
@@ -113,9 +114,11 @@ public static class OperationsHandlers
 
             if (!response.IsSuccessStatusCode)
             {
-                logger.LogError(CustomLogEvents.Operation, "Failed to Create a record with the statement {statement}", statement);
+                var responseBody = await response.Content.ReadAsStringAsync();
 
-                return TypedResults.Problem($"Failed to Create a record with a reason {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
+                logger.LogError(CustomLogEvents.Operation, "Failed to Create the record with the error {error}", responseBody);
+
+                return TypedResults.Problem($"Failed to Create the record with a reason {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
             }
 
             var result = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -125,7 +128,7 @@ public static class OperationsHandlers
                 result.Remove("@odata.etag");
             }
 
-            logger.LogInformation(CustomLogEvents.Operation,"Created record(s) successfully with the result {result}", result);
+            logger.LogInformation(CustomLogEvents.Operation, "Created record(s) successfully with the result {result}", result);
 
             return TypedResults.Ok(result);
         }
@@ -155,18 +158,17 @@ public static class OperationsHandlers
 
             HttpResponseMessage response = await d365WebApiService.SendPatchRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                logger.LogInformation(CustomLogEvents.Operation, "Updated the record(s) successfully with query {statement}", statement);
-
-                return TypedResults.NoContent();
-            }
-            else
-            {             
-                logger.LogError(CustomLogEvents.Operation, "API Failure: Failed to Update a record by the statement {statement} with a reason {response.ReasonPhrase}", statement, response.ReasonPhrase);
+                var responseBody = await response.Content.ReadAsStringAsync();
+                logger.LogError(CustomLogEvents.Operation, "Failed to Update the record by the statement {statement} with the server response error {error}", statement, responseBody);
 
                 return TypedResults.Problem($"Failed to Update a record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
             }
+
+            logger.LogDebug(CustomLogEvents.Operation, "Updated the record(s) successfully with query {statement}", statement);
+
+            return TypedResults.NoContent();
         }
     }
 
@@ -185,23 +187,22 @@ public static class OperationsHandlers
         string statement = "emails(00000000-0000-0000-0000-000000000000)")
     {
         var logger = loggerFactory.CreateLogger(LogCategory.Operation);
-        using (logger.BeginScope("ScopeOperations:DELETE"))
+        using (logger.BeginScope("ScopeOperations: DELETE"))
         {
             var response = await d365WebApiService.SendDeleteRequestAsync(appUserService.AZPortalAppUser, statement);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                var result = await response.Content.ReadFromJsonAsync<JsonObject>();
-                logger.LogInformation(CustomLogEvents.Operation, "Deleting a record by {statement}]", statement);
-
-                return TypedResults.Ok(result);
-            }
-            else
-            {
-                logger.LogError(CustomLogEvents.Operation, "API Failure: Failed to Delete a record with {statement}", statement);
+                var responseBody = await response.Content.ReadAsStringAsync();
+                logger.LogError(CustomLogEvents.Operation, "Failed to Delete the record with a server error {responseBody}", responseBody);
 
                 return TypedResults.Problem($"Failed to Delete a record with a reason {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
             }
+
+            var result = await response.Content.ReadFromJsonAsync<JsonObject>();
+            logger.LogInformation(CustomLogEvents.Operation, "Deleted the record by {statement}]", statement);
+
+            return TypedResults.Ok(result);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace OFM.Infrastructure.WebAPI.Extensions;
 
 public interface ID365BackgroundProcessHandler
 {
-    void Execute(Func<ID365ProcessService, Task> processor);
+    void Execute(Func<ID365ScheduledProcessService, Task> processor);
 }
 
 public class D365BackgroundProcessHandler : ID365BackgroundProcessHandler
@@ -21,14 +21,14 @@ public class D365BackgroundProcessHandler : ID365BackgroundProcessHandler
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
     }
 
-    public void Execute(Func<ID365ProcessService, Task> processor)
+    public void Execute(Func<ID365ScheduledProcessService, Task> processor)
     {
         Task.Run(async () =>
         {
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                var service = scope.ServiceProvider.GetRequiredService<ID365ProcessService>();
+                var service = scope.ServiceProvider.GetRequiredService<ID365ScheduledProcessService>();
                 await processor(service);
             }
             catch (Exception exp)

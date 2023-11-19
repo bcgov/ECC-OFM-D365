@@ -26,6 +26,9 @@ public record DocumentSettings
 public record NotificationSettings
 {
     public required UnreadEmailOptions UnreadEmailOptions { get; set; }
+    public required string DefaultSenderId { get; set; }
+    public required EmailTemplate[] EmailTemplates { get; set; }
+    public required CommunicationTypeOptions CommunicationTypeOptions { get; set; }
 }
 
 public record UnreadEmailOptions
@@ -35,10 +38,25 @@ public record UnreadEmailOptions
     public Int16 ThirdReminderInDays { get; set; }
 }
 
+public record CommunicationTypeOptions
+{
+    public string ActionRequired { get; set; }
+    public string DebtLetter { get; set; }
+    public string Reminder { get; set; }
+    public string FundingAgreement { get; set; }
+}
+
+public class EmailTemplate
+{
+    public int TemplateNumber { get; set; }
+    public string TemplateId { get; set; }
+    public string Description { get; set; }
+}
+
 public record ProcessSettings
 {
     public required Int16 MaxRequestInactiveDays { get; set; }
-
+    public required string ClosingReason { get; set; }
 }
 
 public record D365AuthSettings

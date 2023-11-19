@@ -13,8 +13,10 @@ public class D365AppUserService : ID365AppUserService
 
     public AZAppUser AZSystemAppUser => GetAZAppUser(CommonInfo.AppUserType.System);
 
+    AZAppUser ID365AppUserService.AZNoticationAppUser => GetAZAppUser(CommonInfo.AppUserType.Notification);
+
     public AZAppUser GetAZAppUser(string userType)
     {
-        return _authSettings?.AZAppUsers.First(u => u.Type == userType) ?? throw new KeyNotFoundException(nameof(D365AuthSettings));
+        return _authSettings?.AZAppUsers.First(u => u.Type == userType) ?? throw new KeyNotFoundException( $"Integration User not found for {userType} - {nameof(D365AppUserService)}");
     }
 }

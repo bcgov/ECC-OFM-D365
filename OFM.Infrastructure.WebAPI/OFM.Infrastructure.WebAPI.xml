@@ -4,6 +4,14 @@
         <name>OFM.Infrastructure.WebAPI</name>
     </assembly>
     <members>
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.HttpClientExtensions.As``1(System.Net.Http.HttpResponseMessage)">
+            <summary>
+            Converts HttpResponseMessage to derived type
+            </summary>
+            <typeparam name="T">The type derived from HttpResponseMessage</typeparam>
+            <param name="response">The HttpResponseMessage</param>
+            <returns></returns>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.DocumentsHandlers.PostAsync(OFM.Infrastructure.WebAPI.Services.Documents.ID365DocumentService,Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.AspNetCore.Http.IFormFileCollection,System.String)">
              <summary>
              Upload multiple documents "<see cref="T:OFM.Infrastructure.WebAPI.Models.FileMapping"/>".
@@ -301,6 +309,15 @@
             <summary>
             New and preferred Authentication Service with MSAL library
             </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.D365WebApi.D365WebAPIService.SendAsync``1(System.Net.Http.HttpRequestMessage,System.Net.Http.HttpClient)">
+            <summary>
+            Processes requests with typed responses
+            </summary>
+            <typeparam name="T">The type derived from HttpResponseMessage</typeparam>
+            <param name="request">The request</param>
+            <param name="client"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

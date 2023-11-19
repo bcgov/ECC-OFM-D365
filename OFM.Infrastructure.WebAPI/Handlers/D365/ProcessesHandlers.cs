@@ -12,12 +12,8 @@ namespace OFM.Infrastructure.WebAPI.Handlers.D365;
 
 public static class ProcessesHandlers
 {
-    public static async Task<Results<BadRequest<string>, ProblemHttpResult, Ok<ProcessResult>>> RunProcessById(
-        ID365AppUserService appUserService,
-        ID365WebApiService d365WebApiService,
-        ID365ProcessService processService,
+    public static Results<BadRequest<string>, ProblemHttpResult, Ok<JsonObject>> RunProcessById(
         ID365BackgroundProcessHandler bgprocessHandler,
-        TimeProvider timeProvider,
         ILoggerFactory loggerFactory,
         Int16 processId,
         [FromBody] dynamic jsonBody
@@ -33,7 +29,7 @@ public static class ProcessesHandlers
             ProcessParameter? parameters = JsonSerializer.Deserialize<ProcessParameter>(jsonBody?.ToString(), CommonInfo.s_readOptions!);
 
             if (parameters is null) return TypedResults.BadRequest("Invalid request.");
-            if (string.IsNullOrEmpty(parameters!.TriggeredBy)) { return TypedResults.BadRequest("The TriggeredBy is missing."); }
+            if (string.IsNullOrEmpty(parameters!.TriggeredBy)) { return TypedResults.BadRequest("The TriggeredBy is required."); }
 
             #endregion
 
@@ -44,9 +40,7 @@ public static class ProcessesHandlers
                 await process.RunProcessByIdAsync(processId, parameters);
             });
 
-            //logger.LogInformation(CustomLogEvents.Process, "Process completed in {totalElapsedTime} minutes with the result {result}", timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, result);
-
-            return TypedResults.Ok(ProcessResult.Completed(processId));
+            return TypedResults.Ok(ProcessResult.Completed(processId).SimpleProcessResult);
         }
     }
 }
