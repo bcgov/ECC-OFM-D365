@@ -122,7 +122,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         serializedData?.ForEach(contact =>
         {
-            recipientsList.Add($"contacts({contact.emailaddress1})");
+            recipientsList.Add($"contacts({contact.contactid})");
         });
 
         if (_processParams.TemplateId is not null)
@@ -147,7 +147,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             if (!bulkEmailsResponse.IsSuccessStatusCode)
             {
                 var responseBody = await bulkEmailsResponse.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to create email reminder records with error: {error}", responseBody);
+                _logger.LogError(CustomLogEvent.Process, "Failed to create email notification records with error: {error}", responseBody);
 
                 return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
             }

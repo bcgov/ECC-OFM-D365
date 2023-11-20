@@ -176,7 +176,7 @@ public record D365Email
     {
         get
         {
-            if (statecode == 0)
+            if (statecode == 1)
                 return true;
 
             return false;

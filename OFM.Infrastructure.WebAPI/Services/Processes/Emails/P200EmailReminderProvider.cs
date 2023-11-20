@@ -183,14 +183,14 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         // Emails are created with "Completed - Pending Send" status. Step 2 will be needed if the sender is not configured for Exchange Online Mailbox.
         // Query all Draft emails created in the last 24 hours and by the OFM system user or Notification Service in the future. Must use the correct conditions to find only the Draft emails created in Step 1
 
-        var sendEmailBody = new JsonObject {
-                { "IssueSend", false}
-        };
+        //var sendEmailBody = new JsonObject {
+        //        { "IssueSend", false}
+        //};
 
-        var sendEmailRequests = new List<HttpRequestMessage>() {
-                 new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody),
-                 new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody)
-            };
+        //var sendEmailRequests = new List<HttpRequestMessage>() {
+        //         new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody),
+        //         new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody)
+        //    };
 
         //var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendEmailRequests, null);
 
@@ -208,16 +208,16 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
         #region Step3:  Other email updates (TODO)
 
-        var emailToUpdate = new JsonObject {
-                { "scheduledstart",DateTime.Now.ToShortDateString()},
-                { "scheduledend",DateTime.Now.AddDays(30).ToShortDateString()},
-                { "ofm_is_read",true },
-                { "ofm_communication_type@odata.bind", "ofm_communication_types(00000000-0000-0000-0000-000000000000)"}
-             };
+        //var emailToUpdate = new JsonObject {
+        //        { "scheduledstart",DateTime.Now.ToShortDateString()},
+        //        { "scheduledend",DateTime.Now.AddDays(30).ToShortDateString()},
+        //        { "ofm_is_read",true },
+        //        { "ofm_communication_type@odata.bind", "ofm_communication_types(00000000-0000-0000-0000-000000000000)"}
+        //     };
 
-        var updateEmailRequests = new List<HttpRequestMessage>() {
-                 new UpdateRequest(new EntityReference("emails",new Guid("00000000-0000-0000-0000-000000000000")), emailToUpdate)
-            };
+        //var updateEmailRequests = new List<HttpRequestMessage>() {
+        //         new UpdateRequest(new EntityReference("emails",new Guid("00000000-0000-0000-0000-000000000000")), emailToUpdate)
+        //    };
 
         //var step3BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);
         //if (step3BatchResult.Errors.Any())
@@ -249,8 +249,8 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         if (email.lastopenedtime is null)
         {
             var firstReminderInDays = _notificationSettings.UnreadEmailOptions.FirstReminderInDays;
-            var secondReminderInDays = _notificationSettings.UnreadEmailOptions.FirstReminderInDays;
-            var thirdReminderInDays = _notificationSettings.UnreadEmailOptions.FirstReminderInDays;
+            var secondReminderInDays = _notificationSettings.UnreadEmailOptions.SecondReminderInDays;
+            var thirdReminderInDays = _notificationSettings.UnreadEmailOptions.ThirdReminderInDays;
 
             if (email.scheduledstart.Value.Date.AddDays(firstReminderInDays).Equals(DateTime.Now.Date) ||
                 email.scheduledstart.Value.Date.AddDays(secondReminderInDays).Equals(DateTime.Now.Date) ||
