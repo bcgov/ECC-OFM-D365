@@ -12,10 +12,10 @@ public interface ID365ScheduledProcessProvider
     Task<JsonObject> RunScheduledProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams);
 }
 
-public interface ID365OndemandProcessProvider
+public interface ID365OnDemandProcessProvider
 {
     Int16 ProcessId { get; }
     string ProcessName { get; }
     Task<ProcessData> GetData();
-    Task<ProcessResult> RunOndemandProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams);
+    Task<ProcessResult> RunOnDemandProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams);
 }

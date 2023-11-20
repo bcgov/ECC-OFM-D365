@@ -124,7 +124,7 @@ public class D365WebAPIService : ID365WebApiService
             if (errors.Count < requestMessages.Count)
                 batchResult = BatchResult.PartialSuccess(null,errors, processed, requestMessages.Count);
 
-            _logger.LogError(CustomLogEvents.Batch, "Batch operation finished with an error {error}", JsonValue.Create<BatchResult>(batchResult));
+            _logger.LogError(CustomLogEvent.Batch, "Batch operation finished with an error {error}", JsonValue.Create<BatchResult>(batchResult));
 
             return batchResult;
         }

@@ -17,7 +17,7 @@ public class SendEmailRequest : HttpRequestMessage
                 mediaType: "application/json");
 
         RequestUri = new Uri(
-          uriString: CommonInfo.PrepareUri(path),
+          uriString: Setup.PrepareUri(path),
           uriKind: UriKind.Relative);
 
         if (Headers != null)

@@ -203,7 +203,7 @@ public record FileMapping
     public required string ofm_subject { get; set; }
     public required string ofm_description { get; set; }
     public required string ofm_extension { get; set; }
-    public decimal ofm_file_size { get; set; }
+    public required decimal ofm_file_size { get; set; }
     public required string entity_name_set { get; set; }
     public required string regardingid { get; set; }
 }
@@ -215,3 +215,20 @@ public record Email_Activity_Parties
     public string? _activityid_value { get; set; }
     public string? activitypartyid { get; set; }
 }
+
+#region External Parameters
+
+public record SendNotificationParams
+{
+    public required string triggeredBy { get; set; }
+    public required DateTime triggeredOn { get; set; }
+    public required string templateId { get; set; }
+    public required string senderId { get; set; }
+    public required string marketingListId { get; set; }
+    public required string subject { get; set; }
+    public required string emailBody { get; set; }
+    public required string callerObjectId { get; set; }
+}
+
+
+#endregion

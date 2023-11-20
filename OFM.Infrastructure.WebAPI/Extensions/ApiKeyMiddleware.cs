@@ -32,7 +32,7 @@ public class ApiKeyMiddleware
             var pattern = @"(?<=[\w]{5})[\w-\._\+%]*(?=[\w]{3})";
             var maskedKey = Regex.Replace(newKeyValue ?? "", pattern, m => new string('*', m.Length));
 
-            _logger.LogInformation(CustomLogEvents.API, "x-ofm-apikey:{maskedKey}", maskedKey);
+            _logger.LogInformation(CustomLogEvent.API, "x-ofm-apikey:{maskedKey}", maskedKey);
 
             await _next(context);
 
@@ -43,7 +43,7 @@ public class ApiKeyMiddleware
         var isAllowAnonymous = endpoint?.Metadata.Any(x => x.GetType() == typeof(AllowAnonymousAttribute));
         if (isAllowAnonymous == true)
         {
-            _logger.LogWarning(CustomLogEvents.API, "Anonymous user detected.");
+            _logger.LogWarning(CustomLogEvent.API, "Anonymous user detected.");
             await _next(context);
             return;
         }

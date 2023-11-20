@@ -36,7 +36,7 @@ sealed class ApplicationDocumentProvider : ID365DocumentProvider
         var appFacilityDocsResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         if (appFacilityDocsResult?.TryGetPropertyValue("value", out JsonNode? myResult) == true && myResult is not null)
         {
-            JsonObject? jsonObject = myResult[0].Deserialize<JsonObject>(CommonInfo.s_readOptions!);
+            JsonObject? jsonObject = myResult[0].Deserialize<JsonObject>(Setup.s_readOptions!);
 
             string jsonBody = $$"""
                                 {

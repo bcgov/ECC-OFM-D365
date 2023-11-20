@@ -26,14 +26,14 @@ public static class ProcessesHandlers
 
             if (jsonBody is null) return TypedResults.BadRequest("Invalid Query.");
 
-            ProcessParameter? parameters = JsonSerializer.Deserialize<ProcessParameter>(jsonBody?.ToString(), CommonInfo.s_readOptions!);
+            ProcessParameter? parameters = JsonSerializer.Deserialize<ProcessParameter>(jsonBody?.ToString(), Setup.s_readOptions!);
 
             if (parameters is null) return TypedResults.BadRequest("Invalid request.");
             if (string.IsNullOrEmpty(parameters!.TriggeredBy)) { return TypedResults.BadRequest("The TriggeredBy is required."); }
 
             #endregion
 
-            logger.LogInformation(CustomLogEvents.Process, "Batch process started by user {TriggeredBy}", parameters.TriggeredBy);
+            logger.LogInformation(CustomLogEvent.Process, "Batch process started by user {TriggeredBy}", parameters.TriggeredBy);
 
             bgprocessHandler.Execute(async process =>
             {

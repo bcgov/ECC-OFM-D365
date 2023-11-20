@@ -9,11 +9,11 @@ public class D365AppUserService : ID365AppUserService
     readonly D365AuthSettings? _authSettings;
     public D365AppUserService(IOptions<D365AuthSettings> authSettings) => _authSettings = authSettings.Value;
 
-    public AZAppUser AZPortalAppUser => GetAZAppUser(CommonInfo.AppUserType.Portal);
+    public AZAppUser AZPortalAppUser => GetAZAppUser(Setup.AppUserType.Portal);
 
-    public AZAppUser AZSystemAppUser => GetAZAppUser(CommonInfo.AppUserType.System);
+    public AZAppUser AZSystemAppUser => GetAZAppUser(Setup.AppUserType.System);
 
-    AZAppUser ID365AppUserService.AZNoticationAppUser => GetAZAppUser(CommonInfo.AppUserType.Notification);
+    AZAppUser ID365AppUserService.AZNoticationAppUser => GetAZAppUser(Setup.AppUserType.Notification);
 
     public AZAppUser GetAZAppUser(string userType)
     {

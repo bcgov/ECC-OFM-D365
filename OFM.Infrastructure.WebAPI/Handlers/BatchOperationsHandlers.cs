@@ -58,7 +58,7 @@ public static class BatchOperationsHandlers
 
             var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZPortalAppUser, requests, callerObjectId);
 
-            logger.LogDebug(CustomLogEvents.Batch, "Batch operation completed with the result {result}", JsonValue.Create<BatchResult>(batchResult));
+            logger.LogDebug(CustomLogEvent.Batch, "Batch operation completed with the result {result}", JsonValue.Create<BatchResult>(batchResult));
 
             return TypedResults.Ok(batchResult.SimpleBatchResult);
         }

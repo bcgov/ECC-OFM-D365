@@ -28,8 +28,8 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => CommonInfo.ProcessInfo.Request.CloseInactiveRequestsId;
-    public string ProcessName => CommonInfo.ProcessInfo.Request.CloseInactiveRequestsName;
+    public Int16 ProcessId => Setup.Process.Request.CloseInactiveRequestsId;
+    public string ProcessName => Setup.Process.Request.CloseInactiveRequestsName;
     public string RequestUri
     {
         get
@@ -66,7 +66,7 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
 
     public async Task<ProcessData> GetData()
     {
-        _logger.LogDebug(CustomLogEvents.Process, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
 
         if (_data is null)
         {
@@ -74,7 +74,7 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvents.Process, "Failed to query inactive requests with the server error {responseBody}", responseBody);
+                _logger.LogError(CustomLogEvent.Process, "Failed to query inactive requests with the server error {responseBody}", responseBody);
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -86,7 +86,7 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvents.Process, "No inactive requests found with query {requestUri}", RequestUri);
+                    _logger.LogInformation(CustomLogEvent.Process, "No inactive requests found with query {requestUri}", RequestUri);
                 }
                 d365Result = currentValue!;
             }
@@ -94,14 +94,14 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
             _data = new ProcessData(d365Result);
         }
 
-        _logger.LogDebug(CustomLogEvents.Process, "Query Result {_data}", _data.Data.ToJsonString());
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString());
 
         return await Task.FromResult(_data);
     }
 
     public async Task<JsonObject> RunScheduledProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        _logger.LogDebug(CustomLogEvents.Process, "Getting inactive requests with query {requestUri}", RequestUri);
+        _logger.LogDebug(CustomLogEvent.Process, "Getting inactive requests with query {requestUri}", RequestUri);
 
         var startTime = _timeProvider.GetTimestamp();
 
@@ -109,7 +109,7 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
 
         if (localData.Data.AsArray().Count == 0)
         {
-            _logger.LogInformation(CustomLogEvents.Process, "Close inactive requests process completed. No inactive requests found.");
+            _logger.LogInformation(CustomLogEvent.Process, "Close inactive requests process completed. No inactive requests found.");
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
@@ -133,13 +133,13 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
        
         var endTime = _timeProvider.GetTimestamp();
 
-        _logger.LogInformation(CustomLogEvents.Process, "Close inactive requests process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
+        _logger.LogInformation(CustomLogEvent.Process, "Close inactive requests process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
 
         if (batchResult.Errors.Any())
         {
             var result = ProcessResult.Failure(ProcessId, batchResult.Errors, batchResult.TotalProcessed, batchResult.TotalRecords);
 
-            _logger.LogError(CustomLogEvents.Process, "Close inactive requests process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
+            _logger.LogError(CustomLogEvent.Process, "Close inactive requests process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
 
             return result.SimpleProcessResult;
         }

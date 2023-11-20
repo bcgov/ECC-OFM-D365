@@ -5,11 +5,11 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.CommonInfo.ProcessInfo;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 
-public class P200EmailReminderProvider : ID365ScheduledProcessProvider
+public class P205SendNotificationProvider : ID365OnDemandProcessProvider
 {
     private readonly NotificationSettings _notificationSettings;
     private readonly ID365AppUserService _appUserService;
@@ -18,7 +18,7 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
 
-    public P200EmailReminderProvider(IOptions<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P205SendNotificationProvider(IOptions<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
@@ -27,8 +27,8 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => CommonInfo.ProcessInfo.Email.SendEmailRemindersId;
-    public string ProcessName => CommonInfo.ProcessInfo.Email.SendEmailRemindersName;
+    public Int16 ProcessId => Setup.Process.Email.SendNotificationsId;
+    public string ProcessName => Setup.Process.Email.SendNotificationsName;
     public string RequestUri
     {
         get
@@ -71,10 +71,6 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
                 </fetch>
                 """;
 
-            //var requestUri = $"""
-            //                  emails?fetchXml={WebUtility.UrlEncode(fetchXml)}
-            //                  """;
-
             var requestUri = $"""
                                 emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,scheduledstart,_regardingobjectid_value,scheduledend&$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))&$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='scheduledend',PropertyValue=29) and statuscode eq 2 and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=['{_notificationSettings.CommunicationTypeOptions.ActionRequired}','{_notificationSettings.CommunicationTypeOptions.DebtLetter}','{_notificationSettings.CommunicationTypeOptions.FundingAgreement}']))
                              """;
@@ -85,7 +81,7 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
 
     public async Task<ProcessData> GetData()
     {
-        _logger.LogDebug(CustomLogEvents.Process, "Calling GetData of {nameof}", nameof(P200EmailReminderProvider));
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P200EmailReminderProvider));
 
         if (_data is null)
         {
@@ -93,7 +89,7 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
 
             if (!response.IsSuccessStatusCode) {
                 var responseBody = await response.Content.ReadAsStringAsync();  
-                _logger.LogError(CustomLogEvents.Process, "Failed to query email reminders with the server error {responseBody}", responseBody);
+                _logger.LogError(CustomLogEvent.Process, "Failed to query email reminders with the server error {responseBody}", responseBody);
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -105,7 +101,7 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvents.Process, "No emails found with query {requestUri}", RequestUri);
+                    _logger.LogInformation(CustomLogEvent.Process, "No emails found with query {requestUri}", RequestUri);
                 }
                 d365Result = currentValue!;
             }
@@ -113,14 +109,14 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
             _data = new ProcessData(d365Result);
         }
 
-        _logger.LogDebug(CustomLogEvents.Process, "Query Result {_data}", _data.Data.ToJsonString());
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString());
 
         return await Task.FromResult(_data);
     }
 
     public async Task<JsonObject> RunScheduledProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        _logger.LogDebug(CustomLogEvents.Process, "Getting due emails with query {requestUri}", RequestUri);
+        _logger.LogDebug(CustomLogEvent.Process, "Getting due emails with query {requestUri}", RequestUri);
 
         var startTime = _timeProvider.GetTimestamp();
 
@@ -135,7 +131,7 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
 
         if (uniqueContacts.Count == 0) {
 
-            _logger.LogInformation(CustomLogEvents.Process, "Send email reminders completed. No unique contacts found.");
+            _logger.LogInformation(CustomLogEvent.Process, "Send email reminders completed. No unique contacts found.");
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
@@ -169,12 +165,12 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
         if (!bulkEmailsResponse.IsSuccessStatusCode)
         {
             var responseBody = await bulkEmailsResponse.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvents.Process, "Failed to create email reminder records with error: {error}", responseBody);
+            _logger.LogError(CustomLogEvent.Process, "Failed to create email reminder records with error: {error}", responseBody);
 
             return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
         }
 
-        _logger.LogInformation(CustomLogEvents.Process, "Total email reminders created {uniqueContacts}", uniqueContacts.Count);
+        _logger.LogInformation(CustomLogEvent.Process, "Total email reminders created {uniqueContacts}", uniqueContacts.Count);
 
         #endregion
 
@@ -231,7 +227,7 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
         #endregion   
 
         var result = ProcessResult.Success(ProcessId, uniqueContacts.Count);
-        _logger.LogInformation(CustomLogEvents.Process, "Send email reminders process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToJsonString());
+        _logger.LogInformation(CustomLogEvent.Process, "Send email reminders process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToJsonString());
 
         return result.SimpleProcessResult;
     }
@@ -260,6 +256,11 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
         }
 
         return false;
+    }
+
+    Task<ProcessResult> ID365OnDemandProcessProvider.RunOnDemandProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    {
+        throw new NotImplementedException();
     }
 
     #endregion

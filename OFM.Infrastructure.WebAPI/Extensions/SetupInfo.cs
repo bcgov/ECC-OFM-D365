@@ -6,7 +6,7 @@ namespace OFM.Infrastructure.WebAPI.Extensions;
 public enum BatchMethodName { GET, POST, PATCH, DELETE }
 public enum D365ServiceType { Search, Batch, CRUD }
 
-public static class CommonInfo
+public static class Setup
 {
     public static class AppUserType
     {
@@ -15,7 +15,7 @@ public static class CommonInfo
         public static string Notification => "N";
     }
 
-    public static class ProcessInfo
+    public static class Process
     {
         public static class Request
         {
@@ -27,6 +27,9 @@ public static class CommonInfo
         {
             public const Int16 SendEmailRemindersId = 200;
             public const string SendEmailRemindersName = "Send nightly email reminders";
+
+            public const Int16 SendNotificationsId = 205;
+            public const string SendNotificationsName = "Send bulk emails on-demand";
         }
     }
 
@@ -87,7 +90,7 @@ public class LogCategory
     public const string Email = "OFM.D365.Email";
 }
 
-public class CustomLogEvents
+public class CustomLogEvent
 {
     public const int API = 1000;
 
