@@ -9,7 +9,7 @@ using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 
-public class P200EmailReminderProvider : ID365ScheduledProcessProvider
+public class P200EmailReminderProvider : ID365ProcessProvider
 {
     private readonly NotificationSettings _notificationSettings;
     private readonly ID365AppUserService _appUserService;
@@ -118,7 +118,7 @@ public class P200EmailReminderProvider : ID365ScheduledProcessProvider
         return await Task.FromResult(_data);
     }
 
-    public async Task<JsonObject> RunScheduledProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _logger.LogDebug(CustomLogEvent.Process, "Getting due emails with query {requestUri}", RequestUri);
 

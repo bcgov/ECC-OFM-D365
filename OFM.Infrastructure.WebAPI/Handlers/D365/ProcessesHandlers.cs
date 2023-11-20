@@ -26,7 +26,12 @@ public static class ProcessesHandlers
 
             if (jsonBody is null) return TypedResults.BadRequest("Invalid Query.");
 
-            ProcessParameter? parameters = JsonSerializer.Deserialize<ProcessParameter>(jsonBody?.ToString(), Setup.s_readOptions!);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            ProcessParameter? parameters = JsonSerializer.Deserialize<ProcessParameter>(jsonBody?.ToString(), options);
 
             if (parameters is null) return TypedResults.BadRequest("Invalid request.");
             if (string.IsNullOrEmpty(parameters!.TriggeredBy)) { return TypedResults.BadRequest("The TriggeredBy is required."); }

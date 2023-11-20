@@ -4,12 +4,12 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes;
 
-public interface ID365ScheduledProcessProvider
+public interface ID365ProcessProvider
 {
     Int16 ProcessId { get; }
     string ProcessName { get; }
     Task<ProcessData> GetData();
-    Task<JsonObject> RunScheduledProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams);
+    Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams);
 }
 
 public interface ID365OnDemandProcessProvider

@@ -218,17 +218,4 @@ public record Email_Activity_Parties
 
 #region External Parameters
 
-public record SendNotificationParams
-{
-    public required string triggeredBy { get; set; }
-    public required DateTime triggeredOn { get; set; }
-    public required string templateId { get; set; }
-    public required string senderId { get; set; }
-    public required string marketingListId { get; set; }
-    public required string subject { get; set; }
-    public required string emailBody { get; set; }
-    public required string callerObjectId { get; set; }
-}
-
-
 #endregion

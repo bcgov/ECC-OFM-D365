@@ -8,9 +8,9 @@ public class ProcessService : ID365ScheduledProcessService
 {
     private readonly ID365AppUserService _appUserService;
     private readonly ID365WebApiService _d365webapiservice;
-    private readonly IEnumerable<ID365ScheduledProcessProvider> _processProviders;
+    private readonly IEnumerable<ID365ProcessProvider> _processProviders;
 
-    public ProcessService(ID365AppUserService appUserService, ID365WebApiService service, IEnumerable<ID365ScheduledProcessProvider> processProviders)
+    public ProcessService(ID365AppUserService appUserService, ID365WebApiService service, IEnumerable<ID365ProcessProvider> processProviders)
     {
         _appUserService = appUserService;
         _d365webapiservice = service;
@@ -21,6 +21,6 @@ public class ProcessService : ID365ScheduledProcessService
     {
         var provider = _processProviders.First(p => p.ProcessId == processId);
 
-        return provider.RunScheduledProcessAsync(_appUserService, _d365webapiservice, processParams);
+        return provider.RunProcessAsync(_appUserService, _d365webapiservice, processParams);
     }
 }

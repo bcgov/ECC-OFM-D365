@@ -4,12 +4,13 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System.Net;
 using System.Text.Json.Nodes;
 using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 
-public class P205SendNotificationProvider : ID365OnDemandProcessProvider
+public class P205SendNotificationProvider : ID365ProcessProvider
 {
     private readonly NotificationSettings _notificationSettings;
     private readonly ID365AppUserService _appUserService;
@@ -17,6 +18,7 @@ public class P205SendNotificationProvider : ID365OnDemandProcessProvider
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
+    private ProcessParameter? _processParams;
 
     public P205SendNotificationProvider(IOptions<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -36,44 +38,32 @@ public class P205SendNotificationProvider : ID365OnDemandProcessProvider
             // Note: FetchXMl limit is 5000 records per request
             var fetchXml = $"""
                 <fetch distinct="true" no-lock="true">
-                  <entity name="email">
-                    <attribute name="subject" />
-                    <attribute name="lastopenedtime" />
-                    <attribute name="torecipients" />
-                    <attribute name="emailsender" />
-                    <attribute name="sender" />
-                    <attribute name="submittedby" />
+                  <entity name="contact">
+                    <attribute name="ccof_username" />
+                    <attribute name="ccof_userid" />
+                    <attribute name="ofm_first_name" />
+                    <attribute name="ofm_last_name" />
+                    <attribute name="contactid" />
+                    <attribute name="donotbulkemail" />
+                    <attribute name="donotpostalmail" />
+                    <attribute name="emailaddress1" />
                     <attribute name="statecode" />
                     <attribute name="statuscode" />
-                    <attribute name="ofm_communication_type" />
-                    <attribute name="scheduledstart" />
-                    <attribute name="scheduledend" />
-                    <attribute name="regardingobjectid" />
-                    <filter type="and">
-                      <condition attribute="lastopenedtime" operator="null" />
-                      <condition attribute="torecipients" operator="not-null" />
-                      <condition attribute="scheduledend" operator="next-x-days" value="29" />
-                      <condition attribute="statuscode" operator="eq" value="2" />
-                      <condition attribute="ofm_communication_type" operator="in" uitype="ofm_communication_type">
-                        <value>{_notificationSettings.CommunicationTypeOptions.ActionRequired}</value>
-                        <value>{_notificationSettings.CommunicationTypeOptions.DebtLetter}</value>
-                        <value>{_notificationSettings.CommunicationTypeOptions.FundingAgreement}</value>
-                      </condition>
-                    </filter>
-                   <link-entity name="activityparty" from="activityid" to="activityid" link-type="inner" alias="To">
-                       <attribute name="participationtypemask" />
-                       <attribute name="partyid" />
-                       <filter>
-                         <condition attribute="participationtypemask" operator="eq" value="2" />
-                       </filter>
+                    <link-entity name="listmember" from="entityid" to="contactid" link-type="inner" alias="clist" intersect="true">
+                      <attribute name="listid" />
+                      <attribute name="name" />
+                      <filter>
+                        <condition attribute="listid" operator="eq" value="{_processParams?.MarketingListId}" />
+                      </filter>
                     </link-entity>
                   </entity>
                 </fetch>
                 """;
 
+
             var requestUri = $"""
-                                emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,scheduledstart,_regardingobjectid_value,scheduledend&$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))&$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='scheduledend',PropertyValue=29) and statuscode eq 2 and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=['{_notificationSettings.CommunicationTypeOptions.ActionRequired}','{_notificationSettings.CommunicationTypeOptions.DebtLetter}','{_notificationSettings.CommunicationTypeOptions.FundingAgreement}']))
-                             """;
+                            contacts?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """;
 
             return requestUri;
         }
@@ -81,15 +71,16 @@ public class P205SendNotificationProvider : ID365OnDemandProcessProvider
 
     public async Task<ProcessData> GetData()
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P200EmailReminderProvider));
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P205SendNotificationProvider));
 
-        if (_data is null)
+        if (_data is null && _processParams is not null)
         {
             var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZNoticationAppUser, RequestUri);
 
-            if (!response.IsSuccessStatusCode) {
-                var responseBody = await response.Content.ReadAsStringAsync();  
-                _logger.LogError(CustomLogEvent.Process, "Failed to query email reminders with the server error {responseBody}", responseBody);
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query members on the contact list with the server error {responseBody}", responseBody);
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -101,7 +92,7 @@ public class P205SendNotificationProvider : ID365OnDemandProcessProvider
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No emails found with query {requestUri}", RequestUri);
+                    _logger.LogInformation(CustomLogEvent.Process, "No members on the contact list found with query {requestUri}", RequestUri);
                 }
                 d365Result = currentValue!;
             }
@@ -109,44 +100,34 @@ public class P205SendNotificationProvider : ID365OnDemandProcessProvider
             _data = new ProcessData(d365Result);
         }
 
-        _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString());
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data?.Data.ToJsonString());
 
-        return await Task.FromResult(_data);
+        return await Task.FromResult(_data!);
     }
 
-    public async Task<JsonObject> RunScheduledProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Getting due emails with query {requestUri}", RequestUri);
+        _processParams = processParams;
 
         var startTime = _timeProvider.GetTimestamp();
 
+        //Validate _processParams
+        _logger.LogDebug(CustomLogEvent.Process, "Getting active contacts from a marketinglist with query {requestUri}", RequestUri);
         var localData = await GetData();
 
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365Email>>(localData.Data.ToJsonString());
-
-        var dueEmails = serializedData!.Where(e => e.IsCompleted && (e.IsNewAndUnread || IsUnreadReminderRequired(e))).ToList();
-
-        // Send only one email per contact
-        var uniqueContacts = dueEmails.GroupBy(e => e.torecipients).ToList();
-
-        if (uniqueContacts.Count == 0) {
-
-            _logger.LogInformation(CustomLogEvent.Process, "Send email reminders completed. No unique contacts found.");
-            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-        }
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToJsonString());
 
         #region  Step 1: Create the email reminders as Draft
 
         JsonArray recipientsList = new() { };
 
-        uniqueContacts.ForEach(contact =>
+        serializedData?.ForEach(contact =>
         {
-            var contactId = contact.ElementAt(0).email_activity_parties?.First()._partyid_value?.Replace("\\u0027", "'");
-            recipientsList.Add($"contacts({contactId})");
+            recipientsList.Add($"contacts({contact.emailaddress1})");
         });
 
         var contentBody = new JsonObject {
-                { "TemplateId" , _notificationSettings.EmailTemplates.First(t=>t.TemplateNumber == 201).TemplateId}, //Action Required: A communication regarding OFM funding requires your attention.
+                { "TemplateId" , _processParams.TemplateId},
                 { "Sender" , new JsonObject {
                                         { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
                                         { "systemuserid",_notificationSettings.DefaultSenderId}
@@ -170,7 +151,7 @@ public class P205SendNotificationProvider : ID365OnDemandProcessProvider
             return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
         }
 
-        _logger.LogInformation(CustomLogEvent.Process, "Total email reminders created {uniqueContacts}", uniqueContacts.Count);
+        _logger.LogInformation(CustomLogEvent.Process, "Total notifications created {count}", serializedData?.Count);
 
         #endregion
 
@@ -226,42 +207,9 @@ public class P205SendNotificationProvider : ID365OnDemandProcessProvider
 
         #endregion   
 
-        var result = ProcessResult.Success(ProcessId, uniqueContacts.Count);
-        _logger.LogInformation(CustomLogEvent.Process, "Send email reminders process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToJsonString());
+        var result = ProcessResult.Success(ProcessId, serializedData!.Count);
+        _logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToJsonString());
 
         return result.SimpleProcessResult;
     }
-
-    #region Local Validation Code
-
-    private bool IsUnreadReminderRequired(D365Email email)
-    {
-        if (email == null)
-            return false;
-
-        if (email.scheduledstart is null || email.lastopenedtime is not null)
-            return false;
-
-        if (email.lastopenedtime is null)
-        {
-            var firstReminderInDays = _notificationSettings.UnreadEmailOptions.FirstReminderInDays;
-            var secondReminderInDays = _notificationSettings.UnreadEmailOptions.FirstReminderInDays;
-            var thirdReminderInDays = _notificationSettings.UnreadEmailOptions.FirstReminderInDays;
-
-            if (email.scheduledstart.Value.Date.AddDays(firstReminderInDays).Equals(DateTime.Now.Date) ||
-                email.scheduledstart.Value.Date.AddDays(secondReminderInDays).Equals(DateTime.Now.Date) ||
-                email.scheduledstart.Value.Date.AddDays(thirdReminderInDays).Equals(DateTime.Now.Date)
-                )
-                return true;
-        }
-
-        return false;
-    }
-
-    Task<ProcessResult> ID365OnDemandProcessProvider.RunOnDemandProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
-    {
-        throw new NotImplementedException();
-    }
-
-    #endregion
 }

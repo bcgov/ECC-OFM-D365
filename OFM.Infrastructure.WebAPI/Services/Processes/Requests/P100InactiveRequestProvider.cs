@@ -10,7 +10,7 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 
-public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
+public class P100InactiveRequestProvider : ID365ProcessProvider
 {
     private readonly ProcessSettings _processSettings;
     private readonly ID365AppUserService _appUserService;
@@ -86,7 +86,7 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No inactive requests found with query {requestUri}", RequestUri);
+                    _logger.LogInformation(CustomLogEvent.Process, "No inactive requests found");
                 }
                 d365Result = currentValue!;
             }
@@ -99,7 +99,7 @@ public class P100InactiveRequestProvider : ID365ScheduledProcessProvider
         return await Task.FromResult(_data);
     }
 
-    public async Task<JsonObject> RunScheduledProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _logger.LogDebug(CustomLogEvent.Process, "Getting inactive requests with query {requestUri}", RequestUri);
 
