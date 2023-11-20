@@ -9,6 +9,8 @@ env:
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   # 🖊️ EDIT to set the kube context's namespace after login. Leave blank to use your user's default namespace.
   OPENSHIFT_NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}-dev
+  # We have multiple environments in each openshift namespace dev, test in DEV and uat, efx in TEST.
+  OPENSHIFT_ENVIRONMENT: 'test'
 
   # SPLUNK_TOKEN: ${{ secrets.SPLUNK_TOKEN }}
 
@@ -34,9 +36,6 @@ env:
   MAX_MEM: '700Mi'
   # SITE_URL should have no scheme or port. It will be prepended with https://
   HOST_ROUTE: ${{ secrets.SITE_URL }}
-  CA_CERT: ${{ secrets.CA_CERT }}
-  CERTIFICATE: ${{ secrets.CERTIFICATE }}
-  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
 on:
   workflow_dispatch:
@@ -53,7 +52,7 @@ jobs:
 
     steps:
       - name: Check for required secrets
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           script: |
             const secrets = {
@@ -91,7 +90,7 @@ jobs:
             }
 
       - name: Check out repository with branch [${{ env.BRANCH }}]
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ env.BRANCH }}
 
@@ -121,20 +120,20 @@ jobs:
           oc process -f tools/openshift/d365api.dc.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} \
           -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ steps.get-latest-tag.outputs.tag }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
           -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
-          -p ENVIRONMENT=test \
+          -p ENVIRONMENT=${{ env.OPENSHIFT_ENVIRONMENT }} \
           | oc apply -f -
 
           # Process update-configmap
           # curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh | bash /dev/stdin test ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.SPLUNK_TOKEN }}
 
           # Start rollout (if necessary) and follow it
-          oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-test 2> /dev/null \
+          oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.OPENSHIFT_ENVIRONMENT }} 2> /dev/null \
           || true && echo "Rollout in progress"
 
           # Get status, returns 0 if rollout is successful
-          oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-test
+          oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.OPENSHIFT_ENVIRONMENT }}
 
-      # - name: ZAP Scan
-      #   uses: zaproxy/action-full-scan@v0.3.0
-      #   with:
-      #     target: 'https://${{ env.HOST_ROUTE }}/api'
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: 'https://${{ env.HOST_ROUTE }}'

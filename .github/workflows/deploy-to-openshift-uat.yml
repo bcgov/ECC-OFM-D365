@@ -1,5 +1,5 @@
 # OFM Backend UAT workflow
-name: 2 UAT - Deploy Dynamics API
+name: 3 UAT - Deploy Dynamics API
 
 env:
   # 🖊️ EDIT your repository secrets to log into your OpenShift cluster and set up the context.
@@ -9,7 +9,7 @@ env:
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   # 🖊️ EDIT to set the kube context's namespace after login. Leave blank to use your user's default namespace.
   OPENSHIFT_NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}-test
-  # We have multiple environments in each openshift namespace dev, test in DEV and uat, efx in TEST.
+  # We have multiple environments in each openshift namespace dev, test in DEV and uat, efx in TEST. This setting will help name the deployment config and routes for each.
   OPENSHIFT_ENVIRONMENT: 'uat'
 
   # SPLUNK_TOKEN: ${{ secrets.SPLUNK_TOKEN }}
