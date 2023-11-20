@@ -139,7 +139,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        #region  Step 1: Create the email reminders as Draft
+        #region  Step 1: Create the email reminders as Completed-Pending Send
 
         JsonArray recipientsList = new() { };
 

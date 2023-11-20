@@ -60,7 +60,6 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                 </fetch>
                 """;
 
-
             var requestUri = $"""
                             contacts?fetchXml={WebUtility.UrlEncode(fetchXml)}
                             """;
@@ -117,7 +116,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToJsonString());
 
-        #region  Step 1: Create the email reminders as Draft
+        #region  Step 1: Create the email reminders as Completed - Pending Send
 
         JsonArray recipientsList = new() { };
 
@@ -126,32 +125,57 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             recipientsList.Add($"contacts({contact.emailaddress1})");
         });
 
-        var contentBody = new JsonObject {
+        if (_processParams.TemplateId is not null)
+        {
+            var contentBody = new JsonObject {
                 { "TemplateId" , _processParams.TemplateId},
                 { "Sender" , new JsonObject {
                                         { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
-                                        { "systemuserid",_notificationSettings.DefaultSenderId}
+                                        { "systemuserid",_processParams.SenderId}
                                 }
                 },
                 { "Recipients" , recipientsList },
                 { "Regarding" , new JsonObject {
                                         { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
-                                        { "systemuserid",_notificationSettings.DefaultSenderId}
+                                        { "systemuserid",_processParams.SenderId}
                                 }
-                } // Regarding is a required parameter.Temporarily set it to the PA service account, but this will not set the Regarding on the new records
-        };
+                } // Regarding is a required parameter.
+            };
 
-        HttpResponseMessage bulkEmailsResponse = await d365WebApiService.SendBulkEmailTemplateMessageAsync(appUserService.AZNoticationAppUser, contentBody, null);
+            HttpResponseMessage bulkEmailsResponse = await d365WebApiService.SendBulkEmailTemplateMessageAsync(appUserService.AZNoticationAppUser, contentBody, null);
 
-        if (!bulkEmailsResponse.IsSuccessStatusCode)
-        {
-            var responseBody = await bulkEmailsResponse.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to create email reminder records with error: {error}", responseBody);
+            if (!bulkEmailsResponse.IsSuccessStatusCode)
+            {
+                var responseBody = await bulkEmailsResponse.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to create email reminder records with error: {error}", responseBody);
 
-            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
+                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
+            }
+
+            _logger.LogInformation(CustomLogEvent.Process, "Total notifications created {count}", serializedData?.Count);
         }
+        else
+        {
+            List<HttpRequestMessage> sendCreateEmailRequests = new() { };
+            serializedData?.ForEach(contact =>
+            {
+                sendCreateEmailRequests.Add(new CreateRequest("emails",
+                    new JsonObject(){
+                        {"subject",_processParams.Subject },
+                        {"description",_processParams.EmailBody }
+                    }));
+            });
 
-        _logger.LogInformation(CustomLogEvent.Process, "Total notifications created {count}", serializedData?.Count);
+            var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZNoticationAppUser, sendCreateEmailRequests, null);
+
+            if (sendEmailBatchResult.Errors.Any())
+            {
+                var sendNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
+                _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToJsonString());
+
+                return sendNotificationError.SimpleProcessResult;
+            }
+        }
 
         #endregion
 
