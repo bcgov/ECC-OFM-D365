@@ -33,21 +33,21 @@ services.AddDistributedMemoryCache();
 services.TryAddSingleton(typeof(IDistributedCache<>), typeof(DistributedCache<>));
 services.TryAddSingleton(TimeProvider.System);
 
-services.TryAddSingleton<ID365TokenService, D365TokenService>();
-services.TryAddSingleton<ID365AppUserService, D365AppUserService>();
-services.TryAddSingleton<ID365WebApiService, D365WebAPIService>();
-services.TryAddSingleton<ID365AuthenticationService, D365AuthServiceMSAL>();
+services.AddScoped<ID365TokenService, D365TokenService>();
+services.AddScoped<ID365AppUserService, D365AppUserService>();
+services.AddScoped<ID365WebApiService, D365WebAPIService>();
+services.AddScoped<ID365AuthenticationService, D365AuthServiceMSAL>();
 
-services.AddTransient<ID365DocumentProvider, DocumentProvider>();
-services.AddTransient<ID365DocumentProvider, ApplicationDocumentProvider>();
-services.AddTransient<ID365DocumentService, D365DocumentService>();
+services.AddScoped<ID365DocumentProvider, DocumentProvider>();
+services.AddScoped<ID365DocumentProvider, ApplicationDocumentProvider>();
+services.AddScoped<ID365DocumentService, D365DocumentService>();
 
-services.AddTransient<ID365ScheduledProcessService, ProcessService>();
-services.AddTransient<ID365ProcessProvider, P100InactiveRequestProvider>();
-services.AddTransient<ID365ProcessProvider, P200EmailReminderProvider>();
-services.AddTransient<ID365ProcessProvider, P205SendNotificationProvider>();
-services.AddTransient<D365Email>();
-services.AddTransient<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
+services.AddScoped<ID365ScheduledProcessService, ProcessService>();
+services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
+services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
+services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
+services.AddScoped<D365Email>();
+services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
 
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
