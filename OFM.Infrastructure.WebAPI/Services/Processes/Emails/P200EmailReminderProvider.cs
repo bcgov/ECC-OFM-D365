@@ -58,6 +58,8 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                         <value>{_notificationSettings.CommunicationTypeOptions.ActionRequired}</value>
                         <value>{_notificationSettings.CommunicationTypeOptions.DebtLetter}</value>
                         <value>{_notificationSettings.CommunicationTypeOptions.FundingAgreement}</value>
+                        <value>{_notificationSettings.CommunicationTypeOptions.Information}</value>
+                        <value>{_notificationSettings.CommunicationTypeOptions.Reminder}</value>
                       </condition>
                     </filter>
                    <link-entity name="activityparty" from="activityid" to="activityid" link-type="inner" alias="To">
@@ -76,7 +78,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             //                  """;
 
             var requestUri = $"""
-                                emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,scheduledstart,_regardingobjectid_value,scheduledend&$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))&$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='scheduledend',PropertyValue=29) and statuscode eq 2 and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=['{_notificationSettings.CommunicationTypeOptions.ActionRequired}','{_notificationSettings.CommunicationTypeOptions.DebtLetter}','{_notificationSettings.CommunicationTypeOptions.FundingAgreement}']))
+                                emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,scheduledstart,_regardingobjectid_value,scheduledend&$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))&$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='scheduledend',PropertyValue=29) and statuscode eq 2 and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=['{_notificationSettings.CommunicationTypeOptions.ActionRequired}','{_notificationSettings.CommunicationTypeOptions.DebtLetter}','{_notificationSettings.CommunicationTypeOptions.FundingAgreement}', '{_notificationSettings.CommunicationTypeOptions.Information}', '{_notificationSettings.CommunicationTypeOptions.Reminder}']))
                              """;
 
             return requestUri;
@@ -252,10 +254,14 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             var secondReminderInDays = _notificationSettings.UnreadEmailOptions.SecondReminderInDays;
             var thirdReminderInDays = _notificationSettings.UnreadEmailOptions.ThirdReminderInDays;
 
-            if (email.scheduledstart.Value.Date.AddDays(firstReminderInDays).Equals(DateTime.Now.Date) ||
+            var communicationType = email._ofm_communication_type_value;
+
+            if ((email.scheduledstart.Value.Date.AddDays(firstReminderInDays).Equals(DateTime.Now.Date) ||
                 email.scheduledstart.Value.Date.AddDays(secondReminderInDays).Equals(DateTime.Now.Date) ||
                 email.scheduledstart.Value.Date.AddDays(thirdReminderInDays).Equals(DateTime.Now.Date)
-                )
+                ) && (communicationType.Equals(_notificationSettings.CommunicationTypeOptions.ActionRequired) ||
+                communicationType.Equals(_notificationSettings.CommunicationTypeOptions.DebtLetter) ||
+                communicationType.Equals(_notificationSettings.CommunicationTypeOptions.FundingAgreement)))
                 return true;
         }
 

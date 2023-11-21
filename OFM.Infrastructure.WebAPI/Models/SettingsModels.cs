@@ -44,6 +44,7 @@ public record CommunicationTypeOptions
     public string DebtLetter { get; set; }
     public string Reminder { get; set; }
     public string FundingAgreement { get; set; }
+    public string Information { get; set; }
 }
 
 public class EmailTemplate
