@@ -21,7 +21,7 @@ public static class EnvironmentHandlers
     /// <param name="options"></param>
     /// <returns></returns>
     public static Results<ProblemHttpResult, Ok<JsonObject>> Get(
-        IOptions<D365AuthSettings> options)
+        IOptionsSnapshot<D365AuthSettings> options)
     {
         var _authConfig = options.Value;
         _authConfig.AZAppUsers = new List<AZAppUser>();

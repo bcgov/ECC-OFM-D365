@@ -33,10 +33,10 @@ services.AddDistributedMemoryCache();
 services.TryAddSingleton(typeof(IDistributedCache<>), typeof(DistributedCache<>));
 services.TryAddSingleton(TimeProvider.System);
 
-services.TryAddSingleton<ID365TokenService, D365TokenService>();
-services.TryAddSingleton<ID365AppUserService, D365AppUserService>();
-services.TryAddSingleton<ID365WebApiService, D365WebAPIService>();
-services.TryAddSingleton<ID365AuthenticationService, D365AuthServiceMSAL>();
+services.AddScoped<ID365TokenService, D365TokenService>();
+services.AddScoped<ID365AppUserService, D365AppUserService>();
+services.AddScoped<ID365WebApiService, D365WebAPIService>();
+services.AddScoped<ID365AuthenticationService, D365AuthServiceMSAL>();
 
 services.AddScoped<ID365DocumentProvider, DocumentProvider>();
 services.AddScoped<ID365DocumentProvider, ApplicationDocumentProvider>();

@@ -19,7 +19,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
 
-    public P100InactiveRequestProvider(IOptions<ProcessSettings> processSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P100InactiveRequestProvider(IOptionsSnapshot<ProcessSettings> processSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _processSettings = processSettings.Value;
         _appUserService = appUserService;

@@ -19,7 +19,7 @@ public class ApiKeyMiddleware
     }
 
     public async Task InvokeAsync(HttpContext context,
-        IOptions<AuthenticationSettings> options)
+        IOptionsSnapshot<AuthenticationSettings> options)
     {
         var apiKeys = options.Value.Schemes.ApiKeyScheme.Keys;
         var apiKeyPresentInHeader = context.Request.Headers.TryGetValue(options.Value.Schemes.ApiKeyScheme.ApiKeyName ?? "", out var extractedApiKey);

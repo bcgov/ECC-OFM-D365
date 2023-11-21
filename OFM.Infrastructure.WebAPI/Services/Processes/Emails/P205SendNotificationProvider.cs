@@ -20,7 +20,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
 
-    public P205SendNotificationProvider(IOptions<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P205SendNotificationProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;

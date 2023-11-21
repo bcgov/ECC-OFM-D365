@@ -1,4 +1,4 @@
-# OFM Dynamnics 365 DEV workflow
+# OFM Dynamics 365 DEV workflow
 name: 1 DEV - Deploy Dynamics API
 
 env:
@@ -26,10 +26,10 @@ env:
   BRANCH: ${{ github.ref_name }}
   IMAGE_NAME: 'ecc-ofm-d365api'
   APP_NAME_BACKEND: 'd365api'
+  # We have multiple environments in each openshift namespace dev, test in DEV and uat, efx in TEST. This setting will help name the deployment config and routes for each.
+  APP_ENVIRONMENT: 'dev'
 
   NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}
-  #NAMESPACE_TOOLS: ${{ secrets.OFM_NAMESPACE_NO_ENV }}-tools
-  #COMMON_NAMESPACE: ${{ secrets.COMMON_NAMESPACE_NO_ENV }}
   TAG: 'latest'
 
   MIN_REPLICAS: '1'
@@ -38,6 +38,8 @@ env:
   MAX_CPU: '100m'
   MIN_MEM: '200Mi'
   MAX_MEM: '250Mi'
+  # SITE_URL should have no scheme or port. It will be prepended with https://
+  HOST_ROUTE: ${{ secrets.SITE_URL }}
 
 on:
   workflow_dispatch:
@@ -54,7 +56,7 @@ jobs:
 
     steps:
       - name: Check for required secrets
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           script: |
             const secrets = {
@@ -94,7 +96,7 @@ jobs:
             }
 
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ env.BRANCH }}
 
@@ -136,7 +138,7 @@ jobs:
           oc: 4
 
         # https://github.com/redhat-actions/oc-login#readme
-      #    - uses: actions/checkout@v2
+      #    - uses: actions/checkout@v3
       - name: Deploy
         run: |
           set -eux
@@ -144,7 +146,7 @@ jobs:
           oc login --token=${{ env.OPENSHIFT_TOKEN }} --server=${{ env.OPENSHIFT_SERVER }}
           oc project ${{ env.OPENSHIFT_NAMESPACE }}
           # Cancel any rollouts in progress
-          oc rollout cancel dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }} 2> /dev/null \
+          oc rollout cancel dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
           || true && echo "No rollout in progress"
 
           # Create the image stream if it doesn't exist
@@ -156,12 +158,17 @@ jobs:
           oc process -f tools/openshift/d365api.dc.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} \
           -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ env.TAG }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
           -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
-          -p ENVIRONMENT=dev \
+          -p ENVIRONMENT=${{ env.APP_ENVIRONMENT }} \
           | oc apply -f -
 
           # Start rollout (if necessary) and follow it
-          oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-dev 2> /dev/null \
+          oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
           || true && echo "Rollout in progress"
 
           # Get status, returns 0 if rollout is successful
-          oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-dev
+          oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }}
+
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: 'https://${{ env.HOST_ROUTE }}'
