@@ -30,7 +30,7 @@ public static class OperationsHandlers
 
     public static async Task<Results<BadRequest<string>, ProblemHttpResult, Ok<JsonObject>>> GetAsync(
         HttpContext context,
-        IOptions<AppSettings> appSettings,
+        IOptionsSnapshot<AppSettings> appSettings,
         ID365AppUserService appUserService,
         ID365WebApiService d365WebApiService,
         ILoggerFactory loggerFactory,

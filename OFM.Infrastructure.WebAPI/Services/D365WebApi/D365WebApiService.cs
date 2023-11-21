@@ -15,7 +15,7 @@ public class D365WebAPIService : ID365WebApiService
     private readonly ID365AuthenticationService _authenticationService;
     private readonly D365AuthSettings _d365AuthSettings;
 
-    public D365WebAPIService(ILoggerFactory loggerFactory, IOptions<D365AuthSettings> d365AuthSettings, ID365AuthenticationService authenticationService)
+    public D365WebAPIService(ILoggerFactory loggerFactory, IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AuthenticationService authenticationService)
     {
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _d365AuthSettings = d365AuthSettings.Value;

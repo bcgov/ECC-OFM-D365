@@ -47,14 +47,14 @@
               ]
              </remarks>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Handlers.EnvironmentHandlers.Get(Microsoft.Extensions.Options.IOptions{OFM.Infrastructure.WebAPI.Models.D365AuthSettings})">
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.EnvironmentHandlers.Get(Microsoft.Extensions.Options.IOptionsSnapshot{OFM.Infrastructure.WebAPI.Models.D365AuthSettings})">
             <summary>
             Returns the current environment information including the server timestamp
             </summary>
             <param name="options"></param>
             <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Handlers.OperationsHandlers.GetAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Options.IOptions{OFM.Infrastructure.WebAPI.Models.AppSettings},OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,Microsoft.Extensions.Logging.ILoggerFactory,System.String,System.Int32)">
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.OperationsHandlers.GetAsync(Microsoft.AspNetCore.Http.HttpContext,Microsoft.Extensions.Options.IOptionsSnapshot{OFM.Infrastructure.WebAPI.Models.AppSettings},OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,Microsoft.Extensions.Logging.ILoggerFactory,System.String,System.Int32)">
             <summary>
             A generic endpoint for D365 queries 
             </summary>
