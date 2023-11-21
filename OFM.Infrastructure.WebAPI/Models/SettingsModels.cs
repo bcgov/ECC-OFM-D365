@@ -6,17 +6,57 @@ public record AppSettings
     public required APIKey[] ApiKeys { get; set; }
     public required Int16 PageSize { get; set; }
     public required Int16 MaxPageSize { get; set; }
-    public required int MaxFileSize { get; set; }
-    public required string FileFommats { get; set; }
-    public required string FileSizeErrorMessage { get; set; }
-    public required string FileFormatErrorMessage { get; set; }
     public required bool RetryEnabled { get; set; }
     /// <summary>
     /// Maximum number of times to re-try when service protection limits hit
     /// </summary>
     public required Int16 MaxRetries { get; set; }
     public required TimeSpan AutoRetryDelay { get; set; }
-    public Int16 MinsToCache { get; set; }
+    public required Int16 MinsToCache { get; set; }
+}
+
+public record DocumentSettings
+{
+    public int MaxFileSize { get; set; }
+    public required string[] AcceptedFommat { get; set; }
+    public required string FileSizeErrorMessage { get; set; }
+    public required string FileFormatErrorMessage { get; set; }
+}
+
+public record NotificationSettings
+{
+    public required UnreadEmailOptions UnreadEmailOptions { get; set; }
+    public required string DefaultSenderId { get; set; }
+    public required EmailTemplate[] EmailTemplates { get; set; }
+    public required CommunicationTypeOptions CommunicationTypeOptions { get; set; }
+}
+
+public record UnreadEmailOptions
+{
+    public Int16 FirstReminderInDays { get; set; }
+    public Int16 SecondReminderInDays { get; set; }
+    public Int16 ThirdReminderInDays { get; set; }
+}
+
+public record CommunicationTypeOptions
+{
+    public string ActionRequired { get; set; }
+    public string DebtLetter { get; set; }
+    public string Reminder { get; set; }
+    public string FundingAgreement { get; set; }
+}
+
+public class EmailTemplate
+{
+    public int TemplateNumber { get; set; }
+    public string TemplateId { get; set; }
+    public string Description { get; set; }
+}
+
+public record ProcessSettings
+{
+    public required Int16 MaxRequestInactiveDays { get; set; }
+    public required string ClosingReason { get; set; }
 }
 
 public record D365AuthSettings

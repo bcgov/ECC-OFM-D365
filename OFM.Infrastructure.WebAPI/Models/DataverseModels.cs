@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
-
-namespace OFM.Infrastructure.WebAPI.Models;
+﻿namespace OFM.Infrastructure.WebAPI.Models;
 
 #region Contact-related objects for Portal
 
@@ -157,5 +152,70 @@ public record ofm_Facility
     public int statuscode { get; set; }
     public string? name { get; set; }
 }
+
+#endregion
+
+public record D365Email
+{
+    public string? subject { get; set; }
+    public int statecode { get; set; }
+    public int statuscode { get; set; }
+    public string? sender { get; set; }
+    public string? torecipients { get; set; }
+    public string? _ofm_communication_type_value { get; set; }
+    public int? Toparticipationtypemask { get; set; }
+    public bool? isworkflowcreated { get; set; }
+    public DateTime? lastopenedtime { get; set; }
+    public DateTime? scheduledstart { get; set; }
+    public DateTime? scheduledend { get; set; }
+    public string? _regardingobjectid_value { get; set; }
+
+    public Email_Activity_Parties[]? email_activity_parties { get; set; }
+
+    public bool IsCompleted
+    {
+        get
+        {
+            if (statecode == 1)
+                return true;
+
+            return false;
+        }
+    }
+
+    public bool IsNewAndUnread
+    {
+        get
+        {
+            if (scheduledstart is null)
+                return false;
+
+            if (scheduledstart.Value.Date.Equals(DateTime.Now.Date) && lastopenedtime is null)
+                return true;
+
+            return false;
+        }
+    }
+}
+
+public record FileMapping
+{
+    public required string ofm_subject { get; set; }
+    public required string ofm_description { get; set; }
+    public required string ofm_extension { get; set; }
+    public required decimal ofm_file_size { get; set; }
+    public required string entity_name_set { get; set; }
+    public required string regardingid { get; set; }
+}
+
+public record Email_Activity_Parties
+{
+    public int? participationtypemask { get; set; }
+    public string? _partyid_value { get; set; }
+    public string? _activityid_value { get; set; }
+    public string? activitypartyid { get; set; }
+}
+
+#region External Parameters
 
 #endregion

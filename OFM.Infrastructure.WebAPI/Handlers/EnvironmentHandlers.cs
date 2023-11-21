@@ -21,18 +21,18 @@ public static class EnvironmentHandlers
     /// <param name="options"></param>
     /// <returns></returns>
     public static Results<ProblemHttpResult, Ok<JsonObject>> Get(
-        IOptions<D365AuthSettings> options)
+        IOptionsSnapshot<D365AuthSettings> options)
     {
         var _authConfig = options.Value;
         _authConfig.AZAppUsers = new List<AZAppUser>();
 
         string jsonContent = JsonSerializer.Serialize<D365AuthSettings>(_authConfig, D365AuthSettingsSerializationContext.Default.D365AuthSettings);
-        var jsonDom = JsonSerializer.Deserialize<JsonObject>(jsonContent, new JsonSerializerOptions(JsonSerializerDefaults.Web)!);
-        jsonDom?.Add("systemDate(UTC)", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"));
-        jsonDom?.Add("buildDate(UTC)", GetBuildDate(Assembly.GetExecutingAssembly()));
-        jsonDom?.Remove("azAppUsers");
+        var jsonObject = JsonSerializer.Deserialize<JsonObject>(jsonContent, new JsonSerializerOptions(JsonSerializerDefaults.Web)!);
+        jsonObject?.Add("systemDate(UTC)", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"));
+        jsonObject?.Add("buildDate(UTC)", GetBuildDate(Assembly.GetExecutingAssembly()));
+        jsonObject?.Remove("azAppUsers");
 
-        return TypedResults.Ok(jsonDom);
+        return TypedResults.Ok(jsonObject);
     }
 
     private static DateTime GetBuildDate(Assembly assembly)

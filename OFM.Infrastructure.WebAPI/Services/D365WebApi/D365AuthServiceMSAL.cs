@@ -20,7 +20,7 @@ public class D365AuthServiceMSAL : ID365AuthenticationService
     private readonly ID365TokenService _tokenService;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public D365AuthServiceMSAL(IOptions<D365AuthSettings> authSettings, ID365TokenService tokenService, IHttpClientFactory factory)
+    public D365AuthServiceMSAL(IOptionsSnapshot<D365AuthSettings> authSettings, ID365TokenService tokenService, IHttpClientFactory factory)
     {
         _authSettings = authSettings.Value;
         _tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
