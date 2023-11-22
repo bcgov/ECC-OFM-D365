@@ -179,60 +179,30 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         #endregion
 
-        #region Step 2: Send the reminders (TODO)
-
-        // Emails are created with "Completed - Pending Send" status. Step 2 will be needed if the sender is not configured for Exchange Online Mailbox.
-        // Query all Draft emails created in the last 24 hours and by the OFM system user or Notification Service in the future. Must use the correct conditions to find only the Draft emails created in Step 1
-
-        var sendEmailBody = new JsonObject {
-                { "IssueSend", false}
-        };
-
-        var sendEmailRequests = new List<HttpRequestMessage>() {
-                 new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody),
-                 new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody)
-            };
-
-        //var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendEmailRequests, null);
-
-        var endTime = _timeProvider.GetTimestamp();
-
-        //if (step2BatchResult.Errors.Any())
-        //{
-        //    var errorResult = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
-        //    _logger.LogError(CustomLogEvents.Process, "Failed to send email reminders with an error: {error}", JsonValue.Create(errorResult)!.ToJsonString());
-
-        //    return errorResult.SimpleProcessResult;
-        //}
-
-        #endregion
-
-        #region Step3:  Other email updates (TODO)
+        #region Step 2: email updates
 
         var emailToUpdate = new JsonObject {
-                { "scheduledstart",DateTime.Now.ToShortDateString()},
-                { "scheduledend",DateTime.Now.AddDays(30).ToShortDateString()},
-                { "ofm_is_read",true },
-                { "ofm_communication_type@odata.bind", "ofm_communication_types(00000000-0000-0000-0000-000000000000)"}
+                { "ofm_due_date",_processParams.DueDate },
+                { "ofm_communication_type@odata.bind", $"/ofm_communication_types({_processParams.CommunicationTypeId})"}  // "/ofm_communication_types(709f1093-507f-ee11-8179-000d3af4865d)"}
              };
 
         var updateEmailRequests = new List<HttpRequestMessage>() {
-                 new UpdateRequest(new EntityReference("emails",new Guid("00000000-0000-0000-0000-000000000000")), emailToUpdate)
+                 new UpdateRequest(new EntityReference("emails",new Guid("2c120827-2857-ee11-be6f-000d3a09d4d4")), emailToUpdate)
             };
 
-        //var step3BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);
-        //if (step3BatchResult.Errors.Any())
-        //{
-        //    var errors = ProcessResult.Failure(ProcessId, step3BatchResult.Errors, step3BatchResult.TotalProcessed, step3BatchResult.TotalRecords);
-        //    _logger.LogError(CustomLogEvents.Process, "Failed to send email reminders with an error: {error}", JsonValue.Create(errors)!.ToJsonString());
+        var step3BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZNoticationAppUser, updateEmailRequests, null);
+        if (step3BatchResult.Errors.Any())
+        {
+            var errors = ProcessResult.Failure(ProcessId, step3BatchResult.Errors, step3BatchResult.TotalProcessed, step3BatchResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to send email reminders with an error: {error}", JsonValue.Create(errors)!.ToJsonString());
 
-        //    return errors.SimpleProcessResult;
-        //}
+            return errors.SimpleProcessResult;
+        }
 
         #endregion   
 
         var result = ProcessResult.Success(ProcessId, serializedData!.Count);
-        _logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToJsonString());
+        //_logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToJsonString());
 
         return result.SimpleProcessResult;
     }

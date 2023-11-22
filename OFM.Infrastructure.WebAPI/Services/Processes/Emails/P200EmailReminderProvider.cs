@@ -49,6 +49,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                   <attribute name="emailreminderexpirytime" />
                   <attribute name="regardingobjectid" />
                   <attribute name="ofm_sent_on" />
+                  <attribute name="ofm_expiry_time" />
                   <filter type="and">
                     <condition attribute="lastopenedtime" operator="null" />
                     <condition attribute="torecipients" operator="not-null" />

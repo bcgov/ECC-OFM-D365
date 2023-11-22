@@ -29,6 +29,7 @@ public static class EnvironmentHandlers
         string jsonContent = JsonSerializer.Serialize<D365AuthSettings>(_authConfig, D365AuthSettingsSerializationContext.Default.D365AuthSettings);
         var jsonObject = JsonSerializer.Deserialize<JsonObject>(jsonContent, new JsonSerializerOptions(JsonSerializerDefaults.Web)!);
         jsonObject?.Add("systemDate(UTC)", DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"));
+        jsonObject?.Add("systemDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss"));
         jsonObject?.Add("buildDate(UTC)", GetBuildDate(Assembly.GetExecutingAssembly()));
         jsonObject?.Remove("azAppUsers");
 
