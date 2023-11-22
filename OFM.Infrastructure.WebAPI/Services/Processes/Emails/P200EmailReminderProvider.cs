@@ -36,25 +36,24 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             // Note: FetchXMl limit is 5000 records per request
             var fetchXml = $"""
                 <fetch distinct="true" no-lock="true">
-                  <entity name="email">
-                    <attribute name="subject" />
-                    <attribute name="lastopenedtime" />
-                    <attribute name="torecipients" />
-                    <attribute name="emailsender" />
-                    <attribute name="sender" />
-                    <attribute name="submittedby" />
-                    <attribute name="statecode" />
-                    <attribute name="statuscode" />
-                    <attribute name="ofm_communication_type" />
-                    <attribute name="scheduledstart" />
-                    <attribute name="scheduledend" />
-                    <attribute name="regardingobjectid" />
-                    <filter type="and">
-                      <condition attribute="lastopenedtime" operator="null" />
-                      <condition attribute="torecipients" operator="not-null" />
-                      <condition attribute="scheduledend" operator="next-x-days" value="29" />
-                      <condition attribute="statuscode" operator="eq" value="2" />
-                      <condition attribute="ofm_communication_type" operator="in" uitype="ofm_communication_type">
+                <entity name="email">
+                  <attribute name="subject" />
+                  <attribute name="lastopenedtime" />
+                  <attribute name="torecipients" />
+                  <attribute name="emailsender" />
+                  <attribute name="sender" />
+                  <attribute name="submittedby" />
+                  <attribute name="statecode" />
+                  <attribute name="statuscode" />
+                  <attribute name="ofm_communication_type" />
+                  <attribute name="emailreminderexpirytime" />
+                  <attribute name="regardingobjectid" />
+                  <attribute name="ofm_sent_on" />
+                  <filter type="and">
+                    <condition attribute="lastopenedtime" operator="null" />
+                    <condition attribute="torecipients" operator="not-null" />
+                    <condition attribute="ofm_expiry_time" operator="next-x-days" value="29" />
+                    <condition attribute="ofm_communication_type" operator="in" uitype="ofm_communication_type">
                         <value>{_notificationSettings.CommunicationTypeOptions.ActionRequired}</value>
                         <value>{_notificationSettings.CommunicationTypeOptions.DebtLetter}</value>
                         <value>{_notificationSettings.CommunicationTypeOptions.FundingAgreement}</value>
@@ -78,7 +77,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             //                  """;
 
             var requestUri = $"""
-                                emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,scheduledstart,_regardingobjectid_value,scheduledend&$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))&$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='scheduledend',PropertyValue=29) and statuscode eq 2 and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=['{_notificationSettings.CommunicationTypeOptions.ActionRequired}','{_notificationSettings.CommunicationTypeOptions.DebtLetter}','{_notificationSettings.CommunicationTypeOptions.FundingAgreement}', '{_notificationSettings.CommunicationTypeOptions.Information}', '{_notificationSettings.CommunicationTypeOptions.Reminder}']))
+                                emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,emailreminderexpirytime,_regardingobjectid_value,ofm_sent_on&$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))&$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='ofm_expiry_time',PropertyValue=29) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=['{_notificationSettings.CommunicationTypeOptions.ActionRequired}','{_notificationSettings.CommunicationTypeOptions.DebtLetter}','{_notificationSettings.CommunicationTypeOptions.FundingAgreement}', '{_notificationSettings.CommunicationTypeOptions.Information}', '{_notificationSettings.CommunicationTypeOptions.Reminder}']))
                              """;
 
             return requestUri;
@@ -245,7 +244,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         if (email == null)
             return false;
 
-        if (email.scheduledstart is null || email.lastopenedtime is not null)
+        if (email.ofm_sent_on is null || email.lastopenedtime is not null)
             return false;
 
         if (email.lastopenedtime is null)
@@ -256,9 +255,9 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
             var communicationType = email._ofm_communication_type_value;
 
-            if ((email.scheduledstart.Value.Date.AddDays(firstReminderInDays).Equals(DateTime.Now.Date) ||
-                email.scheduledstart.Value.Date.AddDays(secondReminderInDays).Equals(DateTime.Now.Date) ||
-                email.scheduledstart.Value.Date.AddDays(thirdReminderInDays).Equals(DateTime.Now.Date)
+            if ((email.ofm_sent_on.Value.Date.AddDays(firstReminderInDays).Equals(DateTime.Now.Date) ||
+                email.ofm_sent_on.Value.Date.AddDays(secondReminderInDays).Equals(DateTime.Now.Date) ||
+                email.ofm_sent_on.Value.Date.AddDays(thirdReminderInDays).Equals(DateTime.Now.Date)
                 ) && (communicationType.Equals(_notificationSettings.CommunicationTypeOptions.ActionRequired) ||
                 communicationType.Equals(_notificationSettings.CommunicationTypeOptions.DebtLetter) ||
                 communicationType.Equals(_notificationSettings.CommunicationTypeOptions.FundingAgreement)))

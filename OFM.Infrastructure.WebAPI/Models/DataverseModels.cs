@@ -166,8 +166,8 @@ public record D365Email
     public int? Toparticipationtypemask { get; set; }
     public bool? isworkflowcreated { get; set; }
     public DateTime? lastopenedtime { get; set; }
-    public DateTime? scheduledstart { get; set; }
-    public DateTime? scheduledend { get; set; }
+    public DateTime? ofm_sent_on { get; set; }
+    public DateTime? ofm_expiry_time { get; set; }
     public string? _regardingobjectid_value { get; set; }
 
     public Email_Activity_Parties[]? email_activity_parties { get; set; }
@@ -187,10 +187,10 @@ public record D365Email
     {
         get
         {
-            if (scheduledstart is null)
+            if (ofm_sent_on is null)
                 return false;
 
-            if (scheduledstart.Value.Date.Equals(DateTime.Now.Date) && lastopenedtime is null)
+            if (ofm_sent_on.Value.Date.Equals(DateTime.Now.Date) && lastopenedtime is null)
                 return true;
 
             return false;
