@@ -1,5 +1,7 @@
 ﻿using OFM.Infrastructure.WebAPI.Models;
+using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Unicode;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -42,6 +44,28 @@ public static class Setup
     {
         AllowTrailingCommas = true
     };
+
+    public static readonly JsonSerializerOptions s_readOptionsRelaxed = new()
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        WriteIndented = true
+    };
+
+    public static JsonSerializerOptions s_writeOptionsForLogs
+    {
+        get
+        {
+            var encoderSettings = new TextEncoderSettings();
+            encoderSettings.AllowCharacters('\u0022', '\u0436', '\u0430', '\u0026', '\u0027');
+            encoderSettings.AllowRange(UnicodeRanges.All);
+
+            return new JsonSerializerOptions()
+            {
+                Encoder = JavaScriptEncoder.Create(encoderSettings),
+                WriteIndented = true
+            };
+        }
+    }
 
     public static AppSettings GetAppSettings(IConfiguration config)
     {

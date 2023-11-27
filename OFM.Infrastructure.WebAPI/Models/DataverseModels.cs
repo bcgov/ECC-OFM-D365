@@ -1,4 +1,6 @@
-﻿namespace OFM.Infrastructure.WebAPI.Models;
+﻿using System;
+
+namespace OFM.Infrastructure.WebAPI.Models;
 
 #region Contact-related objects for Portal
 
@@ -101,6 +103,7 @@ public class ProviderProfile
         facility_permission = facilityPermissions;
     }
 }
+
 #endregion
 
 #region Temp Contact-related objects for serialization
@@ -157,6 +160,7 @@ public record ofm_Facility
 
 public record D365Email
 {
+    public string? activityid { get; set; }
     public string? subject { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
@@ -176,24 +180,7 @@ public record D365Email
     {
         get
         {
-            if (statecode == 1)
-                return true;
-
-            return false;
-        }
-    }
-
-    public bool IsNewAndUnread
-    {
-        get
-        {
-            if (ofm_sent_on is null)
-                return false;
-
-            if (ofm_sent_on.Value.Date.Equals(DateTime.Now.Date) && lastopenedtime is null)
-                return true;
-
-            return false;
+            return (statecode == 1);
         }
     }
 }

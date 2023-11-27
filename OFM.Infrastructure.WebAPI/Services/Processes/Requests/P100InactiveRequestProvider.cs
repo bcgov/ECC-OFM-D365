@@ -36,7 +36,6 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
         {
             var maxInactiveDays = _processSettings.MaxRequestInactiveDays;
 
-            // Note: FetchXMl limit is 5000
             var fetchXml = $"""
                     <fetch distinct="true" no-lock="true">
                       <entity name="ofm_assistance_request">
@@ -92,9 +91,9 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
             }
 
             _data = new ProcessData(d365Result);
-        }
 
-        _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString());
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString());
+        }
 
         return await Task.FromResult(_data);
     }

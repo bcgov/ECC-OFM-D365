@@ -6,14 +6,36 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes;
 public record ProcessParameter
 {
     //DO NOT change the optional properties
+    [property: JsonPropertyName("triggeredBy")]
     public string? TriggeredBy { get; set; }
+    [property: JsonPropertyName("triggeredOn")]
     public DateTime? TriggeredOn { get; set; }
-    public Guid? TemplateId { get; set; }
-    public Guid? SenderId { get; set; }
-    public DateTime? DueDate { get; set; }
-    public Guid? CommunicationTypeId { get; set; }
-    public Guid? MarketingListId { get; set; }
-    public string? Subject { get; set; }
-    public string? EmailBody { get; set; }
+    [property: JsonPropertyName("callerObjectId")]
     public Guid? CallerObjectId { get; set; }
+    [property: JsonPropertyName("notification")]
+    public EmailParameter? Notification { get; set; }
+
+    public record EmailParameter
+    {
+        [property: JsonPropertyName("templateId")]
+        public Guid? TemplateId { get; set; }
+
+        [property: JsonPropertyName("marketingListId")]
+        public Guid? MarketingListId { get; set; }
+
+        [property: JsonPropertyName("senderId")]
+        public Guid? SenderId { get; set; }
+
+        [property: JsonPropertyName("dueDate")]
+        public DateTime? DueDate { get; set; }
+
+        [property: JsonPropertyName("communicationTypeId")]
+        public Guid? CommunicationTypeId { get; set; }
+
+        [property: JsonPropertyName("subject")]
+        public string? Subject { get; set; }
+
+        [property: JsonPropertyName("emailBody")]
+        public string? EmailBody { get; set; }
+    }
 }
