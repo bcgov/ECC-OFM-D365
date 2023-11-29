@@ -95,6 +95,8 @@ public class D365WebAPIService : ID365WebApiService
             Requests = requestMessages,
             ContinueOnError = true
         };
+        if (callerObjectId != null)
+            batchRequest.Headers.Add("CallerObjectId", callerObjectId.ToString());
 
         HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.Batch, spn);
         BatchResponse batchResponse = await SendAsync<BatchResponse>(batchRequest, client);
@@ -117,12 +119,10 @@ public class D365WebAPIService : ID365WebApiService
 
         if (errors.Any())
         {
-            //_logger.LogInformation(CustomLogEvents.Batch, "Batch operation result {result}", await batchRequest.Content!.ReadAsStringAsync());
-           
             var batchResult = BatchResult.Failure(errors, 0, 0);
 
             if (errors.Count < requestMessages.Count)
-                batchResult = BatchResult.PartialSuccess(null,errors, processed, requestMessages.Count);
+                batchResult = BatchResult.PartialSuccess(null, errors, processed, requestMessages.Count);
 
             _logger.LogError(CustomLogEvent.Batch, "Batch operation finished with an error {error}", JsonValue.Create<BatchResult>(batchResult));
 
@@ -135,6 +135,8 @@ public class D365WebAPIService : ID365WebApiService
     public async Task<HttpResponseMessage> SendBulkEmailTemplateMessageAsync(AZAppUser spn, JsonObject contentBody, Guid? callerObjectId)
     {
         BulkEmailTemplateRequest request = new(contentBody, _d365AuthSettings) { };
+        if (callerObjectId != null)
+            request.Headers.Add("CallerObjectId", callerObjectId.ToString());
 
         HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 

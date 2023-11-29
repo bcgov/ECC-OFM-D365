@@ -5,6 +5,7 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
@@ -19,6 +20,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
+    private string _requestUri = string.Empty;
 
     public P205SendNotificationProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -36,7 +38,11 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         get
         {
             // Note: FetchXMl limit is 5000 records per request
-            var fetchXml = $"""
+            // Use Paging Cookie for large datasets
+            // Use exact filters to reduce the matching data and enhance performance
+            if (string.IsNullOrEmpty(_requestUri))
+            {
+                var fetchXml = $"""
                 <fetch distinct="true" no-lock="true">
                   <entity name="contact">
                     <attribute name="ccof_username" />
@@ -53,18 +59,68 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                       <attribute name="listid" />
                       <attribute name="name" />
                       <filter>
-                        <condition attribute="listid" operator="eq" value="{_processParams?.MarketingListId}" />
+                        <condition attribute="listid" operator="eq" value="{_processParams.Notification.MarketingListId}" />
                       </filter>
                     </link-entity>
                   </entity>
                 </fetch>
                 """;
 
-            var requestUri = $"""
+                var requestUri = $"""
                             contacts?fetchXml={WebUtility.UrlEncode(fetchXml)}
                             """;
 
-            return requestUri;
+                _requestUri = requestUri.CleanCRLF();
+            }
+
+            return _requestUri;
+        }
+    }
+
+    private string EmailsToUpdateRequestUri
+    {
+        get
+        {
+            // Note: FetchXMl limit is 5000 records per request
+            var fetchXml = $"""
+                <fetch distinct="true" no-lock="true">
+                  <entity name="email">
+                    <attribute name="activityid" />
+                    <attribute name="templateid" />
+                    <attribute name="subject" />
+                    <attribute name="emailreminderstatus" />
+                    <attribute name="statecode" />
+                    <attribute name="statuscode" />
+                    <attribute name="ofm_communication_type" />
+                    <attribute name="emailremindertype" />
+                    <attribute name="emailsender" />
+                    <attribute name="messageid" />
+                    <attribute name="ofm_due_date" />
+                    <attribute name="ofm_expiry_time" />
+                    <attribute name="ofm_sent_on" />
+                    <attribute name="sender" />
+                    <attribute name="senton" />
+                    <attribute name="submittedby" />
+                    <attribute name="torecipients" />
+                    <attribute name="createdonbehalfby" />
+                    <attribute name="createdby" />
+                    <attribute name="createdon" />
+                    <attribute name="isworkflowcreated" />
+                    <filter>
+                      <condition attribute="ofm_due_date" operator="null" />
+                      <condition attribute="ofm_communication_type" operator="not-null" />
+                      <condition attribute="createdon" operator="today" />
+                      <!--<condition attribute="createdonbehalfby" operator="eq" value="{_processParams.Notification.SenderId}" uitype="systemuser" />-->                     
+                    </filter>
+                  </entity>
+                </fetch>
+                """;
+
+            var requestUri = $"""
+                            emails?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """;
+
+            return requestUri.CleanCRLF();
         }
     }
 
@@ -74,12 +130,14 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         if (_data is null && _processParams is not null)
         {
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZNoticationAppUser, RequestUri);
+            _logger.LogDebug(CustomLogEvent.Process, "Getting active contacts from a marketinglist with query {requestUri}", RequestUri.CleanLog());
+
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri);
 
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query members on the contact list with the server error {responseBody}", responseBody);
+                _logger.LogError(CustomLogEvent.Process, "Failed to query members on the contact list with the server error {responseBody}", responseBody.CleanLog());
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -91,17 +149,48 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No members on the contact list found with query {requestUri}", RequestUri);
+                    _logger.LogInformation(CustomLogEvent.Process, "No members on the contact list found with query {requestUri}", RequestUri.CleanLog());
                 }
                 d365Result = currentValue!;
             }
 
             _data = new ProcessData(d365Result);
+
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data?.Data.ToString().CleanLog());
         }
 
-        _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data?.Data.ToJsonString());
-
         return await Task.FromResult(_data!);
+    }
+
+    private async Task<ProcessData> GetDataToUpdate()
+    {
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, EmailsToUpdateRequestUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query pending emails to update with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No pending emails on the contact list found with query {requestUri}", EmailsToUpdateRequestUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
     }
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
@@ -110,13 +199,11 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        //Validate _processParams
-        _logger.LogDebug(CustomLogEvent.Process, "Getting active contacts from a marketinglist with query {requestUri}", RequestUri);
         var localData = await GetData();
 
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToJsonString());
+        var serializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
 
-        #region  Step 1: Create the email reminders as Completed - Pending Send
+        #region  Step 1: Create the email notifications as Completed - Pending Send
 
         JsonArray recipientsList = new() { };
 
@@ -125,53 +212,65 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             recipientsList.Add($"contacts({contact.contactid})");
         });
 
-        if (_processParams.TemplateId is not null)
+        if (_processParams.Notification.TemplateId is not null) // Send notifications using template by default
         {
             var contentBody = new JsonObject {
-                { "TemplateId" , _processParams.TemplateId},
+                { "TemplateId" , _processParams.Notification.TemplateId},
                 { "Sender" , new JsonObject {
                                         { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
-                                        { "systemuserid",_processParams.SenderId}
+                                        { "systemuserid",_processParams.Notification.SenderId}
                                 }
                 },
                 { "Recipients" , recipientsList },
                 { "Regarding" , new JsonObject {
                                         { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
-                                        { "systemuserid",_processParams.SenderId}
+                                        { "systemuserid",_processParams.Notification.SenderId}
                                 }
                 } // Regarding is a required parameter.
             };
 
-            HttpResponseMessage bulkEmailsResponse = await d365WebApiService.SendBulkEmailTemplateMessageAsync(appUserService.AZNoticationAppUser, contentBody, null);
+            HttpResponseMessage bulkEmailsResponse = await d365WebApiService.SendBulkEmailTemplateMessageAsync(appUserService.AZSystemAppUser, contentBody, _processParams.Notification.SenderId);
 
             if (!bulkEmailsResponse.IsSuccessStatusCode)
             {
                 var responseBody = await bulkEmailsResponse.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to create email notification records with error: {error}", responseBody);
+                _logger.LogError(CustomLogEvent.Process, "Failed to create email notification records with error: {error}", responseBody.CleanLog());
 
                 return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
             }
 
             _logger.LogInformation(CustomLogEvent.Process, "Total notifications created {count}", serializedData?.Count);
         }
-        else
+        else // Send notification by provided user email content
         {
             List<HttpRequestMessage> sendCreateEmailRequests = new() { };
             serializedData?.ForEach(contact =>
             {
                 sendCreateEmailRequests.Add(new CreateRequest("emails",
                     new JsonObject(){
-                        {"subject",_processParams.Subject },
-                        {"description",_processParams.EmailBody }
+                        {"subject",_processParams.Notification.Subject },
+                        {"description",_processParams.Notification.EmailBody },
+                        {"email_activity_parties", new JsonArray(){
+                            new JsonObject
+                            {
+                                {"partyid_systemuser@odata.bind", $"/systemusers({_processParams.Notification.SenderId})"},
+                                { "participationtypemask", 1 } //From Email
+                            },
+                            new JsonObject
+                            {
+                                { "partyid_contact@odata.bind", $"/contacts({contact.contactid})" },
+                                { "participationtypemask",   2 } //To Email                             
+                            }
+                        }}
                     }));
             });
 
-            var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZNoticationAppUser, sendCreateEmailRequests, null);
+            var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreateEmailRequests, null);
 
             if (sendEmailBatchResult.Errors.Any())
             {
                 var sendNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
-                _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToJsonString());
+                _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
 
                 return sendNotificationError.SimpleProcessResult;
             }
@@ -179,60 +278,53 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         #endregion
 
-        #region Step 2: Send the reminders (TODO)
+        #region Step 2: Update emails with due date, communication type etc.
 
-        // Emails are created with "Completed - Pending Send" status. Step 2 will be needed if the sender is not configured for Exchange Online Mailbox.
-        // Query all Draft emails created in the last 24 hours and by the OFM system user or Notification Service in the future. Must use the correct conditions to find only the Draft emails created in Step 1
+        var localDataStep2 = await GetDataToUpdate();
+        var serializedDataStep2 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep2.Data.ToString());
 
-        var sendEmailBody = new JsonObject {
-                { "IssueSend", false}
-        };
+        var updateEmailRequests = new List<HttpRequestMessage>() { };
+        serializedDataStep2.ForEach(email =>
+        {
+            var emailToUpdate = new JsonObject {
+                { "ofm_sent_on",DateTime.UtcNow },
+                { "ofm_due_date",_processParams.Notification.DueDate },
+                { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"}
+             };
 
-        var sendEmailRequests = new List<HttpRequestMessage>() {
-                 new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody),
-                 new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody)
-            };
+            updateEmailRequests.Add(new UpdateRequest(new EntityReference("emails", new Guid(email.activityid)), emailToUpdate));
+        });
 
-        //var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendEmailRequests, null);
+        var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);
+        if (step2BatchResult.Errors.Any())
+        {
+            var errors = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to update email notifications with an error: {error}", JsonValue.Create(errors)!.ToString());
 
-        var endTime = _timeProvider.GetTimestamp();
-
-        //if (step2BatchResult.Errors.Any())
-        //{
-        //    var errorResult = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
-        //    _logger.LogError(CustomLogEvents.Process, "Failed to send email reminders with an error: {error}", JsonValue.Create(errorResult)!.ToJsonString());
-
-        //    return errorResult.SimpleProcessResult;
-        //}
+            return errors.SimpleProcessResult;
+        }
 
         #endregion
 
-        #region Step3:  Other email updates (TODO)
+        #region Step 3: Send the notifications
 
-        var emailToUpdate = new JsonObject {
-                { "scheduledstart",DateTime.Now.ToShortDateString()},
-                { "scheduledend",DateTime.Now.AddDays(30).ToShortDateString()},
-                { "ofm_is_read",true },
-                { "ofm_communication_type@odata.bind", "ofm_communication_types(00000000-0000-0000-0000-000000000000)"}
-             };
+        // Emails are created with "Completed - Pending Send" status. Step 3 is needed to send emails via GC-Notify or Exchange Online
 
-        var updateEmailRequests = new List<HttpRequestMessage>() {
-                 new UpdateRequest(new EntityReference("emails",new Guid("00000000-0000-0000-0000-000000000000")), emailToUpdate)
-            };
-
-        //var step3BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);
-        //if (step3BatchResult.Errors.Any())
-        //{
-        //    var errors = ProcessResult.Failure(ProcessId, step3BatchResult.Errors, step3BatchResult.TotalProcessed, step3BatchResult.TotalRecords);
-        //    _logger.LogError(CustomLogEvents.Process, "Failed to send email reminders with an error: {error}", JsonValue.Create(errors)!.ToJsonString());
-
-        //    return errors.SimpleProcessResult;
-        //}
-
-        #endregion   
+        #endregion
 
         var result = ProcessResult.Success(ProcessId, serializedData!.Count);
-        _logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToJsonString());
+
+        var endTime = _timeProvider.GetTimestamp();
+
+        var serializeOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        string json = JsonSerializer.Serialize(result, serializeOptions);
+
+        //_logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToString().CleanLog());
+        _logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
 
         return result.SimpleProcessResult;
     }

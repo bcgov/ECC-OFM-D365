@@ -99,7 +99,7 @@ app.RegisterOperationsEndpoints();
 
 app.MapGet("/api/health", (ILogger<string> logger) =>
 {
-    logger.LogInformation("Health checked on {currentTime}(PST)", DateTime.Now);
+    logger.LogInformation("Health checked on {currentTime}", DateTime.Now);
 
     return TypedResults.Ok("I am healthy!");
 

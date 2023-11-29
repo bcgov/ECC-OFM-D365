@@ -12,6 +12,15 @@
             <param name="response">The HttpResponseMessage</param>
             <returns></returns>
         </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.Range`1.WithinRange(`0)">
+            <summary>
+            The Start object is earlier than the value, it returns a negative value
+            The End object is later than the second, it returns a positive value
+            The two objects are equal, it returns zero
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.DocumentsHandlers.PostAsync(OFM.Infrastructure.WebAPI.Services.Documents.ID365DocumentService,Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.AspNetCore.Http.IFormFileCollection,System.String)">
              <summary>
              Upload multiple documents "<see cref="T:OFM.Infrastructure.WebAPI.Models.FileMapping"/>".
@@ -304,6 +313,11 @@
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.GetTypeInfo(System.Type)">
             <inheritdoc/>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Services.AppUsers.D365AppUserService.AZNoticationAppUser">
+            <summary>
+            Not In Use
+            </summary>
         </member>
         <member name="T:OFM.Infrastructure.WebAPI.Services.D365WebApi.D365AuthServiceMSAL">
             <summary>

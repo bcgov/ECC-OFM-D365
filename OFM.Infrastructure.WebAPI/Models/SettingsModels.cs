@@ -28,7 +28,7 @@ public record NotificationSettings
     public required UnreadEmailOptions UnreadEmailOptions { get; set; }
     public required string DefaultSenderId { get; set; }
     public required EmailTemplate[] EmailTemplates { get; set; }
-    public required CommunicationTypeOptions CommunicationTypeOptions { get; set; }
+    public required CommunicationTypes CommunicationTypes { get; set; }
 }
 
 public record UnreadEmailOptions
@@ -36,15 +36,16 @@ public record UnreadEmailOptions
     public Int16 FirstReminderInDays { get; set; }
     public Int16 SecondReminderInDays { get; set; }
     public Int16 ThirdReminderInDays { get; set; }
+    public Int16 TimeOffsetInDays { get; set; }
 }
 
-public record CommunicationTypeOptions
+public record CommunicationTypes
 {
-    public string ActionRequired { get; set; }
-    public string DebtLetter { get; set; }
-    public string Reminder { get; set; }
-    public string FundingAgreement { get; set; }
-    public string Information { get; set; }
+    public required Int16 ActionRequired { get; set; }
+    public required Int16 DebtLetter { get; set; }
+    public required Int16 Reminder { get; set; }
+    public required Int16 FundingAgreement { get; set; }
+    public required Int16 Information { get; set; }
 }
 
 public class EmailTemplate

@@ -1,9 +1,13 @@
 ﻿using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Http;
 using System.Text.Json.Nodes;
 using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
@@ -17,6 +21,9 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
+    private string[] _activeCommunicationTypes = Array.Empty<string>();
+    private string[] _communicationTypesForUnreadReminders = Array.Empty<string>();
+    private string _requestUri = string.Empty;
 
     public P200EmailReminderProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -34,53 +41,63 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         get
         {
             // Note: FetchXMl limit is 5000 records per request
-            var fetchXml = $"""
-                <fetch distinct="true" no-lock="true">
-                <entity name="email">
-                  <attribute name="subject" />
-                  <attribute name="lastopenedtime" />
-                  <attribute name="torecipients" />
-                  <attribute name="emailsender" />
-                  <attribute name="sender" />
-                  <attribute name="submittedby" />
-                  <attribute name="statecode" />
-                  <attribute name="statuscode" />
-                  <attribute name="ofm_communication_type" />
-                  <attribute name="emailreminderexpirytime" />
-                  <attribute name="regardingobjectid" />
-                  <attribute name="ofm_sent_on" />
-                  <filter type="and">
-                    <condition attribute="lastopenedtime" operator="null" />
-                    <condition attribute="torecipients" operator="not-null" />
-                    <condition attribute="ofm_expiry_time" operator="next-x-days" value="29" />
-                    <condition attribute="ofm_communication_type" operator="in" uitype="ofm_communication_type">
-                        <value>{_notificationSettings.CommunicationTypeOptions.ActionRequired}</value>
-                        <value>{_notificationSettings.CommunicationTypeOptions.DebtLetter}</value>
-                        <value>{_notificationSettings.CommunicationTypeOptions.FundingAgreement}</value>
-                        <value>{_notificationSettings.CommunicationTypeOptions.Information}</value>
-                        <value>{_notificationSettings.CommunicationTypeOptions.Reminder}</value>
-                      </condition>
-                    </filter>
-                   <link-entity name="activityparty" from="activityid" to="activityid" link-type="inner" alias="To">
-                       <attribute name="participationtypemask" />
-                       <attribute name="partyid" />
-                       <filter>
-                         <condition attribute="participationtypemask" operator="eq" value="2" />
-                       </filter>
-                    </link-entity>
-                  </entity>
-                </fetch>
-                """;
+            // Use Paging Cookie for large datasets
+            // Use exact filters to reduce the matching data and enhance performance
 
-            //var requestUri = $"""
-            //                  emails?fetchXml={WebUtility.UrlEncode(fetchXml)}
-            //                  """;
+            if (string.IsNullOrEmpty(_requestUri))
+            {
+                var communicationTypesString = _activeCommunicationTypes.Aggregate((partialPhrase, id) => $"{partialPhrase},{id}");
 
-            var requestUri = $"""
-                                emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,emailreminderexpirytime,_regardingobjectid_value,ofm_sent_on&$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))&$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='ofm_expiry_time',PropertyValue=29) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=['{_notificationSettings.CommunicationTypeOptions.ActionRequired}','{_notificationSettings.CommunicationTypeOptions.DebtLetter}','{_notificationSettings.CommunicationTypeOptions.FundingAgreement}', '{_notificationSettings.CommunicationTypeOptions.Information}', '{_notificationSettings.CommunicationTypeOptions.Reminder}']))
-                             """;
+                var fetchXml = $"""
+                                <fetch distinct="true" no-lock="true">
+                                <entity name="email">
+                                  <attribute name="subject" />
+                                  <attribute name="lastopenedtime" />
+                                  <attribute name="torecipients" />
+                                  <attribute name="emailsender" />
+                                  <attribute name="sender" />
+                                  <attribute name="submittedby" />
+                                  <attribute name="statecode" />
+                                  <attribute name="statuscode" />
+                                  <attribute name="ofm_communication_type" />
+                                  <attribute name="emailreminderexpirytime" />
+                                  <attribute name="regardingobjectid" />
+                                  <attribute name="ofm_sent_on" />
+                                  <attribute name="ofm_expiry_time" />
+                                  <filter type="and">
+                                    <condition attribute="lastopenedtime" operator="null" />
+                                    <condition attribute="torecipients" operator="not-null" />
+                                    <condition attribute="ofm_expiry_time" operator="next-x-days" value="29" />
+                                    <condition attribute="ofm_communication_type" operator="in" uitype="ofm_communication_type">
+                                        <value>00000000-0000-0000-0000-000000000000</value>
+                                        <value>00000000-0000-0000-0000-000000000000</value>                                       
+                                    </condition>
+                                  </filter>                                 
+                                  <link-entity name="activityparty" from="activityid" to="activityid" link-type="inner" alias="To">
+                                       <attribute name="participationtypemask" />
+                                       <attribute name="partyid" />
+                                       <filter>
+                                         <condition attribute="participationtypemask" operator="eq" value="2" />
+                                       </filter>
+                                   </link-entity>
+                                  </entity>
+                                </fetch>
+                                """;
 
-            return requestUri;
+                //var requestUri = $"""
+                //                  emails?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                //                  """;
+
+                var requestUri = $"""                                
+                                emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,_regardingobjectid_value,ofm_sent_on,ofm_expiry_time
+                                &$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))
+                                &$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='ofm_expiry_time',PropertyValue=29) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=[{communicationTypesString}]))
+                                """;
+
+                _requestUri = requestUri.CleanCRLF();
+            }
+
+            return _requestUri;
         }
     }
 
@@ -90,11 +107,14 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
         if (_data is null)
         {
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZNoticationAppUser, RequestUri);
+            _logger.LogDebug(CustomLogEvent.Process, "Getting due emails with query {requestUri}", RequestUri);
 
-            if (!response.IsSuccessStatusCode) {
-                var responseBody = await response.Content.ReadAsStringAsync();  
-                _logger.LogError(CustomLogEvent.Process, "Failed to query email reminders with the server error {responseBody}", responseBody);
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query email reminders with the server error {responseBody}", responseBody.CleanLog());
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -112,35 +132,42 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             }
 
             _data = new ProcessData(d365Result);
-        }
 
-        _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString());
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString(Setup.s_writeOptionsForLogs));
+        }
 
         return await Task.FromResult(_data);
     }
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Getting due emails with query {requestUri}", RequestUri);
+        await SetupCommunicationTypes();
+
+        if (!_activeCommunicationTypes.Any())
+            throw new Exception("Communication Types are missing.");
 
         var startTime = _timeProvider.GetTimestamp();
 
         var localData = await GetData();
 
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365Email>>(localData.Data.ToJsonString());
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365Email>>(localData.Data, Setup.s_writeOptionsForLogs);
 
-        var dueEmails = serializedData!.Where(e => e.IsCompleted && (e.IsNewAndUnread || IsUnreadReminderRequired(e))).ToList();
+        DateTime todayUtc = DateTime.UtcNow; //Should be today around 7:00PM PST based on the standard run schedule
+        DateTime yesterdayUtc = todayUtc.AddDays(-1 + _notificationSettings.UnreadEmailOptions.TimeOffsetInDays); // Should be yesterday around 7:00PM PST based on the standard run schedule. Use TimeOffsetInDays adjustment to expand the range and handle any previous failures (Zero or negative numbers)
+        var todayRange = new Range<DateTime>(yesterdayUtc, todayUtc);
+
+        var dueEmails = serializedData!.Where(e => e.IsCompleted && (IsNewAndUnread(e, todayRange) || IsUnreadReminderRequired(e, todayRange)));
 
         // Send only one email per contact
         var uniqueContacts = dueEmails.GroupBy(e => e.torecipients).ToList();
 
-        if (uniqueContacts.Count == 0) {
-
+        if (uniqueContacts.Count == 0)
+        {
             _logger.LogInformation(CustomLogEvent.Process, "Send email reminders completed. No unique contacts found.");
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        #region  Step 1: Create the email reminders as Completed-Pending Send
+        #region Step 1: Create the email reminders as Completed-Pending Send
 
         JsonArray recipientsList = new() { };
 
@@ -165,12 +192,12 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                 } // Regarding is a required parameter.Temporarily set it to the PA service account, but this will not set the Regarding on the new records
         };
 
-        HttpResponseMessage bulkEmailsResponse = await d365WebApiService.SendBulkEmailTemplateMessageAsync(appUserService.AZNoticationAppUser, contentBody, null);
+        HttpResponseMessage bulkEmailsResponse = await d365WebApiService.SendBulkEmailTemplateMessageAsync(appUserService.AZSystemAppUser, contentBody, null);
 
         if (!bulkEmailsResponse.IsSuccessStatusCode)
         {
             var responseBody = await bulkEmailsResponse.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to create email reminder records with error: {error}", responseBody);
+            _logger.LogError(CustomLogEvent.Process, "Failed to create email reminder records with a server error: {error}", responseBody);
 
             return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
         }
@@ -179,72 +206,23 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
         #endregion
 
-        #region Step 2: Send the reminders (TODO)
-
-        // Emails are created with "Completed - Pending Send" status. Step 2 will be needed if the sender is not configured for Exchange Online Mailbox.
-        // Query all Draft emails created in the last 24 hours and by the OFM system user or Notification Service in the future. Must use the correct conditions to find only the Draft emails created in Step 1
-
-        //var sendEmailBody = new JsonObject {
-        //        { "IssueSend", false}
-        //};
-
-        //var sendEmailRequests = new List<HttpRequestMessage>() {
-        //         new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody),
-        //         new SendEmailRequest(new Guid("00000000-0000-0000-0000-000000000000"), sendEmailBody)
-        //    };
-
-        //var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendEmailRequests, null);
+        #region  Step 2 (ToDo): Send the emails
+        //Via GC Notify or Exchange Online
+        #endregion
 
         var endTime = _timeProvider.GetTimestamp();
 
-        //if (step2BatchResult.Errors.Any())
-        //{
-        //    var errorResult = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
-        //    _logger.LogError(CustomLogEvents.Process, "Failed to send email reminders with an error: {error}", JsonValue.Create(errorResult)!.ToJsonString());
-
-        //    return errorResult.SimpleProcessResult;
-        //}
-
-        #endregion
-
-        #region Step3:  Other email updates (TODO)
-
-        //var emailToUpdate = new JsonObject {
-        //        { "scheduledstart",DateTime.Now.ToShortDateString()},
-        //        { "scheduledend",DateTime.Now.AddDays(30).ToShortDateString()},
-        //        { "ofm_is_read",true },
-        //        { "ofm_communication_type@odata.bind", "ofm_communication_types(00000000-0000-0000-0000-000000000000)"}
-        //     };
-
-        //var updateEmailRequests = new List<HttpRequestMessage>() {
-        //         new UpdateRequest(new EntityReference("emails",new Guid("00000000-0000-0000-0000-000000000000")), emailToUpdate)
-        //    };
-
-        //var step3BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);
-        //if (step3BatchResult.Errors.Any())
-        //{
-        //    var errors = ProcessResult.Failure(ProcessId, step3BatchResult.Errors, step3BatchResult.TotalProcessed, step3BatchResult.TotalRecords);
-        //    _logger.LogError(CustomLogEvents.Process, "Failed to send email reminders with an error: {error}", JsonValue.Create(errors)!.ToJsonString());
-
-        //    return errors.SimpleProcessResult;
-        //}
-
-        #endregion   
-
         var result = ProcessResult.Success(ProcessId, uniqueContacts.Count);
-        _logger.LogInformation(CustomLogEvent.Process, "Send email reminders process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToJsonString());
+        _logger.LogInformation(CustomLogEvent.Process, "Send email reminders process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToString());
 
         return result.SimpleProcessResult;
     }
 
-    #region Local Validation Code
+    #region Local Validation & Setup Code
 
-    private bool IsUnreadReminderRequired(D365Email email)
+    private bool IsUnreadReminderRequired(D365Email email, Range<DateTime> todayRange)
     {
-        if (email == null)
-            return false;
-
-        if (email.ofm_sent_on is null || email.lastopenedtime is not null)
+        if (email == null || email.ofm_sent_on is null || email.lastopenedtime is not null)
             return false;
 
         if (email.lastopenedtime is null)
@@ -253,18 +231,83 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             var secondReminderInDays = _notificationSettings.UnreadEmailOptions.SecondReminderInDays;
             var thirdReminderInDays = _notificationSettings.UnreadEmailOptions.ThirdReminderInDays;
 
-            var communicationType = email._ofm_communication_type_value;
+            if (_communicationTypesForUnreadReminders.Contains(email._ofm_communication_type_value))
+            {
+                if (todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(firstReminderInDays)) ||
+                    todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(secondReminderInDays)) ||
+                    todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(thirdReminderInDays)))
 
-            if ((email.ofm_sent_on.Value.Date.AddDays(firstReminderInDays).Equals(DateTime.Now.Date) ||
-                email.ofm_sent_on.Value.Date.AddDays(secondReminderInDays).Equals(DateTime.Now.Date) ||
-                email.ofm_sent_on.Value.Date.AddDays(thirdReminderInDays).Equals(DateTime.Now.Date)
-                ) && (communicationType.Equals(_notificationSettings.CommunicationTypeOptions.ActionRequired) ||
-                communicationType.Equals(_notificationSettings.CommunicationTypeOptions.DebtLetter) ||
-                communicationType.Equals(_notificationSettings.CommunicationTypeOptions.FundingAgreement)))
-                return true;
+                    return true;
+            }
         }
 
         return false;
+    }
+
+    private bool IsNewAndUnread(D365Email email, Range<DateTime> todayRange)
+    {
+        if (email.ofm_sent_on is null)
+            return false;
+
+        // if the email is created/sent today and is unread
+        if (email.lastopenedtime is null && todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault()))
+            return true;
+
+        return false;
+    }
+
+    private async Task SetupCommunicationTypes()
+    {
+        if (!_activeCommunicationTypes.Any())
+        {
+            var fetchXml = """
+                            <fetch distinct="true" no-lock="true">
+                              <entity name="ofm_communication_type">
+                                <attribute name="ofm_communication_typeid" />
+                                <attribute name="ofm_communication_type_number" />
+                                <attribute name="ofm_name" />
+                                <attribute name="statecode" />
+                                <attribute name="statuscode" />
+                                <filter>
+                                  <condition attribute="statecode" operator="eq" value="0" />
+                                </filter>
+                              </entity>
+                            </fetch>
+                """;
+
+            var requestUri = $"""
+                              ofm_communication_types?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                              """;
+
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query the communcation types with a server error {responseBody}", responseBody.CleanLog());
+            }
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+            {
+                if (currentValue?.AsArray().Count == 0)
+                {
+                    _logger.LogInformation(CustomLogEvent.Process, "No communcation types found with query {requestUri}", requestUri);
+                }
+                d365Result = currentValue!;
+            }
+
+            _activeCommunicationTypes = d365Result.AsArray()
+                                            .Select(comm_type => string.Concat("'", comm_type?["ofm_communication_typeid"], "'"))
+                                            .ToArray<string>();
+ 
+            _communicationTypesForUnreadReminders = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.ActionRequired.ToString() ||
+                                                                                          type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.DebtLetter.ToString() ||
+                                                                                          type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.FundingAgreement.ToString())
+                                                                    .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
+        }
     }
 
     #endregion

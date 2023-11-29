@@ -13,7 +13,10 @@ public class D365AppUserService : ID365AppUserService
 
     public AZAppUser AZSystemAppUser => GetAZAppUser(Setup.AppUserType.System);
 
-    AZAppUser ID365AppUserService.AZNoticationAppUser => GetAZAppUser(Setup.AppUserType.Notification);
+    /// <summary>
+    /// Not In Use
+    /// </summary>
+    public AZAppUser AZNoticationAppUser => GetAZAppUser(Setup.AppUserType.Notification);
 
     public AZAppUser GetAZAppUser(string userType)
     {

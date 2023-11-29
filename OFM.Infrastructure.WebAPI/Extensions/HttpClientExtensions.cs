@@ -131,4 +131,27 @@ public static class HttpClientExtensions
         typedResponse.Content = response.Content;
         return typedResponse;
     }
+
+    public static async Task<List<T>> GetAllDataFromPaginatedApi<T, T1>(this HttpClient client,
+        string route, string fieldsToReturn, string? filter = null) where T1 : IHaveItems<T>
+    {
+        var fullResults = new List<T>();
+
+        bool needToGetMoreItems;
+        var offset = 0;
+        const int limit = 50;
+        do
+        {
+            var queryString = $"fields={fieldsToReturn}&limit={limit}&offset={offset}{filter}";
+            var response = await client.GetFromJsonAsync<T1>($"{route}?{queryString}");
+            if (response?.Items.Any() ?? false)
+            {
+                fullResults.AddRange(response.Items);
+            }
+            needToGetMoreItems = (response?.Items?.Count ?? 0) == limit;
+            offset += response?.Items?.Count ?? 0;
+        } while (needToGetMoreItems);
+
+        return fullResults;
+    }
 }
