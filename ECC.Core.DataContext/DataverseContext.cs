@@ -52,6 +52,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Application"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Application> OfM_ApplicationSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.OfM_Application>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Assistance_Request"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Assistance_Request> OfM_Assistance_RequestSet
@@ -74,6 +85,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Communication_Type"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Communication_Type> OfM_Communication_TypeSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.OfM_Communication_Type>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Conversation"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Conversation> OfM_ConversationSet
@@ -85,6 +107,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Document"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Document> OfM_DocumentSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.OfM_Document>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Facility_Request"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Facility_Request> OfM_Facility_RequestSet
@@ -92,6 +125,28 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.OfM_Facility_Request>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Licence"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Licence> OfM_LicenceSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.OfM_Licence>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Licence_Detail"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Licence_Detail> OfM_Licence_DetailSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.OfM_Licence_Detail>();
 			}
 		}
 		
@@ -136,6 +191,28 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.Team>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.TimeZoneDefinition"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.TimeZoneDefinition> TimeZoneDefinitionSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.TimeZoneDefinition>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.UserSettings"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.UserSettings> UserSettingsSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.UserSettings>();
 			}
 		}
 	}

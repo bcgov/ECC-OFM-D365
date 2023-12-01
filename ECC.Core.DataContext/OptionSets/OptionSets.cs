@@ -332,19 +332,19 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		LocalGovernment = 100000001,
+		LocalGovernment = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		NonProfitSociety = 100000005,
+		NonProfitSociety = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		PublicInstitutionCollegeUniversity = 100000003,
+		PublicInstitutionCollegeUniversity = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		RegisteredCompany = 100000000,
+		RegisteredCompany = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		SoleProprietororPartnership = 100000002,
+		SoleProprietororPartnership = 5,
 	}
 	
 	/// <summary>
@@ -3005,6 +3005,172 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Application Types
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_Application_Type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		New = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Renewal = 2,
+	}
+	
+	/// <summary>
+	/// Care Types
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_Care_Types
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Fulltime = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Parttime = 2,
+	}
+	
+	/// <summary>
+	/// Health Authorities
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_Health_Authorities
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		FraserHealth = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InteriorHealth = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		IslandHealth = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		NorthernHealth = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		VancouverCoastalHealth = 5,
+	}
+	
+	/// <summary>
+	/// Licence Choice
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_Licence_Type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		FamilyChildCare = 11,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		GroupChildCare30monthstoSchoolAge = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		GroupChildCareSchoolAgeGroup1 = 7,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		GroupChildCareSchoolAgeGroup2 = 8,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		GroupChildCareSchoolAgeGroup3 = 9,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		GroupChildCareunder36months = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		GroupMultiAgeChildCare = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InHomeMultiAgeChildCare = 10,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Preschool4hoursmaxGroup1 = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Preschool4hoursmaxGroup2 = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Preschool4hoursmaxGroup3 = 6,
+	}
+	
+	/// <summary>
+	/// Ownership
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_Ownership
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Homebased = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Notforprofit = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Private = 3,
+	}
+	
+	/// <summary>
+	/// Provider Types
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_Provider_Type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Family = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Group = 1,
+	}
+	
+	/// <summary>
+	/// Weekday Options
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_Weekday_Options
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Friday = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Monday = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Saturday = 6,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Sunday = 7,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Thursday = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Tuesday = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Wednesday = 3,
+	}
+	
+	/// <summary>
+	/// A Yes or No with a default blank value
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_YnEmpty
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		No = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Yes = 1,
+	}
+	
+	/// <summary>
 	/// Authentication protocol used when connecting to the email server.
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -4404,6 +4570,43 @@ namespace ECC.Core.DataContext
 		Offline = 192360004,
 	}
 	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum Msdyn_BgJobStatus
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		cancelled = 100000004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		failed = 100000003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		failedandacknowledged = 100000006,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		inprogress = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		notstarted = 100000000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		succeeded = 100000002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		succeededandacknowledged = 100000005,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum Msdyn_BgJobWorkItemType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Agentstream = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Workstream = 100000000,
+	}
+	
 	/// <summary>
 	/// Shows billing status of transactions.
 	/// </summary>
@@ -5106,6 +5309,12 @@ namespace ECC.Core.DataContext
 		Declarative = 192350000,
 		
 		/// <summary>
+		/// Route conversations using an LLM model based prediction
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		IntelligentConversationDistribution = 192350003,
+		
+		/// <summary>
 		/// Embellishing the work-item using ML model
 		/// </summary>
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -5423,6 +5632,26 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		NotStarted = 192350000,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum Msdyn_IntentSources
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		AgentAssist = 100000004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		AnswerAssist = 100000002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		EmailAssist = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		PVA = 100000000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		UR = 100000003,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -9497,6 +9726,43 @@ namespace ECC.Core.DataContext
 		MicrosoftWord = 2,
 	}
 	
+	/// <summary>
+	/// Status of the Application
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Application_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Application
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Application_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Approved = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Draft = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		InReview = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Submitted = 3,
+	}
+	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum OfM_Assistance_Request_OfM_Contact_Method
 	{
@@ -9577,6 +9843,34 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Status of the Communication Type
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Communication_Type_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Communication Type
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Communication_Type_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
+	}
+	
+	/// <summary>
 	/// Status of the Conversation
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -9605,6 +9899,34 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Status of the Document
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Document_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Document
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Document_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
+	}
+	
+	/// <summary>
 	/// Status of the Facility Request
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -9623,6 +9945,82 @@ namespace ECC.Core.DataContext
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum OfM_Facility_Request_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Facility Types
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Facility_Type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Ownedwithmortgage = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Ownedwithoutmortgage = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Providedfreeofcharge = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		RentLease = 1,
+	}
+	
+	/// <summary>
+	/// Status of the Licence Details
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Licence_Detail_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Licence Details
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Licence_Detail_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Licence
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Licence_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Licence
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Licence_StatusCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -11861,6 +12259,184 @@ namespace ECC.Core.DataContext
 		/// </summary>
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		TilesView = 1,
+	}
+	
+	/// <summary>
+	/// Determines the status of auto install of Dynamics 365 to Teams attempt has been completed
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum UserSettings_D365AutoInstallAttemptStatus
+	{
+		
+		/// <summary>
+		/// Dynamics 365 app is already installed in Teams
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Alreadyinstalled = 2,
+		
+		/// <summary>
+		/// Dynamics 365 App installed successfully
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Autoinstalled = 1,
+		
+		/// <summary>
+		/// Graph API is not available for auto install
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		NoGraphAPI = 6,
+		
+		/// <summary>
+		/// D365 auto install solution is no available
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		NoSolution = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Notattempted = 0,
+		
+		/// <summary>
+		/// Resource to call graph api is disabled by tenant
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ResourceDisabled = 7,
+		
+		/// <summary>
+		/// Teams admin blocked installing Dynamics 365 app
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Teamsadminblocked = 3,
+		
+		/// <summary>
+		/// Not authorized to execute auto install
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Unauthorized = 4,
+	}
+	
+	/// <summary>
+	/// Information that specifies the level of data validation in excel worksheets exported in a format suitable for import.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum UserSettings_DataValidationModeForExportToExcel
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Full = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		None = 1,
+	}
+	
+	/// <summary>
+	/// Default search experience for the user.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum UserSettings_DefaultSearchExperience
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Categorizedsearch = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Customsearch = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Relevancesearch = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Uselastsearch = 2,
+	}
+	
+	/// <summary>
+	/// Information that specifies the preferred form mode.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum UserSettings_EntityFormMode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Edit = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Organizationdefault = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Readoptimized = 1,
+	}
+	
+	/// <summary>
+	/// Incoming email filtering method.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum UserSettings_IncomingEmailFilteringMethod
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Allemailmessages = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		EmailmessagesfromDynamics365LeadsContactsandAccounts = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		EmailmessagesfromDynamics365recordsthatareemailenabled = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		EmailmessagesinresponsetoDynamics365email = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Noemailmessages = 4,
+	}
+	
+	/// <summary>
+	/// Model app channel override
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum UserSettings_ReleaseChannel
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Innerchanneloverride = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Monthlychanneloverride = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		None = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Semiannualchanneloverride = 1,
+	}
+	
+	/// <summary>
+	/// Picklist for selecting the user preference for reporting scripting errors.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum UserSettings_ReportScripTerrors
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		AskmeforpermissiontosendanerrorreporttoMicrosoft = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		AutomaticallysendanerrorreporttoMicrosoftwithoutaskingmeforpermission = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		NeversendanerrorreporttoMicrosoftaboutMicrosoftDynamics365 = 3,
+	}
+	
+	/// <summary>
+	/// The layout of the visualization pane.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum UserSettings_VisualizationPaneLayout
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Sidebyside = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Topbottom = 0,
 	}
 	
 	/// <summary>
