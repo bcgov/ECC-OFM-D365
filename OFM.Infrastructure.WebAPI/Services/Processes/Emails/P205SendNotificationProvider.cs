@@ -105,8 +105,13 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                       <condition attribute="createdon" operator="last-x-hours" value="3" />
                       <condition attribute="ofm_communication_type" operator="not-null" />
                       <condition attribute="ofm_due_date" operator="not-null" />
-                      <condition attribute="createdby" operator="eq"  uitype="systemuser" value="{_processParams.CallerObjectId}" />
-                    </filter>
+                     </filter>
+                     <link-entity name="activityparty" from="activityid" to="activityid" link-type="inner" alias="ae">
+                     <filter type="and">
+                    <condition attribute="participationtypemask" operator="eq" value="1" />
+                    <condition attribute="partyid" operator="eq" uitype="systemuser" value="{_processParams.Notification.SenderId}" />
+                  </filter>
+                </link-entity>
                   </entity>
                 </fetch>
                 """;
