@@ -86,7 +86,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         get
         {
             // Note: FetchXMl limit is 5000 records per request
-            var fetchXml = """
+            var fetchXml = $"""
                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                   <entity name="email">
                     <attribute name="subject" />
@@ -102,7 +102,10 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                     <attribute name="regardingobjectid" />
                     <order attribute="createdon" descending="true" />
                     <filter type="and">
-                      <condition attribute="createdon" operator="last-x-hours" value="1" />
+                      <condition attribute="createdon" operator="last-x-hours" value="3" />
+                      <condition attribute="ofm_communication_type" operator="not-null" />
+                      <condition attribute="ofm_due_date" operator="not-null" />
+                      <condition attribute="createdby" operator="eq"  uitype="systemuser" value="{_processParams.CallerObjectId}" />
                     </filter>
                   </entity>
                 </fetch>
@@ -184,68 +187,6 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         }
 
         return await Task.FromResult(_data!);
-    }
-
-    private async Task<ProcessData> GetDataToUpdate()
-    {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
-
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, EmailsToUpdateRequestUri);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to query pending emails to update with the server error {responseBody}", responseBody.CleanLog());
-
-            return await Task.FromResult(new ProcessData(string.Empty));
-        }
-
-        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-        JsonNode d365Result = string.Empty;
-        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-        {
-            if (currentValue?.AsArray().Count == 0)
-            {
-                _logger.LogInformation(CustomLogEvent.Process, "No pending emails on the contact list found with query {requestUri}", EmailsToUpdateRequestUri.CleanLog());
-            }
-            d365Result = currentValue!;
-        }
-
-        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
-
-        return await Task.FromResult(new ProcessData(d365Result));
-    }
-
-    private async Task<ProcessData> GetTemplateToSendEmail()
-    {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
-
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TemplatetoRetrieveUri);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Tempalte to update with the server error {responseBody}", responseBody.CleanLog());
-
-            return await Task.FromResult(new ProcessData(string.Empty));
-        }
-
-        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-        JsonNode d365Result = string.Empty;
-        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-        {
-            if (currentValue?.AsArray().Count == 0)
-            {
-                _logger.LogInformation(CustomLogEvent.Process, "No template found with query {requestUri}", EmailsToUpdateRequestUri.CleanLog());
-            }
-            d365Result = currentValue!;
-        }
-
-        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
-
-        return await Task.FromResult(new ProcessData(d365Result));
     }
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
@@ -358,7 +299,71 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         return result.SimpleProcessResult;
     }
 
-    public async Task<JsonObject> MarkEmailsAsComppleted(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    #region Private methods
+
+    private async Task<ProcessData> GetDataToUpdate()
+    {
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, EmailsToUpdateRequestUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query pending emails to update with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No pending emails on the contact list found with query {requestUri}", EmailsToUpdateRequestUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
+
+    private async Task<ProcessData> GetTemplateToSendEmail()
+    {
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TemplatetoRetrieveUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Tempalte to update with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No template found with query {requestUri}", EmailsToUpdateRequestUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
+
+    private async Task<JsonObject> MarkEmailsAsComppleted(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         var localDataStep2 = await GetDataToUpdate();
 
@@ -387,4 +392,6 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         return step2BatchResult.SimpleBatchResult;
     }
+
+    #endregion
 }
