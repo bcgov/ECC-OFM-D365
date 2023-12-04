@@ -273,11 +273,11 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             return sendNotificationError.SimpleProcessResult;
         }
 
+        #endregion
+
         #region Step 2: Update emails status.
 
         await MarkEmailsAsComppleted(appUserService, d365WebApiService, processParams);
-
-        #endregion
 
         #endregion
 
