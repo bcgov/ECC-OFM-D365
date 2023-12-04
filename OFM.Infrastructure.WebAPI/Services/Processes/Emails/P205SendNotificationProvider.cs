@@ -81,7 +81,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         }
     }
 
-    public string EmailsToUpdateRequestUri
+    private string EmailsToUpdateRequestUri
     {
         get
         {
@@ -102,8 +102,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                     <attribute name="regardingobjectid" />
                     <order attribute="createdon" descending="true" />
                     <filter type="and">
-                     <condition attribute="createdon" operator="last-x-hours" value="1" />
-                      <condition attribute="createdby" operator="eq"  uitype="systemuser" value="{DF97ED7A-9167-EE11-9AE7-000D3A09D699}" />
+                      <condition attribute="createdon" operator="last-x-hours" value="1" />
                     </filter>
                   </entity>
                 </fetch>
@@ -117,12 +116,12 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         }
     }
 
-    public string TemplatetoRetrieveUri
+    private string TemplatetoRetrieveUri
     {
         get
         {
             // Note: FetchXMl limit is 5000 records per request
-            var fetchXml =$"""
+            var fetchXml = $"""
                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                   <entity name="template">
                     <attribute name="title" />
@@ -187,7 +186,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         return await Task.FromResult(_data!);
     }
 
-    public async Task<ProcessData> GetDataToUpdate()
+    private async Task<ProcessData> GetDataToUpdate()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
 
@@ -218,7 +217,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         return await Task.FromResult(new ProcessData(d365Result));
     }
 
-    public async Task<ProcessData> GetTemplateToSendEmail()
+    private async Task<ProcessData> GetTemplateToSendEmail()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
 
@@ -227,7 +226,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to query pending emails to update with the server error {responseBody}", responseBody.CleanLog());
+            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Tempalte to update with the server error {responseBody}", responseBody.CleanLog());
 
             return await Task.FromResult(new ProcessData(string.Empty));
         }
@@ -261,7 +260,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         #region  Step 1: Create the email notifications as Completed - Pending Send
 
-        JsonArray recipientsList = new() { };
+        JsonArray recipientsList = [];
 
         serializedData?.ForEach(contact =>
         {
@@ -272,20 +271,18 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         if (_processParams.Notification.TemplateId is not null) // Get template details to send bulk emails.
         {
-            
-            var localDataStep3 = await GetTemplateToSendEmail();
+            var localDataTemplate = await GetTemplateToSendEmail();
 
-            var serializedDataStep2 = JsonSerializer.Deserialize<List<D365Template>>(localDataStep3.Data.ToString());
+            var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
 
-            if (serializedDataStep2.Count > 0)
+            if (serializedDataTemplate.Count > 0)
             {
-                var templateobj = serializedDataStep2.FirstOrDefault();
+                var templateobj = serializedDataTemplate.FirstOrDefault();
                 subject = templateobj.title;
                 emaildescription = templateobj.safehtml;
             }
-
-
         }
+
         if (string.IsNullOrEmpty(subject))
         {
             subject = _processParams.Notification.Subject;
@@ -294,7 +291,8 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         {
             emaildescription = _processParams.Notification.EmailBody;
         }
-        List<HttpRequestMessage> sendCreateEmailRequests = new() { };
+
+        List<HttpRequestMessage> sendCreateEmailRequests = [];
         serializedData?.ForEach(contact =>
         {
             sendCreateEmailRequests.Add(new CreateRequest("emails",
@@ -312,14 +310,14 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                                 { "partyid_contact@odata.bind", $"/contacts({contact.contactid})" },
                                 { "participationtypemask",   2 } //To Email                             
                             }
-                        }},{ "ofm_sent_on",DateTime.UtcNow },
-                         { "ofm_due_date",_processParams.Notification.DueDate },
-                         { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"},
+                        }},
+                        { "ofm_due_date", _processParams.Notification.DueDate },
+                        { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"},
 
                 }));
         });
 
-        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreateEmailRequests, null);
+        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreateEmailRequests, new Guid(processParams.CallerObjectId.ToString()));
 
         if (sendEmailBatchResult.Errors.Any())
         {
@@ -328,20 +326,14 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
             return sendNotificationError.SimpleProcessResult;
         }
-        else
 
-        {
-            #region Step 2: Update emails status.
+        #region Step 2: Update emails status.
 
-            await UpdateDueDate(appUserService, d365WebApiService, processParams);
-
-            #endregion
-        }
-
-
+        await MarkEmailsAsComppleted(appUserService, d365WebApiService, processParams);
 
         #endregion
 
+        #endregion
 
         #region Step 3: Send the notifications
 
@@ -366,19 +358,18 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         return result.SimpleProcessResult;
     }
 
-    public async Task<JsonObject> UpdateDueDate(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    public async Task<JsonObject> MarkEmailsAsComppleted(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        #region Step 2: Update emails status.
+        var localDataStep2 = await GetDataToUpdate();
 
-        var localDataStep3 = await GetDataToUpdate();
-
-        var serializedDataStep3 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep3.Data.ToString());
+        var serializedDataStep2 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep2.Data.ToString());
 
         var updateEmailRequests = new List<HttpRequestMessage>() { };
-        serializedDataStep3.ForEach(email =>
+        serializedDataStep2.ForEach(email =>
         {
             var emailToUpdate = new JsonObject {
-                  { "statuscode", 6 },   // 6 = Pending Send 
+                { "ofm_sent_on", DateTime.UtcNow },
+                { "statuscode", 6 },   // 6 = Pending Send 
                 { "statecode", 1 }     // 1 = Completed
              };
 
@@ -394,10 +385,6 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             return errors.SimpleProcessResult;
         }
 
-        #endregion
         return step2BatchResult.SimpleBatchResult;
     }
-
-
-
 }
