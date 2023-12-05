@@ -22,10 +22,12 @@ public class D365WebAPIService : ID365WebApiService
         _authenticationService = authenticationService ?? throw new ArgumentNullException(nameof(authenticationService));
     }
 
-    public async Task<HttpResponseMessage> SendRetrieveRequestAsync(AZAppUser spn, string requestUri, bool formatted = false, int pageSize = 50)
+    public async Task<HttpResponseMessage> SendRetrieveRequestAsync(AZAppUser spn, string requestUri, bool formatted = false, int pageSize = 50, bool isProcess = false)
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-        request.Headers.Add("Prefer", "odata.maxpagesize=" + pageSize.ToString());
+        if (!isProcess)
+            request.Headers.Add("Prefer", "odata.maxpagesize=" + pageSize.ToString());
+
         if (formatted)
             request.Headers.Add("Prefer", "odata.include-annotations=OData.Community.Display.V1.FormattedValue");
 

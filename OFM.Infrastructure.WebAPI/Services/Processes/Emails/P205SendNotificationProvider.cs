@@ -159,7 +159,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         {
             _logger.LogDebug(CustomLogEvent.Process, "Getting active contacts from a marketinglist with query {requestUri}", RequestUri.CleanLog());
 
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri);
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri, isProcess: true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -193,7 +193,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, EmailsToUpdateRequestUri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, EmailsToUpdateRequestUri, isProcess: true);
 
         if (!response.IsSuccessStatusCode)
         {

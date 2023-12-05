@@ -109,7 +109,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         {
             _logger.LogDebug(CustomLogEvent.Process, "Getting due emails with query {requestUri}", RequestUri);
 
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri);
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri, isProcess: true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -302,7 +302,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             _activeCommunicationTypes = d365Result.AsArray()
                                             .Select(comm_type => string.Concat("'", comm_type?["ofm_communication_typeid"], "'"))
                                             .ToArray<string>();
- 
+
             _communicationTypesForUnreadReminders = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.ActionRequired.ToString() ||
                                                                                           type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.DebtLetter.ToString() ||
                                                                                           type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.FundingAgreement.ToString())
