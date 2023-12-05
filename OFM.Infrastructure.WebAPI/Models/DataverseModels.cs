@@ -124,6 +124,8 @@ public record D365Contact
     public Parentcustomerid_Account? parentcustomerid_account { get; set; }
 }
 
+
+
 public record Parentcustomerid_Account
 {
     public string? accountid { get; set; }
@@ -157,6 +159,13 @@ public record ofm_Facility
 }
 
 #endregion
+public record D365Template
+{
+    public string? title { get; set; }
+    public string? safehtml { get; set; }
+    public string? body { get; set; }
+    public string? templateid { get; set; }
+}
 
 public record D365Email
 {
