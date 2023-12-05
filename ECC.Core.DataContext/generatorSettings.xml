@@ -1477,7 +1477,6 @@ territory|
 textanalyticsentitymapping|
 theme|
 timestampdatemapping|
-timezonedefinition|
 timezonelocalizedname|
 timezonerule|
 topic|
@@ -1507,7 +1506,6 @@ userquery|
 userqueryvisualization|
 userrating|
 usersearchfacet|
-usersettings|
 virtualentitymetadata|
 virtualresourcegroupresource|
 webresource|
@@ -1528,15 +1526,22 @@ activitypointer|
 businessunit|
 contact|
 email|
+ofm_application|
 ofm_assistance_request|
 ofm_bceid_facility|
+ofm_communication_type|
 ofm_conversation|
+ofm_document|
 ofm_facility_request|
+ofm_licence|
+ofm_licence_detail|
 ofm_request_category|
 systemuser|
 task|
 team|
-transactioncurrency</EntitiesWhitelist>
+timezonedefinition|
+transactioncurrency|
+usersettings</EntitiesWhitelist>
     <EntityAttributeSpecifiedNames />
     <EntityPrefixesToSkip />
     <EntityPrefixesWhitelist />
