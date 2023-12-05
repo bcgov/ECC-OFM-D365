@@ -99,7 +99,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                     <filter type="and">
                       <condition attribute="createdon" operator="last-x-hours" value="3" />
                       <condition attribute="ofm_communication_type" operator="not-null" />
-                      <condition attribute="ofm_due_date" operator="not-null" />
+                      <condition attribute="statuscode" operator="eq" value="1" />
                     </filter>
                     <link-entity name="activityparty" from="activityid" to="activityid" link-type="inner" alias="ae">
                     <filter type="and">
