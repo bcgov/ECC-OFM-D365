@@ -283,7 +283,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                                 { "participationtypemask",   2 } //To Email                             
                             }
                         }},
-                        { "ofm_due_date", _processParams.Notification.DueDate },
+                        { "ofm_due_date", _processParams.Notification.DueDate?.ToString("yyyy-MM-dd") },
                         { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"},
 
                 }));
