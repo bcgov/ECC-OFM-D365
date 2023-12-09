@@ -238,6 +238,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         {
             recipientsList.Add($"contacts({contact.contactid})");
         });
+
         string subject = string.Empty;
         string emaildescription = string.Empty;
 
@@ -341,7 +342,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Tempalte to update with the server error {responseBody}", responseBody.CleanLog());
+            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Template to update with the server error {responseBody}", responseBody.CleanLog());
 
             return await Task.FromResult(new ProcessData(string.Empty));
         }

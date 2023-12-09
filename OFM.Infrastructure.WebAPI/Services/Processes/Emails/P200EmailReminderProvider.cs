@@ -21,8 +21,8 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
-    private string[] _activeCommunicationTypes = Array.Empty<string>();
-    private string[] _communicationTypesForUnreadReminders = Array.Empty<string>();
+    private string[] _activeCommunicationTypes = [];
+    private string[] _communicationTypesForUnreadReminders = [];
     private string _requestUri = string.Empty;
 
     public P200EmailReminderProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
@@ -48,6 +48,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             {
                 var communicationTypesString = _activeCommunicationTypes.Aggregate((partialPhrase, id) => $"{partialPhrase},{id}");
 
+                //for reference only
                 var fetchXml = $"""
                                 <fetch distinct="true" no-lock="true">
                                 <entity name="email">

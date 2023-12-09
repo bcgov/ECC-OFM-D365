@@ -16,10 +16,10 @@ namespace OFM.Infrastructure.Plugins.Contact
     /// Plugin development guide: https://docs.microsoft.com/powerapps/developer/common-data-service/plug-ins
     /// Best practices and guidance: https://docs.microsoft.com/powerapps/developer/common-data-service/best-practices/business-logic/
     /// </summary>
-    public class GenerateFacilityPremissions : PluginBase
+    public class GenerateFacilityPermissions : PluginBase
     {
-        public GenerateFacilityPremissions(string unsecureConfiguration, string secureConfiguration)
-            : base(typeof(GenerateFacilityPremissions))
+        public GenerateFacilityPermissions(string unsecureConfiguration, string secureConfiguration)
+            : base(typeof(GenerateFacilityPermissions))
         {
             // TODO: Implement your custom configuration handling
             // https://docs.microsoft.com/powerapps/developer/common-data-service/register-plug-in#set-configuration-data
