@@ -21,6 +21,40 @@
             <param name="value"></param>
             <returns></returns>
         </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.BatchOperationsHandlers.BatchOperationsAsync(OFM.Infrastructure.WebAPI.Services.Batches.ID365BatchService,Microsoft.Extensions.Logging.ILoggerFactory,System.Object)">
+             <summary>
+             Batch Operation to perform multiple actions
+             </summary>
+             <param name="batchService"></param>
+             <param name="loggerFactory"></param>
+             <param name="jsonBody"></param>
+             <returns></returns>
+             <remarks>
+             Sample request:
+            
+             POST api/batches
+            
+             {
+                "batchTypeId":2,
+                "feature": "AccountManagement",
+                "function":"UserEdit",
+                "actionMode": "Update",
+                "scope": "Parent-Child",
+                "data":{
+                    "contact":{
+                        "ofm_first_name":"first",
+                        "ofm_last_name": "last",
+                        "entityNameSet":"contacts",
+                        "actionMode":"Update"
+                    },
+                    "ofm_bceid_facility":[
+                        {"ofm_bceid_facilityid":"00000000-0000-0000-0000-000000000000","ofm_portal_access":1,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"},
+                        {"ofm_bceid_facilityid":"00000000-0000-0000-0000-000000000000","ofm_portal_access":0,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"}
+                    ]
+                } 
+             }
+             </remarks>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.DocumentsHandlers.PostAsync(OFM.Infrastructure.WebAPI.Services.Documents.ID365DocumentService,Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.AspNetCore.Http.IFormFileCollection,System.String)">
              <summary>
              Upload multiple documents "<see cref="T:OFM.Infrastructure.WebAPI.Models.FileMapping"/>".
@@ -318,6 +352,15 @@
             <summary>
             Not In Use
             </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Documents.ContactEditProvider.ExecuteAsync(System.Text.Json.JsonDocument,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService)">
+            <summary>
+            Process the data
+            </summary>
+            <param name="jsonDocument"></param>
+            <param name="appUserService"></param>
+            <param name="d365WebApiService"></param>
+            <returns></returns>
         </member>
         <member name="T:OFM.Infrastructure.WebAPI.Services.D365WebApi.D365AuthServiceMSAL">
             <summary>

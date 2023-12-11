@@ -1,66 +1,70 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
+using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes;
+using System.Runtime.InteropServices.JavaScript;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Handlers;
 
 public static class BatchOperationsHandlers
 {
+    /// <summary>
+    /// Batch Operation to perform multiple actions
+    /// </summary>
+    /// <param name="batchService"></param>
+    /// <param name="loggerFactory"></param>
+    /// <param name="jsonBody"></param>
+    /// <returns></returns>
+    /// <remarks>
+    /// Sample request:
+    ///
+    /// POST api/batches
+    ///
+    /// {
+    ///    "batchTypeId":2,
+    ///    "feature": "AccountManagement",
+    ///    "function":"UserEdit",
+    ///    "actionMode": "Update",
+    ///    "scope": "Parent-Child",
+    ///    "data":{
+    ///        "contact":{
+    ///            "ofm_first_name":"first",
+    ///            "ofm_last_name": "last",
+    ///            "entityNameSet":"contacts",
+    ///            "actionMode":"Update"
+    ///        },
+    ///        "ofm_bceid_facility":[
+    ///            {"ofm_bceid_facilityid":"00000000-0000-0000-0000-000000000000","ofm_portal_access":1,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"},
+    ///            {"ofm_bceid_facilityid":"00000000-0000-0000-0000-000000000000","ofm_portal_access":0,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"}
+    ///        ]
+    ///    } 
+    /// }
+    /// </remarks>
     public static async Task<Results<BadRequest<string>, ProblemHttpResult, Ok<JsonObject>>> BatchOperationsAsync(
-        HttpContext context,
-        ID365WebApiService d365WebApiService,
-        ID365AppUserService appUserService,
+        ID365BatchService batchService,
         ILoggerFactory loggerFactory,
-        [FromBody] dynamic jsonBody,
-        Guid? callerObjectId)
+        [FromBody] dynamic jsonBody)
     {
         var logger = loggerFactory.CreateLogger(LogCategory.Batch);
         using (logger.BeginScope("ScopeBatch:POST"))
         {
             if (jsonBody is null) return TypedResults.BadRequest("Invalid batch query.");
 
-            //if (context.Request?.QueryString.Value?.IndexOf('&') > 0)
-            //{
-            //    var filters = context.Request.QueryString.Value.Substring(context.Request.QueryString.Value.IndexOf('&') + 1);
-            //    statement = $"{statement}?{filters}";
-            //}
+            using (JsonDocument jsonDocument = JsonDocument.Parse(jsonBody))
+            {
+                JsonElement root = jsonDocument.RootElement;
+                JsonElement batchTypeId = root.GetProperty("batchTypeId");
+                //Add validation here
 
-            //logger.LogDebug(CustomLogEvents.Operations, "Creating record(s) with the statement {statement}", statement);
-
-            //List<HttpRequestMessage> createRequests = new() {
-            //    new CreateRequest("tasks",new JsonObject(){
-            //        {"subject","Task 1 in batch OFM" }
-            //    }),
-            //    new CreateRequest("tasks",new JsonObject(){
-            //        {"subject","Task 2 in batch OFM" }
-            //    }),
-            //    new CreateRequest("tasks",new JsonObject(){
-            //        {"subject","Task 3 in batch OFM" }
-            //    })
-            //};
-
-            List<HttpRequestMessage> requests = new() {
-                new UpdateRequest(new EntityReference("tasks",new Guid("00000000-0000-0000-0000-000000000000")),new JsonObject(){
-                    {"subject","Task 1 in batch OFM (Updated3)" }
-                }),
-                new UpdateRequest(new EntityReference("tasks",new Guid("00000000-0000-0000-0000-000000000000")),new JsonObject(){
-                    {"subject","Task 2 in batch OFM (Updated3).BAD" }
-                }),
-                 new UpdateRequest(new EntityReference("tasks",new Guid("00000000-0000-0000-0000-000000000000")),new JsonObject(){
-                    {"subject","Task 3 in batch OFM (Updated3)" }
-                })
+                var batchResult = await batchService.ExecuteAsync(jsonDocument,Convert.ToInt16(batchTypeId));
+                // Process the result and return             
             };
 
-            var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZPortalAppUser, requests, callerObjectId);
-
-            logger.LogDebug(CustomLogEvent.Batch, "Batch operation completed with the result {result}", JsonValue.Create<BatchResult>(batchResult));
-
-            return TypedResults.Ok(batchResult.SimpleBatchResult);
+            return TypedResults.Ok(new JsonObject());
         }
     }
 }
