@@ -1,9 +1,15 @@
-﻿using OFM.Infrastructure.WebAPI.Models;
+﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using OFM.Infrastructure.WebAPI.Extensions;
+using OFM.Infrastructure.WebAPI.Messages;
+using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using OFM.Infrastructure.WebAPI.Services.Processes;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.Documents;
 
@@ -18,29 +24,57 @@ public class BatchProvider : ID365BatchProvider
 
     public async Task<JsonObject> ExecuteAsync(JsonDocument document, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
     {
-        throw new NotImplementedException();
+        JsonElement root = document.RootElement;
 
-        //var requestBody = new JsonObject()
-        //{
-        //    ["ofm_subject"] = document.ofm_subject,
-        //    ["ofm_extension"] = document.ofm_extension,
-        //    ["ofm_file_size"] = document.ofm_file_size,
-        //    ["ofm_description"] = document.ofm_description,
-        //    [$"ofm_regardingid_{(document.entity_name_set).TrimEnd('s')}@odata.bind"] = $"/{document.entity_name_set}({document.regardingid})",
-        //};
+        JsonElement data = root.GetProperty("data");
+        List<HttpRequestMessage> requests = [];
+        foreach (var jsonElement in data.EnumerateObject())
+        {
+            JsonObject jsonObject = [];
+            if (jsonElement.Name != "" && jsonElement.Value.ValueKind != JsonValueKind.Null && jsonElement.Value.ValueKind != JsonValueKind.Undefined)
+            {
+                var obj = jsonElement.Value;
+                if (jsonElement.Value.ValueKind == JsonValueKind.Object)
+                {
+                    var jsonRequest = await ProcessObjectData(obj, jsonObject);
+                    requests.Add(jsonRequest);
+                }
+                else if (jsonElement.Value.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var load in obj.EnumerateArray())
+                    {
+                        jsonObject = [];
+                        var req = await ProcessObjectData(load, jsonObject);
+                        requests.Add(req);
+                    }
+                }
+            }
+        }
 
-        //var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZPortalAppUser, EntityNameSet, requestBody.ToString());
+        var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZPortalAppUser, requests, null);
 
-        //if (!response.IsSuccessStatusCode)
-        //{
-        //    //log the error
-        //    return await Task.FromResult<JsonObject>(new JsonObject() { });
-        //}
-
-        //var newDocument = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-        //return await Task.FromResult<JsonObject>(newDocument!);
-
+        if (batchResult.Errors.Any())
+        {
+            var sendBatchError = ProcessResult.Failure(batchResult.ProcessId, batchResult.Errors, batchResult.TotalProcessed, batchResult.TotalRecords);
+            return sendBatchError.SimpleProcessResult;
+        }
+        var result= ProcessResult.Success(batchResult.ProcessId, batchResult.TotalRecords);
+        //return await Task.FromResult<JsonObject>(new JsonObject());
+        return result.SimpleProcessResult;
     }
 
+    private async Task<HttpRequestMessage> ProcessObjectData(JsonElement payload, JsonObject keyValuePairs)
+    {
+        foreach (var data in payload.EnumerateObject())
+        {
+            keyValuePairs.Add(data.Name, (JsonNode)data.Value.ToString());
+        }
+        var entityName = keyValuePairs["entityNameSet"];
+        var entityId = keyValuePairs["entityID"].ToString();
+        keyValuePairs.Remove("entityNameSet");
+        keyValuePairs.Remove("entityID");
+        keyValuePairs.Remove("actionMode");
+        var request = new UpdateRequest(new EntityReference(entityName.ToString(), new Guid(entityId)), keyValuePairs);
+        return request;
+    }
 }

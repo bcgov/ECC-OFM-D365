@@ -6,7 +6,7 @@ using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace OFM.Infrastructure.WebAPI.Services.Documents;
+namespace OFM.Infrastructure.WebAPI.Services.Batches;
 
 public class ContactEditProvider : ID365BatchProvider
 {

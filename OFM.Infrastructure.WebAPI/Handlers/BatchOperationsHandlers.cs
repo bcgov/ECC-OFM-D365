@@ -35,11 +35,14 @@ public static class BatchOperationsHandlers
     ///            "ofm_first_name":"first",
     ///            "ofm_last_name": "last",
     ///            "entityNameSet":"contacts",
+    ///            "entityID":"00000000-0000-0000-0000-000000000000",
+    ///            "emailaddress1": "test.user@cgi.com",
+    ///            "ofm_portal_role": "1,2,3,4",
     ///            "actionMode":"Update"
     ///        },
     ///        "ofm_bceid_facility":[
-    ///            {"ofm_bceid_facilityid":"00000000-0000-0000-0000-000000000000","ofm_portal_access":1,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"},
-    ///            {"ofm_bceid_facilityid":"00000000-0000-0000-0000-000000000000","ofm_portal_access":0,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"}
+    ///            {"entityID":"00000000-0000-0000-0000-000000000000","ofm_portal_access":true,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"},
+    ///            {"entityID":"00000000-0000-0000-0000-000000000000","ofm_portal_access":false,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"}
     ///        ]
     ///    } 
     /// }
@@ -48,19 +51,20 @@ public static class BatchOperationsHandlers
         ID365BatchService batchService,
         ILoggerFactory loggerFactory,
         [FromBody] dynamic jsonBody)
-    {
+    {        
         var logger = loggerFactory.CreateLogger(LogCategory.Batch);
         using (logger.BeginScope("ScopeBatch:POST"))
         {
             if (jsonBody is null) return TypedResults.BadRequest("Invalid batch query.");
-
-            using (JsonDocument jsonDocument = JsonDocument.Parse(jsonBody))
+            var jsonData = JsonSerializer.Serialize(jsonBody);
+            using (JsonDocument jsonDocument = JsonDocument.Parse(jsonData))
             {
                 JsonElement root = jsonDocument.RootElement;
                 JsonElement batchTypeId = root.GetProperty("batchTypeId");
+                JsonElement data = root.GetProperty("data");
                 //Add validation here
 
-                var batchResult = await batchService.ExecuteAsync(jsonDocument,Convert.ToInt16(batchTypeId));
+                var batchResult = await batchService.ExecuteAsync(jsonDocument, batchTypeId.GetInt16());
                 // Process the result and return             
             };
 

@@ -45,11 +45,14 @@
                         "ofm_first_name":"first",
                         "ofm_last_name": "last",
                         "entityNameSet":"contacts",
+                        "entityID":"00000000-0000-0000-0000-000000000000",
+                        "emailaddress1": "test.user@cgi.com",
+                        "ofm_portal_role": "1,2,3,4",
                         "actionMode":"Update"
                     },
                     "ofm_bceid_facility":[
-                        {"ofm_bceid_facilityid":"00000000-0000-0000-0000-000000000000","ofm_portal_access":1,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"},
-                        {"ofm_bceid_facilityid":"00000000-0000-0000-0000-000000000000","ofm_portal_access":0,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"}
+                        {"entityID":"00000000-0000-0000-0000-000000000000","ofm_portal_access":true,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"},
+                        {"entityID":"00000000-0000-0000-0000-000000000000","ofm_portal_access":false,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"}
                     ]
                 } 
              }
@@ -353,7 +356,7 @@
             Not In Use
             </summary>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Documents.ContactEditProvider.ExecuteAsync(System.Text.Json.JsonDocument,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService)">
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Batches.ContactEditProvider.ExecuteAsync(System.Text.Json.JsonDocument,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService)">
             <summary>
             Process the data
             </summary>
