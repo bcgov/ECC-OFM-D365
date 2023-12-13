@@ -4,6 +4,7 @@ using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -65,10 +66,9 @@ public static class BatchOperationsHandlers
                 //Add validation here
 
                 var batchResult = await batchService.ExecuteAsync(jsonDocument, batchTypeId.GetInt16());
-                // Process the result and return             
-            };
 
-            return TypedResults.Ok(new JsonObject());
+                return TypedResults.Ok(batchResult.ODProcessResult);
+            };           
         }
     }
 }

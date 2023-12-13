@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Messages;
-using OFM.Infrastructure.WebAPI.Models;
+﻿using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.Documents;
 

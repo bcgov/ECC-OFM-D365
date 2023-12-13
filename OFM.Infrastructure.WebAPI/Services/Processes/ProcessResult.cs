@@ -74,5 +74,17 @@ public class ProcessResult
         } 
     }
 
+    public JsonObject ODProcessResult
+    {
+        get
+        {
+            return new JsonObject() {
+                { "status",Status},
+                { "completedAt",CompletedAt},
+                { "resultMessage",ResultMessage}
+            };
+        }
+    }
+
     #endregion
 }

@@ -356,15 +356,6 @@
             Not In Use
             </summary>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Batches.ContactEditProvider.ExecuteAsync(System.Text.Json.JsonDocument,OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService)">
-            <summary>
-            Process the data
-            </summary>
-            <param name="jsonDocument"></param>
-            <param name="appUserService"></param>
-            <param name="d365WebApiService"></param>
-            <returns></returns>
-        </member>
         <member name="T:OFM.Infrastructure.WebAPI.Services.D365WebApi.D365AuthServiceMSAL">
             <summary>
             New and preferred Authentication Service with MSAL library
