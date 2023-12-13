@@ -29,7 +29,9 @@ public class D365WebAPIService : ID365WebApiService
             request.Headers.Add("Prefer", "odata.maxpagesize=" + pageSize.ToString());
 
         if (formatted)
-            request.Headers.Add("Prefer", "odata.include-annotations=OData.Community.Display.V1.FormattedValue");
+         // request.Headers.Add("Prefer", "odata.include-annotations=OData.Community.Display.V1.FormattedValue");
+            request.Headers.Add("Prefer", "odata.include-annotations=*");
+
 
         HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 

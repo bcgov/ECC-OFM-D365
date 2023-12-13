@@ -1,12 +1,19 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Web;
+using System.Xml;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 
@@ -226,87 +233,12 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        var localData = await GetData();
+     // var localData = await GetData();
+        var localData = await GetAllDataWithPagingCookie();
 
         var serializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
 
-        #region  Step 1: Create the email notifications as Completed - Pending Send
 
-        JsonArray recipientsList = [];
-
-        serializedData?.ForEach(contact =>
-        {
-            recipientsList.Add($"contacts({contact.contactid})");
-        });
-
-        string subject = string.Empty;
-        string emaildescription = string.Empty;
-
-        if (_processParams.Notification.TemplateId is not null) // Get template details to send bulk emails.
-        {
-            var localDataTemplate = await GetTemplateToSendEmail();
-
-            var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
-
-            if (serializedDataTemplate.Count > 0)
-            {
-                var templateobj = serializedDataTemplate.FirstOrDefault();
-                subject = templateobj.title;
-                emaildescription = templateobj.safehtml;
-            }
-        }
-
-        if (string.IsNullOrEmpty(subject))
-        {
-            subject = _processParams.Notification.Subject;
-        }
-        if (string.IsNullOrEmpty(emaildescription))
-        {
-            emaildescription = _processParams.Notification.EmailBody;
-        }
-
-        List<HttpRequestMessage> sendCreateEmailRequests = [];
-        serializedData?.ForEach(contact =>
-        {
-            sendCreateEmailRequests.Add(new CreateRequest("emails",
-                new JsonObject(){
-                        {"subject",subject },
-                        {"description",emaildescription },
-                        {"email_activity_parties", new JsonArray(){
-                            new JsonObject
-                            {
-                                {"partyid_systemuser@odata.bind", $"/systemusers({_processParams.Notification.SenderId})"},
-                                { "participationtypemask", 1 } //From Email
-                            },
-                            new JsonObject
-                            {
-                                { "partyid_contact@odata.bind", $"/contacts({contact.contactid})" },
-                                { "participationtypemask",   2 } //To Email                             
-                            }
-                        }},
-                        { "ofm_due_date", _processParams.Notification.DueDate?.ToString("yyyy-MM-dd") },
-                        { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"},
-
-                }));
-        });
-
-        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreateEmailRequests, new Guid(processParams.CallerObjectId.ToString()));
-
-        if (sendEmailBatchResult.Errors.Any())
-        {
-            var sendNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
-            _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
-
-            return sendNotificationError.SimpleProcessResult;
-        }
-
-        #endregion
-
-        #region Step 2: Update emails status.
-
-        await MarkEmailsAsComppleted(appUserService, d365WebApiService, processParams);
-
-        #endregion
 
         #region Step 3: Send the notifications
 
@@ -329,70 +261,163 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         _logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
 
         return result.SimpleProcessResult;
+
     }
+ 
 
-    #region Private methods
-
-    private async Task<ProcessData> GetTemplateToSendEmail()
+    private async Task<ProcessData> GetAllDataWithPagingCookie()
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TemplatetoRetrieveUri);
-
-        if (!response.IsSuccessStatusCode)
+        if (_data is null && _processParams is not null)
         {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Template to update with the server error {responseBody}", responseBody.CleanLog());
 
-            return await Task.FromResult(new ProcessData(string.Empty));
-        }
+            JsonNode d365Result = string.Empty;
 
-        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+            // *******************************************************************************************
+            int fetchCount = 5000;
+            int pageNumber = 1;
+            int recordCount = 0;
+            string pagingCookie = null;
 
-        JsonNode d365Result = string.Empty;
-        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-        {
-            if (currentValue?.AsArray().Count == 0)
+            var strCookieExtract = string.Empty;
+            var decodedCookie = string.Empty;
+            var decodedCookie2 = string.Empty;
+            string fetchXml_Cookie;
+
+            var fetchXml = $"""
+            <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false' >
+              <entity name='account' >
+                <attribute name='name' />
+                <attribute name='primarycontactid' />
+                <attribute name='telephone1' />
+                <attribute name='accountid' />
+                <order attribute='name' descending='false' />
+              </entity>
+            </fetch>
+            """;
+
+            while (true)
             {
-                _logger.LogInformation(CustomLogEvent.Process, "No template found with query {requestUri}", EmailsToUpdateRequestUri.CleanLog());
+
+                fetchXml_Cookie = CreateXml(fetchXml, pagingCookie, pageNumber, fetchCount);
+
+                var requestUri_Cookie = $"""
+								accounts?fetchXml={WebUtility.UrlEncode(fetchXml_Cookie)}
+								""";
+
+                requestUri_Cookie = requestUri_Cookie.CleanCRLF();
+
+                //var response_Cookie = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri_Cookie, isProcess: true);
+                var response_Cookie = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri_Cookie, formatted: true, isProcess: true);
+
+                var jsonObject_Cookie = await response_Cookie.Content.ReadFromJsonAsync<JsonObject>();
+
+
+                //concat json objects
+                var serializeOptions = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                };
+
+                string json_prev = JsonSerializer.Serialize(d365Result, serializeOptions);
+
+                if (jsonObject_Cookie?.TryGetPropertyValue("value", out var currentValue) == true)
+                {
+                    if (currentValue?.AsArray().Count == 0)
+                    {
+                        _logger.LogInformation(CustomLogEvent.Process, "No members on the contact list found with query {requestUri}", RequestUri.CleanLog());
+                    }
+                    d365Result = currentValue!;
+                }
+                string json_current = JsonSerializer.Serialize(d365Result, serializeOptions);
+
+                var JsonString_After_Concat = JsonConvert.SerializeObject(
+                                                 new[] { JsonConvert.DeserializeObject(json_prev),
+                                                         JsonConvert.DeserializeObject(json_current) });
+
+                var JsonObject_After_Concat = JsonConvert.DeserializeObject(JsonString_After_Concat);
+
+                //d365Result = (JsonNode)JsonObject_After_Concat;
+
+
+                // determine next fetch (if any)
+
+                bool isMoreRecords = false;
+
+                if (jsonObject_Cookie?.TryGetPropertyValue("@Microsoft.Dynamics.CRM.morerecords", out var moreRecords) == true)
+                {
+                    isMoreRecords = (bool)moreRecords!;
+                }
+
+                if (isMoreRecords)
+                {
+                    var strCookie = string.Empty;
+
+                    if (jsonObject_Cookie?.TryGetPropertyValue("@Microsoft.Dynamics.CRM.fetchxmlpagingcookie", out var pgCookie) == true)
+                    {
+                        strCookie = (string)pgCookie!;
+                    }
+                    strCookieExtract = strCookie?.Substring(strCookie.IndexOf("%253c"), strCookie.LastIndexOf("\" istracking") - strCookie.IndexOf("%253c"));
+                    decodedCookie = HttpUtility.UrlDecode(strCookieExtract);
+                    decodedCookie = HttpUtility.UrlDecode(decodedCookie);
+
+                    pageNumber++;
+                    pagingCookie = decodedCookie;
+                }
+                else
+                {
+                    break;
+                }
             }
-            d365Result = currentValue!;
+
+            // *******************************************************************************************
+
+            _data = new ProcessData(d365Result);
+
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data?.Data.ToString().CleanLog());
         }
 
-        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
-
-        return await Task.FromResult(new ProcessData(d365Result));
+        return await Task.FromResult(_data!);
     }
 
-    private async Task<JsonObject> MarkEmailsAsComppleted(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+
+    public static string CreateXml(string xml, string cookie, int page, int count)
     {
-        var localDataStep2 = await GetDataToUpdate();
+        StringReader stringReader = new StringReader(xml);
+        var reader = new XmlTextReader(stringReader);
 
-        var serializedDataStep2 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep2.Data.ToString());
+        // Load document
+        XmlDocument doc = new XmlDocument();
+        doc.Load(reader);
 
-        var updateEmailRequests = new List<HttpRequestMessage>() { };
-        serializedDataStep2.ForEach(email =>
+        XmlAttributeCollection attrs = doc.DocumentElement.Attributes;
+
+        if (cookie != null)
         {
-            var emailToUpdate = new JsonObject {
-                { "ofm_sent_on", DateTime.UtcNow },
-                { "statuscode", 6 },   // 6 = Pending Send 
-                { "statecode", 1 }     // 1 = Completed
-             };
-
-            updateEmailRequests.Add(new UpdateRequest(new EntityReference("emails", new Guid(email.activityid)), emailToUpdate));
-        });
-
-        var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);
-        if (step2BatchResult.Errors.Any())
-        {
-            var errors = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
-            _logger.LogError(CustomLogEvent.Process, "Failed to update email notifications with an error: {error}", JsonValue.Create(errors)!.ToString());
-
-            return errors.SimpleProcessResult;
+            XmlAttribute pagingAttr = doc.CreateAttribute("paging-cookie");
+            pagingAttr.Value = cookie;
+            attrs.Append(pagingAttr);
         }
 
-        return step2BatchResult.SimpleBatchResult;
+        XmlAttribute pageAttr = doc.CreateAttribute("page");
+        pageAttr.Value = System.Convert.ToString(page);
+        attrs.Append(pageAttr);
+
+        XmlAttribute countAttr = doc.CreateAttribute("count");
+        countAttr.Value = System.Convert.ToString(count);
+        attrs.Append(countAttr);
+
+        StringBuilder sb = new StringBuilder(1024);
+        StringWriter stringWriter = new StringWriter(sb);
+
+        XmlTextWriter writer = new XmlTextWriter(stringWriter);
+        doc.WriteTo(writer);
+        writer.Close();
+
+        return sb.ToString();
     }
 
-    #endregion
+
 }
