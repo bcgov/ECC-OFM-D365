@@ -5,6 +5,7 @@ using OFM.Infrastructure.WebAPI.Caching;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
+using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Documents;
 using OFM.Infrastructure.WebAPI.Services.Processes;
@@ -48,6 +49,10 @@ services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
+
+services.AddScoped<ID365BatchService, D365BatchService>();
+services.AddScoped<ID365BatchProvider, BatchProvider>();
+services.AddScoped<ID365BatchProvider, ContactEditProvider>();
 
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();

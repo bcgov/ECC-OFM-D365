@@ -10,6 +10,8 @@ using OFM.Infrastructure.WebAPI.Services.Processes;
 namespace OFM.Infrastructure.WebAPI.Handlers;
 public static class DocumentsHandlers
 {
+    private static bool uniqueFileNames;
+
     public static async Task<Results<BadRequest<string>, ProblemHttpResult, Ok<JsonObject>>> GetAsync(
         ID365DocumentService documentService,
         string documentId)
@@ -70,8 +72,12 @@ public static class DocumentsHandlers
         using (logger.BeginScope("ScopeDocument"))
         {
             if (fileMapping.Length == 0 || !files.Any()) { return TypedResults.BadRequest("Invalid Query."); }
-           
+
             var mappings = JsonSerializer.Deserialize<List<FileMapping>>(fileMapping)?.ToList();
+            if (mappings is null || !mappings.Any()) return TypedResults.BadRequest("The fileMapping is not valid.");
+     
+            var hasUniqueNames = mappings.GroupBy(f => f.ofm_subject).Any(c => c.Count() != 1);
+            if (hasUniqueNames) return TypedResults.BadRequest("Each filename must be unique.");
 
             var uploadResult = await documentService.UploadAsync(files, mappings!);
 

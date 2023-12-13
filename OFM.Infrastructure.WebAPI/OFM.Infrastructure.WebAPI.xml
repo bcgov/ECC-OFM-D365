@@ -21,6 +21,43 @@
             <param name="value"></param>
             <returns></returns>
         </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.BatchOperationsHandlers.BatchOperationsAsync(OFM.Infrastructure.WebAPI.Services.Batches.ID365BatchService,Microsoft.Extensions.Logging.ILoggerFactory,System.Object)">
+             <summary>
+             Batch Operation to perform multiple actions
+             </summary>
+             <param name="batchService"></param>
+             <param name="loggerFactory"></param>
+             <param name="jsonBody"></param>
+             <returns></returns>
+             <remarks>
+             Sample request:
+            
+             POST api/batches
+            
+             {
+                "batchTypeId":2,
+                "feature": "AccountManagement",
+                "function":"UserEdit",
+                "actionMode": "Update",
+                "scope": "Parent-Child",
+                "data":{
+                    "contact":{
+                        "ofm_first_name":"first",
+                        "ofm_last_name": "last",
+                        "entityNameSet":"contacts",
+                        "entityID":"00000000-0000-0000-0000-000000000000",
+                        "emailaddress1": "test.user@cgi.com",
+                        "ofm_portal_role": "1,2,3,4",
+                        "actionMode":"Update"
+                    },
+                    "ofm_bceid_facility":[
+                        {"entityID":"00000000-0000-0000-0000-000000000000","ofm_portal_access":true,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"},
+                        {"entityID":"00000000-0000-0000-0000-000000000000","ofm_portal_access":false,"entityNameSet":"ofm_bceid_facilities","actionMode":"Update"}
+                    ]
+                } 
+             }
+             </remarks>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.DocumentsHandlers.PostAsync(OFM.Infrastructure.WebAPI.Services.Documents.ID365DocumentService,Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.AspNetCore.Http.IFormFileCollection,System.String)">
              <summary>
              Upload multiple documents "<see cref="T:OFM.Infrastructure.WebAPI.Models.FileMapping"/>".
