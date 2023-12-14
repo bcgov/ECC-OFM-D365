@@ -352,7 +352,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
             var strCookieExtract = string.Empty;
             var decodedCookie = string.Empty;
-            string fetchXml_Cookie;
+            string fetchXmlCookie;
 
             var fetchXml = $"""
             <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" >
@@ -369,25 +369,25 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             while (true)
             {
 
-                fetchXml_Cookie = CreateXml(fetchXml, pagingCookie, pageNumber, fetchCount);
+                fetchXmlCookie = CreateXml(fetchXml, pagingCookie, pageNumber, fetchCount);
 
-                var requestUri_Cookie = $"""
-								accounts?fetchXml={WebUtility.UrlEncode(fetchXml_Cookie)}
+                var requestUri = $"""
+								accounts?fetchXml={WebUtility.UrlEncode(fetchXmlCookie)}
 								""";
 
-                requestUri_Cookie = requestUri_Cookie.CleanCRLF();
+                requestUri = requestUri.CleanCRLF();
 
-                var response_Cookie = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri_Cookie, formatted: true, isProcess: true);
+                var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri, formatted: true, isProcess: true);
 
-                if (!response_Cookie.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var responseBody = await response_Cookie.Content.ReadAsStringAsync();
+                    var responseBody = await response.Content.ReadAsStringAsync();
                     _logger.LogError(CustomLogEvent.Process, "Failed to query records with the server error {responseBody}", responseBody.CleanLog());
 
                     return await Task.FromResult(new ProcessData(string.Empty));
                 }
 
-                var jsonObject_Cookie = await response_Cookie.Content.ReadFromJsonAsync<JsonObject>();
+                var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
 
 
                 // concat json objects to assemble all the records fetched over iterations
@@ -397,37 +397,37 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                     Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                 };
 
-                string json_prev = JsonSerializer.Serialize(d365Result, serializeOptions);
+                string jsonPrev = JsonSerializer.Serialize(d365Result, serializeOptions);
 
-                if (jsonObject_Cookie?.TryGetPropertyValue("value", out var currentValue) == true)
+                if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
                 {
                     if (currentValue?.AsArray().Count == 0)
                     {
-                        _logger.LogInformation(CustomLogEvent.Process, "No records found with query {requestUri_Cookie}", requestUri_Cookie.CleanLog());
+                        _logger.LogInformation(CustomLogEvent.Process, "No records found with query {requestUri}", requestUri.CleanLog());
                     }
                     d365Result = currentValue!;
                 }
 
-                string json_current = JsonSerializer.Serialize(d365Result, serializeOptions);
+                string jsonCurrent = JsonSerializer.Serialize(d365Result, serializeOptions);
 
-                string json_prev_tmp, json_current_tmp;
+                string jsonPrevTmp, jsonCurrentTmp;
                 if (iteration == 0)
                 {
-                    json_prev_tmp = null;
+                    jsonPrevTmp = null;
 
-                    json_current_tmp = json_current.Remove(json_current.IndexOf("["), 1);                    // Remove First Occurrence
-                    json_current_tmp = json_current_tmp.Remove(json_current_tmp.LastIndexOf("]"), 1);        // Remove Last Occurrence 
+                    jsonCurrentTmp = jsonCurrent.Remove(jsonCurrent.IndexOf("["), 1);                  // Remove First Occurrence
+                    jsonCurrentTmp = jsonCurrentTmp.Remove(jsonCurrentTmp.LastIndexOf("]"), 1);        // Remove Last Occurrence 
                 }
                 else
                 {
-                    json_prev_tmp = json_prev.Remove(json_prev.IndexOf("["), 1);                             // Remove First Occurrence
-                    json_prev_tmp = json_prev_tmp.Remove(json_prev_tmp.LastIndexOf("]"), 1);                 // Remove Last Occurrence 
+                    jsonPrevTmp = jsonPrev.Remove(jsonPrev.IndexOf("["), 1);                           // Remove First Occurrence
+                    jsonPrevTmp = jsonPrevTmp.Remove(jsonPrevTmp.LastIndexOf("]"), 1);                 // Remove Last Occurrence 
 
-                    json_current_tmp = json_current.Remove(json_current.IndexOf("["), 1);                    // Remove First Occurrence
-                    json_current_tmp = json_current_tmp.Remove(json_current_tmp.LastIndexOf("]"), 1);        // Remove Last Occurrence 
+                    jsonCurrentTmp = jsonCurrent.Remove(jsonCurrent.IndexOf("["), 1);                  // Remove First Occurrence
+                    jsonCurrentTmp = jsonCurrentTmp.Remove(jsonCurrentTmp.LastIndexOf("]"), 1);        // Remove Last Occurrence 
                 }
 
-                string jsonArrayString = (iteration == 0) ? json_current : "[" + json_prev_tmp + "," + json_current_tmp + "]";
+                string jsonArrayString = (iteration == 0) ? jsonCurrent : "[" + jsonPrevTmp + "," + jsonCurrentTmp + "]";
 
                 d365Result = JsonObject.Parse(jsonArrayString).AsArray();
 
@@ -438,7 +438,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
                 bool isMoreRecords = false;
 
-                if (jsonObject_Cookie?.TryGetPropertyValue("@Microsoft.Dynamics.CRM.morerecords", out var moreRecords) == true)
+                if (jsonObject?.TryGetPropertyValue("@Microsoft.Dynamics.CRM.morerecords", out var moreRecords) == true)
                 {
                     isMoreRecords = (bool)moreRecords!;
                 }
@@ -447,7 +447,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                 {
                     var strCookie = string.Empty;
 
-                    if (jsonObject_Cookie?.TryGetPropertyValue("@Microsoft.Dynamics.CRM.fetchxmlpagingcookie", out var pgCookie) == true)
+                    if (jsonObject?.TryGetPropertyValue("@Microsoft.Dynamics.CRM.fetchxmlpagingcookie", out var pgCookie) == true)
                     {
                         strCookie = (string)pgCookie!;
                     }
