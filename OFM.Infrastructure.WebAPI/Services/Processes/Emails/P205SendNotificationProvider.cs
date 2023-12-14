@@ -13,6 +13,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Web;
 using System.Xml;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
@@ -233,8 +235,8 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-     // var localData = await GetData();
-        var localData = await GetAllDataWithPagingCookie();
+        // var localData = await GetData();
+        var localData = await GetAllRecordsWithPagingCookie();
 
         var serializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
 
@@ -263,9 +265,76 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         return result.SimpleProcessResult;
 
     }
- 
 
-    private async Task<ProcessData> GetAllDataWithPagingCookie()
+    #region Private methods
+
+    private async Task<ProcessData> GetTemplateToSendEmail()
+    {
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TemplatetoRetrieveUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Template to update with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No template found with query {requestUri}", EmailsToUpdateRequestUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
+
+    private async Task<JsonObject> MarkEmailsAsComppleted(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    {
+        var localDataStep2 = await GetDataToUpdate();
+
+        var serializedDataStep2 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep2.Data.ToString());
+
+        var updateEmailRequests = new List<HttpRequestMessage>() { };
+        serializedDataStep2.ForEach(email =>
+        {
+            var emailToUpdate = new JsonObject {
+                { "ofm_sent_on", DateTime.UtcNow },
+                { "statuscode", 6 },   // 6 = Pending Send 
+                { "statecode", 1 }     // 1 = Completed
+             };
+
+            updateEmailRequests.Add(new UpdateRequest(new EntityReference("emails", new Guid(email.activityid)), emailToUpdate));
+        });
+
+        var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);
+        if (step2BatchResult.Errors.Any())
+        {
+            var errors = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to update email notifications with an error: {error}", JsonValue.Create(errors)!.ToString());
+
+            return errors.SimpleProcessResult;
+        }
+
+        return step2BatchResult.SimpleBatchResult;
+    }
+
+    #endregion
+
+    
+    private async Task<ProcessData> GetAllRecordsWithPagingCookie()
+ // TODO - move some parts out of the function to generalize it in a format tentatively proposed as follows:
+ // private async Task<ProcessData> GetAllRecordsWithPagingCookie(string entitySetName, string fetchXML, int fetchCount = 5000)   
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
 
@@ -273,26 +342,26 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         {
 
             JsonNode d365Result = string.Empty;
-
+  
             // *******************************************************************************************
             int fetchCount = 5000;
             int pageNumber = 1;
             int recordCount = 0;
             string pagingCookie = null;
+            int iteration = 0;
 
             var strCookieExtract = string.Empty;
             var decodedCookie = string.Empty;
-            var decodedCookie2 = string.Empty;
             string fetchXml_Cookie;
 
             var fetchXml = $"""
-            <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false' >
-              <entity name='account' >
-                <attribute name='name' />
-                <attribute name='primarycontactid' />
-                <attribute name='telephone1' />
-                <attribute name='accountid' />
-                <order attribute='name' descending='false' />
+            <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" >
+              <entity name="account" >
+                <attribute name="name" />
+                <attribute name="primarycontactid" />
+                <attribute name="telephone1" />
+                <attribute name="accountid" />
+                <order attribute="name" descending="false" />
               </entity>
             </fetch>
             """;
@@ -308,13 +377,20 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
                 requestUri_Cookie = requestUri_Cookie.CleanCRLF();
 
-                //var response_Cookie = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri_Cookie, isProcess: true);
                 var response_Cookie = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri_Cookie, formatted: true, isProcess: true);
+
+                if (!response_Cookie.IsSuccessStatusCode)
+                {
+                    var responseBody = await response_Cookie.Content.ReadAsStringAsync();
+                    _logger.LogError(CustomLogEvent.Process, "Failed to query records with the server error {responseBody}", responseBody.CleanLog());
+
+                    return await Task.FromResult(new ProcessData(string.Empty));
+                }
 
                 var jsonObject_Cookie = await response_Cookie.Content.ReadFromJsonAsync<JsonObject>();
 
 
-                //concat json objects
+                // concat json objects to assemble all the records fetched over iterations
                 var serializeOptions = new JsonSerializerOptions
                 {
                     WriteIndented = true,
@@ -327,22 +403,38 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                 {
                     if (currentValue?.AsArray().Count == 0)
                     {
-                        _logger.LogInformation(CustomLogEvent.Process, "No members on the contact list found with query {requestUri}", RequestUri.CleanLog());
+                        _logger.LogInformation(CustomLogEvent.Process, "No records found with query {requestUri_Cookie}", requestUri_Cookie.CleanLog());
                     }
                     d365Result = currentValue!;
                 }
+
                 string json_current = JsonSerializer.Serialize(d365Result, serializeOptions);
 
-                var JsonString_After_Concat = JsonConvert.SerializeObject(
-                                                 new[] { JsonConvert.DeserializeObject(json_prev),
-                                                         JsonConvert.DeserializeObject(json_current) });
+                string json_prev_tmp, json_current_tmp;
+                if (iteration == 0)
+                {
+                    json_prev_tmp = null;
 
-                var JsonObject_After_Concat = JsonConvert.DeserializeObject(JsonString_After_Concat);
+                    json_current_tmp = json_current.Remove(json_current.IndexOf("["), 1);                    // Remove First Occurrence
+                    json_current_tmp = json_current_tmp.Remove(json_current_tmp.LastIndexOf("]"), 1);        // Remove Last Occurrence 
+                }
+                else
+                {
+                    json_prev_tmp = json_prev.Remove(json_prev.IndexOf("["), 1);                             // Remove First Occurrence
+                    json_prev_tmp = json_prev_tmp.Remove(json_prev_tmp.LastIndexOf("]"), 1);                 // Remove Last Occurrence 
 
-                //d365Result = (JsonNode)JsonObject_After_Concat;
+                    json_current_tmp = json_current.Remove(json_current.IndexOf("["), 1);                    // Remove First Occurrence
+                    json_current_tmp = json_current_tmp.Remove(json_current_tmp.LastIndexOf("]"), 1);        // Remove Last Occurrence 
+                }
+
+                string jsonArrayString = (iteration == 0) ? json_current : "[" + json_prev_tmp + "," + json_current_tmp + "]";
+
+                d365Result = JsonObject.Parse(jsonArrayString).AsArray();
+
+                recordCount = d365Result.AsArray().Count();
 
 
-                // determine next fetch (if any)
+                // determine next fetch (if any) based on paging cookie
 
                 bool isMoreRecords = false;
 
@@ -365,6 +457,8 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
                     pageNumber++;
                     pagingCookie = decodedCookie;
+
+                    iteration++;
                 }
                 else
                 {
