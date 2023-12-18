@@ -65,7 +65,7 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
                             Id = localPluginContext.Target.Id,
                             OfM_Operation_From_Time = operations_From_Hours,
                             OfM_Operations_To_Time = operations_To_Hours,
-                            OfM_Care_Type = isFullTime ? ECc_Care_Types.Fulltime : ECc_Care_Types.Parttime
+                            OfM_Care_Type = isFullTime ? ECc_Care_Types.FullTime : ECc_Care_Types.PartTime
                         };
 
                         UpdateRequest updateRequest = new UpdateRequest { Target = entity };
@@ -93,7 +93,7 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
                             Id = localPluginContext.Target.Id,
                             OfM_Operation_Hours_From = operationHoursFrom,
                             OfM_Operation_Hours_To = operationHoursTo,
-                            OfM_Care_Type = timeSpan ? ECc_Care_Types.Fulltime : ECc_Care_Types.Parttime
+                            OfM_Care_Type = timeSpan ? ECc_Care_Types.FullTime : ECc_Care_Types.PartTime
                         };
 
                         UpdateRequest updateRequest = new UpdateRequest { Target = entity };
