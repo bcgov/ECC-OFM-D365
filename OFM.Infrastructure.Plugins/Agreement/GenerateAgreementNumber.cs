@@ -103,7 +103,7 @@ namespace OFM.Infrastructure.Plugins.Agreement
                             //generate the Funding Agreement Num
                             //caption is 2024/25
                             var yearNum = fiscalYear.GetAttributeValue<string>(ECC.Core.DataContext.OfM_Fiscal_Year.Fields.OfM_Caption).Substring(2,2);
-                            var versionNum = "01"; //Start with 01
+                            var versionNum = "00"; //Start with 00
                             newApplicationFundingAgreementNum = "OFM" + "-" + yearNum + agreementNumSeed.ToString("D6") + "-" + versionNum;
 
                         }
