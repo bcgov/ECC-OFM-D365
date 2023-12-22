@@ -129,6 +129,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Funding"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Funding> OfM_FundingSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.OfM_Funding>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Licence"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Licence> OfM_LicenceSet

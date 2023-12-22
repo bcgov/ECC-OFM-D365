@@ -187,37 +187,37 @@ namespace ECC.Core.DataContext
 		Customer = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Influencer = 4,
+		Influencer = 6,
 		
 		/// <summary>
 		/// The insurance provider.
 		/// </summary>
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Insurancecarrier = 5,
+		Insurancecarrier = 13,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Investor = 6,
+		Investor = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Other = 13,
+		Other = 12,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Partner = 7,
+		Partner = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Press = 8,
+		Press = 7,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Prospect = 9,
+		Prospect = 8,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Reseller = 10,
+		Reseller = 9,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Supplier = 11,
+		Supplier = 10,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Vendor = 12,
+		Vendor = 11,
 	}
 	
 	/// <summary>
@@ -2550,6 +2550,29 @@ namespace ECC.Core.DataContext
 		NotatCompany = 1,
 	}
 	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum Contact_OfM_Supplier_Issue
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		IntegrationErrorOccurred = 610410005,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		NewECASUser = 610410000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		SINRequired = 610410006,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		SupplierVerified = 610410004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		UpdateRequested = 610410003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		VerificationRequired = 610410001,
+	}
+	
 	/// <summary>
 	/// Payment terms for the contact.
 	/// </summary>
@@ -3019,6 +3042,29 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Business Types
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ECc_Business_Type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		LocalGovernment = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		NonProfitSociety = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		PublicInstitutionCollegeUniversity = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		RegisteredCompany = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		SoleProprietororPartnership = 5,
+	}
+	
+	/// <summary>
 	/// Care Types
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -3026,10 +3072,10 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Fulltime = 1,
+		FullTime = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Parttime = 2,
+		PartTime = 2,
 	}
 	
 	/// <summary>
@@ -3066,7 +3112,7 @@ namespace ECC.Core.DataContext
 		FamilyChildCare = 11,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		GroupChildCare30monthstoSchoolAge = 2,
+		GroupChildCare30MonthstoSchoolAge = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		GroupChildCareSchoolAgeGroup1 = 7,
@@ -3078,7 +3124,7 @@ namespace ECC.Core.DataContext
 		GroupChildCareSchoolAgeGroup3 = 9,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		GroupChildCareunder36months = 1,
+		GroupChildCareUnder36Months = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		GroupMultiAgeChildCare = 3,
@@ -3087,13 +3133,13 @@ namespace ECC.Core.DataContext
 		InHomeMultiAgeChildCare = 10,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Preschool4hoursmaxGroup1 = 4,
+		Preschool4HoursMaxGroup1 = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Preschool4hoursmaxGroup2 = 5,
+		Preschool4HoursMaxGroup2 = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Preschool4hoursmaxGroup3 = 6,
+		Preschool4HoursMaxGroup3 = 6,
 	}
 	
 	/// <summary>
@@ -9068,6 +9114,9 @@ namespace ECC.Core.DataContext
 		DemandClassification = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		ICDRouteToQueue = 20,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Intake = 11,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -9751,10 +9800,10 @@ namespace ECC.Core.DataContext
 		Approved = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Draft = 1,
+		Cancelled = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Inactive = 2,
+		Draft = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		InReview = 4,
@@ -9962,16 +10011,44 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Ownedwithmortgage = 2,
+		OwnedWithMortgage = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Ownedwithoutmortgage = 3,
+		OwnedWithoutMortgage = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		Providedfreeofcharge = 4,
+		ProvidedFreeofCharge = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		RentLease = 1,
+	}
+	
+	/// <summary>
+	/// Status of the Funding
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Funding_StateCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Funding
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum OfM_Funding_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Inactive = 2,
 	}
 	
 	/// <summary>
@@ -10112,6 +10189,23 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Qualify = 0,
+	}
+	
+	/// <summary>
+	/// Application Based Access Control Mode. 0 is Disabled, 1 is Enabled , 2 is audit mode
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum Organization_ApplicationBasedAccessControlMode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		AuditMode = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Disabled = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Enabled = 1,
 	}
 	
 	/// <summary>
@@ -10750,6 +10844,17 @@ namespace ECC.Core.DataContext
 		Rectify = 1,
 	}
 	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum QuoteCreationMethod
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Revision = 776160001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Unknown = 776160000,
+	}
+	
 	/// <summary>
 	/// Choose when the appointment should end
 	/// </summary>
@@ -10892,6 +10997,17 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Connectionreference = 2,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum SalesOrderCreationMethod
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		Unknown = 776160000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		WinQuote = 776160001,
 	}
 	
 	/// <summary>
@@ -12223,16 +12339,16 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		AADOfficeGroup = 3,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		AADSecurityGroup = 2,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Access = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		OfficeGroup = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		Owner = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		SecurityGroup = 2,
 	}
 	
 	/// <summary>
