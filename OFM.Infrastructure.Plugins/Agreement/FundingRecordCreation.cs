@@ -76,11 +76,11 @@ namespace OFM.Infrastructure.Plugins.Agreement
                         EntityCollection fundingRecords = localPluginContext.PluginUserService.RetrieveMultiple(new FetchExpression(fetchXml));
 
                         //localPluginContext.Trace("***Debug ofm_applicationid:*** " + applicationId);
-                        //localPluginContext.Trace("***Debug fundingRecords Count:*** " + fundingRecords[0]);
+                        localPluginContext.Trace("***Debug fundingRecords Count:*** " + fundingRecords.Entities.Count);
                         var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ECC.Core.DataContext.OfM_Application.Fields.OfM_Funding_Agreement_Number);
 
                         //if there is a funding record associated and funding agreement number is not empty -> Resubmission
-                        if (fundingRecords[0]!= null && !string.IsNullOrEmpty(ofmFundingAgreementNumber))
+                        if (fundingRecords.Entities.Count > 0 &&  fundingRecords[0]!= null && !string.IsNullOrEmpty(ofmFundingAgreementNumber))
                         {
                             var id = fundingRecords[0].Id;
                             //localPluginContext.Trace("***Debug resubmission:*** " + id);
