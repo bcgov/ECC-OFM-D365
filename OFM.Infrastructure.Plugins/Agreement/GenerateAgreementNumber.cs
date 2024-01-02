@@ -56,7 +56,7 @@ namespace OFM.Infrastructure.Plugins.Agreement
 
                 if (currentImage != null)
                 {
-                    var applicationStatus = entity.GetAttributeValue<OptionSetValue>(ECC.Core.DataContext.OfM_Application.Fields.StatusCode).Value;
+                    var applicationStatus = entity.GetAttributeValue<OptionSetValue>(ofm_application.Fields.statuscode).Value;
                     localPluginContext.Trace("***Debug applicationStatus:*** " + applicationStatus);
                     if (applicationStatus == 3)
                     {
@@ -64,7 +64,7 @@ namespace OFM.Infrastructure.Plugins.Agreement
                         string newApplicationFundingAgreementNum = string.Empty;
 
                         //check if the application is first submission - ofm_funding_agreement_number
-                        var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ECC.Core.DataContext.OfM_Application.Fields.OfM_Funding_Agreement_Number);
+                        var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ofm_application.Fields.ofm_funding_agreement_number);
                         localPluginContext.Trace("***Debug ofmFundingAgreementNumber :*** " + ofmFundingAgreementNumber);
                         if (string.IsNullOrEmpty(ofmFundingAgreementNumber))
                         {
@@ -90,7 +90,7 @@ namespace OFM.Infrastructure.Plugins.Agreement
 
                             EntityCollection fiscalYears = localPluginContext.PluginUserService.RetrieveMultiple(new FetchExpression(fetchXml));
                             Entity fiscalYear = fiscalYears[0]; //the first return result
-                            var agreementNumSeed = fiscalYear.GetAttributeValue<int>(ECC.Core.DataContext.OfM_Fiscal_Year.Fields.OfM_Agreement_Number_Seed);
+                            var agreementNumSeed = fiscalYear.GetAttributeValue<int>(ofm_fiscal_year.Fields.ofm_agreement_number_seed);
 
                             localPluginContext.Trace("***Debug first submission :*** " + agreementNumSeed);
 
@@ -102,7 +102,7 @@ namespace OFM.Infrastructure.Plugins.Agreement
 
                             //generate the Funding Agreement Num
                             //caption is 2024/25
-                            var yearNum = fiscalYear.GetAttributeValue<string>(ECC.Core.DataContext.OfM_Fiscal_Year.Fields.OfM_Caption).Substring(2,2);
+                            var yearNum = fiscalYear.GetAttributeValue<string>(ofm_fiscal_year.Fields.ofm_caption).Substring(2,2);
                             var versionNum = "00"; //Start with 00
                             newApplicationFundingAgreementNum = "OFM" + "-" + yearNum + agreementNumSeed.ToString("D6") + "-" + versionNum;
 

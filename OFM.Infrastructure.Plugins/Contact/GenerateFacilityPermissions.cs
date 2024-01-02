@@ -34,58 +34,50 @@ namespace OFM.Infrastructure.Plugins.Contact
             }
 
             localPluginContext.Trace("Start GenerateFacilityPremissions Plug-in");
-            //localPluginContext.Trace($"localPluginContext.PluginExecutionContext.Stage {localPluginContext.PluginExecutionContext.Stage}");
 
-            if (localPluginContext.Target.Contains(ECC.Core.DataContext.Contact.Fields.ParentCustomerId))
+            if (localPluginContext.Target.Contains(ECC.Core.DataContext.Contact.Fields.parentcustomerid))
             {
                 // Getting latest data to get the value
-                //var oldOrganization = localPluginContext.Current.GetAttributeValue<EntityReference>(ECC.Core.DataContext.Contact.Fields.ParentCustomerId);
-                var newOrganization = localPluginContext.Target.GetAttributeValue<EntityReference>(ECC.Core.DataContext.Contact.Fields.ParentCustomerId);
-
-                //localPluginContext.Trace($"Old organization {oldOrganization.Id}");
-                //localPluginContext.Trace($"New organization {newOrganization.Id}");
+                var newOrganization = localPluginContext.Target.GetAttributeValue<EntityReference>(ECC.Core.DataContext.Contact.Fields.parentcustomerid);
 
                 using (var crmContext = new DataverseContext(localPluginContext.PluginUserService))
                 {
-                    var oldPermissions = crmContext.OfM_BcEId_FacilitySet.Where(permission => permission.OfM_BcEId.Id == localPluginContext.Target.Id).ToList();
+                    var oldPermissions = crmContext.ofm_bceid_facilitySet.Where(permission => permission.ofm_bceid.Id == localPluginContext.Target.Id).ToList();
                     localPluginContext.Trace($"Total Old permissions count {oldPermissions.Count}");
 
                     oldPermissions.ForEach(record =>
                     {
-                        if (record.Attributes.Contains(OfM_BcEId_Facility.Fields.StatusCode))
+                        if (record.Attributes.Contains(ofm_bceid_facility.Fields.statuscode))
                         {
-                            var entity = new OfM_BcEId_Facility
+                            var entity = new ofm_bceid_facility
                             {
                                 Id = record.Id,
-                                StateCode = OfM_BcEId_Facility_StateCode.Inactive,
-                                StatusCode = OfM_BcEId_Facility_StatusCode.Inactive
+                                statecode = ofm_bceid_facility_statecode.Inactive,
+                                statuscode = ofm_bceid_facility_StatusCode.Inactive
                             };
 
                             UpdateRequest updateRequest = new UpdateRequest { Target = entity };
                             crmContext.Execute(updateRequest);
 
-                            //localPluginContext.Trace($"Facility {record.OfM_Facility.Name} removed from permissions for contact {localPluginContext.Target.Id}");
                         }
                     });
 
-                    var newFacilityPermissions = crmContext.AccountSet.Where(facility => facility.ParentAccountId.Id == newOrganization.Id).ToList();
+                    var newFacilityPermissions = crmContext.AccountSet.Where(facility => facility.parentaccountid.Id == newOrganization.Id).ToList();
                     localPluginContext.Trace($"Total New child facilities count {newFacilityPermissions.Count}");
 
                     newFacilityPermissions.ForEach(record =>
                     {
-                        if (record.Attributes.Contains(Account.Fields.StatusCode) &&
-                            record.GetAttributeValue<OptionSetValue>(Account.Fields.StatusCode).Value == Convert.ToInt32(Account_StatusCode.Active))
+                        if (record.Attributes.Contains(Account.Fields.statuscode) &&
+                            record.GetAttributeValue<OptionSetValue>(Account.Fields.statuscode).Value == Convert.ToInt32(Account_StatusCode.Active))
                         {
-                            var entity = new OfM_BcEId_Facility
+                            var entity = new ofm_bceid_facility
                             {
-                                OfM_BcEId = new EntityReference(ECC.Core.DataContext.Contact.EntityLogicalName, localPluginContext.Target.Id),
-                                OfM_Facility = new EntityReference(Account.EntityLogicalName, record.Id)
+                                ofm_bceid = new EntityReference(ECC.Core.DataContext.Contact.EntityLogicalName, localPluginContext.Target.Id),
+                                ofm_facility = new EntityReference(Account.EntityLogicalName, record.Id)
                             };
 
                             CreateRequest createRequest = new CreateRequest { Target = entity };
                             crmContext.Execute(createRequest);
-
-                            //localPluginContext.Trace($"Facility {record.Id} added to permissions for contact {localPluginContext.Target.Id}");
                         }
                     });
 

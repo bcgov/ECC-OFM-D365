@@ -48,8 +48,8 @@ namespace OFM.Infrastructure.Plugins.Agreement
 
                 if (currentImage != null)
                 {
-                    var applicationStatus = entity.GetAttributeValue<OptionSetValue>(ECC.Core.DataContext.OfM_Application.Fields.StatusCode).Value;
-                    var applicationId = entity.GetAttributeValue<Guid>(ECC.Core.DataContext.OfM_Application.Fields.Id);
+                    var applicationStatus = entity.GetAttributeValue<OptionSetValue>(ofm_application.Fields.statuscode).Value;
+                    var applicationId = entity.GetAttributeValue<Guid>(ofm_application.Fields.Id);
                     localPluginContext.Trace("***Debug applicationStatus:*** " + applicationStatus);
 
                     if (applicationStatus == 3)
@@ -77,7 +77,7 @@ namespace OFM.Infrastructure.Plugins.Agreement
 
                         //localPluginContext.Trace("***Debug ofm_applicationid:*** " + applicationId);
                         //localPluginContext.Trace("***Debug fundingRecords Count:*** " + fundingRecords[0]);
-                        var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ECC.Core.DataContext.OfM_Application.Fields.OfM_Funding_Agreement_Number);
+                        var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ofm_application.Fields.ofm_funding_agreement_number);
 
                         //if there is a funding record associated and funding agreement number is not empty -> Resubmission
                         if (fundingRecords[0]!= null && !string.IsNullOrEmpty(ofmFundingAgreementNumber))

@@ -31,7 +31,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Common
 
             using (var crmContext = new DataverseContext(service))
             {
-                var records = crmContext.TeamSet.Where(r => r.Name == this.teamName.Get(executionContext)).ToList();
+                var records = crmContext.TeamSet.Where(r => r.name == this.teamName.Get(executionContext)).ToList();
 
                 if (records.Count == 1)
                 {

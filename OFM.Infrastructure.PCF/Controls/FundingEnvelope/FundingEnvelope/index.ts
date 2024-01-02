@@ -69,7 +69,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
     private renderControl(context: ComponentFramework.Context<IInputs>) : React.ReactElement  {
 
         let isReadOnly = context.mode.isControlDisabled;
-        let isMasked = context.mode.isVisible;;
+        let isMasked = context.mode.isVisible;
 
         if(context.parameters.field0.security){
             isReadOnly = isReadOnly || !context.parameters.field0.security.editable;

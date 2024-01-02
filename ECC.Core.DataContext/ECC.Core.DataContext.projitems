@@ -17,7 +17,4 @@
   <ItemGroup>
     <Content Include="$(MSBuildThisFileDirectory)generatorSettings.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Messages\" />
-  </ItemGroup>
 </Project>
