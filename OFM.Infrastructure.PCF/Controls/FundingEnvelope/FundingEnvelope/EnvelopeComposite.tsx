@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { IButtonStyles, IIconStyles, IStackStyles, Label, Stack, TextField } from '@fluentui/react';
+import { IStackStyles, Label, Stack, TextField } from '@fluentui/react';
 import { EnvelopeField } from './EnvelopeField';
+
+const stackTokens = { childrenGap: 15 };
 
 export interface IEnvelopeField{
     control : ComponentFramework.PropertyTypes.NumberProperty;
@@ -53,7 +55,7 @@ export const EnvelopeCompositeControl = React.memo(
     const inflationRate = 1.03;
 
     return (
-      <Stack>
+      <Stack tokens={stackTokens}>
         <Stack style={{width:"100%"}} >   
             <table style={{width:"100%"}}> 
               <thead>
@@ -72,22 +74,19 @@ export const EnvelopeCompositeControl = React.memo(
                      <td style={{textAlign: "left", minWidth:"250px"}}><Label style={{textAlign: "left", fontWeight: "bold"}}>Instructional Human Resources</Label></td>
                      <td><TextField type="number" 
                                 prefix="$"
-                                value={(HRTotal_Colum04 - HRTotal_Colum03).toFixed(2).toString()} 
-                                placeholder="$" 
+                                value={(HRTotal_Colum04 - HRTotal_Colum03).toFixed(2).toString()}                                  
                                 key={"hrtotal1"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
-                                value={HRTotal_Colum03.toFixed(2).toString()}
-                                placeholder="$" 
+                                value={HRTotal_Colum03.toFixed(2).toString()}                                 
                                 key={"total2"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
-                                value={HRTotal_Colum04.toFixed(2).toString()}
-                                placeholder="$" 
+                                value={HRTotal_Colum04.toFixed(2).toString()}                                
                                 key={"total3"} 
                                 disabled={true} />
                                 </td>
@@ -98,8 +97,7 @@ export const EnvelopeCompositeControl = React.memo(
                             <td style={{textAlign: "left", minWidth:"250px", fontStyle:"italic"}}><Label>&#160;&#160;{val.column01}</Label></td>
                             <td><TextField type="number" 
                                 prefix="$"
-                                value={(val.column04.control.raw! - val.column03.control.raw!).toFixed(2).toString()} 
-                                placeholder="$" 
+                                value={(val.column04.control.raw! - val.column03.control.raw!).toFixed(2).toString()}                                
                                 key={val.column02.name} 
                                 disabled={true} />
                             </td>
@@ -130,8 +128,7 @@ export const EnvelopeCompositeControl = React.memo(
                             <td style={{textAlign: "left", minWidth:"250px"}}><Label>{val.column01}</Label></td>
                             <td><TextField type="number" 
                                 prefix="$"
-                                value={(val.column04.control.raw! - val.column03.control.raw!).toFixed(2).toString()} 
-                                placeholder="$" 
+                                value={(val.column04.control.raw! - val.column03.control.raw!).toFixed(2).toString()}                                 
                                 key={val.column02.name} 
                                 disabled={true} />
                             </td>
@@ -162,22 +159,19 @@ export const EnvelopeCompositeControl = React.memo(
                     <td><Label style={{textAlign: "left", fontWeight: "bolder", fontSize:15}}>Total</Label></td>
                     <td><TextField type="number" 
                                 prefix="$"
-                                value={((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03)).toFixed(2).toString()} 
-                                placeholder="$" 
+                                value={((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03)).toFixed(2).toString()}                                 
                                 key={"total1"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
-                                value={(HRTotal_Colum03 + NonHRTotal_Colum03).toFixed(2).toString()}
-                                placeholder="$" 
+                                value={(HRTotal_Colum03 + NonHRTotal_Colum03).toFixed(2).toString()}                                
                                 key={"total2"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
-                                value={(HRTotal_Colum04 + NonHRTotal_Colum04).toFixed(2).toString()}
-                                placeholder="$" 
+                                value={(HRTotal_Colum04 + NonHRTotal_Colum04).toFixed(2).toString()}                               
                                 key={"total3"} 
                                 disabled={true} />
                     </td>
@@ -185,7 +179,6 @@ export const EnvelopeCompositeControl = React.memo(
                 </tfoot> 
             </table>
           </Stack>
-          <Stack><Label>&#160;&#160;</Label></Stack>
           <Stack style={{width:"100%"}} >   
             <table style={{width:"100%"}}> 
                 <tr style={{textAlign: "left"}}>
@@ -198,22 +191,19 @@ export const EnvelopeCompositeControl = React.memo(
                      <td style={{textAlign: "left", minWidth:"250px"}}><Label style={{textAlign: "left", fontWeight: "bold"}}>Year 1</Label></td>
                      <td><TextField type="number" 
                                 prefix="$"
-                                value={(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12).toFixed(2).toString()} 
-                                placeholder="$" 
+                                value={(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12).toFixed(2).toString()}  
                                 key={"y1_monthlytotal1"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
                                 value={((HRTotal_Colum03 + NonHRTotal_Colum03)/12).toFixed(2).toString()}
-                                placeholder="$" 
                                 key={"y1_monthlytotal2"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
                                 value={((HRTotal_Colum04 + NonHRTotal_Colum04)/12).toFixed(2).toString()}
-                                placeholder="$" 
                                 key={"y1_monthlytotal3"} 
                                 disabled={true} />
                     </td>
@@ -223,21 +213,18 @@ export const EnvelopeCompositeControl = React.memo(
                      <td><TextField type="number" 
                                 prefix="$"
                                 value={(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))*inflationRate/12).toFixed(2).toString()} 
-                                placeholder="$" 
                                 key={"y2_monthlytotal1"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
                                 value={((HRTotal_Colum03 + NonHRTotal_Colum03*inflationRate)/12).toFixed(2).toString()}
-                                placeholder="$" 
                                 key={"y2_monthlytotal2"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
                                 value={((HRTotal_Colum04 + NonHRTotal_Colum04)*inflationRate/12).toFixed(2).toString()}
-                                placeholder="$" 
                                 key={"y2_monthlytotal3"} 
                                 disabled={true} />
                     </td>
@@ -247,21 +234,18 @@ export const EnvelopeCompositeControl = React.memo(
                      <td><TextField type="number" 
                                 prefix="$"
                                 value={(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))*inflationRate*inflationRate/12).toFixed(2).toString()} 
-                                placeholder="$" 
                                 key={"y3_monthlytotal1"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
                                 value={((HRTotal_Colum03 + NonHRTotal_Colum03*inflationRate*inflationRate)/12).toFixed(2).toString()}
-                                placeholder="$" 
                                 key={"y3_monthlytotal2"} 
                                 disabled={true} />
                                 </td>
                     <td><TextField type="number" 
                                 prefix="$"
                                 value={((HRTotal_Colum04 + NonHRTotal_Colum04)*inflationRate*inflationRate/12).toFixed(2).toString()}
-                                placeholder="$" 
                                 key={"y3_monthlytotal3"} 
                                 disabled={true} />
                     </td>

@@ -63,7 +63,7 @@ public class ContactEditProvider : ID365BatchProvider
     {
         foreach (var data in payload.EnumerateObject())
         {
-            keyValuePairs.Add(data.Name, (JsonNode)data.Value.ToString());
+            keyValuePairs.Add(data.Name, (data.Value.ValueKind == JsonValueKind.Null)? null: (JsonNode) data.Value.ToString());
         }
         var entityName = keyValuePairs["entityNameSet"];
         var entityId = keyValuePairs["entityID"].ToString();

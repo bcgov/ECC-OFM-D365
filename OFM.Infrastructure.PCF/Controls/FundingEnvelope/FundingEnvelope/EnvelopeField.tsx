@@ -23,18 +23,22 @@ export const EnvelopeField = React.memo(
     const [amount, setAmount] = useState<number | undefined>();
 
     const onChangeAmount = React.useCallback((event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string | undefined): void => {
+        const regex = /^\d*$/;
         setAmount(parseFloat(newValue!));
-        
+
         //if(isReadOnly===true) return;
 
-        props.onValueChanged({[props.field.name]: newValue});
+        if (regex.test(newValue!) || newValue === '') {
+            props.onValueChanged({ [props.field.name]: newValue });
+        }
+
     }, [props.field.control.raw]);      
 
     const newVal= props.field.control.raw;
 
   return ( 
             <Stack style={{width:"100%"}} >          
-                <TextField componentRef={fieldRef} ariaLabel="No visible label" type="number" prefix="$" value={newVal?.toString()} onChange={onChangeAmount} placeholder="$" key={props.field.name} readOnly={props.isReadOnly} disabled={props.isReadOnly} />
+                <TextField componentRef={fieldRef} type="number" prefix="$" value={newVal?.toString()} onChange={onChangeAmount} key={props.field.name} readOnly={props.isReadOnly} disabled={props.isReadOnly} />
             </Stack>
         );
     // }, (prevProps, newProps) => {       
