@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 public static class StringExtensions
@@ -7,8 +8,14 @@ public static class StringExtensions
 
     public static string CleanLog(this string text)
     {
+        var options = new JsonSerializerOptions();
+        options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+
         _ = text.Replace("\u0022", "");
-        return text;
+
+        var returned = System.Text.RegularExpressions.Regex.Unescape(text);
+
+        return returned;
     }
     public static string CleanCRLF(this string text)
     {

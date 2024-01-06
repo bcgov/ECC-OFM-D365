@@ -95,6 +95,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
 
 		let params : IEnvelopeProps = {						
 			fields,
+            inflation: 1.03,
 			onValueChanged : this.onChangeAmount, 
 			isReadOnly : isReadOnly,
 			isMasked : isMasked, 

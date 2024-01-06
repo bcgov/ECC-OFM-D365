@@ -2,7 +2,7 @@ import * as React from 'react';
 import { IStackStyles, Label, Stack, TextField } from '@fluentui/react';
 import { EnvelopeField } from './EnvelopeField';
 
-const stackTokens = { childrenGap: 15 };
+const stackTokens = { childrenGap: 25 };
 
 export interface IEnvelopeField{
     control : ComponentFramework.PropertyTypes.NumberProperty;
@@ -13,18 +13,19 @@ export interface IEnvelopeProps{
     fields : IEnvelopeField[];
     isReadOnly: boolean;
     isMasked : boolean;
+    inflation: number;
     onValueChanged : (newValue:Object) => void;
 };
 
 export const EnvelopeCompositeControl = React.memo(
-    function EnvelopeCompositeControlApp({fields, isReadOnly, isMasked, onValueChanged}: IEnvelopeProps) 
+    function EnvelopeCompositeControlApp({fields, isReadOnly, isMasked, inflation, onValueChanged}: IEnvelopeProps) 
     : JSX.Element{
 
     let fieldIndex = 0;
     const dataHR = [
         { column01: "Wages & Paid Time Off", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },
         { column01: "Benefits", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },
-        { column01: "Employer Health inflationRate", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },    
+        { column01: "Employer Health Inflation Rate", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },    
         { column01: "Professional Development Hours", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] }, 
         { column01: "Professional Development Expenses", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] }
     ];
@@ -49,28 +50,29 @@ export const EnvelopeCompositeControl = React.memo(
         "The column03 HR Total" : HRTotal_Colum03,
         "The column03 Non-HR Total" : + NonHRTotal_Colum03,
         "The column04 HR Total" : HRTotal_Colum04,
-        "The column04 Non-HR Total" : + NonHRTotal_Colum04
+        "The column04 Non-HR Total" : + NonHRTotal_Colum04,
+        "MaxValue": dataNonHR[0].column03.control.attributes?.MaxValue
     }, null, 2));
     
-    const inflationRate = 1.03;
-
+    const infText =" (plus % inflation as defined by ministry)";
+    
     return (
-      <Stack tokens={stackTokens}>
+      <Stack tokens={stackTokens} >
         <Stack style={{width:"100%"}} >   
-            <table style={{width:"100%"}}> 
+            <table style={{width:"100%"}} >
               <thead>
-                <tr>
+                {/* <tr>
                     <th colSpan={4} style={{textAlign: "left"}}>Annual Base Funding</th>              
-                </tr>
+                </tr> */}
                 </thead>
                 <tbody>
-                <tr style={{textAlign: "left"}}>
+                <tr style={{textAlign: "left"}} >
                      <th style={{textAlign: "center"}}>Funding Envelope</th>
                      <th>Annual Province Base Funding</th>
                      <th>Projected Annual Parent Fees</th>
                      <th>Projected Annual Base Funding</th>
                 </tr>
-                <tr style={{ fontWeight: "bold"}}> 
+                <tr style={{ fontWeight: "bold"}} > 
                      <td style={{textAlign: "left", minWidth:"250px"}}><Label style={{textAlign: "left", fontWeight: "bold"}}>Instructional Human Resources</Label></td>
                      <td><TextField type="number" 
                                 prefix="$"
@@ -104,6 +106,8 @@ export const EnvelopeCompositeControl = React.memo(
                             <td><EnvelopeField
                                 field={val.column03}
                                 amount={val.column03.control.raw!}
+                                min={0}
+                                max={val.column04.control.raw!}
                                 isReadOnly={false}
                                 isMasked={val.column03.control.attributes?.IsSecured||false}
                                 onValueChanged={onValueChanged}
@@ -113,6 +117,8 @@ export const EnvelopeCompositeControl = React.memo(
                             <td><EnvelopeField
                                 field={val.column04}
                                 amount={val.column04.control.raw!}
+                                min={0}
+                                max={val.column04.control.attributes?.MaxValue}
                                 isReadOnly={false}
                                 isMasked={val.column04.control.attributes?.IsSecured||false}
                                 onValueChanged={onValueChanged}
@@ -124,34 +130,38 @@ export const EnvelopeCompositeControl = React.memo(
                 })}
                   {dataNonHR.map((val, key) => {
                     return (
-                        <tr key={key}>
-                            <td style={{textAlign: "left", minWidth:"250px"}}><Label>{val.column01}</Label></td>
-                            <td><TextField type="number" 
-                                prefix="$"
-                                value={(val.column04.control.raw! - val.column03.control.raw!).toFixed(2).toString()}                                 
-                                key={val.column02.name} 
-                                disabled={true} />
-                            </td>
-                            <td><EnvelopeField
-                                field={val.column03}
-                                amount={val.column03.control.raw!}
-                                isReadOnly={false}
-                                isMasked={val.column03.control.attributes?.IsSecured||false}
-                                onValueChanged={onValueChanged}
-                                key={val.column03.name} 
-                              ></EnvelopeField> 
-                            </td>
-                            <td><EnvelopeField
-                                field={val.column04}
-                                amount={val.column04.control.raw!}
-                                isReadOnly={false}
-                                isMasked={val.column04.control.attributes?.IsSecured||false}
-                                onValueChanged={onValueChanged}
-                                key={val.column04.name} 
-                              ></EnvelopeField>                          
-                            </td>
-                        </tr>
-                    )
+                            <tr key={key}>
+                              <td style={{textAlign: "left", minWidth:"250px"}}><Label>{val.column01}</Label></td>
+                              <td><TextField type="number" 
+                                  prefix="$"
+                                  value={(val.column04.control.raw! - val.column03.control.raw!).toFixed(2).toString()}                                 
+                                  key={val.column02.name} 
+                                  disabled={true} />
+                              </td>
+                              <td><EnvelopeField
+                                  field={val.column03}
+                                  amount={val.column03.control.raw!}
+                                  min={0}
+                                  max={val.column04.control.raw!}
+                                  isReadOnly={false}
+                                  isMasked={val.column03.control.attributes?.IsSecured||false}
+                                  onValueChanged={onValueChanged}
+                                  key={val.column03.name} 
+                                ></EnvelopeField> 
+                              </td>
+                              <td><EnvelopeField
+                                  field={val.column04}
+                                  amount={val.column04.control.raw!}
+                                  min={0}
+                                  max={val.column04.control.attributes?.MaxValue}
+                                  isReadOnly={false}
+                                  isMasked={val.column04.control.attributes?.IsSecured||false}
+                                  onValueChanged={onValueChanged}
+                                  key={val.column04.name} 
+                                ></EnvelopeField>                          
+                              </td>
+                          </tr>           
+                          )
                 })}
                 </tbody>
                 <tfoot>
@@ -162,13 +172,13 @@ export const EnvelopeCompositeControl = React.memo(
                                 value={((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03)).toFixed(2).toString()}                                 
                                 key={"total1"} 
                                 disabled={true} />
-                                </td>
+                    </td>
                     <td><TextField type="number" 
                                 prefix="$"
                                 value={(HRTotal_Colum03 + NonHRTotal_Colum03).toFixed(2).toString()}                                
                                 key={"total2"} 
                                 disabled={true} />
-                                </td>
+                    </td>
                     <td><TextField type="number" 
                                 prefix="$"
                                 value={(HRTotal_Colum04 + NonHRTotal_Colum04).toFixed(2).toString()}                               
@@ -180,76 +190,35 @@ export const EnvelopeCompositeControl = React.memo(
             </table>
           </Stack>
           <Stack style={{width:"100%"}} >   
-            <table style={{width:"100%"}}> 
+            <table style={{width:"100%"}} > 
+              <thead>
                 <tr style={{textAlign: "left"}}>
                      <th>Monthly Base Funding</th>
                      <th>Monthly Province Base Funding</th>
                      <th>Projected Annual Parent Fees</th>
                      <th>Projected Total Monthly Base Funding</th>
                 </tr>
+              </thead>
+              <tbody>
                 <tr style={{ fontWeight: "bold"}}> 
-                     <td style={{textAlign: "left", minWidth:"250px"}}><Label style={{textAlign: "left", fontWeight: "bold"}}>Year 1</Label></td>
-                     <td><TextField type="number" 
-                                prefix="$"
-                                value={(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12).toFixed(2).toString()}  
-                                key={"y1_monthlytotal1"} 
-                                disabled={true} />
-                                </td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={((HRTotal_Colum03 + NonHRTotal_Colum03)/12).toFixed(2).toString()}
-                                key={"y1_monthlytotal2"} 
-                                disabled={true} />
-                                </td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={((HRTotal_Colum04 + NonHRTotal_Colum04)/12).toFixed(2).toString()}
-                                key={"y1_monthlytotal3"} 
-                                disabled={true} />
+                    <td style={{textAlign: "left", minWidth:"300px", fontSize:15}}><Label style={{textAlign: "left", fontWeight: "bold"}}>Year 1</Label></td>                    
+                    <td><Label style={{textAlign: "left"}}>$ {(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12).toFixed(2).toString()}</Label>
+                    </td>
+                    <td><Label style={{textAlign: "left"}}>$ {((HRTotal_Colum03 + NonHRTotal_Colum03)/12).toFixed(2).toString()}</Label>
+                    </td>
+                    <td><Label style={{textAlign: "left"}}>$ {((HRTotal_Colum04 + NonHRTotal_Colum04)/12).toFixed(2).toString()}</Label> 
                     </td>
                 </tr>
-                <tr style={{ fontWeight: "bold"}}> 
-                     <td style={{textAlign: "left", minWidth:"250px"}}><Label style={{textAlign: "left", fontWeight: "bold"}}>Year 2</Label></td>
-                     <td><TextField type="number" 
-                                prefix="$"
-                                value={(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))*inflationRate/12).toFixed(2).toString()} 
-                                key={"y2_monthlytotal1"} 
-                                disabled={true} />
-                                </td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={((HRTotal_Colum03 + NonHRTotal_Colum03*inflationRate)/12).toFixed(2).toString()}
-                                key={"y2_monthlytotal2"} 
-                                disabled={true} />
-                                </td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={((HRTotal_Colum04 + NonHRTotal_Colum04)*inflationRate/12).toFixed(2).toString()}
-                                key={"y2_monthlytotal3"} 
-                                disabled={true} />
+                <tr style={{textAlign: "left"}}>
+                    <td><Label style={{textAlign: "left", minWidth:"325px", fontWeight: "bolder", fontSize:15}}>Year 2 & 3</Label></td>
+                    <td><Label style={{textAlign: "left"}}>$ {(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12).toFixed(2).toString() + infText}</Label>
                     </td>
-                </tr>
-                <tr style={{ fontWeight: "bold"}}> 
-                     <td style={{textAlign: "left", minWidth:"250px"}}><Label style={{textAlign: "left", fontWeight: "bold"}}>Year 3</Label></td>
-                     <td><TextField type="number" 
-                                prefix="$"
-                                value={(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))*inflationRate*inflationRate/12).toFixed(2).toString()} 
-                                key={"y3_monthlytotal1"} 
-                                disabled={true} />
-                                </td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={((HRTotal_Colum03 + NonHRTotal_Colum03*inflationRate*inflationRate)/12).toFixed(2).toString()}
-                                key={"y3_monthlytotal2"} 
-                                disabled={true} />
-                                </td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={((HRTotal_Colum04 + NonHRTotal_Colum04)*inflationRate*inflationRate/12).toFixed(2).toString()}
-                                key={"y3_monthlytotal3"} 
-                                disabled={true} />
+                    <td><Label style={{textAlign: "left"}}>$ {((HRTotal_Colum03 + NonHRTotal_Colum03)/12).toFixed(2).toString() + infText}</Label>
                     </td>
-                </tr>
+                    <td><Label style={{textAlign: "left"}}>$ {((HRTotal_Colum04 + NonHRTotal_Colum04)/12).toFixed(2).toString() + infText}</Label> 
+                    </td>
+                </tr>               
+              </tbody>
             </table>
           </Stack>
         </Stack>

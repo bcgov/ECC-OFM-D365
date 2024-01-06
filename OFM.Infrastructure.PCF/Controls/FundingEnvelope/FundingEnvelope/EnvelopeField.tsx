@@ -7,6 +7,8 @@ import { useState, useEffect, useRef, useMemo, useLayoutEffect } from "react";
 export interface IEnvelopeFieldProps {
   field: IEnvelopeField;
   amount: number;
+  min:number;
+  max:number |undefined;
   isReadOnly: boolean;
   isMasked: boolean;
   onValueChanged: (newvalue: Object) => void;
@@ -20,25 +22,41 @@ export const EnvelopeField = React.memo(
     const fieldRef = useRef<TextFieldBase>(null);
 
     //STATE Hooks
-    const [amount, setAmount] = useState<number | undefined>();
+    const [amount, setAmount] = useState<number | undefined>(props.amount);
 
     const onChangeAmount = React.useCallback((event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string | undefined): void => {
-        const regex = /^\d*$/;
-        setAmount(parseFloat(newValue!));
+   
+        if (fieldRef !== null && newValue !== ''){
+           
+            const roundAmount = parseFloat(newValue!).toFixed(2);
+            if (parseFloat(newValue!) >= props.min! && parseFloat(newValue!) <= props.max!) {
 
-        //if(isReadOnly===true) return;
+                setAmount(parseFloat(roundAmount));
+                props.onValueChanged({ [props.field.name]: roundAmount });
+            }
 
-        if (regex.test(newValue!) || newValue === '') {
-            props.onValueChanged({ [props.field.name]: newValue });
+            console.log(JSON.stringify({
+                "newValue": newValue!,           
+                "roundAmount": roundAmount,
+                "props.min!": props.min!,
+                "props.max!": props.max!
+            }, null, 2));
         }
+    }, [amount]);
 
-    }, [props.field.control.raw]);      
-
-    const newVal= props.field.control.raw;
-
-  return ( 
+    return ( 
             <Stack style={{width:"100%"}} >          
-                <TextField componentRef={fieldRef} type="number" prefix="$" value={newVal?.toString()} onChange={onChangeAmount} key={props.field.name} readOnly={props.isReadOnly} disabled={props.isReadOnly} />
+                <TextField 
+                componentRef={fieldRef} 
+                type="number" 
+                prefix="$" 
+                value={amount?.toString()}
+                min={0}
+                max={props.max}
+                onChange={onChangeAmount} 
+                key={props.field.name} 
+                readOnly={props.isReadOnly} 
+                disabled={props.isReadOnly} />
             </Stack>
         );
     // }, (prevProps, newProps) => {       
