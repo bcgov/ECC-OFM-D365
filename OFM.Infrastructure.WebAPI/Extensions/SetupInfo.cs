@@ -33,6 +33,12 @@ public static class Setup
             public const Int16 SendNotificationsId = 205;
             public const string SendNotificationsName = "Send bulk emails on-demand";
         }
+        public static class Funding
+        {
+            public const Int16 FundingCalculatorId = 300;
+            public const string FundingCalculatorName = "Calculate funding";
+
+        }
     }
 
     public static readonly JsonSerializerOptions s_writeOptions = new()

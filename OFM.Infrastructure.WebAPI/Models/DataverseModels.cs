@@ -212,6 +212,35 @@ public record Email_Activity_Parties
     public string? activitypartyid { get; set; }
 }
 
+
+public record FundingRate
+{
+    public int ofm_ownership { get; set; }
+    public float ofm_rate { get; set; }
+    public int ofm_spaces_max { get; set; }
+    public int ofm_spaces_min { get; set; }
+    public int ofm_step { get; set; }
+    public int statecode { get; set; }
+    public string ofm_funding_rateid { get; set; }
+    public string _transactioncurrencyid_value { get; set; }
+    public Ofm_Rate_Schedule ofm_rate_schedule { get; set; }
+}
+
+public record Ofm_Rate_Schedule
+{
+    public string _ofm_fiscal_year_value { get; set; }
+    public int ofm_fundinng_envelope { get; set; }
+    public string ofm_rate_scheduleid { get; set; }
+    public Ofm_Fiscal_Year ofm_fiscal_year { get; set; }
+}
+
+public record Ofm_Fiscal_Year
+{
+    public string ofm_caption { get; set; }
+    public int statecode { get; set; }
+    public string ofm_fiscal_yearid { get; set; }
+}
+
 #region External Parameters
 
 #endregion
