@@ -1,5 +1,5 @@
-# OFM Dynamics 365 TEST workflow
-name: 2 TEST - Deploy Dynamics API
+# OFM Dynamics 365 QA workflow
+name: 2 QA - Deploy Dynamics API
 
 env:
   # 🖊️ EDIT your repository secrets to log into your OpenShift cluster and set up the context.
