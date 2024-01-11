@@ -62,7 +62,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
 
     private onChangeAmount = (newValue: Object) : void => {
       
-		this.newValue =  Object.assign(this.newValue, newValue);    
+		this.newValue =  Object.assign(this.newValue, newValue);
 		this.notifyOutputChanged();
 	}
 
@@ -89,13 +89,12 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
             }
         }).filter(isIEnvelopeField);
 
-        this.newValue = fields.reduce((result, current) => {      
-                return Object.assign(result, {[current.name]: current.control.raw!});
-        }, {});
-
+        // this.newValue = fields.reduce((result, current) => {      
+        //         return Object.assign(result, {[current.name]: this.formatToDecimal(context,current.control.raw!)});
+        // }, {});
+        
 		let params : IEnvelopeProps = {						
 			fields,
-            inflation: 1.03,
 			onValueChanged : this.onChangeAmount, 
 			isReadOnly : isReadOnly,
 			isMasked : isMasked, 
