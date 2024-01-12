@@ -241,6 +241,90 @@ public record Ofm_Fiscal_Year
     public string ofm_fiscal_yearid { get; set; }
 }
 
+
+public record Ofm_Application
+{
+    public double ofm_costs_furniture_equipment { get; set; }
+    public double ofm_costs_yearly_operating_costs { get; set; }
+    public int statuscode { get; set; }
+    public double ofm_costs_year_facility_costs { get; set; }
+    public int ofm_summary_declaration_a_status { get; set; }
+    public string ofm_application { get; set; }
+    public double ofm_costs_strata_fee { get; set; }
+    public int ofm_provider_type { get; set; }
+    public int ofm_staff_ec_educator_ft { get; set; }
+    public string ofm_summary_signing_authority { get; set; }
+    public int ofm_staff_ec_educator_pt { get; set; }
+    public string _ofm_facility_value { get; set; }
+    public double ofm_costs_applicable_fee { get; set; }
+    public double ofm_costs_property_insurance_base { get; set; }
+    public double ofm_costs_maintenance_repairs { get; set; }
+    public DateTime modifiedon { get; set; }
+    public string ofm_funding_agreement_number { get; set; }
+    public int ofm_costs_facility_type { get; set; }
+    public int ofm_staff_ec_educator_assistant_pt { get; set; }
+    public string ofm_applicationid { get; set; }
+    public int ofm_summary_declaration_b_status { get; set; }
+    public int ofm_staff_responsible_adult_ft { get; set; }
+    public int ofm_application_type { get; set; }
+    public int ofm_staff_ec_educator_assistant_ft { get; set; }
+    public int ofm_staff_responsible_adult_pt { get; set; }
+    public string ofm_funding_number_base { get; set; }
+    public int statecode { get; set; }
+    public int ofm_staff_infant_ec_educator_pt { get; set; }
+    public double ofm_costs_utilities { get; set; }
+    public double ofm_costs_rent_lease { get; set; }
+    public double ofm_costs_mortgage { get; set; }
+    public double ofm_costs_upkeep_labour_supplies { get; set; }
+    public double ofm_costs_property_municipal_tax { get; set; }
+    public string ofm_summary_submittedby { get; set; }
+    public double ofm_costs_property_insurance { get; set; }
+    public int ofm_summary_ownership { get; set; }
+    public int ofm_staff_infant_ec_educator_ft { get; set; }
+    public int versionnumber { get; set; }
+    public Ofm_Licence_Application[] ofm_licence_application { get; set; }
+    public Ofm_Application_Funding[] ofm_application_funding { get; set; }
+}
+
+public record Ofm_Licence_Application
+{
+    public string _ofm_application_value { get; set; }
+    public string ofm_licenceid { get; set; }
+    public string ofm_accb_providerid { get; set; }
+    public string ofm_ccof_facilityid { get; set; }
+    public string ofm_ccof_organizationid { get; set; }
+    public int ofm_health_authority { get; set; }
+    public string ofm_licence { get; set; }
+    public string ofm_tdad_funding_agreement_number { get; set; }
+    public int statuscode { get; set; }
+    public Ofm_Licence_Licencedetail[] ofm_licence_licencedetail { get; set; }
+}
+
+public record Ofm_Licence_Licencedetail
+{
+    public int ofm_care_type { get; set; }
+    public int ofm_enrolled_spaces { get; set; }
+    public string _ofm_licence_value { get; set; }
+    public string ofm_licence_detail { get; set; }
+    public int ofm_licence_spaces { get; set; }
+    public int ofm_licence_type { get; set; }
+    public DateTime ofm_operation_hours_from { get; set; }
+    public DateTime ofm_operation_hours_to { get; set; }
+    public int ofm_operational_spaces { get; set; }
+    public int ofm_overnight_care { get; set; }
+    public string ofm_week_days { get; set; }
+    public int ofm_weeks_in_operation { get; set; }
+    public string _ownerid_value { get; set; }
+    public int statuscode { get; set; }
+    public string ofm_licence_detailid { get; set; }
+}
+
+public record Ofm_Application_Funding
+{
+    public string ofm_fundingid { get; set; }
+}
+
+
 #region External Parameters
 
 #endregion
