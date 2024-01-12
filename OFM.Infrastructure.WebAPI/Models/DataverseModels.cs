@@ -43,7 +43,7 @@ public class ProviderProfile
     public string? ofm_first_name { get; set; }
     public string? ofm_last_name { get; set; }
     public Organization? organization { get; set; }
-    public string? ofm_portal_role { get; set; }
+    public int? ofm_portal_role { get; set; }
     public bool? ofm_is_primary_contact { get; set; }
     public IList<FacilityPermission>? facility_permission { get; set; }
 
@@ -113,7 +113,7 @@ public record D365Contact
     public string? odataetag { get; set; }
     public string? ofm_first_name { get; set; }
     public string? ofm_last_name { get; set; }
-    public string? ofm_portal_role { get; set; }
+    public int? ofm_portal_role { get; set; }
     public string? ccof_userid { get; set; }
     public string? ccof_username { get; set; }
     public string? contactid { get; set; }
