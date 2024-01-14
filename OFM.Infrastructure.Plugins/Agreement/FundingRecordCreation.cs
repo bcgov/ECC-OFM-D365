@@ -49,10 +49,11 @@ namespace OFM.Infrastructure.Plugins.Agreement
                 if (currentImage != null)
                 {
                     var applicationStatus = entity.GetAttributeValue<OptionSetValue>(ofm_application.Fields.statuscode).Value;
-                    var applicationId = entity.GetAttributeValue<Guid>(ofm_application.Fields.Id);
                     localPluginContext.Trace("***Debug applicationStatus:*** " + applicationStatus);
-
-                    if (applicationStatus == 3)
+                    var applicationId = entity.GetAttributeValue<Guid>(ofm_application.Fields.Id);
+                    Entity application = localPluginContext.PluginUserService.Retrieve(entity.LogicalName, entity.GetAttributeValue<Guid>("ofm_applicationid"), new ColumnSet("ofm_funding_number_base"));
+                    string ofmFundingNumberBase = application.GetAttributeValue<string>("ofm_funding_number_base");
+                    if (applicationStatus == 3 && !string.IsNullOrEmpty(ofmFundingNumberBase))
                     {
                         //check if the application is first submission - fetch the funding record based on application id
                         var fetchData = new
@@ -66,10 +67,12 @@ namespace OFM.Infrastructure.Plugins.Agreement
                                             <attribute name=""ofm_application"" />
                                             <attribute name=""statecode"" />
                                             <attribute name=""statuscode"" />
+                                            <attribute name=""ofm_version_number"" />
                                             <filter>
                                               <condition attribute=""ofm_application"" operator=""eq"" value=""{fetchData.ofm_application}"" />
                                               <condition attribute=""statecode"" operator=""eq"" value=""{fetchData.statecode}"" />
                                             </filter>
+                                            <order attribute=""ofm_version_number"" descending=""true"" />
                                           </entity>
                                         </fetch>";
 
@@ -77,30 +80,30 @@ namespace OFM.Infrastructure.Plugins.Agreement
 
                         //localPluginContext.Trace("***Debug ofm_applicationid:*** " + applicationId);
                         //localPluginContext.Trace("***Debug fundingRecords Count:*** " + fundingRecords.Entities.Count);
-                        var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ofm_application.Fields.ofm_funding_agreement_number);
 
                         //if there is a funding record associated and funding agreement number is not empty -> Resubmission
-                        if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null && !string.IsNullOrEmpty(ofmFundingAgreementNumber))
+                        if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null )
                         {
                             var id = fundingRecords[0].Id;
-                            //localPluginContext.Trace("***Debug resubmission:*** " + id);
+                            localPluginContext.Trace("***Debug resubmission:*** " + id);
                             //deactive the current funding record
                             Entity fundingRecordTable = new Entity("ofm_funding");
                             fundingRecordTable.Id = id;
                             fundingRecordTable["statecode"] = new OptionSetValue(1); //Inactive
                             fundingRecordTable["statuscode"] = new OptionSetValue(2);
                             localPluginContext.PluginUserService.Update(fundingRecordTable);
+                            //create a new funding record
+                            Entity newFundingRecord = new Entity("ofm_funding");
+                            newFundingRecord["ofm_version_number"] = fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1;
+                            newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-"+ (fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1).ToString("00"); // Primary coloumn
+                            newFundingRecord["ofm_application"] = new EntityReference("ofm_application", applicationId);
+                            localPluginContext.PluginUserService.Create(newFundingRecord);
                         }
-
-                        //create a new funding record
-                        Entity newFundingRecord = new Entity("ofm_funding");
-                        newFundingRecord["ofm_application"] = new EntityReference("ofm_application", applicationId);
-                        localPluginContext.PluginUserService.Create(newFundingRecord);
                     }
+
                 }
-
             }
-
+            localPluginContext.Trace("***Plugin end");
         }
     }
 }

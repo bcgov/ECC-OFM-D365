@@ -57,18 +57,19 @@ namespace OFM.Infrastructure.Plugins.Agreement
                 if (currentImage != null)
                 {
                     var applicationStatus = entity.GetAttributeValue<OptionSetValue>(ofm_application.Fields.statuscode).Value;
+                    var applicationId = entity.GetAttributeValue<Guid>(ofm_application.Fields.Id);
                     localPluginContext.Trace("***Debug applicationStatus:*** " + applicationStatus);
+                    Entity application = localPluginContext.PluginUserService.Retrieve(entity.LogicalName, entity.GetAttributeValue<Guid>("ofm_applicationid"), new ColumnSet("ofm_funding_number_base"));
                     if (applicationStatus == 3)
                     {
-
                         string newApplicationFundingAgreementNum = string.Empty;
-
                         //check if the application is first submission - ofm_funding_agreement_number
-                        var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ofm_application.Fields.ofm_funding_agreement_number);
-                        localPluginContext.Trace("***Debug ofmFundingAgreementNumber :*** " + ofmFundingAgreementNumber);
-                        if (string.IsNullOrEmpty(ofmFundingAgreementNumber))
+                        string ofmFundingNumberBase = application.GetAttributeValue<string>("ofm_funding_number_base");
+                        //var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ofm_application.Fields.ofm_funding_agreement_number);
+                        //localPluginContext.Trace("***Debug ofmFundingAgreementNumber :*** " + ofmFundingAgreementNumber);
+                        localPluginContext.Trace("***debug check the value of Funding Number Base :*** " + ofmFundingNumberBase);
+                        if (string.IsNullOrEmpty(ofmFundingNumberBase))
                         {
-
                             //First submission, use seed to generate the funding agreement number
                             //get the fiscal year table row
                             var fetchData = new
@@ -102,40 +103,27 @@ namespace OFM.Infrastructure.Plugins.Agreement
 
                             //generate the Funding Agreement Num
                             //caption is 2024/25
-                            var yearNum = fiscalYear.GetAttributeValue<string>(ofm_fiscal_year.Fields.ofm_caption).Substring(2,2);
-                            var versionNum = "00"; //Start with 00
-                            newApplicationFundingAgreementNum = "OFM" + "-" + yearNum + agreementNumSeed.ToString("D6") + "-" + versionNum;
+                            var yearNum = fiscalYear.GetAttributeValue<string>(ofm_fiscal_year.Fields.ofm_caption).Substring(2, 2);
+                            ofmFundingNumberBase = "OFM" + "-" + yearNum + agreementNumSeed.ToString("D6");
 
-                        }
-                        else 
-                        {
-
-                            //Resubmission, only update the version number
-                            //"OFM-23000001-VV"
-                            string[] applicationFundingAgreementNumArr = ofmFundingAgreementNumber.Split('-');
-                            var versionNum = Convert.ToInt32(applicationFundingAgreementNumArr[2]);
-
-                            var newVersionNum = (versionNum + 1).ToString("D2"); //pad leading 0
-                            string[] newApplicationFundingAgreementNumArr = { applicationFundingAgreementNumArr[0], applicationFundingAgreementNumArr[1], newVersionNum };
-                            newApplicationFundingAgreementNum = string.Join("-", newApplicationFundingAgreementNumArr);
-                        }
-
-
-                        if (!string.IsNullOrEmpty(newApplicationFundingAgreementNum))
-                        {
-                            //Update the application funding agreement number
-
+                            //Update the application funding number Base
+                            localPluginContext.Trace("***Update Funding Number Base" + ofmFundingNumberBase);
                             Entity newudpate = new Entity();
                             newudpate.LogicalName = entity.LogicalName;
                             newudpate["ofm_applicationid"] = entity["ofm_applicationid"];
-                            newudpate["ofm_funding_agreement_number"] = newApplicationFundingAgreementNum;
+                            newudpate["ofm_funding_number_base"] = ofmFundingNumberBase;
                             localPluginContext.PluginUserService.Update(newudpate);
+                            //  Create first Funding Detail record
+                            Entity newFundingRecord = new Entity("ofm_funding");
+                            newFundingRecord["ofm_version_number"] = 0;
+                            newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase+"-00"; // Primary coloumn
+                            newFundingRecord["ofm_application"] = new EntityReference("ofm_application", applicationId);
+                            localPluginContext.PluginUserService.Create(newFundingRecord);
                         }
                     }
+                    localPluginContext.Trace("***Plugin end");
                 }
-
             }
-
         }
     }
 }
