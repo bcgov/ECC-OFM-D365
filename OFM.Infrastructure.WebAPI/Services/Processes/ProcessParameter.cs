@@ -14,6 +14,10 @@ public record ProcessParameter
     public Guid? CallerObjectId { get; set; }
     [property: JsonPropertyName("notification")]
     public EmailParameter? Notification { get; set; }
+    [property: JsonPropertyName("applicationId")]
+    public string? ApplicationId { get; set; }
+    
+
 
     public record EmailParameter
     {

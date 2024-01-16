@@ -22,6 +22,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
+    private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
     private Dictionary<string, FundingRate[]> _parameters;
 
@@ -46,11 +47,13 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
             // Note: FetchXMl limit is 5000 records per request
             // Use Paging Cookie for large datasets
             // Use exact filters to reduce the matching data and enhance performance
-            var applicationId = "41733dc8-d292-ee11-be37-000d3a09d499";
+            //var applicationId = "41733dc8-d292-ee11-be37-000d3a09d499";
+            var applicationId = _processParams?.ApplicationId;
 
             if (string.IsNullOrEmpty(_requestUri))
             {
                 //for reference only
+                /*
                 var fetchXml = $"""
                                 <fetch>
                                   <entity name="ofm_application">
@@ -70,6 +73,9 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                                       <attribute name="ofm_tdad_funding_agreement_number" />
                                       <attribute name="ownerid" />
                                       <attribute name="statuscode" />
+                                      <filter>
+                                        <condition attribute="statecode" operator="eq" value="0" />
+                                      </filter>
                                       <link-entity name="ofm_licence_detail" from="ofm_licence" to="ofm_licenceid" alias="Licence">
                                         <attribute name="createdon" />
                                         <attribute name="ofm_care_type" />
@@ -88,14 +94,22 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                                         <attribute name="statuscode" />
                                       </link-entity>
                                     </link-entity>
+                                    <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid" alias="Funding">
+                                      <attribute name="ofm_fundingid" />
+                                      <filter>
+                                        <condition attribute="statecode" operator="eq" value="0" />
+                                      </filter>
+                                    </link-entity>
                                   </entity>
                                 </fetch>
                                 """;
+                */
 
                 var requestUri = $"""                                
-                                  ofm_applications?$expand=ofm_licence_application($select=_ofm_application_value,ofm_licenceid,createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;
-                                  $expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode)),
-                                  ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))&$filter=(ofm_applicationid eq '{applicationId}') and (ofm_licence_application/any(o1:(o1/ofm_licenceid ne null) and (o1/ofm_licence_licencedetail/any(o2:(o2/ofm_licence_detailid ne null))))) and (ofm_application_funding/any(o3:(o3/statecode eq 0)))
+                                ofm_applications?$expand=ofm_licence_application($select=_ofm_application_value,ofm_licenceid,createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;
+                                $expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode);
+                                $filter=(statecode eq 0)),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))
+                                &$filter=(ofm_applicationid eq '{applicationId}') and (ofm_licence_application/any(o1:(o1/statecode eq 0) and (o1/ofm_licence_licencedetail/any(o2:(o2/ofm_licence_detailid ne null))))) and (ofm_application_funding/any(o3:(o3/statecode eq 0)))
                                 """;
 
                 _requestUri = requestUri.CleanCRLF();
@@ -111,7 +125,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P300FundingCalculatorProvider));
 
-        if (_data is null)
+        if (_data is null && _processParams is not null)
         {
             _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", RequestUri);
 
@@ -147,10 +161,21 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
+        _processParams = processParams;
 
         #region Step 0: Get Fixed Parameters
         await SetupNonHRParameters();
-        int MAX_OPERATION_HOURS = 2510;
+        //Fix Parameters
+        int MAX_OPERATION_HOURS = 2510; //50.2 * 50
+        var parentFeePerDayTable = new Dictionary<int, int> {
+                { 1, 10 },
+                { 2, 7 }
+            };
+
+        var parentFeePerMonthTable = new Dictionary<int, int> {
+                { 1, 200 },
+                { 2, 140 }
+            };
 
         #endregion
 
@@ -162,75 +187,92 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Ofm_Application>>(localData.Data, Setup.s_writeOptionsForLogs);
 
         var application = serializedData?.FirstOrDefault();
-
         var fundingId = application?.ofm_application_funding[0].ofm_fundingid;
 
 
-        //Calculate the total spaces and operation hours
-
+        //Calculate the total spaces, operation hours and Parent Fee
         //Total spaces: Sum the ***ofm_operational_spaces*** for each category of each licence
         //Operation Hours: Select the max operation hours for each category of each licence
 
-        var totalSpaces = 0;
         var operationHours = 0.00;
         var licences = application?.ofm_licence_application;
+        
+        var categories = licences?.SelectMany(licence => licence.ofm_licence_licencedetail);
 
-        foreach (Ofm_Licence_Application licence in licences){
-            //One licence could have mulitple categories
-            var licenceDetail = licence.ofm_licence_licencedetail;
-            totalSpaces += licenceDetail.Sum(item => item.ofm_operational_spaces);
-            var maxOperationHoursPerCategory = 0.00;
-            foreach(Ofm_Licence_Licencedetail category in licenceDetail)
+        var totalSpaces = categories?.Sum(category => category.ofm_operational_spaces)?? 0;
+
+        var preSchoolCount = 0;  var preSchoolWeeksinOperation = 0.00; var preSchoolHoursPerDay = 0.00; var preSchoolWorkDay = 0.00;
+        var schoolAgeCount = 0; var schoolAgeWeeksinOperation = 0.00;  var schoolAgeHoursPerDay = 0.00; var schoolAgeWorkDay = 0.00;
+
+        var totoalParentFee = 0.00;
+
+        foreach(Ofm_Licence_Licencedetail category in categories)
+        {
+           
+            //if the category is preschool (4,5,6) or schoolAge (7,8,9) -> need to calculate the average operation hours
+            if (category.ofm_licence_type == 4 || category.ofm_licence_type== 5 || category.ofm_licence_type == 6)
+            {
+                preSchoolCount++;
+                preSchoolHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
+                preSchoolWorkDay += (category.ofm_week_days.Split(",").Length);
+                preSchoolWeeksinOperation += category.ofm_weeks_in_operation;
+            }
+            else if (category.ofm_licence_type == 7 || category.ofm_licence_type == 8 || category.ofm_licence_type == 9)
+            {
+                schoolAgeCount++;
+                schoolAgeHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
+                schoolAgeWorkDay += (category.ofm_week_days.Split(",").Length);
+                schoolAgeWeeksinOperation += category.ofm_weeks_in_operation;
+            }
+            else
             {
                 var operationHoursPerCategory = category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
-                maxOperationHoursPerCategory = Math.Max(maxOperationHoursPerCategory, operationHoursPerCategory);
+                operationHours = Math.Max(operationHours, operationHoursPerCategory);
             }
-            operationHours = Math.Max(maxOperationHoursPerCategory, operationHours);
+
+            var parentFeePerDay = parentFeePerDayTable[category.ofm_care_type] * category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length);
+            var parentFeePerMonth = parentFeePerMonthTable[category.ofm_care_type] * 12;
+
+            var parentFeePerCategory = Math.Min(parentFeePerDay, parentFeePerMonth) * category.ofm_operational_spaces;
+            totoalParentFee += parentFeePerCategory;
         }
-        
+        var avgPreSchoolHours = (preSchoolHoursPerDay / preSchoolCount) * (preSchoolWorkDay / preSchoolCount) * (preSchoolWeeksinOperation / preSchoolCount);
+        var avgSchoolAgeHours = (schoolAgeHoursPerDay / preSchoolCount) * (schoolAgeWorkDay / preSchoolCount) * (schoolAgeWeeksinOperation / preSchoolCount);
+        operationHours = Math.Max(operationHours, Math.Max(avgPreSchoolHours, avgSchoolAgeHours));
 
         _logger.LogDebug(CustomLogEvent.Process, "Total Spaces {totalSpaces}", totalSpaces);
+        _logger.LogDebug(CustomLogEvent.Process, "Annual Operation Hours {totalSpaces}", operationHours);
 
 
-        //Calculate the total operating hours
-       
-        var adjustment = MAX_OPERATION_HOURS / operationHours;
 
-        var operationalCurrentCost = 0;
+        var operationalCurrentCost = application?.ofm_costs_yearly_operating_costs ?? 0;
+        var facilityType = application?.ofm_costs_facility_type;
+        var facilityCurrentCost = application?.ofm_costs_year_facility_costs ?? 0;
+        var ownership = application?.ofm_summary_ownership;
 
-        //Facility Type and Cost -> Application
 
-/*        Rent / Lease  1
-        Owned With Mortgage 2
-        Owned Without Mortgage  3
-        Provided Free of Charge 4*/
-
-        var facilityType = 1;
-        var facilityCurrentCost = 0.00;
-
-        var ownership = 1;
         #endregion
 
         #region  Step 2: Non-HR Calculation
 
 
         //1. Schedule Funding
-
-
-        //Not-for-profit = 1, Home-based = 2, Private = 3
+        //Ownership: Not-for-profit = 1, Home-based = 2, Private = 3
 
         var programmingScheduleFunding = stepScheduleFundingCalculation(ownership, "programming", totalSpaces);
         var adminScheduleFunding = stepScheduleFundingCalculation(ownership, "administration", totalSpaces);
         var operationalScheduleFunding = stepScheduleFundingCalculation(ownership, "operational", totalSpaces);
         var facilityScheduleFunding = stepScheduleFundingCalculation(ownership, "facility", totalSpaces);
 
-
-
         //2. Adjusted Funding
+        //Calculate the adjustment
+        var adjustment = MAX_OPERATION_HOURS / operationHours;
+
         var programmingAdjustedFunding = programmingScheduleFunding;
         var adminAdjustedFunding = adminScheduleFunding / adjustment;
         var operationalAdjustedFunding = ownership == 2 ? Math.Min(operationalScheduleFunding / adjustment, operationalCurrentCost) : operationalScheduleFunding / adjustment;
         var facilityAdjustedFunding = 0.00;
+
         if(facilityCurrentCost.Equals(0.00))
         {
             facilityAdjustedFunding = 0.00;
@@ -244,6 +286,8 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
             facilityAdjustedFunding = Math.Min(facilityScheduleFunding, facilityCurrentCost);
         }
 
+        _logger.LogDebug(CustomLogEvent.Process, "Finish Non HR calculation");
+
         #endregion
 
         #region  Step 3: HR Calculation
@@ -252,6 +296,20 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         #region  Step 4: Post-Calculation
 
+        //Update the funding record
+
+        var updateFundingUrl = @$"ofm_fundings({fundingId})";
+        var updateContent = new
+        {
+            ofm_envelope_programming_proj = programmingAdjustedFunding,
+            ofm_envelope_administrative_proj = adminAdjustedFunding,
+            ofm_envelope_operational_proj = operationalAdjustedFunding,
+            ofm_envelope_facility_proj = facilityAdjustedFunding
+        };
+        var requestBody = System.Text.Json.JsonSerializer.Serialize(updateContent);
+        var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateFundingUrl, requestBody);
+
+        _logger.LogDebug(CustomLogEvent.Process, "Update Funding Record {fundingId}", fundingId);
         #endregion
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
@@ -286,7 +344,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                         </fetch>
                 """;*/
 
-        var requestUri = $"""
+                var requestUri = $"""
                             ofm_funding_rates?$select=ofm_ownership,ofm_rate,ofm_spaces_max,ofm_spaces_min,ofm_step,statecode&$expand=ofm_rate_schedule($select=_ofm_fiscal_year_value,ofm_fundinng_envelope;$expand=ofm_fiscal_year($select=ofm_caption,statecode))
                             """;
 
@@ -326,7 +384,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
     #endregion
 
-    private double stepScheduleFundingCalculation(int ownership, string envolope, int totalSpaces)
+    private double stepScheduleFundingCalculation(int? ownership, string envolope, int totalSpaces)
     {
         var funding = 0.00;
 
