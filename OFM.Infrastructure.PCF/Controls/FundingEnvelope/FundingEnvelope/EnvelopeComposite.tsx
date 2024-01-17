@@ -7,14 +7,14 @@ const stackTokens = { childrenGap: 25 };
 export interface IEnvelopeField{
     control : ComponentFramework.PropertyTypes.NumberProperty;
     name : string;
-};
+}
 
 export interface IEnvelopeProps{
     fields : IEnvelopeField[];
     isReadOnly: boolean;
     isMasked : boolean;
     onValueChanged : (newValue:Object) => void;
-};
+}
 
 export const EnvelopeCompositeControl = React.memo(
     function EnvelopeCompositeControlApp({fields, isReadOnly, isMasked, onValueChanged}: IEnvelopeProps) 
@@ -24,7 +24,7 @@ export const EnvelopeCompositeControl = React.memo(
     const dataHR = [
         { column01: "Wages & Paid Time Off", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },
         { column01: "Benefits", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },
-        { column01: "Employer Health Rate", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },    
+        { column01: "Employer Health Tax", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },    
         { column01: "Professional Development Hours", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] }, 
         { column01: "Professional Development Expenses", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] }
     ];
@@ -55,11 +55,11 @@ export const EnvelopeCompositeControl = React.memo(
     
     const infoText =" (plus % inflation as defined by ministry)";
 
-    const showMessage = (parentFees: number,projectedBase:number) => {    
-        if(parentFees > projectedBase)    
-          return "Invalid Value";
-        return "";
-	  }
+        const showMessage = (parentFees: number, projectedBase: number) => {
+            if (parentFees > projectedBase)
+                return "Invalid Value";
+            return "";
+        }
     
     return (
       <Stack tokens={stackTokens} >

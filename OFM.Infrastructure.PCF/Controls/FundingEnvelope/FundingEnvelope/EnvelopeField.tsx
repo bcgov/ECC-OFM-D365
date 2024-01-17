@@ -50,6 +50,7 @@ export const EnvelopeField = React.memo(
                 componentRef={fieldRef} 
                 type="number" 
                 prefix="$" 
+                onWheel={() => (document.activeElement as HTMLElement).blur()}
                 value={amount?.toString()}
                 min={0}
                 max={props.max}
