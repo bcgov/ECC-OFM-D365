@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Runtime.Remoting.Services;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -108,6 +109,7 @@ namespace OFM.Infrastructure.Plugins.Agreement
 
                             //Update the application funding number Base
                             localPluginContext.Trace("***Update Funding Number Base" + ofmFundingNumberBase);
+                            Thread.Sleep(1000); // delay 1 second to create fundingNumberBase as there is Workflow working on StatusReason as well
                             Entity newudpate = new Entity();
                             newudpate.LogicalName = entity.LogicalName;
                             newudpate["ofm_applicationid"] = entity["ofm_applicationid"];
