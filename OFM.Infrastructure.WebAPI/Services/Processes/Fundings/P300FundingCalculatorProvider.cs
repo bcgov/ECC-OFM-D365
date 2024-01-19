@@ -7,10 +7,13 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
@@ -24,7 +27,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
-    private Dictionary<string, FundingRate[]> _parameters;
+    private Ofm_Rate_Schedule _config;
 
 
     public P300FundingCalculatorProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
@@ -34,7 +37,6 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         _d365webapiservice = d365WebApiService;
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
-        _parameters = new Dictionary<string, FundingRate[]>();
     }
 
     public Int16 ProcessId => Setup.Process.Funding.FundingCalculatorId;
@@ -164,17 +166,18 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         _processParams = processParams;
 
         #region Step 0: Get Fixed Parameters
-        await SetupNonHRParameters();
+        await SetupConfiguration();
+
         //Fix Parameters
         int MAX_OPERATION_HOURS = 2510; //50.2 * 50
-        var parentFeePerDayTable = new Dictionary<int, int> {
-                { 1, 10 },
-                { 2, 7 }
+        var parentFeePerDayTable = new Dictionary<int, double> {
+                { 1, _config.ofm_parent_fee_per_day_ft },
+                { 2, _config.ofm_parent_fee_per_day_pt }
             };
 
-        var parentFeePerMonthTable = new Dictionary<int, int> {
-                { 1, 200 },
-                { 2, 140 }
+        var parentFeePerMonthTable = new Dictionary<int, double> {
+                { 1, _config.ofm_parent_fee_per_month_ft },
+                { 2, _config.ofm_parent_fee_per_month_pt }
             };
 
         #endregion
@@ -243,14 +246,10 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         _logger.LogDebug(CustomLogEvent.Process, "Total Spaces {totalSpaces}", totalSpaces);
         _logger.LogDebug(CustomLogEvent.Process, "Annual Operation Hours {totalSpaces}", operationHours);
 
-
-
         var operationalCurrentCost = application?.ofm_costs_yearly_operating_costs ?? 0;
         var facilityType = application?.ofm_costs_facility_type;
         var facilityCurrentCost = application?.ofm_costs_year_facility_costs ?? 0;
         var ownership = application?.ofm_summary_ownership;
-
-
         #endregion
 
         #region  Step 2: Non-HR Calculation
@@ -258,11 +257,11 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         //1. Schedule Funding
         //Ownership: Not-for-profit = 1, Home-based = 2, Private = 3
-
-        var programmingScheduleFunding = stepScheduleFundingCalculation(ownership, "programming", totalSpaces);
-        var adminScheduleFunding = stepScheduleFundingCalculation(ownership, "administration", totalSpaces);
-        var operationalScheduleFunding = stepScheduleFundingCalculation(ownership, "operational", totalSpaces);
-        var facilityScheduleFunding = stepScheduleFundingCalculation(ownership, "facility", totalSpaces);
+        //Programming = 1, Administration = 2, Operational = 3, Facility = 4
+        var programmingScheduleFunding = stepScheduleFundingCalculation(ownership, 1, totalSpaces);
+        var adminScheduleFunding = stepScheduleFundingCalculation(ownership, 2, totalSpaces);
+        var operationalScheduleFunding = stepScheduleFundingCalculation(ownership, 3, totalSpaces);
+        var facilityScheduleFunding = stepScheduleFundingCalculation(ownership, 4, totalSpaces);
 
         //2. Adjusted Funding
         //Calculate the adjustment
@@ -317,35 +316,37 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
     #region Local Validation & Setup Code
 
-    private async Task SetupNonHRParameters()
+    private async Task SetupConfiguration()
     {
-              //For reference
-/*            var fetchXml = """
-                        <fetch>
-                          <entity name="ofm_funding_rate">
-                            <attribute name="ofm_ownership" />
-                            <attribute name="ofm_rate" />
-                            <attribute name="ofm_spaces_max" />
-                            <attribute name="ofm_spaces_min" />
-                            <attribute name="ofm_step" />
-                            <attribute name="statecode" />
-                            <link-entity name="ofm_rate_schedule" from="ofm_rate_scheduleid" to="ofm_rate_schedule">
-                              <attribute name="ofm_fiscal_year" />
-                              <attribute name="ofm_fundinng_envelope" />
-                              <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year">
-                                <attribute name="ofm_caption" />
-                                <attribute name="statecode" />
-                                <filter>
-                                  <condition attribute="statuscode" operator="eq" value="1" />
-                                </filter>
-                              </link-entity>
-                            </link-entity>
-                          </entity>
-                        </fetch>
-                """;*/
+        /* For Reference
+         * <fetch>
+            <entity name="ofm_rate_schedule">
+             <attribute name="ofm_caption" />
+             <attribute name="ofm_end_date" />
+             <attribute name="ofm_parent_fee_per_day_ft" />
+             <attribute name="ofm_parent_fee_per_day_pt" />
+             <attribute name="ofm_parent_fee_per_month_ft" />
+             <attribute name="ofm_parent_fee_per_month_pt" />
+             <attribute name="ofm_start_date" />
+             <attribute name="statecode" />
+             <link-entity name="ofm_funding_rate" from="ofm_rate_schedule" to="ofm_rate_scheduleid">
+               <attribute name="ofm_caption" />
+               <attribute name="ofm_nonhr_funding_envelope" />
+               <attribute name="ofm_rate" />
+               <attribute name="ofm_spaces_max" />
+               <attribute name="ofm_spaces_min" />
+               <attribute name="ofm_step" />
+               <attribute name="statecode" />
+               <attribute name="ofm_ownership" />
+             </link-entity>
+            </entity>
+           </fetch>
+        */
 
-                var requestUri = $"""
-                            ofm_funding_rates?$select=ofm_ownership,ofm_rate,ofm_spaces_max,ofm_spaces_min,ofm_step,statecode&$expand=ofm_rate_schedule($select=_ofm_fiscal_year_value,ofm_fundinng_envelope;$expand=ofm_fiscal_year($select=ofm_caption,statecode))
+        var requestUri = $"""
+                            ofm_rate_schedules?$select=ofm_caption,ofm_end_date,ofm_parent_fee_per_day_ft,ofm_parent_fee_per_day_pt,ofm_parent_fee_per_month_ft,ofm_parent_fee_per_month_pt,ofm_start_date,statecode
+                            &$expand=ofm_rateschedule_fundingrate($select=ofm_caption,ofm_nonhr_funding_envelope,ofm_rate,ofm_spaces_max,ofm_spaces_min,ofm_step,statecode,ofm_ownership)
+                            &$filter=(ofm_rateschedule_fundingrate/any(o1:(o1/ofm_funding_rateid ne null)))
                             """;
 
         var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri);
@@ -368,27 +369,20 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                 d365Result = currentValue!;
             }
 
-            var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<FundingRate>>(d365Result, Setup.s_writeOptionsForLogs);
+            var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Ofm_Rate_Schedule>>(d365Result, Setup.s_writeOptionsForLogs);
 
-        //Programming = 6, Administration = 7, Operational = 8, Facility = 9
-        FundingRate[]? progammingScheduleRate = serializedData?.Where(rate => rate?.ofm_rate_schedule?.ofm_fundinng_envelope == 6).ToArray();
-        FundingRate[]? administrationScheduleRate = serializedData?.Where(rate => rate?.ofm_rate_schedule?.ofm_fundinng_envelope == 7).ToArray();
-        FundingRate[]? operationalScheduleRate = serializedData?.Where(rate => rate?.ofm_rate_schedule?.ofm_fundinng_envelope == 8).ToArray();
-        FundingRate[]? facilityScheduleRate = serializedData?.Where(rate => rate?.ofm_rate_schedule?.ofm_fundinng_envelope == 9).ToArray();
-
-        _parameters.Add("programming", progammingScheduleRate);
-        _parameters.Add("administration", administrationScheduleRate);
-        _parameters.Add("operational", operationalScheduleRate);
-        _parameters.Add("facility", facilityScheduleRate);
+        _config = serializedData?.FirstOrDefault();
+        _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", requestUri);
     }
 
     #endregion
 
-    private double stepScheduleFundingCalculation(int? ownership, string envolope, int totalSpaces)
+    private double stepScheduleFundingCalculation(int? ownership, int envolope, int totalSpaces)
     {
         var funding = 0.00;
 
-        FundingRate[] scheduleRate = _parameters[envolope].Where(rate => rate.ofm_ownership == ownership).OrderBy(rate => rate.ofm_step).ToArray();
+        //Programming = 1, Administration = 2, Operational = 3, Facility = 4
+        Ofm_Fundingrate[] scheduleRate = _config.ofm_rateschedule_fundingrate.Where(rate => rate.ofm_ownership == ownership && rate.ofm_nonhr_funding_envelope == envolope).OrderBy(rate => rate.ofm_step).ToArray();
 
         for (int i = 0; i < scheduleRate.Length; i++)
         {
