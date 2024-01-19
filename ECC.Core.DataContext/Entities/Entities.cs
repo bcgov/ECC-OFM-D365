@@ -218,13 +218,21 @@ namespace ECC.Core.DataContext
 			public const string ofm_business_bceid_facility = "ofm_business_bceid_facility";
 			public const string ofm_business_number = "ofm_business_number";
 			public const string ofm_business_type = "ofm_business_type";
+			public const string ofm_contact_account = "ofm_contact_account";
 			public const string ofm_document_account = "ofm_document_account";
+			public const string ofm_doing_business_as = "ofm_doing_business_as";
 			public const string ofm_facility_application = "ofm_facility_application";
+			public const string ofm_facility_licence = "ofm_facility_licence";
 			public const string ofm_facility_request_facility = "ofm_facility_request_facility";
 			public const string ofm_funding_facility_account = "ofm_funding_facility_account";
 			public const string ofm_indigenous_led = "ofm_indigenous_led";
 			public const string ofm_is_mailing_address_different = "ofm_is_mailing_address_different";
 			public const string ofm_organization_application = "ofm_organization_application";
+			public const string ofm_organization_legal_name = "ofm_organization_legal_name";
+			public const string ofm_ownership = "ofm_ownership";
+			public const string ofm_primarycontact = "ofm_primarycontact";
+			public const string ofm_primarycontactName = "ofm_primarycontactname";
+			public const string ofm_provider_type = "ofm_provider_type";
 			public const string ofm_tdad_funding_agreement_number = "ofm_tdad_funding_agreement_number";
 			public const string onholdtime = "onholdtime";
 			public const string opendeals = "opendeals";
@@ -2932,6 +2940,21 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_doing_business_as")]
+		public string ofm_doing_business_as
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_doing_business_as");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_doing_business_as", value);
+			}
+		}
+		
 		/// <summary>
 		/// Indigenous Led
 		/// </summary>
@@ -2962,6 +2985,75 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("ofm_is_mailing_address_different", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_organization_legal_name")]
+		public string ofm_organization_legal_name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_organization_legal_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_organization_legal_name", value);
+			}
+		}
+		
+		/// <summary>
+		/// Ownership
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_ownership")]
+		public virtual ecc_Ownership? ofm_ownership
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((ecc_Ownership?)(EntityOptionSetEnum.GetEnum(this, "ofm_ownership")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_ownership", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for Contact associated with Organization-Facility.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_primarycontact")]
+		public Microsoft.Xrm.Sdk.EntityReference ofm_primarycontact
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_primarycontact");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_primarycontact", value);
+			}
+		}
+		
+		/// <summary>
+		/// Provider Type
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provider_type")]
+		public virtual ecc_provider_type? ofm_provider_type
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((ecc_provider_type?)(EntityOptionSetEnum.GetEnum(this, "ofm_provider_type")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_provider_type", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
 			}
 		}
 		
@@ -4097,6 +4189,24 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// 1:N ofm_facility_licence
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_licence")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_licence> ofm_facility_licence
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_licence>("ofm_facility_licence", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.ofm_licence>("ofm_facility_licence", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// 1:N ofm_facility_request_facility
 		/// </summary>
 		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_request_facility")]
@@ -4317,6 +4427,25 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntity<ECC.Core.DataContext.Account>("msdyn_account_account_BillingAccount", Microsoft.Xrm.Sdk.EntityRole.Referencing, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_contact_account
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_primarycontact")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_contact_account")]
+		public ECC.Core.DataContext.Contact ofm_contact_account
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_contact_account", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_contact_account", null, value);
 			}
 		}
 		
@@ -6674,14 +6803,14 @@ namespace ECC.Core.DataContext
 			public const string nickname = "nickname";
 			public const string numberofchildren = "numberofchildren";
 			public const string ofm_assistance_request_contact = "ofm_assistance_request_contact";
+			public const string ofm_contact_account = "ofm_contact_account";
 			public const string ofm_contact_applications = "ofm_contact_applications";
 			public const string ofm_facility_business_bceid = "ofm_facility_business_bceid";
 			public const string ofm_first_name = "ofm_first_name";
-			public const string ofm_is_expense_authority = "ofm_is_expense_authority";
-			public const string ofm_is_primary_contact = "ofm_is_primary_contact";
 			public const string ofm_last_name = "ofm_last_name";
 			public const string ofm_portal_role = "ofm_portal_role";
 			public const string ofm_request_contact = "ofm_request_contact";
+			public const string ofm_secondary_contact_application = "ofm_secondary_contact_application";
 			public const string ofm_social_insurance_number = "ofm_social_insurance_number";
 			public const string ofm_social_insurance_number_for_mask = "ofm_social_insurance_number_for_mask";
 			public const string ofm_supplier_issue = "ofm_supplier_issue";
@@ -10209,42 +10338,6 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
-		/// <summary>
-		/// show if the contact is an Expense Authority
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_is_expense_authority")]
-		public System.Nullable<bool> ofm_is_expense_authority
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<bool>>("ofm_is_expense_authority");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_is_expense_authority", value);
-			}
-		}
-		
-		/// <summary>
-		/// show if the bceid is the primary contact for the organization
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_is_primary_contact")]
-		public System.Nullable<bool> ofm_is_primary_contact
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<bool>>("ofm_is_primary_contact");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_is_primary_contact", value);
-			}
-		}
-		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_last_name")]
 		public string ofm_last_name
 		{
@@ -10261,17 +10354,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_portal_role")]
-		public virtual System.Collections.Generic.IEnumerable<ofm_portal_role> ofm_portal_role
+		public virtual ofm_portal_role? ofm_portal_role
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return EntityOptionSetEnum.GetMultiEnum<ofm_portal_role>(this, "ofm_portal_role");
+				return ((ofm_portal_role?)(EntityOptionSetEnum.GetEnum(this, "ofm_portal_role")));
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_portal_role", EntityOptionSetEnum.GetMultiEnum(this, "ofm_portal_role", value));
+				this.SetAttributeValue("ofm_portal_role", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
 			}
 		}
 		
@@ -11260,6 +11353,24 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// 1:N ofm_contact_account
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_contact_account")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.Account> ofm_contact_account
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.Account>("ofm_contact_account", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.Account>("ofm_contact_account", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// 1:N ofm_contact_applications
 		/// </summary>
 		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_contact_applications")]
@@ -11310,6 +11421,24 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntities<ECC.Core.DataContext.ofm_assistance_request>("ofm_request_contact", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// 1:N ofm_secondary_contact_application
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_secondary_contact_application")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_application> ofm_secondary_contact_application
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_application>("ofm_secondary_contact_application", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.ofm_application>("ofm_secondary_contact_application", null, value);
 			}
 		}
 		
@@ -14199,13 +14328,16 @@ namespace ECC.Core.DataContext
 			public const string ofm_facility = "ofm_facility";
 			public const string ofm_facility_application = "ofm_facility_application";
 			public const string ofm_facilityName = "ofm_facilityname";
-			public const string ofm_funding_agreement_number = "ofm_funding_agreement_number";
+			public const string ofm_funding_number_base = "ofm_funding_number_base";
 			public const string ofm_licence_application = "ofm_licence_application";
 			public const string ofm_organization = "ofm_organization";
 			public const string ofm_organization_application = "ofm_organization_application";
 			public const string ofm_organizationName = "ofm_organizationname";
 			public const string ofm_provider_type = "ofm_provider_type";
 			public const string ofm_request_application = "ofm_request_application";
+			public const string ofm_secondary_contact = "ofm_secondary_contact";
+			public const string ofm_secondary_contact_application = "ofm_secondary_contact_application";
+			public const string ofm_secondary_contactName = "ofm_secondary_contactname";
 			public const string ofm_staff_ec_educator_assistant_ft = "ofm_staff_ec_educator_assistant_ft";
 			public const string ofm_staff_ec_educator_assistant_pt = "ofm_staff_ec_educator_assistant_pt";
 			public const string ofm_staff_ec_educator_ft = "ofm_staff_ec_educator_ft";
@@ -14896,20 +15028,20 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// OFM Funding Agreement Number
+		/// The base funding agreement number without the version
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_funding_agreement_number")]
-		public string ofm_funding_agreement_number
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_funding_number_base")]
+		public string ofm_funding_number_base
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<string>("ofm_funding_agreement_number");
+				return this.GetAttributeValue<string>("ofm_funding_number_base");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_funding_agreement_number", value);
+				this.SetAttributeValue("ofm_funding_number_base", value);
 			}
 		}
 		
@@ -14946,6 +15078,24 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("ofm_provider_type", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		/// <summary>
+		/// Unique identifier for Contact associated with Application.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_secondary_contact")]
+		public Microsoft.Xrm.Sdk.EntityReference ofm_secondary_contact
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_secondary_contact");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_secondary_contact", value);
 			}
 		}
 		
@@ -15600,6 +15750,25 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntity<ECC.Core.DataContext.Account>("ofm_organization_application", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_secondary_contact_application
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_secondary_contact")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_secondary_contact_application")]
+		public ECC.Core.DataContext.Contact ofm_secondary_contact_application
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_secondary_contact_application", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_secondary_contact_application", null, value);
 			}
 		}
 		
@@ -16645,6 +16814,8 @@ namespace ECC.Core.DataContext
 			public const string ofm_facility = "ofm_facility";
 			public const string ofm_facility_business_bceid = "ofm_facility_business_bceid";
 			public const string ofm_facilityName = "ofm_facilityname";
+			public const string ofm_is_additional_contact = "ofm_is_additional_contact";
+			public const string ofm_is_expense_authority = "ofm_is_expense_authority";
 			public const string ofm_name = "ofm_name";
 			public const string ofm_portal_access = "ofm_portal_access";
 			public const string overriddencreatedon = "overriddencreatedon";
@@ -16882,6 +17053,36 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("ofm_facility", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_is_additional_contact")]
+		public System.Nullable<bool> ofm_is_additional_contact
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("ofm_is_additional_contact");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_is_additional_contact", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_is_expense_authority")]
+		public System.Nullable<bool> ofm_is_expense_authority
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("ofm_is_expense_authority");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_is_expense_authority", value);
 			}
 		}
 		
@@ -17301,7 +17502,8 @@ namespace ECC.Core.DataContext
 			public const string ofm_fte_min_ite = "ofm_fte_min_ite";
 			public const string ofm_fte_min_ra = "ofm_fte_min_ra";
 			public const string ofm_group_size = "ofm_group_size";
-			public const string ofm_licence_type = "ofm_licence_type";
+			public const string ofm_licence_group = "ofm_licence_group";
+			public const string ofm_licence_mapping = "ofm_licence_mapping";
 			public const string ofm_spaces_max = "ofm_spaces_max";
 			public const string ofm_spaces_min = "ofm_spaces_min";
 			public const string overriddencreatedon = "overriddencreatedon";
@@ -17619,20 +17821,35 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Licence Type
+		/// Licence Group
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_licence_type")]
-		public virtual ecc_licence_type? ofm_licence_type
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_licence_group")]
+		public string ofm_licence_group
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return ((ecc_licence_type?)(EntityOptionSetEnum.GetEnum(this, "ofm_licence_type")));
+				return this.GetAttributeValue<string>("ofm_licence_group");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_licence_type", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+				this.SetAttributeValue("ofm_licence_group", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_licence_mapping")]
+		public virtual System.Collections.Generic.IEnumerable<ecc_licence_type> ofm_licence_mapping
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return EntityOptionSetEnum.GetMultiEnum<ecc_licence_type>(this, "ofm_licence_mapping");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_licence_mapping", EntityOptionSetEnum.GetMultiEnum(this, "ofm_licence_mapping", value));
 			}
 		}
 		
@@ -20606,7 +20823,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_fiscal_year_number = "ofm_fiscal_year_number";
 			public const string ofm_fiscal_yearid = "ofm_fiscal_yearid";
 			public const string Id = "ofm_fiscal_yearid";
-			public const string ofm_fiscalyear_rateschedule = "ofm_fiscalyear_rateschedule";
 			public const string ofm_start_date = "ofm_start_date";
 			public const string overriddencreatedon = "overriddencreatedon";
 			public const string ownerid = "ownerid";
@@ -21067,24 +21283,6 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// 1:N ofm_fiscalyear_rateschedule
-		/// </summary>
-		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_fiscalyear_rateschedule")]
-		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_rate_schedule> ofm_fiscalyear_rateschedule
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_rate_schedule>("ofm_fiscalyear_rateschedule", null);
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetRelatedEntities<ECC.Core.DataContext.ofm_rate_schedule>("ofm_fiscalyear_rateschedule", null, value);
-			}
-		}
-		
-		/// <summary>
 		/// N:1 business_unit_ofm_fiscal_year
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningbusinessunit")]
@@ -21289,6 +21487,8 @@ namespace ECC.Core.DataContext
 			public const string ofm_envelope_grand_total_proj_base = "ofm_envelope_grand_total_proj_base";
 			public const string ofm_envelope_hr_benefits = "ofm_envelope_hr_benefits";
 			public const string ofm_envelope_hr_benefits_base = "ofm_envelope_hr_benefits_base";
+			public const string ofm_envelope_hr_benefits_pf = "ofm_envelope_hr_benefits_pf";
+			public const string ofm_envelope_hr_benefits_pf_base = "ofm_envelope_hr_benefits_pf_base";
 			public const string ofm_envelope_hr_benefits_proj = "ofm_envelope_hr_benefits_proj";
 			public const string ofm_envelope_hr_benefits_proj_base = "ofm_envelope_hr_benefits_proj_base";
 			public const string ofm_envelope_hr_employerhealthtax = "ofm_envelope_hr_employerhealthtax";
@@ -21335,6 +21535,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_envelope_programming_proj_base = "ofm_envelope_programming_proj_base";
 			public const string ofm_facility = "ofm_facility";
 			public const string ofm_facilityName = "ofm_facilityname";
+			public const string ofm_funding_envelope = "ofm_funding_envelope";
 			public const string ofm_funding_facility_account = "ofm_funding_facility_account";
 			public const string ofm_funding_number = "ofm_funding_number";
 			public const string ofm_fundingid = "ofm_fundingid";
@@ -21864,6 +22065,37 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_benefits_base");
+			}
+		}
+		
+		/// <summary>
+		/// Benefits - Projected Annual Parent Fees
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_benefits_pf")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_benefits_pf
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_benefits_pf");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_hr_benefits_pf", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Benefits (PF) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_benefits_pf_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_benefits_pf_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_benefits_pf_base");
 			}
 		}
 		
@@ -22565,7 +22797,25 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// OFM Funding Agreement Number
+		/// This is a binding field for the funding envelope custom PCF control
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_funding_envelope")]
+		public string ofm_funding_envelope
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_funding_envelope");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_funding_envelope", value);
+			}
+		}
+		
+		/// <summary>
+		/// The value is auto copied from ofm_funding_agreement_number
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_funding_number")]
 		public string ofm_funding_number
@@ -23059,6 +23309,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_caption = "ofm_caption";
 			public const string ofm_funding_rateid = "ofm_funding_rateid";
 			public const string Id = "ofm_funding_rateid";
+			public const string ofm_nonhr_funding_envelope = "ofm_nonhr_funding_envelope";
 			public const string ofm_ownership = "ofm_ownership";
 			public const string ofm_rate = "ofm_rate";
 			public const string ofm_rate_base = "ofm_rate_base";
@@ -23249,7 +23500,7 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Caption
+		/// The record ID 
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_caption")]
 		public string ofm_caption
@@ -23304,6 +23555,24 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.ofm_funding_rateid = value;
+			}
+		}
+		
+		/// <summary>
+		/// Non-HR Envelope
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_nonhr_funding_envelope")]
+		public virtual ecc_funding_envelope? ofm_nonhr_funding_envelope
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((ecc_funding_envelope?)(EntityOptionSetEnum.GetEnum(this, "ofm_nonhr_funding_envelope")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_nonhr_funding_envelope", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
 			}
 		}
 		
@@ -23811,6 +24080,9 @@ namespace ECC.Core.DataContext
 			public const string ofm_applicationName = "ofm_applicationname";
 			public const string ofm_ccof_facilityid = "ofm_ccof_facilityid";
 			public const string ofm_ccof_organizationid = "ofm_ccof_organizationid";
+			public const string ofm_facility = "ofm_facility";
+			public const string ofm_facility_licence = "ofm_facility_licence";
+			public const string ofm_facilityName = "ofm_facilityname";
 			public const string ofm_health_authority = "ofm_health_authority";
 			public const string ofm_Licence = "ofm_licence";
 			public const string ofm_licence_application = "ofm_licence_application";
@@ -24046,6 +24318,21 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<string>("ofm_ccof_organizationid");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility")]
+		public Microsoft.Xrm.Sdk.EntityReference ofm_facility
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_facility");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facility", value);
 			}
 		}
 		
@@ -24413,6 +24700,25 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// N:1 ofm_facility_licence
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_facility_licence")]
+		public ECC.Core.DataContext.Account ofm_facility_licence
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Account>("ofm_facility_licence", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.Account>("ofm_facility_licence", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// N:1 ofm_licence_application
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_application")]
@@ -24543,7 +24849,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_licenceName = "ofm_licencename";
 			public const string ofm_operation_from_time = "ofm_operation_from_time";
 			public const string ofm_operation_hours_from = "ofm_operation_hours_from";
-			public const string ofm_operation_hours_from_time = "ofm_operation_hours_from_time";
 			public const string ofm_operation_hours_to = "ofm_operation_hours_to";
 			public const string ofm_operational_spaces = "ofm_operational_spaces";
 			public const string ofm_operations_to_time = "ofm_operations_to_time";
@@ -24894,16 +25199,6 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("ofm_operation_hours_from", value);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_operation_hours_from_time")]
-		public string ofm_operation_hours_from_time
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<string>("ofm_operation_hours_from_time");
 			}
 		}
 		
@@ -25364,6 +25659,7 @@ namespace ECC.Core.DataContext
 			public const string createdon = "createdon";
 			public const string createdonbehalfby = "createdonbehalfby";
 			public const string createdonbehalfbyName = "createdonbehalfbyname";
+			public const string exchangerate = "exchangerate";
 			public const string importsequencenumber = "importsequencenumber";
 			public const string lk_ofm_rate_schedule_createdby = "lk_ofm_rate_schedule_createdby";
 			public const string lk_ofm_rate_schedule_createdonbehalfby = "lk_ofm_rate_schedule_createdonbehalfby";
@@ -25374,14 +25670,76 @@ namespace ECC.Core.DataContext
 			public const string modifiedon = "modifiedon";
 			public const string modifiedonbehalfby = "modifiedonbehalfby";
 			public const string modifiedonbehalfbyName = "modifiedonbehalfbyname";
+			public const string ofm_average_benefit_load = "ofm_average_benefit_load";
+			public const string ofm_caps_for_centers = "ofm_caps_for_centers";
+			public const string ofm_caps_for_home_based = "ofm_caps_for_home_based";
 			public const string ofm_caption = "ofm_caption";
-			public const string ofm_fiscal_year = "ofm_fiscal_year";
-			public const string ofm_fiscal_yearName = "ofm_fiscal_yearname";
-			public const string ofm_fiscalyear_rateschedule = "ofm_fiscalyear_rateschedule";
-			public const string ofm_fundinng_envelope = "ofm_fundinng_envelope";
+			public const string ofm_cultural_hours_per_fte = "ofm_cultural_hours_per_fte";
+			public const string ofm_elf_educational_programming_cap_fte_year = "ofm_elf_educational_programming_cap_fte_year";
+			public const string ofm_elf_educational_programming_cap_fte_year_base = "ofm_elf_educational_programming_cap_fte_year_base";
+			public const string ofm_elf_hours_per_fte = "ofm_elf_hours_per_fte";
+			public const string ofm_end_date = "ofm_end_date";
+			public const string ofm_facilities_with_10_to_19_spaces_inclusion = "ofm_facilities_with_10_to_19_spaces_inclusion";
+			public const string ofm_facilities_with_10_to_19_spaces_inclusion_base = "ofm_facilities_with_10_to_19_spaces_inclusion_base";
+			public const string ofm_facilities_with_10_to_19_spaces_ip = "ofm_facilities_with_10_to_19_spaces_ip";
+			public const string ofm_facilities_with_10_to_19_spaces_ip_base = "ofm_facilities_with_10_to_19_spaces_ip_base";
+			public const string ofm_facilities_with_20_or_more_spaces_inclusi = "ofm_facilities_with_20_or_more_spaces_inclusi";
+			public const string ofm_facilities_with_20_or_more_spaces_inclusi_base = "ofm_facilities_with_20_or_more_spaces_inclusi_base";
+			public const string ofm_facilities_with_20_or_more_spaces_ip = "ofm_facilities_with_20_or_more_spaces_ip";
+			public const string ofm_facilities_with_20_or_more_spaces_ip_base = "ofm_facilities_with_20_or_more_spaces_ip_base";
+			public const string ofm_facilities_with_9_or_less_spaces_inclusio = "ofm_facilities_with_9_or_less_spaces_inclusio";
+			public const string ofm_facilities_with_9_or_less_spaces_inclusio_base = "ofm_facilities_with_9_or_less_spaces_inclusio_base";
+			public const string ofm_facilities_with_9_or_less_spaces_ip = "ofm_facilities_with_9_or_less_spaces_ip";
+			public const string ofm_facilities_with_9_or_less_spaces_ip_base = "ofm_facilities_with_9_or_less_spaces_ip_base";
+			public const string ofm_greater_than20_spaces_lease_cap_per_month = "ofm_greater_than20_spaces_lease_cap_per_month";
+			public const string ofm_greater_than20_spaces_lease_cap_per_month_base = "ofm_greater_than20_spaces_lease_cap_per_month_base";
+			public const string ofm_hours_per_day = "ofm_hours_per_day";
+			public const string ofm_inclusion_hours_per_fte = "ofm_inclusion_hours_per_fte";
+			public const string ofm_less_than20_spaces_lease_cap_per_month = "ofm_less_than20_spaces_lease_cap_per_month";
+			public const string ofm_less_than20_spaces_lease_cap_per_month_base = "ofm_less_than20_spaces_lease_cap_per_month_base";
+			public const string ofm_licenced_childcare_cap_per_fte_per_year = "ofm_licenced_childcare_cap_per_fte_per_year";
+			public const string ofm_licenced_childcare_cap_per_fte_per_year_base = "ofm_licenced_childcare_cap_per_fte_per_year_base";
+			public const string ofm_licensed_childcare_hours_per_fte = "ofm_licensed_childcare_hours_per_fte";
+			public const string ofm_parent_fee_per_day_ft = "ofm_parent_fee_per_day_ft";
+			public const string ofm_parent_fee_per_day_ft_base = "ofm_parent_fee_per_day_ft_base";
+			public const string ofm_parent_fee_per_day_pt = "ofm_parent_fee_per_day_pt";
+			public const string ofm_parent_fee_per_day_pt_base = "ofm_parent_fee_per_day_pt_base";
+			public const string ofm_parent_fee_per_month_ft = "ofm_parent_fee_per_month_ft";
+			public const string ofm_parent_fee_per_month_ft_base = "ofm_parent_fee_per_month_ft_base";
+			public const string ofm_parent_fee_per_month_pt = "ofm_parent_fee_per_month_pt";
+			public const string ofm_parent_fee_per_month_pt_base = "ofm_parent_fee_per_month_pt_base";
+			public const string ofm_premium = "ofm_premium";
+			public const string ofm_professional_development_hours = "ofm_professional_development_hours";
+			public const string ofm_quality_enhancement_factor = "ofm_quality_enhancement_factor";
 			public const string ofm_rate_scheduleid = "ofm_rate_scheduleid";
 			public const string Id = "ofm_rate_scheduleid";
 			public const string ofm_rateschedule_fundingrate = "ofm_rateschedule_fundingrate";
+			public const string ofm_sick_hours_per_fte = "ofm_sick_hours_per_fte";
+			public const string ofm_standard_dues_per_fte = "ofm_standard_dues_per_fte";
+			public const string ofm_standard_dues_per_fte_base = "ofm_standard_dues_per_fte_base";
+			public const string ofm_start_date = "ofm_start_date";
+			public const string ofm_statutory_breaks = "ofm_statutory_breaks";
+			public const string ofm_supervisor_rate = "ofm_supervisor_rate";
+			public const string ofm_supervisor_ratio = "ofm_supervisor_ratio";
+			public const string ofm_total_fte_hours_per_year = "ofm_total_fte_hours_per_year";
+			public const string ofm_transport_reimbursement_per_km = "ofm_transport_reimbursement_per_km";
+			public const string ofm_transport_reimbursement_per_km_base = "ofm_transport_reimbursement_per_km_base";
+			public const string ofm_vacation_hours_per_fte = "ofm_vacation_hours_per_fte";
+			public const string ofm_wage_grid_markup = "ofm_wage_grid_markup";
+			public const string ofm_wages_ece_cost = "ofm_wages_ece_cost";
+			public const string ofm_wages_ece_cost_base = "ofm_wages_ece_cost_base";
+			public const string ofm_wages_ece_supervisor_differential = "ofm_wages_ece_supervisor_differential";
+			public const string ofm_wages_ece_supervisor_differential_base = "ofm_wages_ece_supervisor_differential_base";
+			public const string ofm_wages_ecea_cost = "ofm_wages_ecea_cost";
+			public const string ofm_wages_ecea_cost_base = "ofm_wages_ecea_cost_base";
+			public const string ofm_wages_ite_cost = "ofm_wages_ite_cost";
+			public const string ofm_wages_ite_cost_base = "ofm_wages_ite_cost_base";
+			public const string ofm_wages_ite_sne_supervisor_differential = "ofm_wages_ite_sne_supervisor_differential";
+			public const string ofm_wages_ite_sne_supervisor_differential_base = "ofm_wages_ite_sne_supervisor_differential_base";
+			public const string ofm_wages_ra_cost = "ofm_wages_ra_cost";
+			public const string ofm_wages_ra_cost_base = "ofm_wages_ra_cost_base";
+			public const string ofm_wages_ra_supervisor_differential = "ofm_wages_ra_supervisor_differential";
+			public const string ofm_wages_ra_supervisor_differential_base = "ofm_wages_ra_supervisor_differential_base";
 			public const string overriddencreatedon = "overriddencreatedon";
 			public const string ownerid = "ownerid";
 			public const string owneridName = "owneridname";
@@ -25395,6 +25753,8 @@ namespace ECC.Core.DataContext
 			public const string statuscode = "statuscode";
 			public const string team_ofm_rate_schedule = "team_ofm_rate_schedule";
 			public const string timezoneruleversionnumber = "timezoneruleversionnumber";
+			public const string transactioncurrencyid = "transactioncurrencyid";
+			public const string transactioncurrencyidName = "transactioncurrencyidname";
 			public const string user_ofm_rate_schedule = "user_ofm_rate_schedule";
 			public const string utcconversiontimezonecode = "utcconversiontimezonecode";
 			public const string versionnumber = "versionnumber";
@@ -25488,6 +25848,19 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Exchange rate for the currency associated with the entity with respect to the base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("exchangerate")]
+		public System.Nullable<decimal> exchangerate
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("exchangerate");
+			}
+		}
+		
+		/// <summary>
 		/// Sequence number of the import that created this record.
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
@@ -25549,8 +25922,53 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_average_benefit_load")]
+		public System.Nullable<decimal> ofm_average_benefit_load
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_average_benefit_load");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_average_benefit_load", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_caps_for_centers")]
+		public System.Nullable<decimal> ofm_caps_for_centers
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_caps_for_centers");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_caps_for_centers", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_caps_for_home_based")]
+		public System.Nullable<decimal> ofm_caps_for_home_based
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_caps_for_home_based");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_caps_for_home_based", value);
+			}
+		}
+		
 		/// <summary>
-		/// Caption
+		/// The record ID
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_caption")]
 		public string ofm_caption
@@ -25567,39 +25985,525 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
-		/// <summary>
-		/// The associated fiscal year
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_fiscal_year")]
-		public Microsoft.Xrm.Sdk.EntityReference ofm_fiscal_year
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_cultural_hours_per_fte")]
+		public System.Nullable<decimal> ofm_cultural_hours_per_fte
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_fiscal_year");
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_cultural_hours_per_fte");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_fiscal_year", value);
+				this.SetAttributeValue("ofm_cultural_hours_per_fte", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_elf_educational_programming_cap_fte_year")]
+		public Microsoft.Xrm.Sdk.Money ofm_elf_educational_programming_cap_fte_year
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_elf_educational_programming_cap_fte_year");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_elf_educational_programming_cap_fte_year", value);
 			}
 		}
 		
 		/// <summary>
-		/// Envelope
+		/// Value of the ELF Educational Programming cap/ FTE / Year in base currency.
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_fundinng_envelope")]
-		public virtual ecc_funding_envelope? ofm_fundinng_envelope
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_elf_educational_programming_cap_fte_year_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_elf_educational_programming_cap_fte_year_base
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return ((ecc_funding_envelope?)(EntityOptionSetEnum.GetEnum(this, "ofm_fundinng_envelope")));
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_elf_educational_programming_cap_fte_year_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_elf_hours_per_fte")]
+		public System.Nullable<decimal> ofm_elf_hours_per_fte
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_elf_hours_per_fte");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_fundinng_envelope", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+				this.SetAttributeValue("ofm_elf_hours_per_fte", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_end_date")]
+		public System.Nullable<System.DateTime> ofm_end_date
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_end_date");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_end_date", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_10_to_19_spaces_inclusion")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_10_to_19_spaces_inclusion
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_10_to_19_spaces_inclusion");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facilities_with_10_to_19_spaces_inclusion", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Facilities with 10 - 19 spaces (Inclusion) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_10_to_19_spaces_inclusion_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_10_to_19_spaces_inclusion_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_10_to_19_spaces_inclusion_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_10_to_19_spaces_ip")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_10_to_19_spaces_ip
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_10_to_19_spaces_ip");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facilities_with_10_to_19_spaces_ip", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Facilities with 10 - 19 spaces (IP) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_10_to_19_spaces_ip_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_10_to_19_spaces_ip_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_10_to_19_spaces_ip_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_20_or_more_spaces_inclusi")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_20_or_more_spaces_inclusi
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_20_or_more_spaces_inclusi");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facilities_with_20_or_more_spaces_inclusi", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Facilities with 20+ spaces (Inclusion) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_20_or_more_spaces_inclusi_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_20_or_more_spaces_inclusi_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_20_or_more_spaces_inclusi_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_20_or_more_spaces_ip")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_20_or_more_spaces_ip
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_20_or_more_spaces_ip");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facilities_with_20_or_more_spaces_ip", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Facilities with 20+ spaces (IP) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_20_or_more_spaces_ip_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_20_or_more_spaces_ip_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_20_or_more_spaces_ip_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_9_or_less_spaces_inclusio")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_9_or_less_spaces_inclusio
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_9_or_less_spaces_inclusio");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facilities_with_9_or_less_spaces_inclusio", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Facilities with 9 or less spaces (Inclusion) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_9_or_less_spaces_inclusio_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_9_or_less_spaces_inclusio_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_9_or_less_spaces_inclusio_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_9_or_less_spaces_ip")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_9_or_less_spaces_ip
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_9_or_less_spaces_ip");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_facilities_with_9_or_less_spaces_ip", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Facilities with 9 or less spaces (IP) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facilities_with_9_or_less_spaces_ip_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_facilities_with_9_or_less_spaces_ip_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_facilities_with_9_or_less_spaces_ip_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_greater_than20_spaces_lease_cap_per_month")]
+		public Microsoft.Xrm.Sdk.Money ofm_greater_than20_spaces_lease_cap_per_month
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_greater_than20_spaces_lease_cap_per_month");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_greater_than20_spaces_lease_cap_per_month", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the >= 20 spaces lease cap/month in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_greater_than20_spaces_lease_cap_per_month_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_greater_than20_spaces_lease_cap_per_month_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_greater_than20_spaces_lease_cap_per_month_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_hours_per_day")]
+		public System.Nullable<decimal> ofm_hours_per_day
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_hours_per_day");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_hours_per_day", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_inclusion_hours_per_fte")]
+		public System.Nullable<decimal> ofm_inclusion_hours_per_fte
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_inclusion_hours_per_fte");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_inclusion_hours_per_fte", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_less_than20_spaces_lease_cap_per_month")]
+		public Microsoft.Xrm.Sdk.Money ofm_less_than20_spaces_lease_cap_per_month
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_less_than20_spaces_lease_cap_per_month");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_less_than20_spaces_lease_cap_per_month", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the < 20 spaces lease cap/month in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_less_than20_spaces_lease_cap_per_month_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_less_than20_spaces_lease_cap_per_month_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_less_than20_spaces_lease_cap_per_month_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_licenced_childcare_cap_per_fte_per_year")]
+		public Microsoft.Xrm.Sdk.Money ofm_licenced_childcare_cap_per_fte_per_year
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_licenced_childcare_cap_per_fte_per_year");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_licenced_childcare_cap_per_fte_per_year", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Licenced Childcare cap/ FTE / Year in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_licenced_childcare_cap_per_fte_per_year_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_licenced_childcare_cap_per_fte_per_year_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_licenced_childcare_cap_per_fte_per_year_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_licensed_childcare_hours_per_fte")]
+		public System.Nullable<decimal> ofm_licensed_childcare_hours_per_fte
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_licensed_childcare_hours_per_fte");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_day_ft")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_day_ft
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_day_ft");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_parent_fee_per_day_ft", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Parent Fee Per Day (FT) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_day_ft_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_day_ft_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_day_ft_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_day_pt")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_day_pt
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_day_pt");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_parent_fee_per_day_pt", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Parent Fee Per Day (PT) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_day_pt_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_day_pt_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_day_pt_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_month_ft")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_month_ft
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_month_ft");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_parent_fee_per_month_ft", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Parent Fee Per Month (FT) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_month_ft_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_month_ft_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_month_ft_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_month_pt")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_month_pt
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_month_pt");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_parent_fee_per_month_pt", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Parent Fee Per Month (PT) in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_month_pt_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_month_pt_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_month_pt_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_premium")]
+		public System.Nullable<decimal> ofm_premium
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_premium");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_premium", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_professional_development_hours")]
+		public System.Nullable<int> ofm_professional_development_hours
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("ofm_professional_development_hours");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_professional_development_hours", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_quality_enhancement_factor")]
+		public System.Nullable<decimal> ofm_quality_enhancement_factor
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_quality_enhancement_factor");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_quality_enhancement_factor", value);
 			}
 		}
 		
@@ -25641,6 +26545,358 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.ofm_rate_scheduleid = value;
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_sick_hours_per_fte")]
+		public System.Nullable<decimal> ofm_sick_hours_per_fte
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_sick_hours_per_fte");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_standard_dues_per_fte")]
+		public Microsoft.Xrm.Sdk.Money ofm_standard_dues_per_fte
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_standard_dues_per_fte");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_standard_dues_per_fte", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Standard Dues/FTE in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_standard_dues_per_fte_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_standard_dues_per_fte_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_standard_dues_per_fte_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_start_date")]
+		public System.Nullable<System.DateTime> ofm_start_date
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_start_date");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_start_date", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_statutory_breaks")]
+		public System.Nullable<decimal> ofm_statutory_breaks
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_statutory_breaks");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_supervisor_rate")]
+		public string ofm_supervisor_rate
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_supervisor_rate");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_supervisor_rate", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_supervisor_ratio")]
+		public System.Nullable<int> ofm_supervisor_ratio
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<int>>("ofm_supervisor_ratio");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_supervisor_ratio", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_total_fte_hours_per_year")]
+		public System.Nullable<decimal> ofm_total_fte_hours_per_year
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_total_fte_hours_per_year");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_reimbursement_per_km")]
+		public Microsoft.Xrm.Sdk.Money ofm_transport_reimbursement_per_km
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_transport_reimbursement_per_km");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_transport_reimbursement_per_km", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Transport reimbursement/km in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_reimbursement_per_km_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_transport_reimbursement_per_km_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_transport_reimbursement_per_km_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_vacation_hours_per_fte")]
+		public System.Nullable<decimal> ofm_vacation_hours_per_fte
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_vacation_hours_per_fte");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wage_grid_markup")]
+		public System.Nullable<decimal> ofm_wage_grid_markup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_wage_grid_markup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_wage_grid_markup", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ece_cost")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ece_cost
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ece_cost");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_wages_ece_cost", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the ECE Cost in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ece_cost_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ece_cost_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ece_cost_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ece_supervisor_differential")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ece_supervisor_differential
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ece_supervisor_differential");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_wages_ece_supervisor_differential", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the ECE Supervisor Differential in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ece_supervisor_differential_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ece_supervisor_differential_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ece_supervisor_differential_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ecea_cost")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ecea_cost
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ecea_cost");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_wages_ecea_cost", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the ECEA Cost in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ecea_cost_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ecea_cost_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ecea_cost_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ite_cost")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ite_cost
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ite_cost");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_wages_ite_cost", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the ITE cost in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ite_cost_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ite_cost_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ite_cost_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ite_sne_supervisor_differential")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ite_sne_supervisor_differential
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ite_sne_supervisor_differential");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_wages_ite_sne_supervisor_differential", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the ITE/SNE Supervisor Differential in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ite_sne_supervisor_differential_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ite_sne_supervisor_differential_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ite_sne_supervisor_differential_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ra_cost")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ra_cost
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ra_cost");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_wages_ra_cost", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the RA Cost in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ra_cost_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ra_cost_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ra_cost_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ra_supervisor_differential")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ra_supervisor_differential
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ra_supervisor_differential");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_wages_ra_supervisor_differential", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the RA Supervisor Differential in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_wages_ra_supervisor_differential_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_wages_ra_supervisor_differential_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_wages_ra_supervisor_differential_base");
 			}
 		}
 		
@@ -25774,6 +27030,24 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Unique identifier of the currency associated with the entity.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("transactioncurrencyid")]
+		public Microsoft.Xrm.Sdk.EntityReference transactioncurrencyid
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("transactioncurrencyid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("transactioncurrencyid", value);
+			}
+		}
+		
+		/// <summary>
 		/// Time zone code that was in use when the record was created.
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("utcconversiontimezonecode")]
@@ -25899,25 +27173,6 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntity<ECC.Core.DataContext.SystemUser>("lk_ofm_rate_schedule_modifiedonbehalfby", null, value);
-			}
-		}
-		
-		/// <summary>
-		/// N:1 ofm_fiscalyear_rateschedule
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_fiscal_year")]
-		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_fiscalyear_rateschedule")]
-		public ECC.Core.DataContext.ofm_fiscal_year ofm_fiscalyear_rateschedule
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetRelatedEntity<ECC.Core.DataContext.ofm_fiscal_year>("ofm_fiscalyear_rateschedule", null);
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetRelatedEntity<ECC.Core.DataContext.ofm_fiscal_year>("ofm_fiscalyear_rateschedule", null, value);
 			}
 		}
 		
