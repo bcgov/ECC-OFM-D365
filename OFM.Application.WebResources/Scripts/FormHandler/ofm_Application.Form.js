@@ -244,26 +244,34 @@ OFM.Application.Form = {
         var recordId = formContext.data.entity.getId();
         var statusReason = formContext.getAttribute("statuscode").getValue();
         var FundingBaseNum = formContext.getAttribute("ofm_funding_number_base").getValue();
-        alert("creating funding records...");
         var parameters = { EntityId: recordId };
 
-        var req = new XMLHttpRequest();
-        req.open("POST", Xrm.Utility.getGlobalContext().getClientUrl() + "/api/data/v9.2/workflows(dd5f5580-4db6-ee11-a569-000d3a09d699)/Microsoft.Dynamics.CRM.ExecuteWorkflow", true);
-        req.setRequestHeader("OData-MaxVersion", "4.0");
-        req.setRequestHeader("OData-Version", "4.0");
-        req.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-        req.setRequestHeader("Accept", "application/json");
-        req.onreadystatechange = function () {
-            if (this.readyState === 4) {
-                req.onreadystatechange = null;
-                if (this.status === 200) {
-                    var result = JSON.parse(this.response);
-                    console.log(result);
-                } else {
-                    console.log(this.responseText);
-                }
+        var executeWorkflowRequest = {
+            entity: { entityType: "workflow", id: "2752f03f-8db5-ee11-a569-000d3af4865d" },
+            EntityId: { guid: recordId },
+            getMetadata: function () {
+                return {
+                    boundParameter: "entity",
+                    parameterTypes: {
+                        entity: { typeName: "mscrm.workflow", structuralProperty: 5 },
+                        EntityId: { typeName: "Edm.Guid", structuralProperty: 1 }
+                    },
+                    operationType: 0, operationName: "ExecuteWorkflow"
+                };
             }
         };
-        req.send(JSON.stringify(parameters));
+        Xrm.WebApi.execute(executeWorkflowRequest).then(
+            function success(response) {
+                if (response.ok) {
+                    return response.json();
+                    alert("create funding sucessfully!");
+                }
+            }
+        ).then(function (responseBody) {
+            var result = responseBody;
+            console.log(result);
+        }).catch(function (error) {
+            console.log(error.message);
+        });
     }
 }
