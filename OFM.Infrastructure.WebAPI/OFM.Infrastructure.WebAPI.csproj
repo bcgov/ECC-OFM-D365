@@ -36,4 +36,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
+
+  
+  <Import Project="..\ECC.Core.DataContext\ECC.Core.DataContext.projitems" Label="Shared" />
+
 </Project>
