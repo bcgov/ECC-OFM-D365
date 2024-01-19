@@ -213,30 +213,33 @@ public record Email_Activity_Parties
 }
 
 
-
-public record Ofm_Rate_Schedule
+public record FundingRate
 {
-    public DateTime ofm_end_date { get; set; }
-    public double ofm_parent_fee_per_day_ft { get; set; }
-    public double ofm_parent_fee_per_day_pt { get; set; }
-    public double ofm_parent_fee_per_month_ft { get; set; }
-    public double ofm_parent_fee_per_month_pt { get; set; }
-    public DateTime ofm_start_date { get; set; }
-    public int statecode { get; set; }
-    public Ofm_Fundingrate[] ofm_rateschedule_fundingrate { get; set; }
-}
-
-public record Ofm_Fundingrate
-{
-    public int ofm_nonhr_funding_envelope { get; set; }
+    public int ofm_ownership { get; set; }
     public float ofm_rate { get; set; }
     public int ofm_spaces_max { get; set; }
     public int ofm_spaces_min { get; set; }
     public int ofm_step { get; set; }
-    public int ofm_ownership { get; set; }
     public int statecode { get; set; }
+    public string ofm_funding_rateid { get; set; }
+    public string _transactioncurrencyid_value { get; set; }
+    public Ofm_Rate_Schedule ofm_rate_schedule { get; set; }
 }
 
+public record Ofm_Rate_Schedule
+{
+    public string _ofm_fiscal_year_value { get; set; }
+    public int ofm_fundinng_envelope { get; set; }
+    public string ofm_rate_scheduleid { get; set; }
+    public Ofm_Fiscal_Year ofm_fiscal_year { get; set; }
+}
+
+public record Ofm_Fiscal_Year
+{
+    public string ofm_caption { get; set; }
+    public int statecode { get; set; }
+    public string ofm_fiscal_yearid { get; set; }
+}
 
 
 public record Ofm_Application
