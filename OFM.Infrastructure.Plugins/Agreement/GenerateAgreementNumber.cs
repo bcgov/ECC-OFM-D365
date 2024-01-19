@@ -44,15 +44,6 @@ namespace OFM.Infrastructure.Plugins.Agreement
             {
 
                 Entity entity = (Entity)localPluginContext.PluginExecutionContext.InputParameters["Target"];
-
-                //check if the application is submitted - statuscode (3)
-
-                //foreach (var attribute in localPluginContext.Current.Attributes)
-                //{
-                //    //access the attribute values
-                //    localPluginContext.Trace("***input params:***" + attribute.Key + "Value: " + attribute.Value);
-                //}
-
                 var currentImage = localPluginContext.Current;
 
                 if (currentImage != null)
@@ -66,7 +57,6 @@ namespace OFM.Infrastructure.Plugins.Agreement
                         string newApplicationFundingAgreementNum = string.Empty;
                         //check if the application is first submission - ofm_funding_agreement_number
                         string ofmFundingNumberBase = application.GetAttributeValue<string>("ofm_funding_number_base");
-                        //var ofmFundingAgreementNumber = currentImage.GetAttributeValue<string>(ofm_application.Fields.ofm_funding_agreement_number);
                         //localPluginContext.Trace("***Debug ofmFundingAgreementNumber :*** " + ofmFundingAgreementNumber);
                         localPluginContext.Trace("***debug check the value of Funding Number Base :*** " + ofmFundingNumberBase);
                         if (string.IsNullOrEmpty(ofmFundingNumberBase))
@@ -91,30 +81,34 @@ namespace OFM.Infrastructure.Plugins.Agreement
                                         </fetch>";
 
                             EntityCollection fiscalYears = localPluginContext.PluginUserService.RetrieveMultiple(new FetchExpression(fetchXml));
+                            if (fiscalYears == null || fiscalYears.TotalRecordCount > 1)
+                            {
+                                throw new InvalidPluginExecutionException($"Exception in Custom Workflow {nameof(GenerateAgreementNumber)} - There are more than 1 active fiscal year or record not found.");
+                            }
+
                             Entity fiscalYear = fiscalYears[0]; //the first return result
                             var agreementNumSeed = fiscalYear.GetAttributeValue<int>(ofm_fiscal_year.Fields.ofm_agreement_number_seed);
 
                             localPluginContext.Trace("***Debug first submission :*** " + agreementNumSeed);
 
-                            //update the seed number first
+                            //update the seed number first, this will help to put an update lock and prevent the conccurrency issue
                             Entity fiscalYearTable = new Entity("ofm_fiscal_year");
                             fiscalYearTable.Attributes["ofm_agreement_number_seed"] = agreementNumSeed + 1;
                             fiscalYearTable["ofm_fiscal_yearid"] = fiscalYear["ofm_fiscal_yearid"];
                             localPluginContext.PluginUserService.Update(fiscalYearTable);
 
                             //generate the Funding Agreement Num
-                            //caption is 2024/25
                             var yearNum = fiscalYear.GetAttributeValue<string>(ofm_fiscal_year.Fields.ofm_caption).Substring(2, 2);
-                            ofmFundingNumberBase = "OFM" + "-" + yearNum + agreementNumSeed.ToString("D6");
+                            ofmFundingNumberBase = $"OFM-{yearNum}{agreementNumSeed:D6}";
 
                             //Update the application funding number Base
                             localPluginContext.Trace("***Update Funding Number Base" + ofmFundingNumberBase);
-                            Thread.Sleep(1000); // delay 1 second to create fundingNumberBase as there is Workflow working on StatusReason as well
                             Entity newudpate = new Entity();
                             newudpate.LogicalName = entity.LogicalName;
                             newudpate["ofm_applicationid"] = entity["ofm_applicationid"];
                             newudpate["ofm_funding_number_base"] = ofmFundingNumberBase;
                             localPluginContext.PluginUserService.Update(newudpate);
+
                             //  Create first Funding Detail record
                             Entity newFundingRecord = new Entity("ofm_funding");
                             newFundingRecord["ofm_version_number"] = 0;
