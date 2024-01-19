@@ -36,7 +36,7 @@ export const EnvelopeField = React.memo(
             }
 
             console.log(JSON.stringify({
-                "newValue": newValue!,           
+                "newValue": newValue!,
                 "roundedAmount": roundedAmount,
                 "props.min!": props.min!,
                 "props.max!": props.max!
@@ -45,19 +45,19 @@ export const EnvelopeField = React.memo(
     }, [amount]);
 
     return ( 
-            <Stack style={{width:"100%"}} >          
+            <Stack style={{width:"100%"}} >
                 <TextField 
-                componentRef={fieldRef} 
-                type="number" 
-                prefix="$" 
-                onWheel={() => (document.activeElement as HTMLElement).blur()}
-                value={amount?.toString()}
-                min={0}
-                max={props.max}
-                onChange={onChangeAmount} 
-                key={props.field.name}
-                readOnly={props.isReadOnly} 
-                disabled={props.isReadOnly} 
+                    componentRef={fieldRef} 
+                    type="number" 
+                    prefix="$" 
+                    onWheel={() => (document.activeElement as HTMLElement).blur()}
+                    value={amount?.toString() || "0.00"}
+                    min={0}
+                    max={props.max}
+                    onChange={onChangeAmount} 
+                    key={props.field.name}
+                    readOnly={props.isReadOnly} 
+                    disabled={props.isReadOnly} 
                 />
             </Stack>
         );

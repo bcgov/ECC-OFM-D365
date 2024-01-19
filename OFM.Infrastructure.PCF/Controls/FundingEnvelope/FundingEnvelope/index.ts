@@ -93,12 +93,12 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
         //         return Object.assign(result, {[current.name]: this.formatToDecimal(context,current.control.raw!)});
         // }, {});
         
-		let params : IEnvelopeProps = {						
+		let params : IEnvelopeProps = {				
 			fields,
 			onValueChanged : this.onChangeAmount, 
 			isReadOnly : isReadOnly,
 			isMasked : isMasked, 
-		};	
+		};
 
 		return React.createElement(EnvelopeCompositeControl, params);
 	}
