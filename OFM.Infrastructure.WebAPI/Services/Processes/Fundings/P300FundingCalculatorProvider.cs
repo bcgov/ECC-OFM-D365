@@ -239,9 +239,17 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
             var parentFeePerCategory = Math.Min(parentFeePerDay, parentFeePerMonth) * category.ofm_operational_spaces;
             totoalParentFee += parentFeePerCategory;
         }
-        var avgPreSchoolHours = (preSchoolHoursPerDay / preSchoolCount) * (preSchoolWorkDay / preSchoolCount) * (preSchoolWeeksinOperation / preSchoolCount);
-        var avgSchoolAgeHours = (schoolAgeHoursPerDay / preSchoolCount) * (schoolAgeWorkDay / preSchoolCount) * (schoolAgeWeeksinOperation / preSchoolCount);
-        operationHours = Math.Max(operationHours, Math.Max(avgPreSchoolHours, avgSchoolAgeHours));
+        if(preSchoolCount > 0)
+        {
+            var avgPreSchoolHours = (preSchoolHoursPerDay / preSchoolCount) * (preSchoolWorkDay / preSchoolCount) * (preSchoolWeeksinOperation / preSchoolCount);
+            operationHours = Math.Max(operationHours, avgPreSchoolHours);
+        }
+
+        if (schoolAgeCount > 0)
+        {
+            var avgSchoolAgeHours = (schoolAgeHoursPerDay / schoolAgeCount) * (schoolAgeWorkDay / schoolAgeCount) * (schoolAgeWeeksinOperation / schoolAgeCount);
+            operationHours = Math.Max(operationHours, avgSchoolAgeHours);
+        }
 
         _logger.LogDebug(CustomLogEvent.Process, "Total Spaces {totalSpaces}", totalSpaces);
         _logger.LogDebug(CustomLogEvent.Process, "Annual Operation Hours {totalSpaces}", operationHours);
