@@ -3799,40 +3799,20 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Administration", 6)]
-		Administration = 7,
+		[OptionSetMetadataAttribute("Administration", 1)]
+		Administration = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Benefits", 1)]
-		Benefits = 2,
+		[OptionSetMetadataAttribute("Facility", 3)]
+		Facility = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Employer Health Tax", 2)]
-		EmployerHealthTax = 3,
+		[OptionSetMetadataAttribute("Operational", 2)]
+		Operational = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Facility", 8)]
-		Facility = 9,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Operational", 7)]
-		Operational = 8,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Professional Development Expenses", 4)]
-		ProfessionalDevelopmentExpenses = 5,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Professional Development Hours", 3)]
-		ProfessionalDevelopmentHours = 4,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Programming", 5)]
-		Programming = 6,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Wages & Paid Time Off", 0)]
-		WagesPaidTimeOff = 1,
+		[OptionSetMetadataAttribute("Programming", 0)]
+		Programming = 1,
 	}
 	
 	/// <summary>
@@ -11519,6 +11499,35 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Configuration 3", 2, "#0000ff")]
 		Configuration3 = 192350002,
+	}
+	
+	/// <summary>
+	/// Copilot product type picker
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_vivacopilottype
+	{
+		
+		/// <summary>
+		/// Represents records related to Sales Copilot
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Copilot for Sales", 0, null, "Represents records related to Sales Copilot")]
+		CopilotforSales = 10000,
+		
+		/// <summary>
+		/// Represents records related to Service Copilot
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Copilot for Service", 1, null, "Represents records related to Service Copilot")]
+		CopilotforService = 10001,
+		
+		/// <summary>
+		/// Represents records that are shared across different Copilot types
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Shared", 2, null, "Represents records that are shared across different Copilot types")]
+		Shared = 11000,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
