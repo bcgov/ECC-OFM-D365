@@ -1,7 +1,11 @@
 ﻿using OFM.Infrastructure.WebAPI.Models;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using System.Text.Json.Serialization;
 using System.Text.Unicode;
+using System.Reflection;
+using Microsoft.Xrm.Sdk;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -57,6 +61,31 @@ public static class Setup
         WriteIndented = true
     };
 
+    static void SetCurrencyHandlingModifier(JsonTypeInfo typeInfo)
+    {
+        foreach (JsonPropertyInfo propertyInfo in typeInfo.Properties)
+        {
+            if (propertyInfo.PropertyType != typeof(Microsoft.Xrm.Sdk.Money))
+                continue;
+
+                Action<object, object?>? setProperty = propertyInfo.Set;
+                if (setProperty is not null)
+                {
+                    propertyInfo.Set = (obj, value) =>
+                    {
+                        if (value != null)
+                        {
+
+                            value = new Microsoft.Xrm.Sdk.Money(100);
+                        }
+
+                        setProperty(obj, value);
+                    };
+                }
+           
+        }
+    }
+
     public static JsonSerializerOptions s_writeOptionsForLogs
     {
         get
@@ -68,10 +97,17 @@ public static class Setup
             return new JsonSerializerOptions()
             {
                 Encoder = JavaScriptEncoder.Create(encoderSettings),
-                WriteIndented = true
+                WriteIndented = true,
+                TypeInfoResolver = new DefaultJsonTypeInfoResolver
+                {
+                    Modifiers = { SetCurrencyHandlingModifier }
+                }
+
             };
         }
     }
+
+
 
     public static AppSettings GetAppSettings(IConfiguration config)
     {

@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using ECC.Core.DataContext;
 using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
+using System.Text;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
@@ -28,7 +29,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
-    private Ofm_Rate_Schedule _config;
+    private ECC.Core.DataContext.ofm_rate_schedule _config;
 
 
     public P300FundingCalculatorProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
@@ -171,14 +172,14 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         //Fix Parameters
         int MAX_OPERATION_HOURS = 2510; //50.2 * 50
-        var parentFeePerDayTable = new Dictionary<int, double> {
-                { 1, _config.ofm_parent_fee_per_day_ft },
-                { 2, _config.ofm_parent_fee_per_day_pt }
+        var parentFeePerDayTable = new Dictionary<int, decimal> {
+                { 1, _config.ofm_parent_fee_per_day_ft.Value },
+                { 2, _config.ofm_parent_fee_per_day_pt.Value }
             };
 
-        var parentFeePerMonthTable = new Dictionary<int, double> {
-                { 1, _config.ofm_parent_fee_per_month_ft },
-                { 2, _config.ofm_parent_fee_per_month_pt }
+        var parentFeePerMonthTable = new Dictionary<int, decimal> {
+                { 1, _config.ofm_parent_fee_per_month_ft.Value },
+                { 2, _config.ofm_parent_fee_per_month_pt.Value }
             };
 
         #endregion
@@ -188,77 +189,77 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         //fetch the application and licences data
         //Get application and license data -> this will be moved to Calculator Object later so ignore
         var localData = await GetData();
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Ofm_Application>>(localData.Data, Setup.s_writeOptionsForLogs);
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<ECC.Core.DataContext.ofm_application>>(localData.Data, Setup.s_writeOptionsForLogs);
 
         var application = serializedData?.FirstOrDefault();
-        var fundingId = application?.ofm_application_funding[0].ofm_fundingid;
+        var fundingId = application?.ofm_application_funding?.FirstOrDefault().ofm_fundingid;
 
 
         //Calculate the total spaces, operation hours and Parent Fee
         //Total spaces: Sum the ***ofm_operational_spaces*** for each category of each licence
         //Operation Hours: Select the max operation hours for each category of each licence
 
-        var operationHours = 0.00;
+        double operationHours = 0;
         var licences = application?.ofm_licence_application;
         
         var categories = licences?.SelectMany(licence => licence.ofm_licence_licencedetail);
 
         var totalSpaces = categories?.Sum(category => category.ofm_operational_spaces)?? 0;
 
-        var preSchoolCount = 0;  var preSchoolWeeksinOperation = 0.00; var preSchoolHoursPerDay = 0.00; var preSchoolWorkDay = 0.00;
-        var schoolAgeCount = 0; var schoolAgeWeeksinOperation = 0.00;  var schoolAgeHoursPerDay = 0.00; var schoolAgeWorkDay = 0.00;
+        int? preSchoolCount = 0;  int? preSchoolWeeksinOperation = 0; var preSchoolHoursPerDay = 0.00; int? preSchoolWorkDay = 0;
+        int? schoolAgeCount = 0; int? schoolAgeWeeksinOperation = 0; var schoolAgeHoursPerDay = 0.00; int? schoolAgeWorkDay = 0;
 
-        var totoalParentFee = 0.00;
+        decimal totoalParentFee = 0;
 
-        foreach(Ofm_Licence_Licencedetail category in categories)
+        foreach(ECC.Core.DataContext.ofm_licence_detail category in categories)
         {
            
             //if the category is preschool (4,5,6) or schoolAge (7,8,9) -> need to calculate the average operation hours
-            if (category.ofm_licence_type == 4 || category.ofm_licence_type== 5 || category.ofm_licence_type == 6)
+            if ((int)category.ofm_licence_type == 4 || (int)category.ofm_licence_type== 5 || (int)category.ofm_licence_type == 6)
             {
                 preSchoolCount++;
-                preSchoolHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
-                preSchoolWorkDay += (category.ofm_week_days.Split(",").Length);
+                preSchoolHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).Value.TotalHours;
+                preSchoolWorkDay += (category.ofm_week_days.Count());
                 preSchoolWeeksinOperation += category.ofm_weeks_in_operation;
             }
-            else if (category.ofm_licence_type == 7 || category.ofm_licence_type == 8 || category.ofm_licence_type == 9)
+            else if ((int)category.ofm_licence_type == 7 || (int)category.ofm_licence_type == 8 || (int)category.ofm_licence_type == 9)
             {
                 schoolAgeCount++;
-                schoolAgeHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
-                schoolAgeWorkDay += (category.ofm_week_days.Split(",").Length);
+                schoolAgeHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).Value.TotalHours;
+                schoolAgeWorkDay += (category.ofm_week_days.Count());
                 schoolAgeWeeksinOperation += category.ofm_weeks_in_operation;
             }
             else
             {
-                var operationHoursPerCategory = category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
-                operationHours = Math.Max(operationHours, operationHoursPerCategory);
+                var operationHoursPerCategory = category.ofm_weeks_in_operation * (category.ofm_week_days.Count()) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).Value.TotalHours;
+                operationHours = Math.Max(operationHours, operationHoursPerCategory?? 0);
             }
 
-            var parentFeePerDay = parentFeePerDayTable[category.ofm_care_type] * category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length);
-            var parentFeePerMonth = parentFeePerMonthTable[category.ofm_care_type] * 12;
+            var parentFeePerDay = parentFeePerDayTable[(int)category.ofm_care_type] * category.ofm_weeks_in_operation * (category.ofm_week_days.Count());
+            var parentFeePerMonth = parentFeePerMonthTable[(int)category.ofm_care_type] * 12;
 
-            var parentFeePerCategory = Math.Min(parentFeePerDay, parentFeePerMonth) * category.ofm_operational_spaces;
-            totoalParentFee += parentFeePerCategory;
+            var parentFeePerCategory = Math.Min(parentFeePerDay??0, parentFeePerMonth) * category.ofm_operational_spaces;
+            totoalParentFee += parentFeePerCategory??0;
         }
         if(preSchoolCount > 0)
         {
             var avgPreSchoolHours = (preSchoolHoursPerDay / preSchoolCount) * (preSchoolWorkDay / preSchoolCount) * (preSchoolWeeksinOperation / preSchoolCount);
-            operationHours = Math.Max(operationHours, avgPreSchoolHours);
+            operationHours = Math.Max(operationHours, avgPreSchoolHours?? 0);
         }
 
         if (schoolAgeCount > 0)
         {
             var avgSchoolAgeHours = (schoolAgeHoursPerDay / schoolAgeCount) * (schoolAgeWorkDay / schoolAgeCount) * (schoolAgeWeeksinOperation / schoolAgeCount);
-            operationHours = Math.Max(operationHours, avgSchoolAgeHours);
+            operationHours = Math.Max(operationHours, avgSchoolAgeHours?? 0);
         }
 
         _logger.LogDebug(CustomLogEvent.Process, "Total Spaces {totalSpaces}", totalSpaces);
         _logger.LogDebug(CustomLogEvent.Process, "Annual Operation Hours {totalSpaces}", operationHours);
 
-        var operationalCurrentCost = application?.ofm_costs_yearly_operating_costs ?? 0;
-        var facilityType = application?.ofm_costs_facility_type;
-        var facilityCurrentCost = application?.ofm_costs_year_facility_costs ?? 0;
-        var ownership = application?.ofm_summary_ownership;
+        var operationalCurrentCost = application?.ofm_costs_yearly_operating_costs.Value ?? 0;
+        var facilityType = (int)application?.ofm_costs_facility_type;
+        var facilityCurrentCost = application?.ofm_costs_year_facility_costs.Value ?? 0;
+        var ownership = (int)application?.ofm_summary_ownership;
         #endregion
 
         #region  Step 2: Non-HR Calculation
@@ -274,20 +275,20 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         //2. Adjusted Funding
         //Calculate the adjustment
-        var adjustment = MAX_OPERATION_HOURS / operationHours;
+        decimal adjustment = MAX_OPERATION_HOURS / (decimal) operationHours;
 
         var programmingAdjustedFunding = programmingScheduleFunding;
         var adminAdjustedFunding = adminScheduleFunding / adjustment;
         var operationalAdjustedFunding = ownership == 2 ? Math.Min(operationalScheduleFunding / adjustment, operationalCurrentCost) : operationalScheduleFunding / adjustment;
-        var facilityAdjustedFunding = 0.00;
+        decimal facilityAdjustedFunding = 0;
 
-        if(facilityCurrentCost.Equals(0.00))
+        if(facilityCurrentCost.Equals(0))
         {
-            facilityAdjustedFunding = 0.00;
+            facilityAdjustedFunding = 0;
         }
         else if(ownership == 3 && (facilityType == 2 || facilityType == 3))
         {
-            facilityAdjustedFunding = 0.00;
+            facilityAdjustedFunding = 0;
         }
         else
         {
@@ -378,33 +379,33 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                 d365Result = currentValue!;
             }
 
-            var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Ofm_Rate_Schedule>>(d365Result, Setup.s_writeOptionsForLogs);
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<ECC.Core.DataContext.ofm_rate_schedule>(d365Result[0], Setup.s_writeOptionsForLogs);
 
-        _config = serializedData?.FirstOrDefault();
+        _config = serializedData;
         _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", requestUri);
     }
 
     #endregion
 
-    private double stepScheduleFundingCalculation(int? ownership, int envolope, int totalSpaces)
+    private decimal stepScheduleFundingCalculation(int? ownership, int envolope, int totalSpaces)
     {
-        var funding = 0.00;
+        decimal? funding = 0;
 
         //Programming = 1, Administration = 2, Operational = 3, Facility = 4
-        Ofm_Fundingrate[] scheduleRate = _config.ofm_rateschedule_fundingrate.Where(rate => rate.ofm_ownership == ownership && rate.ofm_nonhr_funding_envelope == envolope).OrderBy(rate => rate.ofm_step).ToArray();
+        ECC.Core.DataContext.ofm_funding_rate[] scheduleRate = _config.ofm_rateschedule_fundingrate.Where(rate => (int) rate.ofm_ownership == ownership && (int) rate.ofm_nonhr_funding_envelope == envolope).OrderBy(rate => rate.ofm_step).ToArray();
 
         for (int i = 0; i < scheduleRate.Length; i++)
         {
             if (totalSpaces - scheduleRate[i].ofm_spaces_max >= 0)
             {
-                funding += scheduleRate[i].ofm_rate * (scheduleRate[i].ofm_spaces_max - scheduleRate[i].ofm_spaces_min + 1);
+                funding += scheduleRate[i].ofm_rate?.Value * (scheduleRate[i].ofm_spaces_max - scheduleRate[i].ofm_spaces_min + 1);
             }
             else if (totalSpaces - scheduleRate[i].ofm_spaces_min > 0)
             {
-                funding += scheduleRate[i].ofm_rate * (totalSpaces - scheduleRate[i].ofm_spaces_min + 1);
+                funding += scheduleRate[i].ofm_rate.Value * (totalSpaces - scheduleRate[i].ofm_spaces_min + 1);
             }
         }
 
-        return funding; 
+        return funding?? 0; 
     }
 }

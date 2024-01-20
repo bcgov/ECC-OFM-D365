@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ECC.Core.DataContext;
+using System;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
@@ -214,16 +215,9 @@ public record Email_Activity_Parties
 
 
 
-public record Ofm_Rate_Schedule
+public class rate_schedule : ofm_rate_schedule
 {
-    public DateTime ofm_end_date { get; set; }
-    public double ofm_parent_fee_per_day_ft { get; set; }
-    public double ofm_parent_fee_per_day_pt { get; set; }
-    public double ofm_parent_fee_per_month_ft { get; set; }
-    public double ofm_parent_fee_per_month_pt { get; set; }
-    public DateTime ofm_start_date { get; set; }
-    public int statecode { get; set; }
-    public Ofm_Fundingrate[] ofm_rateschedule_fundingrate { get; set; }
+
 }
 
 public record Ofm_Fundingrate

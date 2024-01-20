@@ -9,6 +9,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using Microsoft.Xrm.Sdk;
+
 namespace ECC.Core.DataContext
 {
 	
