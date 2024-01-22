@@ -219,23 +219,23 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
             {
                 preSchoolCount++;
                 preSchoolHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
-                preSchoolWorkDay += (category.ofm_week_days.Count());
+                preSchoolWorkDay += (category.ofm_week_days.Split(",").Length);
                 preSchoolWeeksinOperation += category.ofm_weeks_in_operation;
             }
             else if ((int)category.ofm_licence_type == 7 || (int)category.ofm_licence_type == 8 || (int)category.ofm_licence_type == 9)
             {
                 schoolAgeCount++;
                 schoolAgeHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
-                schoolAgeWorkDay += (category.ofm_week_days.Count());
+                schoolAgeWorkDay += (category.ofm_week_days.Split(",").Length);
                 schoolAgeWeeksinOperation += category.ofm_weeks_in_operation;
             }
             else
             {
-                var operationHoursPerCategory = category.ofm_weeks_in_operation * (category.ofm_week_days.Count()) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
+                var operationHoursPerCategory = category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
                 operationHours = Math.Max(operationHours, operationHoursPerCategory);
             }
 
-            var parentFeePerDay = parentFeePerDayTable[(int)category.ofm_care_type] * category.ofm_weeks_in_operation * (category.ofm_week_days.Count());
+            var parentFeePerDay = parentFeePerDayTable[(int)category.ofm_care_type] * category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length);
             var parentFeePerMonth = parentFeePerMonthTable[(int)category.ofm_care_type] * 12;
 
             var parentFeePerCategory = Math.Min(parentFeePerDay, parentFeePerMonth) * category.ofm_operational_spaces;
@@ -392,17 +392,17 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         decimal? funding = 0;
 
         //Programming = 1, Administration = 2, Operational = 3, Facility = 4
-        ECC.Core.DataContext.ofm_funding_rate[] scheduleRate = _config.ofm_rateschedule_fundingrate.Where(rate => (int) rate.ofm_ownership == ownership && (int) rate.ofm_nonhr_funding_envelope == envolope).OrderBy(rate => rate.ofm_step).ToArray();
+       FundingRate[] scheduleRate = _config.ofm_rateschedule_fundingrate.Where(rate => (int) rate.ofm_ownership == ownership && (int) rate.ofm_nonhr_funding_envelope == envolope).OrderBy(rate => rate.ofm_step).ToArray();
 
         for (int i = 0; i < scheduleRate.Length; i++)
         {
             if (totalSpaces - scheduleRate[i].ofm_spaces_max >= 0)
             {
-                funding += scheduleRate[i].ofm_rate?.Value * (scheduleRate[i].ofm_spaces_max - scheduleRate[i].ofm_spaces_min + 1);
+                funding += scheduleRate[i].ofm_rate * (scheduleRate[i].ofm_spaces_max - scheduleRate[i].ofm_spaces_min + 1);
             }
             else if (totalSpaces - scheduleRate[i].ofm_spaces_min > 0)
             {
-                funding += scheduleRate[i].ofm_rate.Value * (totalSpaces - scheduleRate[i].ofm_spaces_min + 1);
+                funding += scheduleRate[i].ofm_rate * (totalSpaces - scheduleRate[i].ofm_spaces_min + 1);
             }
         }
 
