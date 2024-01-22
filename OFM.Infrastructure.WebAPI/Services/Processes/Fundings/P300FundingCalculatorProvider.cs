@@ -29,7 +29,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
-    private ECC.Core.DataContext.ofm_rate_schedule _config;
+    private RateSchedule _config;
 
 
     public P300FundingCalculatorProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
@@ -173,13 +173,13 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         //Fix Parameters
         int MAX_OPERATION_HOURS = 2510; //50.2 * 50
         var parentFeePerDayTable = new Dictionary<int, decimal> {
-                { 1, _config.ofm_parent_fee_per_day_ft.Value },
-                { 2, _config.ofm_parent_fee_per_day_pt.Value }
+                { 1, _config.ofm_parent_fee_per_day_ft },
+                { 2, _config.ofm_parent_fee_per_day_pt }
             };
 
         var parentFeePerMonthTable = new Dictionary<int, decimal> {
-                { 1, _config.ofm_parent_fee_per_month_ft.Value },
-                { 2, _config.ofm_parent_fee_per_month_pt.Value }
+                { 1, _config.ofm_parent_fee_per_month_ft },
+                { 2, _config.ofm_parent_fee_per_month_pt }
             };
 
         #endregion
@@ -189,7 +189,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         //fetch the application and licences data
         //Get application and license data -> this will be moved to Calculator Object later so ignore
         var localData = await GetData();
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<ECC.Core.DataContext.ofm_application>>(localData.Data, Setup.s_writeOptionsForLogs);
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<OFM.Infrastructure.WebAPI.Models.Application>>(localData.Data, Setup.s_writeOptionsForLogs);
 
         var application = serializedData?.FirstOrDefault();
         var fundingId = application?.ofm_application_funding?.FirstOrDefault().ofm_fundingid;
@@ -211,35 +211,35 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         decimal totoalParentFee = 0;
 
-        foreach(ECC.Core.DataContext.ofm_licence_detail category in categories)
+        foreach(OFM.Infrastructure.WebAPI.Models.LicenceDetail category in categories)
         {
            
             //if the category is preschool (4,5,6) or schoolAge (7,8,9) -> need to calculate the average operation hours
             if ((int)category.ofm_licence_type == 4 || (int)category.ofm_licence_type== 5 || (int)category.ofm_licence_type == 6)
             {
                 preSchoolCount++;
-                preSchoolHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).Value.TotalHours;
+                preSchoolHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
                 preSchoolWorkDay += (category.ofm_week_days.Count());
                 preSchoolWeeksinOperation += category.ofm_weeks_in_operation;
             }
             else if ((int)category.ofm_licence_type == 7 || (int)category.ofm_licence_type == 8 || (int)category.ofm_licence_type == 9)
             {
                 schoolAgeCount++;
-                schoolAgeHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).Value.TotalHours;
+                schoolAgeHoursPerDay += (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
                 schoolAgeWorkDay += (category.ofm_week_days.Count());
                 schoolAgeWeeksinOperation += category.ofm_weeks_in_operation;
             }
             else
             {
-                var operationHoursPerCategory = category.ofm_weeks_in_operation * (category.ofm_week_days.Count()) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).Value.TotalHours;
-                operationHours = Math.Max(operationHours, operationHoursPerCategory?? 0);
+                var operationHoursPerCategory = category.ofm_weeks_in_operation * (category.ofm_week_days.Count()) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
+                operationHours = Math.Max(operationHours, operationHoursPerCategory);
             }
 
             var parentFeePerDay = parentFeePerDayTable[(int)category.ofm_care_type] * category.ofm_weeks_in_operation * (category.ofm_week_days.Count());
             var parentFeePerMonth = parentFeePerMonthTable[(int)category.ofm_care_type] * 12;
 
-            var parentFeePerCategory = Math.Min(parentFeePerDay??0, parentFeePerMonth) * category.ofm_operational_spaces;
-            totoalParentFee += parentFeePerCategory??0;
+            var parentFeePerCategory = Math.Min(parentFeePerDay, parentFeePerMonth) * category.ofm_operational_spaces;
+            totoalParentFee += parentFeePerCategory;
         }
         if(preSchoolCount > 0)
         {
@@ -256,9 +256,9 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         _logger.LogDebug(CustomLogEvent.Process, "Total Spaces {totalSpaces}", totalSpaces);
         _logger.LogDebug(CustomLogEvent.Process, "Annual Operation Hours {totalSpaces}", operationHours);
 
-        var operationalCurrentCost = application?.ofm_costs_yearly_operating_costs.Value ?? 0;
+        var operationalCurrentCost = application?.ofm_costs_yearly_operating_costs?? 0;
         var facilityType = (int)application?.ofm_costs_facility_type;
-        var facilityCurrentCost = application?.ofm_costs_year_facility_costs.Value ?? 0;
+        var facilityCurrentCost = application?.ofm_costs_year_facility_costs?? 0;
         var ownership = (int)application?.ofm_summary_ownership;
         #endregion
 
@@ -379,9 +379,9 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                 d365Result = currentValue!;
             }
 
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<ECC.Core.DataContext.ofm_rate_schedule>(d365Result[0], Setup.s_writeOptionsForLogs);
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<RateSchedule>>(d365Result, Setup.s_writeOptionsForLogs);
 
-        _config = serializedData;
+        _config = serializedData?.FirstOrDefault();
         _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", requestUri);
     }
 

@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using Microsoft.Xrm.Sdk;
 using System;
 
 namespace OFM.Infrastructure.WebAPI.Models;
@@ -214,31 +215,97 @@ public record Email_Activity_Parties
 }
 
 
-
-public class rate_schedule : ofm_rate_schedule
+public class RateSchedule:ofm_rate_schedule
 {
-
+    public new decimal ofm_transport_reimbursement_per_km { get; set; }
+    public float ofm_total_fte_hours_per_year { get; set; }
+    public DateTime ofm_end_date { get; set; }
+    public new decimal ofm_greater_than20_spaces_lease_cap_per_month { get; set; }
+    public string ofm_supervisor_rate { get; set; }
+    public int statuscode { get; set; }
+    public string _createdby_value { get; set; }
+    public new decimal ofm_facilities_with_9_or_less_spaces_inclusio { get; set; }
+    public string _owninguser_value { get; set; }
+    public string _modifiedby_value { get; set; }
+    public new decimal ofm_facilities_with_20_or_more_spaces_ip { get; set; }
+    public string ofm_caption { get; set; }
+    public new decimal ofm_wages_ra_cost { get; set; }
+    public new decimal ofm_licenced_childcare_cap_per_fte_per_year { get; set; }
+    public new decimal ofm_wages_ecea_cost { get; set; }
+    public new decimal ofm_facilities_with_9_or_less_spaces_ip { get; set; }
+    public float ofm_premium { get; set; }
+    public object _modifiedonbehalfby_value { get; set; }
+    public string _ownerid_value { get; set; }
+    public float ofm_vacation_hours_per_fte { get; set; }
+    public int ofm_supervisor_ratio { get; set; }
+    public float ofm_cultural_hours_per_fte { get; set; }
+    public new decimal ofm_wages_ite_cost { get; set; }
+    public float ofm_caps_for_centers { get; set; }
+    public object importsequencenumber { get; set; }
+    public DateTime modifiedon { get; set; }
+    public new decimal ofm_wages_ece_cost { get; set; }
+    public float ofm_statutory_breaks { get; set; }
+    public float ofm_inclusion_hours_per_fte { get; set; }
+    public object utcconversiontimezonecode { get; set; }
+    public object _createdonbehalfby_value { get; set; }
+    public float ofm_wage_grid_markup { get; set; }
+    public new decimal ofm_elf_educational_programming_cap_fte_year { get; set; }
+    public new decimal ofm_parent_fee_per_day_pt { get; set; }
+    public object _owningteam_value { get; set; }
+    public new decimal ofm_wages_ra_supervisor_differential { get; set; }
+    public string _owningbusinessunit_value { get; set; }
+    public float ofm_sick_hours_per_fte { get; set; }
+    public new decimal ofm_standard_dues_per_fte { get; set; }
+    public int statecode { get; set; }
+    public new decimal ofm_parent_fee_per_month_ft { get; set; }
+    public float ofm_elf_hours_per_fte { get; set; }
+    public int exchangerate { get; set; }
+    public new decimal ofm_facilities_with_10_to_19_spaces_inclusion { get; set; }
+    public new decimal ofm_less_than20_spaces_lease_cap_per_month { get; set; }
+    public float ofm_quality_enhancement_factor { get; set; }
+    public float ofm_licensed_childcare_hours_per_fte { get; set; }
+    public DateTime ofm_start_date { get; set; }
+    public new decimal ofm_wages_ite_sne_supervisor_differential { get; set; }
+    public object overriddencreatedon { get; set; }
+    public int timezoneruleversionnumber { get; set; }
+    public string _transactioncurrencyid_value { get; set; }
+    public float ofm_hours_per_day { get; set; }
+    public new decimal ofm_parent_fee_per_day_ft { get; set; }
+    public new decimal ofm_facilities_with_20_or_more_spaces_inclusi { get; set; }
+    public new decimal ofm_facilities_with_10_to_19_spaces_ip { get; set; }
+    public new decimal ofm_parent_fee_per_month_pt { get; set; }
+    public int ofm_professional_development_hours { get; set; }
+    public string ofm_rate_scheduleid { get; set; }
+    public DateTime createdon { get; set; }
+    public int versionnumber { get; set; }
+    public float ofm_average_benefit_load { get; set; }
+    public new decimal ofm_facilities_with_10_to_19_spaces_ip_base { get; set; }
+    public new decimal ofm_wages_ece_supervisor_differential { get; set; }
+    public FundingRate[] ofm_rateschedule_fundingrate { get; set; }
 }
 
-public record Ofm_Fundingrate
+public class FundingRate:ofm_funding_rate
 {
+    public string ofm_caption { get; set; }
     public int ofm_nonhr_funding_envelope { get; set; }
-    public float ofm_rate { get; set; }
+    public new decimal ofm_rate { get; set; }
     public int ofm_spaces_max { get; set; }
     public int ofm_spaces_min { get; set; }
     public int ofm_step { get; set; }
-    public int ofm_ownership { get; set; }
     public int statecode { get; set; }
+    public int ofm_ownership { get; set; }
+    public string _ofm_rate_schedule_value { get; set; }
+    public string ofm_funding_rateid { get; set; }
+    public string _transactioncurrencyid_value { get; set; }
 }
 
 
-
-public record Ofm_Application
+public class Application:ofm_application
 {
-    public double ofm_costs_furniture_equipment { get; set; }
-    public double ofm_costs_yearly_operating_costs { get; set; }
+    public new decimal ofm_costs_furniture_equipment { get; set; }
+    public new decimal ofm_costs_yearly_operating_costs { get; set; }
     public int statuscode { get; set; }
-    public double ofm_costs_year_facility_costs { get; set; }
+    public new decimal ofm_costs_year_facility_costs { get; set; }
     public int ofm_summary_declaration_a_status { get; set; }
     public string ofm_application { get; set; }
     public double ofm_costs_strata_fee { get; set; }
@@ -247,9 +314,9 @@ public record Ofm_Application
     public string ofm_summary_signing_authority { get; set; }
     public int ofm_staff_ec_educator_pt { get; set; }
     public string _ofm_facility_value { get; set; }
-    public double ofm_costs_applicable_fee { get; set; }
-    public double ofm_costs_property_insurance_base { get; set; }
-    public double ofm_costs_maintenance_repairs { get; set; }
+    public new decimal ofm_costs_applicable_fee { get; set; }
+    public new decimal ofm_costs_property_insurance_base { get; set; }
+    public new decimal ofm_costs_maintenance_repairs { get; set; }
     public DateTime modifiedon { get; set; }
     public string ofm_funding_agreement_number { get; set; }
     public int ofm_costs_facility_type { get; set; }
@@ -263,21 +330,21 @@ public record Ofm_Application
     public string ofm_funding_number_base { get; set; }
     public int statecode { get; set; }
     public int ofm_staff_infant_ec_educator_pt { get; set; }
-    public double ofm_costs_utilities { get; set; }
-    public double ofm_costs_rent_lease { get; set; }
-    public double ofm_costs_mortgage { get; set; }
-    public double ofm_costs_upkeep_labour_supplies { get; set; }
-    public double ofm_costs_property_municipal_tax { get; set; }
+    public new decimal ofm_costs_utilities { get; set; }
+    public new decimal ofm_costs_rent_lease { get; set; }
+    public new decimal ofm_costs_mortgage { get; set; }
+    public new decimal ofm_costs_upkeep_labour_supplies { get; set; }
+    public new decimal ofm_costs_property_municipal_tax { get; set; }
     public string ofm_summary_submittedby { get; set; }
-    public double ofm_costs_property_insurance { get; set; }
+    public new decimal ofm_costs_property_insurance { get; set; }
     public int ofm_summary_ownership { get; set; }
     public int ofm_staff_infant_ec_educator_ft { get; set; }
     public int versionnumber { get; set; }
-    public Ofm_Licence_Application[] ofm_licence_application { get; set; }
-    public Ofm_Application_Funding[] ofm_application_funding { get; set; }
+    public Licence[] ofm_licence_application { get; set; }
+    public Funding[] ofm_application_funding { get; set; }
 }
 
-public record Ofm_Licence_Application
+public class Licence: ofm_licence
 {
     public string _ofm_application_value { get; set; }
     public string ofm_licenceid { get; set; }
@@ -288,10 +355,10 @@ public record Ofm_Licence_Application
     public string ofm_licence { get; set; }
     public string ofm_tdad_funding_agreement_number { get; set; }
     public int statuscode { get; set; }
-    public Ofm_Licence_Licencedetail[] ofm_licence_licencedetail { get; set; }
+    public LicenceDetail[] ofm_licence_licencedetail { get; set; }
 }
 
-public record Ofm_Licence_Licencedetail
+public class LicenceDetail:ofm_licence_detail
 {
     public int ofm_care_type { get; set; }
     public int ofm_enrolled_spaces { get; set; }
@@ -310,7 +377,7 @@ public record Ofm_Licence_Licencedetail
     public string ofm_licence_detailid { get; set; }
 }
 
-public record Ofm_Application_Funding
+public class Funding:ofm_funding
 {
     public string ofm_fundingid { get; set; }
 }
