@@ -313,7 +313,8 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
             ofm_envelope_programming_proj = programmingAdjustedFunding,
             ofm_envelope_administrative_proj = adminAdjustedFunding,
             ofm_envelope_operational_proj = operationalAdjustedFunding,
-            ofm_envelope_facility_proj = facilityAdjustedFunding
+            ofm_envelope_facility_proj = facilityAdjustedFunding,
+            ofm_envelope_grand_total_pf = totoalParentFee
         };
         var requestBody = System.Text.Json.JsonSerializer.Serialize(updateContent);
         var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateFundingUrl, requestBody);
