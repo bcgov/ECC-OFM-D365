@@ -44,7 +44,7 @@ services.AddScoped<ID365DocumentProvider, ApplicationDocumentProvider>();
 services.AddScoped<ID365DocumentService, D365DocumentService>();
 
 services.AddScoped<ID365ScheduledProcessService, ProcessService>();
-services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
+services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
 services.AddScoped<D365Email>();

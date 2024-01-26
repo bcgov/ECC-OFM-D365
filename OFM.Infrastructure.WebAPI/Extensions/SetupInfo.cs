@@ -33,6 +33,12 @@ public static class Setup
             public const Int16 SendNotificationsId = 205;
             public const string SendNotificationsName = "Send bulk emails on-demand";
         }
+
+        public static class Organization
+        {
+            public const Int16 VerifyGoodStandingId = 400;
+            public const string VerifyGoodStandingName = "Cancel inactive requests";
+        }
     }
 
     public static readonly JsonSerializerOptions s_writeOptions = new()
