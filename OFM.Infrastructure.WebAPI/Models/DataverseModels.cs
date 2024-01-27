@@ -215,9 +215,12 @@ public record Email_Activity_Parties
 }
 
 
-public class RateSchedule:ofm_rate_schedule
+public class RateSchedule : ofm_rate_schedule
 {
     public new decimal ofm_transport_reimbursement_per_km { get; set; }
+    public new decimal ofm_eht_minimum_cost_for_profit { get; set; }
+    public new decimal ofm_eht_maximum_cost_for_profit { get; set; }
+    public new decimal ofm_eht_maximum_cost_not_for_profit { get; set; }
     public float ofm_total_fte_hours_per_year { get; set; }
     public DateTime ofm_end_date { get; set; }
     public new decimal ofm_greater_than20_spaces_lease_cap_per_month { get; set; }
@@ -250,6 +253,8 @@ public class RateSchedule:ofm_rate_schedule
     public object _createdonbehalfby_value { get; set; }
     public float ofm_wage_grid_markup { get; set; }
     public new decimal ofm_elf_educational_programming_cap_fte_year { get; set; }
+    public new decimal ofm_pde_inclusion_training { get; set; }
+    public new decimal ofm_pde_cultural_training { get; set; }
     public new decimal ofm_parent_fee_per_day_pt { get; set; }
     public object _owningteam_value { get; set; }
     public new decimal ofm_wages_ra_supervisor_differential { get; set; }
@@ -259,7 +264,6 @@ public class RateSchedule:ofm_rate_schedule
     public int statecode { get; set; }
     public new decimal ofm_parent_fee_per_month_ft { get; set; }
     public float ofm_elf_hours_per_fte { get; set; }
-    public int exchangerate { get; set; }
     public new decimal ofm_facilities_with_10_to_19_spaces_inclusion { get; set; }
     public new decimal ofm_less_than20_spaces_lease_cap_per_month { get; set; }
     public float ofm_quality_enhancement_factor { get; set; }
@@ -270,6 +274,9 @@ public class RateSchedule:ofm_rate_schedule
     public int timezoneruleversionnumber { get; set; }
     public string _transactioncurrencyid_value { get; set; }
     public float ofm_hours_per_day { get; set; }
+    public float ofm_for_profit_eht_over_500k { get; set; }
+    public float ofm_for_profit_eht_over_1_5m { get; set; }
+    public float ofm_not_for_profit_eht_over_1_5m { get; set; }
     public new decimal ofm_parent_fee_per_day_ft { get; set; }
     public new decimal ofm_facilities_with_20_or_more_spaces_inclusi { get; set; }
     public new decimal ofm_facilities_with_10_to_19_spaces_ip { get; set; }
@@ -284,7 +291,7 @@ public class RateSchedule:ofm_rate_schedule
     public FundingRate[] ofm_rateschedule_fundingrate { get; set; }
 }
 
-public class FundingRate:ofm_funding_rate
+public class FundingRate : ofm_funding_rate
 {
     public string ofm_caption { get; set; }
     public int ofm_nonhr_funding_envelope { get; set; }
@@ -300,7 +307,7 @@ public class FundingRate:ofm_funding_rate
 }
 
 
-public class Application:ofm_application
+public class Application : ofm_application
 {
     public new decimal ofm_costs_furniture_equipment { get; set; }
     public new decimal ofm_costs_yearly_operating_costs { get; set; }
@@ -337,14 +344,14 @@ public class Application:ofm_application
     public new decimal ofm_costs_property_municipal_tax { get; set; }
     public string ofm_summary_submittedby { get; set; }
     public new decimal ofm_costs_property_insurance { get; set; }
-    public int ofm_summary_ownership { get; set; }
+    public new int ofm_summary_ownership { get; set; }
     public int ofm_staff_infant_ec_educator_ft { get; set; }
     public int versionnumber { get; set; }
     public Licence[] ofm_licence_application { get; set; }
     public Funding[] ofm_application_funding { get; set; }
 }
 
-public class Licence: ofm_licence
+public class Licence : ofm_licence
 {
     public string _ofm_application_value { get; set; }
     public string ofm_licenceid { get; set; }
@@ -358,7 +365,7 @@ public class Licence: ofm_licence
     public LicenceDetail[] ofm_licence_licencedetail { get; set; }
 }
 
-public class LicenceDetail:ofm_licence_detail
+public class LicenceDetail : ofm_licence_detail
 {
     public int ofm_care_type { get; set; }
     public int ofm_enrolled_spaces { get; set; }
@@ -377,9 +384,23 @@ public class LicenceDetail:ofm_licence_detail
     public string ofm_licence_detailid { get; set; }
 }
 
-public class Funding:ofm_funding
+public class Funding : ofm_funding
 {
     public string ofm_fundingid { get; set; }
+}
+
+public class CCLRRatio : ofm_cclr_ratio
+{
+    public int ofm_fte_min_ece { get; set; }
+    public int ofm_fte_min_ecea { get; set; }
+    public int ofm_group_size { get; set; }
+    public int ofm_fte_min_ite { get; set; }
+    public string ofm_licence_group { get; set; }
+    public string ofm_licence_mapping { get; set; }
+    public int ofm_spaces_max { get; set; }
+    public int ofm_spaces_min { get; set; }
+    public int ofm_fte_min_ra { get; set; }
+    public int ofm_rate_schedule { get; set; }
 }
 
 
