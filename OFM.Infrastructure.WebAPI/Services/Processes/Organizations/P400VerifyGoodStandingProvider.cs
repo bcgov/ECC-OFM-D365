@@ -102,6 +102,16 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
     {
         _logger.LogDebug(CustomLogEvent.Process, "Getting inactive requests with query {requestUri}", RequestUri);
 
+        var client = new HttpClient();
+        var request = new HttpRequestMessage(HttpMethod.Get, "https://bcregistry-sandbox.apigee.net/business/api/v2/businesses/FM0666811");
+        request.Headers.Add("Account-Id", "1");
+        request.Headers.Add("x-apikey", "OkogT4xvpfL8muVBhPuULLOsQ5bVzQdM");
+        var content = new StringContent("", null, "application/json");
+        request.Content = content;
+        var response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        Console.WriteLine(await response.Content.ReadAsStringAsync());
+
         var startTime = _timeProvider.GetTimestamp();
 
         var localData = await GetData();
@@ -114,21 +124,21 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
         List<HttpRequestMessage> requests = new() { };
 
-        foreach (var request in localData.Data.AsArray())
-        {
-            var requestId = request!["ofm_assistance_requestid"]!.ToString();
+        //foreach (var request in localData.Data.AsArray())
+        //{
+        //    var requestId = request!["ofm_assistance_requestid"]!.ToString();
 
-            var body = new JsonObject()
-            {
-                ["statecode"] = 1,
-                ["statuscode"] = 5,
-                ["ofm_closing_reason"] = _processSettings.ClosingReason
-            };
+        //    var body = new JsonObject()
+        //    {
+        //        ["statecode"] = 1,
+        //        ["statuscode"] = 5,
+        //        ["ofm_closing_reason"] = _processSettings.ClosingReason
+        //    };
 
-            requests.Add(new UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
-        }
+        //    requests.Add(new UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
+        //}
 
-        var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);
+        var batchResult = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, requests, null);
        
         var endTime = _timeProvider.GetTimestamp();
 
