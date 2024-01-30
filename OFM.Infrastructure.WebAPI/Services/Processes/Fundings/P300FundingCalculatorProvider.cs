@@ -208,7 +208,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         var licences = application?.ofm_licence_application;
 
         var categories = licences?.SelectMany(licence => licence.ofm_licence_licencedetail);
-
+        var licenceType = categories?.GroupBy(l => l.ofm_licence_type);
         var totalSpaces = categories?.Sum(category => category.ofm_operational_spaces) ?? 0;
 
         int? preSchoolCount = 0; int? preSchoolWeeksinOperation = 0; var preSchoolHoursPerDay = 0.00; int? preSchoolWorkDay = 0;
@@ -219,7 +219,6 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         foreach (OFM.Infrastructure.WebAPI.Models.LicenceDetail category in categories)
         {
-
             //if the category is preschool (4,5,6) or schoolAge (7,8,9) -> need to calculate the average operation hours
             if ((int)category.ofm_licence_type == 4 || (int)category.ofm_licence_type == 5 || (int)category.ofm_licence_type == 6)
             {
@@ -335,58 +334,61 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         //var CCLRDetails = System.Text.Json.JsonSerializer.Deserialize<List<CCLRRatio>>(d365Result, Setup.s_writeOptionsForLogs);
 
-
-        foreach (var category in categories)
+        foreach (var licenceDetail in licenceType)
         {
             double hrsOfCarePerChild = 0.00;
             int? operationalSpacesPerLicence = 0;
-
-            if ((int)category.ofm_licence_type == 4 || (int)category.ofm_licence_type == 5 || (int)category.ofm_licence_type == 6)
+            var categoryType = 0;
+            foreach (var category in licenceDetail)
             {
-                if (flagPreSchoolDoCalculation)
+                categoryType = (int)category.ofm_licence_type;
+                if ((int)category.ofm_licence_type == 4 || (int)category.ofm_licence_type == 5 || (int)category.ofm_licence_type == 6)
                 {
-                    flagPreSchoolDoCalculation = false;
-                    operationalSpacesPerLicence = preSchoolOperationalSpaces;
-                    hrsOfCarePerChild = Convert.ToDouble((preSchoolHoursPerDay / preSchoolCount) * (preSchoolWorkDay / preSchoolCount) * (preSchoolWeeksinOperation / preSchoolCount));
+                    if (flagPreSchoolDoCalculation)
+                    {
+                        flagPreSchoolDoCalculation = false;
+                        operationalSpacesPerLicence = preSchoolOperationalSpaces;
+                        hrsOfCarePerChild = Convert.ToDouble((preSchoolHoursPerDay / preSchoolCount) * (preSchoolWorkDay / preSchoolCount) * (preSchoolWeeksinOperation / preSchoolCount));
+                    }
+                    else
+                        continue;
+                }
+                else if ((int)category.ofm_licence_type == 7 || (int)category.ofm_licence_type == 8 || (int)category.ofm_licence_type == 9)
+                {
+                    if (flagSchoolAgeDoCalculation)
+                    {
+                        flagSchoolAgeDoCalculation = false;
+                        operationalSpacesPerLicence = schoolAgeOperationalSpaces;
+                        hrsOfCarePerChild = Convert.ToDouble((schoolAgeHoursPerDay / schoolAgeCount) * (schoolAgeWorkDay / schoolAgeCount) * (schoolAgeWeeksinOperation / schoolAgeCount));
+                    }
+                    else
+                        continue;
                 }
                 else
-                    continue;
-            }
-            else if ((int)category.ofm_licence_type == 7 || (int)category.ofm_licence_type == 8 || (int)category.ofm_licence_type == 9)
-            {
-                if (flagSchoolAgeDoCalculation)
                 {
-                    flagSchoolAgeDoCalculation = false;
-                    operationalSpacesPerLicence = schoolAgeOperationalSpaces;
-                    hrsOfCarePerChild = Convert.ToDouble((schoolAgeHoursPerDay / schoolAgeCount) * (schoolAgeWorkDay / schoolAgeCount) * (schoolAgeWeeksinOperation / schoolAgeCount));
+                    hrsOfCarePerChild += category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
+                    operationalSpacesPerLicence = Math.Max(category.ofm_operational_spaces, (int)operationalSpacesPerLicence);
                 }
-                else
-                    continue;
-            }
-            else
-            {
-                hrsOfCarePerChild = category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
-                operationalSpacesPerLicence = category.ofm_operational_spaces;
             }
             //***************************************** Get CCLR Recod based on licence type *****************************************
             string fetchXML = $"""
-            <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>
-              <entity name='ofm_cclr_ratio'>
-                <attribute name='ofm_fte_min_ece' />
-                <attribute name='ofm_fte_min_ecea' />
-                <attribute name='ofm_fte_min_ite' />
-                <attribute name='ofm_fte_min_ra' />
-                <attribute name='ofm_spaces_max' />
-                <attribute name='ofm_spaces_min' />
-                <filter>
-                    <condition attribute="ofm_licence_mapping" operator="contain-values">
-                  	        <value>{category.ofm_licence_type}</value>
-                    </condition>
-                </filter>
-                <order attribute='ofm_spaces_min' />
-               </entity>
-            </fetch>
-            """;
+    <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>
+      <entity name='ofm_cclr_ratio'>
+        <attribute name='ofm_fte_min_ece' />
+        <attribute name='ofm_fte_min_ecea' />
+        <attribute name='ofm_fte_min_ite' />
+        <attribute name='ofm_fte_min_ra' />
+        <attribute name='ofm_spaces_max' />
+        <attribute name='ofm_spaces_min' />
+        <filter>
+            <condition attribute="ofm_licence_mapping" operator="contain-values">
+             	        <value>{categoryType}</value>
+            </condition>
+        </filter>
+        <order attribute='ofm_spaces_min' />
+       </entity>
+    </fetch>
+    """;
 
             var statement = $"ofm_cclr_ratios?fetchXml=" + WebUtility.UrlEncode(fetchXML);
             var responseCCLR = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, statement);
@@ -410,15 +412,14 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
             }
 
             var CCLRDetails = System.Text.Json.JsonSerializer.Deserialize<List<CCLRRatio>>(d365Result, Setup.s_writeOptionsForLogs);
-
-            var hrsOfChildCareRatioPerFTERatio = Math.Max(hrsOfCarePerChild / (_config.ofm_total_fte_hours_per_year - (_config.ofm_vacation_hours_per_fte + _config.ofm_sick_hours_per_fte
-                    + _config.ofm_statutory_breaks + (_config.ofm_professional_development_hours * 15) + _config.ofm_elf_hours_per_fte + _config.ofm_inclusion_hours_per_fte + _config.ofm_cultural_hours_per_fte)), 0.50);
+            var hrsOfChildCareRatioPerFTERatio = Math.Max(hrsOfCarePerChild / (_config.ofm_total_fte_hours_per_year - 
+                (_config.ofm_vacation_hours_per_fte + _config.ofm_sick_hours_per_fte + _config.ofm_statutory_breaks + 
+                (_config.ofm_professional_development_hours * 15) + _config.ofm_elf_hours_per_fte + _config.ofm_inclusion_hours_per_fte 
+                + _config.ofm_cultural_hours_per_fte)), 0.50);
             operationalSpaceWithAnnualChildCareHrs += hrsOfCarePerChild * (int)operationalSpacesPerLicence;
-
             int ite = 0, ece = 0, ecea = 0, ra = 0;
             //var CCLRDetail = CCLRDetails.Where(r => r.ofm_licence_mapping.Contains(category.ofm_licence_type.ToString()))
             //.OrderBy(r => r.ofm_spaces_min).ToArray();
-
             while (operationalSpacesPerLicence > 0)
             {
                 var max = 0;
@@ -447,6 +448,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                 totalRA += ra * hrsOfChildCareRatioPerFTERatio;
             }
         }
+
         //***************************************** Calculating the wages for FTE *****************************************
         totalFTE += totalITE + totalECE + totalECEA + totalRA;
         var numberOfSupervisors = _config.ofm_supervisor_ratio * numberOfGroups;
@@ -478,12 +480,12 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
 
         var totalProfessionalDues = (double)_config.ofm_standard_dues_per_fte * totalFTE;
         //***************************************** Calculating the EHT *****************************************
-        
+
         if (application.ofm_summary_ownership == 3 && (totalWages + totalBenefitsCostPerYear + enhancementCost) >
-            (double)_config.ofm_eht_minimum_cost_for_profit && (totalWages + totalBenefitsCostPerYear + enhancementCost) 
+            (double)_config.ofm_eht_minimum_cost_for_profit && (totalWages + totalBenefitsCostPerYear + enhancementCost)
             <= (double)_config.ofm_eht_maximum_cost_for_profit)
         {
-            EHT = (_config.ofm_for_profit_eht_over_500k / 100) * ((totalWages + totalBenefitsCostPerYear + enhancementCost) - (double)_config.ofm_eht_maximum_cost_for_profit);
+            EHT = (_config.ofm_for_profit_eht_over_500k / 100) * ((totalWages + totalBenefitsCostPerYear + enhancementCost) - (double)_config.ofm_eht_minimum_cost_for_profit);
         }
         else if (application.ofm_summary_ownership == 3 && (totalWages + totalBenefitsCostPerYear + enhancementCost) > (double)_config.ofm_eht_maximum_cost_for_profit)
         {
@@ -493,8 +495,8 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         {
             EHT = (_config.ofm_not_for_profit_eht_over_1_5m / 100) * ((totalWages + totalBenefitsCostPerYear + enhancementCost) - (double)_config.ofm_eht_maximum_cost_not_for_profit);
         }
-        else if ((application.ofm_summary_ownership == 1 && (totalWages + totalBenefitsCostPerYear + enhancementCost) 
-            <= (double)_config.ofm_eht_maximum_cost_not_for_profit) || ((totalWages + totalBenefitsCostPerYear + enhancementCost) 
+        else if ((application.ofm_summary_ownership == 1 && (totalWages + totalBenefitsCostPerYear + enhancementCost)
+            <= (double)_config.ofm_eht_maximum_cost_not_for_profit) || ((totalWages + totalBenefitsCostPerYear + enhancementCost)
             <= (double)_config.ofm_eht_minimum_cost_for_profit))
         {
             EHT = 0;
