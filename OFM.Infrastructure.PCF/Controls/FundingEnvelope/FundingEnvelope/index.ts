@@ -1,6 +1,7 @@
 import { EnvelopeCompositeControl, IEnvelopeField, IEnvelopeProps } from "./EnvelopeComposite";
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
 import * as React from "react";
+/* eslint no-unused-vars : "off" */
 
 function isIEnvelopeField(field : IEnvelopeField | null ): field is IEnvelopeField {
 	return field != null
@@ -26,7 +27,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
         context: ComponentFramework.Context<IInputs>,
         notifyOutputChanged: () => void,
         state: ComponentFramework.Dictionary
-    ): void {
+        ): void {
 
         this.notifyOutputChanged = notifyOutputChanged;  
 		this.renderControl(context);
@@ -38,7 +39,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
      * @returns ReactElement root react element for the control
      */
     public updateView(context: ComponentFramework.Context<IInputs>): React.ReactElement {
-     
+        // console.log("index - updateView(): " + JSON.stringify({"this.newvalue": this.newValue},null,2));
 		return this.renderControl(context);
     }
 
@@ -47,8 +48,8 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
      * @returns an object based on nomenclature defined in manifest, expecting object[s] for property marked as “bound” or “output”
      */
     public getOutputs(): IOutputs {
-
-         return this.newValue;       
+        // console.log("index - getOutputs(): " + JSON.stringify({"this.newvalue": this.newValue},null,2))
+        return this.newValue;       
     }
 
     /**
@@ -61,14 +62,12 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
     }
 
     private onChangeAmount = (newValue: Object) : void => {
-      
 		this.newValue =  Object.assign(this.newValue, newValue);
 		this.notifyOutputChanged();
 	}
 
     private renderControl(context: ComponentFramework.Context<IInputs>) : React.ReactElement  {
-
-        let isReadOnly = context.mode.isControlDisabled;
+        let isReadOnly = context.mode.isControlDisabled || (<any> context).page.isPageReadOnly;
         let isMasked = context.mode.isVisible;
 
         if(context.parameters.field0.security){
@@ -90,7 +89,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
         }).filter(isIEnvelopeField);
 
         // this.newValue = fields.reduce((result, current) => {      
-        //         return Object.assign(result, {[current.name]: this.formatToDecimal(context,current.control.raw!)});
+        //         return Object.assign(result, {[current.name]: current.control.raw!});
         // }, {});
         
 		let params : IEnvelopeProps = {				
@@ -101,5 +100,5 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
 		};
 
 		return React.createElement(EnvelopeCompositeControl, params);
-	}
+	}  
 }
