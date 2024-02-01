@@ -1,0 +1,335 @@
+﻿using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Options;
+using OFM.Infrastructure.WebAPI.Extensions;
+using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Services.AppUsers;
+using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Http;
+using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
+using ECC.Core.DataContext;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
+using System.Text;
+
+namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
+
+public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
+{
+    private readonly ID365AppUserService _appUserService;
+    private readonly ID365WebApiService _d365webapiservice;
+    private readonly ILogger _logger;
+    private readonly TimeProvider _timeProvider;
+    private ProcessData? _data;
+    private ProcessParameter? _processParams;
+    private string _requestUri = string.Empty;
+    private RateSchedule _config;
+
+
+    public P301SupplememtalFundingCalculatorProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    {
+
+        _appUserService = appUserService;
+        _d365webapiservice = d365WebApiService;
+        _logger = loggerFactory.CreateLogger(LogCategory.Process);
+        _timeProvider = timeProvider;
+    }
+
+    public Int16 ProcessId => Setup.Process.Funding.FundingCalculatorId;
+    public string ProcessName => Setup.Process.Funding.FundingCalculatorName;
+
+    public string RequestUri
+    {
+        get
+        {
+            // Note: FetchXMl limit is 5000 records per request
+            // Use Paging Cookie for large datasets
+            // Use exact filters to reduce the matching data and enhance performance
+            //var applicationId = "41733dc8-d292-ee11-be37-000d3a09d499";
+            var applicationId = _processParams?.ApplicationId;
+
+            if (string.IsNullOrEmpty(_requestUri))
+            {
+                //for reference only
+                /*
+                var fetchXml = $"""
+                                <fetch>
+                                  <entity name="ofm_application">
+                                    <filter>
+                                      <condition attribute="ofm_applicationid" operator="eq" value="41733dc8-d292-ee11-be37-000d3a09d499" />
+                                    </filter>
+                                    <link-entity name="ofm_licence" from="ofm_application" to="ofm_applicationid" alias="ApplicationLicense">
+                                      <attribute name="ofm_application" />
+                                      <attribute name="ofm_licenceid" />
+                                      <attribute name="createdon" />
+                                      <attribute name="ofm_accb_providerid" />
+                                      <attribute name="ofm_ccof_facilityid" />
+                                      <attribute name="ofm_ccof_organizationid" />
+                                      <attribute name="ofm_facility" />
+                                      <attribute name="ofm_health_authority" />
+                                      <attribute name="ofm_licence" />
+                                      <attribute name="ofm_tdad_funding_agreement_number" />
+                                      <attribute name="ownerid" />
+                                      <attribute name="statuscode" />
+                                      <filter>
+                                        <condition attribute="statecode" operator="eq" value="0" />
+                                      </filter>
+                                      <link-entity name="ofm_licence_detail" from="ofm_licence" to="ofm_licenceid" alias="Licence">
+                                        <attribute name="createdon" />
+                                        <attribute name="ofm_care_type" />
+                                        <attribute name="ofm_enrolled_spaces" />
+                                        <attribute name="ofm_licence" />
+                                        <attribute name="ofm_licence_detail" />
+                                        <attribute name="ofm_licence_spaces" />
+                                        <attribute name="ofm_licence_type" />
+                                        <attribute name="ofm_operation_hours_from" />
+                                        <attribute name="ofm_operation_hours_to" />
+                                        <attribute name="ofm_operational_spaces" />
+                                        <attribute name="ofm_overnight_care" />
+                                        <attribute name="ofm_week_days" />
+                                        <attribute name="ofm_weeks_in_operation" />
+                                        <attribute name="ownerid" />
+                                        <attribute name="statuscode" />
+                                      </link-entity>
+                                    </link-entity>
+                                    <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid" alias="Funding">
+                                      <attribute name="ofm_fundingid" />
+                                      <filter>
+                                        <condition attribute="statecode" operator="eq" value="0" />
+                                      </filter>
+                                    </link-entity>
+                                  </entity>
+                                </fetch>
+                                """;
+                */
+
+                var requestUri = $"""                                
+                                ofm_applications?$expand=ofm_licence_application($select=_ofm_application_value,ofm_licenceid,createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;
+                                $expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode);
+                                $filter=(statecode eq 0)),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))
+                                &$filter=(ofm_applicationid eq '{applicationId}') and (ofm_licence_application/any(o1:(o1/statecode eq 0) and (o1/ofm_licence_licencedetail/any(o2:(o2/ofm_licence_detailid ne null))))) and (ofm_application_funding/any(o3:(o3/statecode eq 0)))
+                                """;
+
+                _requestUri = requestUri.CleanCRLF();
+            }
+
+            return _requestUri;
+        }
+    }
+
+    //For reference
+    public async Task<ProcessData> GetApplicationData()
+    {
+
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P301SupplememtalFundingCalculatorProvider));
+
+        if (_data is null && _processParams is not null)
+        {
+            _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", RequestUri);
+
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri, isProcess: true);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query application data with the server error {responseBody}", responseBody.CleanLog());
+
+                return await Task.FromResult(new ProcessData(string.Empty));
+            }
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+            {
+                if (currentValue?.AsArray().Count == 0)
+                {
+                    _logger.LogInformation(CustomLogEvent.Process, "No application found with query {requestUri}", RequestUri);
+                }
+                d365Result = currentValue!;
+            }
+
+            _data = new ProcessData(d365Result);
+
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString(Setup.s_writeOptionsForLogs));
+        }
+
+        return await Task.FromResult(_data);
+    }
+
+
+    public async Task<ProcessData> GetData()
+    {
+
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P301SupplememtalFundingCalculatorProvider));
+
+        if (_data is null && _processParams is not null)
+        {
+            _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", RequestUri);
+
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri, isProcess: true);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query application data with the server error {responseBody}", responseBody.CleanLog());
+
+                return await Task.FromResult(new ProcessData(string.Empty));
+            }
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+            {
+                if (currentValue?.AsArray().Count == 0)
+                {
+                    _logger.LogInformation(CustomLogEvent.Process, "No application found with query {requestUri}", RequestUri);
+                }
+                d365Result = currentValue!;
+            }
+
+            _data = new ProcessData(d365Result);
+
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString(Setup.s_writeOptionsForLogs));
+        }
+
+        return await Task.FromResult(_data);
+    }
+
+    public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    {
+        _processParams = processParams;
+
+        #region Step 0: Get Fixed Parameters
+        /*await SetupConfiguration();*/
+
+        //Fix Parameters
+        double MILEAGE_RATE = 0.61;
+        #endregion
+
+        #region Step 1: Pre-Calculation
+
+        //fetch the supplemental data
+        var localData = await GetData();
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Supplemental>>(localData.Data, Setup.s_writeOptionsForLogs);
+
+        var supplemental = serializedData?.FirstOrDefault();
+
+        //fetch the application and licences data
+        //Get application and license data -> this will be moved to Calculator Object later so ignore
+        var localData = await GetData();
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<OFM.Infrastructure.WebAPI.Models.Application>>(localData.Data, Setup.s_writeOptionsForLogs);
+
+        var application = serializedData?.FirstOrDefault();
+        var fundingId = application?.ofm_application_funding?.FirstOrDefault().ofm_fundingid;
+
+
+        //Calculate the total operational spaces
+        //Total spaces: Sum the ***ofm_operational_spaces*** for each category of each licence
+        
+        var licences = application?.ofm_licence_application;
+        
+        var categories = licences?.SelectMany(licence => licence.ofm_licence_licencedetail);
+
+        var totalSpaces = categories?.Sum(category => category.ofm_operational_spaces)?? 0;
+
+        _logger.LogDebug(CustomLogEvent.Process, "Total Spaces {totalSpaces}", totalSpaces);
+
+        #endregion
+
+        #region Step 2: Calculate Allowance
+
+        //Calculate the 
+
+        #endregion
+
+        #region  Step 4: Post-Calculation
+
+        //Update the funding record
+
+        var updateFundingUrl = @$"ofm_fundings({fundingId})";
+        var updateContent = new
+        {
+            ofm_envelope_programming_proj = programmingAdjustedFunding,
+            ofm_envelope_administrative_proj = adminAdjustedFunding,
+            ofm_envelope_operational_proj = operationalAdjustedFunding,
+            ofm_envelope_facility_proj = facilityAdjustedFunding,
+            ofm_envelope_grand_total_pf = totoalParentFee
+        };
+        var requestBody = System.Text.Json.JsonSerializer.Serialize(updateContent);
+        var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateFundingUrl, requestBody);
+
+        _logger.LogDebug(CustomLogEvent.Process, "Update Funding Record {fundingId}", fundingId);
+        #endregion
+
+        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+    }
+
+    #region Local Validation & Setup Code
+
+/*    private async Task SetupConfiguration()
+    {
+        *//* For Reference
+         * <fetch>
+            <entity name="ofm_rate_schedule">
+             <attribute name="ofm_caption" />
+             <attribute name="ofm_end_date" />
+             <attribute name="ofm_parent_fee_per_day_ft" />
+             <attribute name="ofm_parent_fee_per_day_pt" />
+             <attribute name="ofm_parent_fee_per_month_ft" />
+             <attribute name="ofm_parent_fee_per_month_pt" />
+             <attribute name="ofm_start_date" />
+             <attribute name="statecode" />
+             <link-entity name="ofm_funding_rate" from="ofm_rate_schedule" to="ofm_rate_scheduleid">
+               <attribute name="ofm_caption" />
+               <attribute name="ofm_nonhr_funding_envelope" />
+               <attribute name="ofm_rate" />
+               <attribute name="ofm_spaces_max" />
+               <attribute name="ofm_spaces_min" />
+               <attribute name="ofm_step" />
+               <attribute name="statecode" />
+               <attribute name="ofm_ownership" />
+             </link-entity>
+            </entity>
+           </fetch>
+        *//*
+
+        var requestUri = $"""
+                            ofm_rate_schedules?$select=ofm_caption,ofm_end_date,ofm_parent_fee_per_day_ft,ofm_parent_fee_per_day_pt,ofm_parent_fee_per_month_ft,ofm_parent_fee_per_month_pt,ofm_start_date,statecode
+                            &$expand=ofm_rateschedule_fundingrate($select=ofm_caption,ofm_nonhr_funding_envelope,ofm_rate,ofm_spaces_max,ofm_spaces_min,ofm_step,statecode,ofm_ownership)
+                            &$filter=(ofm_rateschedule_fundingrate/any(o1:(o1/ofm_funding_rateid ne null)))
+                            """;
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query the funding rate with a server error {responseBody}", responseBody.CleanLog());
+            }
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+            {
+                if (currentValue?.AsArray().Count == 0)
+                {
+                    _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", requestUri);
+                }
+                d365Result = currentValue!;
+            }
+
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<RateSchedule>>(d365Result, Setup.s_writeOptionsForLogs);
+
+        _config = serializedData?.FirstOrDefault();
+        _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", requestUri);
+    }
+*/
+    #endregion
+
+}

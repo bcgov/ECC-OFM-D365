@@ -215,7 +215,7 @@ public record Email_Activity_Parties
 }
 
 
-public class RateSchedule:ofm_rate_schedule
+public class RateSchedule : ofm_rate_schedule
 {
     public new decimal ofm_transport_reimbursement_per_km { get; set; }
     public float ofm_total_fte_hours_per_year { get; set; }
@@ -284,7 +284,7 @@ public class RateSchedule:ofm_rate_schedule
     public FundingRate[] ofm_rateschedule_fundingrate { get; set; }
 }
 
-public class FundingRate:ofm_funding_rate
+public class FundingRate : ofm_funding_rate
 {
     public string ofm_caption { get; set; }
     public int ofm_nonhr_funding_envelope { get; set; }
@@ -300,7 +300,7 @@ public class FundingRate:ofm_funding_rate
 }
 
 
-public class Application:ofm_application
+public class Application : ofm_application
 {
     public new decimal ofm_costs_furniture_equipment { get; set; }
     public new decimal ofm_costs_yearly_operating_costs { get; set; }
@@ -344,7 +344,7 @@ public class Application:ofm_application
     public Funding[] ofm_application_funding { get; set; }
 }
 
-public class Licence: ofm_licence
+public class Licence : ofm_licence
 {
     public string _ofm_application_value { get; set; }
     public string ofm_licenceid { get; set; }
@@ -358,7 +358,7 @@ public class Licence: ofm_licence
     public LicenceDetail[] ofm_licence_licencedetail { get; set; }
 }
 
-public class LicenceDetail:ofm_licence_detail
+public class LicenceDetail : ofm_licence_detail
 {
     public int ofm_care_type { get; set; }
     public int ofm_enrolled_spaces { get; set; }
@@ -377,9 +377,25 @@ public class LicenceDetail:ofm_licence_detail
     public string ofm_licence_detailid { get; set; }
 }
 
-public class Funding:ofm_funding
+public class Funding : ofm_funding
 {
     public string ofm_fundingid { get; set; }
+}
+
+
+public record Supplemental
+{
+    public string ofm_allowance_number { get; set; }
+    public int ofm_allowance_type { get; set; }
+    public string ofm_application { get; set; }
+    public int ofm_funding_amount { get; set; }
+    public int ofm_needs_number_of_children_scd { get; set; }
+    public int ofm_transport_estimated_monthly_km { get; set; }
+    public int ofm_transport_lease { get; set; }
+    public int ofm_transport_monthly_lease { get; set; }
+    public int ofm_transport_odometer { get; set; }
+    public int statuscode { get; set; }
+    public string ofm_allowanceid { get; set; }
 }
 
 
