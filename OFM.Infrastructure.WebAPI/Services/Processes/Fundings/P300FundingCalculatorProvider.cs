@@ -199,6 +199,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         var application = serializedData?.FirstOrDefault();
         var fundingId = application?.ofm_application_funding?.FirstOrDefault().ofm_fundingid;
 
+        var duplicateLicenceType = (bool)application?.ofm_application_funding?.FirstOrDefault().ofm_apply_duplicate_caretypes_condition;
 
         //Calculate the total spaces, operation hours and Parent Fee
         //Total spaces: Sum the ***ofm_operational_spaces*** for each category of each licence
@@ -208,10 +209,12 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         var licences = application?.ofm_licence_application;
 
         var categories = licences?.SelectMany(licence => licence.ofm_licence_licencedetail);
+
         var licenceType = categories?.GroupBy(l => l.ofm_licence_type);
+
         var totalSpaces = categories?.Sum(category => category.ofm_operational_spaces) ?? 0;
 
-        int? preSchoolCount = 0; int? preSchoolWeeksinOperation = 0; var preSchoolHoursPerDay = 0.00; int? preSchoolWorkDay = 0;
+        int? preSchoolCount = 0; var preSchoolWeeksinOperation = 0.00; var preSchoolHoursPerDay = 0.00; var preSchoolWorkDay = 0.00;
         int? schoolAgeCount = 0; int? schoolAgeWeeksinOperation = 0; var schoolAgeHoursPerDay = 0.00; int? schoolAgeWorkDay = 0;
         int? preSchoolOperationalSpaces = 0; int? schoolAgeOperationalSpaces = 0;
 
@@ -333,14 +336,130 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         //}
 
         //var CCLRDetails = System.Text.Json.JsonSerializer.Deserialize<List<CCLRRatio>>(d365Result, Setup.s_writeOptionsForLogs);
-
-        foreach (var licenceDetail in licenceType)
+        if (duplicateLicenceType)
         {
-            double hrsOfCarePerChild = 0.00;
-            int? operationalSpacesPerLicence = 0;
-            var categoryType = 0;
-            foreach (var category in licenceDetail)
+            foreach (var licenceDetail in licenceType)
             {
+                double hrsOfCarePerChild = 0.00;
+                int? operationalSpacesPerLicence = 0;
+                var categoryType = 0;
+                foreach (var category in licenceDetail)
+                {
+                    categoryType = (int)category.ofm_licence_type;
+                    if ((int)category.ofm_licence_type == 4 || (int)category.ofm_licence_type == 5 || (int)category.ofm_licence_type == 6)
+                    {
+                        if (flagPreSchoolDoCalculation)
+                        {
+                            flagPreSchoolDoCalculation = false;
+                            operationalSpacesPerLicence = preSchoolOperationalSpaces;
+                            hrsOfCarePerChild = Convert.ToDouble((preSchoolHoursPerDay / preSchoolCount) * (preSchoolWorkDay / preSchoolCount) * (preSchoolWeeksinOperation / preSchoolCount));
+                        }
+                        else
+                            continue;
+                    }
+                    else if ((int)category.ofm_licence_type == 7 || (int)category.ofm_licence_type == 8 || (int)category.ofm_licence_type == 9)
+                    {
+                        if (flagSchoolAgeDoCalculation)
+                        {
+                            flagSchoolAgeDoCalculation = false;
+                            operationalSpacesPerLicence = schoolAgeOperationalSpaces;
+                            hrsOfCarePerChild = Convert.ToDouble((schoolAgeHoursPerDay / schoolAgeCount) * (schoolAgeWorkDay / schoolAgeCount) * (schoolAgeWeeksinOperation / schoolAgeCount));
+                        }
+                        else
+                            continue;
+                    }
+                    else
+                    {
+                        hrsOfCarePerChild += category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
+                        operationalSpacesPerLicence = Math.Max(category.ofm_operational_spaces, (int)operationalSpacesPerLicence);
+                    }
+                }
+                //***************************************** Get CCLR Recod based on licence type *****************************************
+                string fetchXML = $"""
+    <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>
+      <entity name='ofm_cclr_ratio'>
+        <attribute name='ofm_fte_min_ece' />
+        <attribute name='ofm_fte_min_ecea' />
+        <attribute name='ofm_fte_min_ite' />
+        <attribute name='ofm_fte_min_ra' />
+        <attribute name='ofm_spaces_max' />
+        <attribute name='ofm_spaces_min' />
+        <filter>
+            <condition attribute="ofm_licence_mapping" operator="contain-values">
+             	        <value>{categoryType}</value>
+            </condition>
+        </filter>
+        <order attribute='ofm_spaces_min' />
+       </entity>
+    </fetch>
+    """;
+
+                var statement = $"ofm_cclr_ratios?fetchXml=" + WebUtility.UrlEncode(fetchXML);
+                var responseCCLR = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, statement);
+
+                if (!responseCCLR.IsSuccessStatusCode)
+                {
+                    var responseBody = await responseCCLR.Content.ReadAsStringAsync();
+                    _logger.LogError(CustomLogEvent.Process, "Failed to query the funding rate with a server error {responseBody}", responseBody.CleanLog());
+                }
+
+                var jsonObject = await responseCCLR.Content.ReadFromJsonAsync<JsonObject>();
+
+                JsonNode d365Result = string.Empty;
+                if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+                {
+                    if (currentValue?.AsArray().Count == 0)
+                    {
+                        _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", statement);
+                    }
+                    d365Result = currentValue!;
+                }
+
+                var CCLRDetails = System.Text.Json.JsonSerializer.Deserialize<List<CCLRRatio>>(d365Result, Setup.s_writeOptionsForLogs);
+                var hrsOfChildCareRatioPerFTERatio = Math.Max(hrsOfCarePerChild / (_config.ofm_total_fte_hours_per_year -
+                    (_config.ofm_vacation_hours_per_fte + _config.ofm_sick_hours_per_fte + _config.ofm_statutory_breaks +
+                    (_config.ofm_professional_development_hours * 15) + _config.ofm_elf_hours_per_fte + _config.ofm_inclusion_hours_per_fte
+                    + _config.ofm_cultural_hours_per_fte)), 0.50);
+                operationalSpaceWithAnnualChildCareHrs += hrsOfCarePerChild * (int)operationalSpacesPerLicence;
+                int ite = 0, ece = 0, ecea = 0, ra = 0;
+                //var CCLRDetail = CCLRDetails.Where(r => r.ofm_licence_mapping.Contains(category.ofm_licence_type.ToString()))
+                //.OrderBy(r => r.ofm_spaces_min).ToArray();
+                while (operationalSpacesPerLicence > 0)
+                {
+                    var max = 0;
+                    for (var i = 0; i < CCLRDetails.Count(); i++)
+                    {
+                        if (CCLRDetails.Count() == i + 1 || (operationalSpacesPerLicence >= CCLRDetails[i].ofm_spaces_min && operationalSpacesPerLicence
+                            <= CCLRDetails[i].ofm_spaces_max))
+                        {
+                            max = CCLRDetails[i].ofm_spaces_max;
+                            ite = CCLRDetails[i].ofm_fte_min_ite;
+                            ece = CCLRDetails[i].ofm_fte_min_ece;
+                            ecea = CCLRDetails[i].ofm_fte_min_ecea;
+                            ra = CCLRDetails[i].ofm_fte_min_ra;
+                            numberOfGroups += 1;
+                            total_cost += ((double)(CCLRDetails[i].ofm_fte_min_ite * _config.ofm_wages_ite_cost + CCLRDetails[i].ofm_fte_min_ece
+                                * _config.ofm_wages_ece_cost + CCLRDetails[i].ofm_fte_min_ecea * _config.ofm_wages_ecea_cost + CCLRDetails[i].ofm_fte_min_ra
+                                * _config.ofm_wages_ra_cost) * hrsOfChildCareRatioPerFTERatio) * (1 + 0);
+                            break;
+                        }
+                    }
+
+                    operationalSpacesPerLicence = operationalSpacesPerLicence - max;
+                    totalITE += ite * hrsOfChildCareRatioPerFTERatio;//3.14-1
+                    totalECE += ece * hrsOfChildCareRatioPerFTERatio;
+                    totalECEA += ecea * hrsOfChildCareRatioPerFTERatio;
+                    totalRA += ra * hrsOfChildCareRatioPerFTERatio;
+                }
+            }
+        }
+        else
+        {
+            foreach (var category in categories)
+            {
+                double hrsOfCarePerChild = 0.00;
+                int? operationalSpacesPerLicence = 0;
+                var categoryType = 0;
                 categoryType = (int)category.ofm_licence_type;
                 if ((int)category.ofm_licence_type == 4 || (int)category.ofm_licence_type == 5 || (int)category.ofm_licence_type == 6)
                 {
@@ -366,89 +485,89 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                 }
                 else
                 {
-                    hrsOfCarePerChild += category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
+                    hrsOfCarePerChild = category.ofm_weeks_in_operation * (category.ofm_week_days.Split(",").Length) * (category.ofm_operation_hours_to - category.ofm_operation_hours_from).TotalHours;
                     operationalSpacesPerLicence = Math.Max(category.ofm_operational_spaces, (int)operationalSpacesPerLicence);
                 }
-            }
-            //***************************************** Get CCLR Recod based on licence type *****************************************
-            string fetchXML = $"""
-    <fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>
-      <entity name='ofm_cclr_ratio'>
-        <attribute name='ofm_fte_min_ece' />
-        <attribute name='ofm_fte_min_ecea' />
-        <attribute name='ofm_fte_min_ite' />
-        <attribute name='ofm_fte_min_ra' />
-        <attribute name='ofm_spaces_max' />
-        <attribute name='ofm_spaces_min' />
-        <filter>
-            <condition attribute="ofm_licence_mapping" operator="contain-values">
-             	        <value>{categoryType}</value>
-            </condition>
-        </filter>
-        <order attribute='ofm_spaces_min' />
-       </entity>
-    </fetch>
-    """;
 
-            var statement = $"ofm_cclr_ratios?fetchXml=" + WebUtility.UrlEncode(fetchXML);
-            var responseCCLR = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, statement);
+                //***************************************** Get CCLR Recod based on licence type *****************************************
+                string fetchXML = $"""
+<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>
+  <entity name='ofm_cclr_ratio'>
+    <attribute name='ofm_fte_min_ece' />
+    <attribute name='ofm_fte_min_ecea' />
+    <attribute name='ofm_fte_min_ite' />
+    <attribute name='ofm_fte_min_ra' />
+    <attribute name='ofm_spaces_max' />
+    <attribute name='ofm_spaces_min' />
+    <filter>
+        <condition attribute="ofm_licence_mapping" operator="contain-values">
+            	        <value>{categoryType}</value>
+        </condition>
+    </filter>
+    <order attribute='ofm_spaces_min' />
+   </entity>
+</fetch>
+""";
 
-            if (!responseCCLR.IsSuccessStatusCode)
-            {
-                var responseBody = await responseCCLR.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query the funding rate with a server error {responseBody}", responseBody.CleanLog());
-            }
+                var statement = $"ofm_cclr_ratios?fetchXml=" + WebUtility.UrlEncode(fetchXML);
+                var responseCCLR = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, statement);
 
-            var jsonObject = await responseCCLR.Content.ReadFromJsonAsync<JsonObject>();
-
-            JsonNode d365Result = string.Empty;
-            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-            {
-                if (currentValue?.AsArray().Count == 0)
+                if (!responseCCLR.IsSuccessStatusCode)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", statement);
+                    var responseBody = await responseCCLR.Content.ReadAsStringAsync();
+                    _logger.LogError(CustomLogEvent.Process, "Failed to query the funding rate with a server error {responseBody}", responseBody.CleanLog());
                 }
-                d365Result = currentValue!;
-            }
 
-            var CCLRDetails = System.Text.Json.JsonSerializer.Deserialize<List<CCLRRatio>>(d365Result, Setup.s_writeOptionsForLogs);
-            var hrsOfChildCareRatioPerFTERatio = Math.Max(hrsOfCarePerChild / (_config.ofm_total_fte_hours_per_year - 
-                (_config.ofm_vacation_hours_per_fte + _config.ofm_sick_hours_per_fte + _config.ofm_statutory_breaks + 
-                (_config.ofm_professional_development_hours * 15) + _config.ofm_elf_hours_per_fte + _config.ofm_inclusion_hours_per_fte 
-                + _config.ofm_cultural_hours_per_fte)), 0.50);
-            operationalSpaceWithAnnualChildCareHrs += hrsOfCarePerChild * (int)operationalSpacesPerLicence;
-            int ite = 0, ece = 0, ecea = 0, ra = 0;
-            //var CCLRDetail = CCLRDetails.Where(r => r.ofm_licence_mapping.Contains(category.ofm_licence_type.ToString()))
-            //.OrderBy(r => r.ofm_spaces_min).ToArray();
-            while (operationalSpacesPerLicence > 0)
-            {
-                var max = 0;
-                for (var i = 0; i < CCLRDetails.Count(); i++)
+                var jsonObject = await responseCCLR.Content.ReadFromJsonAsync<JsonObject>();
+
+                JsonNode d365Result = string.Empty;
+                if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
                 {
-                    if (CCLRDetails.Count() == i + 1 || (operationalSpacesPerLicence >= CCLRDetails[i].ofm_spaces_min && operationalSpacesPerLicence
-                        <= CCLRDetails[i].ofm_spaces_max))
+                    if (currentValue?.AsArray().Count == 0)
                     {
-                        max = CCLRDetails[i].ofm_spaces_max;
-                        ite = CCLRDetails[i].ofm_fte_min_ite;
-                        ece = CCLRDetails[i].ofm_fte_min_ece;
-                        ecea = CCLRDetails[i].ofm_fte_min_ecea;
-                        ra = CCLRDetails[i].ofm_fte_min_ra;
-                        numberOfGroups += 1;
-                        total_cost += ((double)(CCLRDetails[i].ofm_fte_min_ite * _config.ofm_wages_ite_cost + CCLRDetails[i].ofm_fte_min_ece
-                            * _config.ofm_wages_ece_cost + CCLRDetails[i].ofm_fte_min_ecea * _config.ofm_wages_ecea_cost + CCLRDetails[i].ofm_fte_min_ra
-                            * _config.ofm_wages_ra_cost) * hrsOfChildCareRatioPerFTERatio) * (1 + 0);
-                        break;
+                        _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", statement);
                     }
+                    d365Result = currentValue!;
                 }
 
-                operationalSpacesPerLicence = operationalSpacesPerLicence - max;
-                totalITE += ite * hrsOfChildCareRatioPerFTERatio;//3.14-1
-                totalECE += ece * hrsOfChildCareRatioPerFTERatio;
-                totalECEA += ecea * hrsOfChildCareRatioPerFTERatio;
-                totalRA += ra * hrsOfChildCareRatioPerFTERatio;
+                var CCLRDetails = System.Text.Json.JsonSerializer.Deserialize<List<CCLRRatio>>(d365Result, Setup.s_writeOptionsForLogs);
+                var hrsOfChildCareRatioPerFTERatio = Math.Max(hrsOfCarePerChild / (_config.ofm_total_fte_hours_per_year -
+                    (_config.ofm_vacation_hours_per_fte + _config.ofm_sick_hours_per_fte + _config.ofm_statutory_breaks +
+                    (_config.ofm_professional_development_hours * 15) + _config.ofm_elf_hours_per_fte + _config.ofm_inclusion_hours_per_fte
+                    + _config.ofm_cultural_hours_per_fte)), 0.50);
+                operationalSpaceWithAnnualChildCareHrs += hrsOfCarePerChild * (int)operationalSpacesPerLicence;
+                int ite = 0, ece = 0, ecea = 0, ra = 0;
+                //var CCLRDetail = CCLRDetails.Where(r => r.ofm_licence_mapping.Contains(category.ofm_licence_type.ToString()))
+                //.OrderBy(r => r.ofm_spaces_min).ToArray();
+                while (operationalSpacesPerLicence > 0)
+                {
+                    var max = 0;
+                    for (var i = 0; i < CCLRDetails.Count(); i++)
+                    {
+                        if (CCLRDetails.Count() == i + 1 || (operationalSpacesPerLicence >= CCLRDetails[i].ofm_spaces_min && operationalSpacesPerLicence
+                            <= CCLRDetails[i].ofm_spaces_max))
+                        {
+                            max = CCLRDetails[i].ofm_spaces_max;
+                            ite = CCLRDetails[i].ofm_fte_min_ite;
+                            ece = CCLRDetails[i].ofm_fte_min_ece;
+                            ecea = CCLRDetails[i].ofm_fte_min_ecea;
+                            ra = CCLRDetails[i].ofm_fte_min_ra;
+                            numberOfGroups += 1;
+                            total_cost += ((double)(CCLRDetails[i].ofm_fte_min_ite * _config.ofm_wages_ite_cost + CCLRDetails[i].ofm_fte_min_ece
+                                * _config.ofm_wages_ece_cost + CCLRDetails[i].ofm_fte_min_ecea * _config.ofm_wages_ecea_cost + CCLRDetails[i].ofm_fte_min_ra
+                                * _config.ofm_wages_ra_cost) * hrsOfChildCareRatioPerFTERatio) * (1 + 0);
+                            break;
+                        }
+                    }
+
+                    operationalSpacesPerLicence = operationalSpacesPerLicence - max;
+                    totalITE += ite * hrsOfChildCareRatioPerFTERatio;//3.14-1
+                    totalECE += ece * hrsOfChildCareRatioPerFTERatio;
+                    totalECEA += ecea * hrsOfChildCareRatioPerFTERatio;
+                    totalRA += ra * hrsOfChildCareRatioPerFTERatio;
+                }
             }
         }
-
         //***************************************** Calculating the wages for FTE *****************************************
         totalFTE += totalITE + totalECE + totalECEA + totalRA;
         var numberOfSupervisors = _config.ofm_supervisor_ratio * numberOfGroups;

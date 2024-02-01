@@ -387,6 +387,7 @@ public class LicenceDetail : ofm_licence_detail
 public class Funding : ofm_funding
 {
     public string ofm_fundingid { get; set; }
+    public bool ofm_apply_duplicate_caretypes_condition { get; set; }
 }
 
 public class CCLRRatio : ofm_cclr_ratio
