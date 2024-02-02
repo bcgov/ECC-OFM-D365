@@ -35,13 +35,13 @@ namespace OFM.Infrastructure.CustomWorkflowActivitiesTest.Supplementary
             try
             {
                 RetrieveRequest request = new RetrieveRequest();
-                request.ColumnSet = new ColumnSet(new string[] { "ofm__submittedon" });
+                request.ColumnSet = new ColumnSet(new string[] { "ofm_submittedon" });
                 request.Target = new EntityReference(recordId.LogicalName, recordId.Id);
 
                 Entity entity = ((RetrieveResponse)service.Execute(request)).Entity;
-                if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm__submittedon"))
+                if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm_submittedon"))
                 {
-                    var dateSubmittedOn = entity.GetAttributeValue<DateTime>("ofm__submittedon");
+                    var dateSubmittedOn = entity.GetAttributeValue<DateTime>("ofm_submittedon");
 
                     RetrieveRequest timeZoneCode = new RetrieveRequest();
                     timeZoneCode.ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode });
