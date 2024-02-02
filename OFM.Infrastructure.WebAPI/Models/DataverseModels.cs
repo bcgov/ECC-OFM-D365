@@ -387,15 +387,33 @@ public record Supplemental
 {
     public string ofm_allowance_number { get; set; }
     public int ofm_allowance_type { get; set; }
-    public string ofm_application { get; set; }
-    public int ofm_funding_amount { get; set; }
+    public string _ofm_application_value { get; set; }
+    public decimal ofm_funding_amount { get; set; }
     public int ofm_needs_number_of_children_scd { get; set; }
-    public int ofm_transport_estimated_monthly_km { get; set; }
+    public decimal ofm_transport_estimated_monthly_km { get; set; }
     public int ofm_transport_lease { get; set; }
-    public int ofm_transport_monthly_lease { get; set; }
-    public int ofm_transport_odometer { get; set; }
+    public decimal ofm_transport_monthly_lease { get; set; }
+    public decimal ofm_transport_odometer { get; set; }
     public int statuscode { get; set; }
     public string ofm_allowanceid { get; set; }
+    public Ofm_Supplementary_Schedule ofm_supplementary_schedule { get; set; }
+}
+
+public class Ofm_Supplementary_Schedule
+{
+    public DateTime ofm_end_date { get; set; }
+    public decimal ofm_indigenous_10_to_19_spaces { get; set; }
+    public decimal ofm_indigenous_ge_20_spaces { get; set; }
+    public decimal ofm_indigenous_le_9_spaces { get; set; }
+    public decimal ofm_needs_10_to_19_spaces { get; set; }
+    public decimal ofm_needs_ge_20_spaces { get; set; }
+    public decimal ofm_needs_le_9_spaces { get; set; }
+    public decimal ofm_sqw_caps_for_centers { get; set; }
+    public decimal ofm_sqw_caps_for_homebased { get; set; }
+    public DateTime ofm_start_date { get; set; }
+    public decimal ofm_transport_ge_20_spaces_lease_cap_month { get; set; }
+    public decimal ofm_transport_less_20_spaces_lease_cap_month { get; set; }
+    public decimal ofm_transport_reimbursement_rate_per_km { get; set; }
 }
 
 

@@ -16,7 +16,9 @@ public record ProcessParameter
     public EmailParameter? Notification { get; set; }
     [property: JsonPropertyName("applicationId")]
     public string? ApplicationId { get; set; }
-    
+    [property: JsonPropertyName("supplementalId")]
+    public string? SupplementalId { get; set; }
+
 
 
     public record EmailParameter

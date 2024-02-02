@@ -49,6 +49,7 @@ services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P300FundingCalculatorProvider>();
+services.AddScoped<ID365ProcessProvider, P301SupplememtalFundingCalculatorProvider>();
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
 

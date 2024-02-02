@@ -38,8 +38,8 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Funding.FundingCalculatorId;
-    public string ProcessName => Setup.Process.Funding.FundingCalculatorName;
+    public Int16 ProcessId => Setup.Process.Funding.SupplementalFundingCalculatorId;
+    public string ProcessName => Setup.Process.Funding.SupplementalFundingCalculatorName;
 
     public string RequestUri
     {
@@ -48,8 +48,8 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
             // Note: FetchXMl limit is 5000 records per request
             // Use Paging Cookie for large datasets
             // Use exact filters to reduce the matching data and enhance performance
-            //var applicationId = "41733dc8-d292-ee11-be37-000d3a09d499";
-            var applicationId = _processParams?.ApplicationId;
+            //var applicationId = "d3485220-9bbf-ee11-9079-000d3a09d499";
+            var supplementalId = _processParams?.SupplementalId;
 
             if (string.IsNullOrEmpty(_requestUri))
             {
@@ -57,49 +57,34 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
                 /*
                 var fetchXml = $"""
                                 <fetch>
-                                  <entity name="ofm_application">
+                                  <entity name="ofm_allowance">
+                                    <attribute name="ofm_allowance_number" />
+                                    <attribute name="ofm_allowance_type" />
+                                    <attribute name="ofm_application" />
+                                    <attribute name="ofm_funding_amount" />
+                                    <attribute name="ofm_needs_number_of_children_scd" />
+                                    <attribute name="ofm_transport_estimated_monthly_km" />
+                                    <attribute name="ofm_transport_lease" />
+                                    <attribute name="ofm_transport_monthly_lease" />
+                                    <attribute name="ofm_transport_odometer" />
+                                    <attribute name="statuscode" />
                                     <filter>
-                                      <condition attribute="ofm_applicationid" operator="eq" value="41733dc8-d292-ee11-be37-000d3a09d499" />
+                                      <condition attribute="ofm_allowanceid" operator="eq" value="d3485220-9bbf-ee11-9079-000d3a09d499" />
                                     </filter>
-                                    <link-entity name="ofm_licence" from="ofm_application" to="ofm_applicationid" alias="ApplicationLicense">
-                                      <attribute name="ofm_application" />
-                                      <attribute name="ofm_licenceid" />
-                                      <attribute name="createdon" />
-                                      <attribute name="ofm_accb_providerid" />
-                                      <attribute name="ofm_ccof_facilityid" />
-                                      <attribute name="ofm_ccof_organizationid" />
-                                      <attribute name="ofm_facility" />
-                                      <attribute name="ofm_health_authority" />
-                                      <attribute name="ofm_licence" />
-                                      <attribute name="ofm_tdad_funding_agreement_number" />
-                                      <attribute name="ownerid" />
-                                      <attribute name="statuscode" />
-                                      <filter>
-                                        <condition attribute="statecode" operator="eq" value="0" />
-                                      </filter>
-                                      <link-entity name="ofm_licence_detail" from="ofm_licence" to="ofm_licenceid" alias="Licence">
-                                        <attribute name="createdon" />
-                                        <attribute name="ofm_care_type" />
-                                        <attribute name="ofm_enrolled_spaces" />
-                                        <attribute name="ofm_licence" />
-                                        <attribute name="ofm_licence_detail" />
-                                        <attribute name="ofm_licence_spaces" />
-                                        <attribute name="ofm_licence_type" />
-                                        <attribute name="ofm_operation_hours_from" />
-                                        <attribute name="ofm_operation_hours_to" />
-                                        <attribute name="ofm_operational_spaces" />
-                                        <attribute name="ofm_overnight_care" />
-                                        <attribute name="ofm_week_days" />
-                                        <attribute name="ofm_weeks_in_operation" />
-                                        <attribute name="ownerid" />
-                                        <attribute name="statuscode" />
-                                      </link-entity>
-                                    </link-entity>
-                                    <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid" alias="Funding">
-                                      <attribute name="ofm_fundingid" />
-                                      <filter>
-                                        <condition attribute="statecode" operator="eq" value="0" />
-                                      </filter>
+                                    <link-entity name="ofm_supplementary_schedule" from="ofm_supplementary_scheduleid" to="ofm_supplementary_schedule">
+                                      <attribute name="ofm_end_date" />
+                                      <attribute name="ofm_indigenous_10_to_19_spaces" />
+                                      <attribute name="ofm_indigenous_ge_20_spaces" />
+                                      <attribute name="ofm_indigenous_le_9_spaces" />
+                                      <attribute name="ofm_needs_10_to_19_spaces" />
+                                      <attribute name="ofm_needs_ge_20_spaces" />
+                                      <attribute name="ofm_needs_le_9_spaces" />
+                                      <attribute name="ofm_sqw_caps_for_centers" />
+                                      <attribute name="ofm_sqw_caps_for_homebased" />
+                                      <attribute name="ofm_start_date" />
+                                      <attribute name="ofm_transport_ge_20_spaces_lease_cap_month" />
+                                      <attribute name="ofm_transport_less_20_spaces_lease_cap_month" />
+                                      <attribute name="ofm_transport_reimbursement_rate_per_km" />
                                     </link-entity>
                                   </entity>
                                 </fetch>
@@ -107,12 +92,10 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
                 */
 
                 var requestUri = $"""                                
-                                ofm_applications?$expand=ofm_licence_application($select=_ofm_application_value,ofm_licenceid,createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;
-                                $expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode);
-                                $filter=(statecode eq 0)),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))
-                                &$filter=(ofm_applicationid eq '{applicationId}') and (ofm_licence_application/any(o1:(o1/statecode eq 0) and (o1/ofm_licence_licencedetail/any(o2:(o2/ofm_licence_detailid ne null))))) and (ofm_application_funding/any(o3:(o3/statecode eq 0)))
+                                ofm_allowances?$select=ofm_allowance_number,ofm_allowance_type,_ofm_application_value,ofm_funding_amount,ofm_needs_number_of_children_scd,ofm_transport_estimated_monthly_km,ofm_transport_lease,ofm_transport_monthly_lease,ofm_transport_odometer,statuscode
+                                &$expand=ofm_supplementary_schedule($select=ofm_end_date,ofm_indigenous_10_to_19_spaces,ofm_indigenous_ge_20_spaces,ofm_indigenous_le_9_spaces,ofm_needs_10_to_19_spaces,ofm_needs_ge_20_spaces,ofm_needs_le_9_spaces,ofm_sqw_caps_for_centers,ofm_sqw_caps_for_homebased,ofm_start_date,ofm_transport_ge_20_spaces_lease_cap_month,ofm_transport_less_20_spaces_lease_cap_month,ofm_transport_reimbursement_rate_per_km)
+                                &$filter=(ofm_allowanceid eq '{supplementalId}') and (ofm_supplementary_schedule/ofm_supplementary_scheduleid ne null)
                                 """;
-
                 _requestUri = requestUri.CleanCRLF();
             }
 
@@ -121,16 +104,21 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
     }
 
     //For reference
-    public async Task<ProcessData> GetApplicationData()
+    public async Task<ProcessData> GetApplicationData(string applicationId)
     {
 
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P301SupplememtalFundingCalculatorProvider));
-
-        if (_data is null && _processParams is not null)
+        if (applicationId is not null)
         {
-            _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", RequestUri);
+            var requestUri = $"""                                
+                                ofm_applications?$expand=ofm_licence_application($select=_ofm_application_value,ofm_licenceid,createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;
+                                $expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode);
+                                $filter=(statecode eq 0)),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))
+                                &$filter=(ofm_applicationid eq '{applicationId}') and (ofm_licence_application/any(o1:(o1/statecode eq 0) and (o1/ofm_licence_licencedetail/any(o2:(o2/ofm_licence_detailid ne null))))) and (ofm_application_funding/any(o3:(o3/statecode eq 0)))
+                                """;
+            
+            _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", requestUri);
 
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri, isProcess: true);
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri.CleanCRLF(), isProcess: true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -168,14 +156,14 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
 
         if (_data is null && _processParams is not null)
         {
-            _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", RequestUri);
+            _logger.LogDebug(CustomLogEvent.Process, "Getting Supplemental data with query {requestUri}", RequestUri);
 
             var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri, isProcess: true);
 
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query application data with the server error {responseBody}", responseBody.CleanLog());
+                _logger.LogError(CustomLogEvent.Process, "Failed to query Supplemental data with the server error {responseBody}", responseBody.CleanLog());
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -187,7 +175,7 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No application found with query {requestUri}", RequestUri);
+                    _logger.LogInformation(CustomLogEvent.Process, "No Supplemental found with query {requestUri}", RequestUri);
                 }
                 d365Result = currentValue!;
             }
@@ -204,14 +192,8 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
     {
         _processParams = processParams;
 
-        #region Step 0: Get Fixed Parameters
-        /*await SetupConfiguration();*/
 
-        //Fix Parameters
-        double MILEAGE_RATE = 0.61;
-        #endregion
-
-        #region Step 1: Pre-Calculation
+        #region Step 0: Pre-Calculation
 
         //fetch the supplemental data
         var localData = await GetData();
@@ -220,14 +202,12 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
         var supplemental = serializedData?.FirstOrDefault();
 
         //fetch the application and licences data
-        //Get application and license data -> this will be moved to Calculator Object later so ignore
-        var localData = await GetData();
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<OFM.Infrastructure.WebAPI.Models.Application>>(localData.Data, Setup.s_writeOptionsForLogs);
+        var applicationId = supplemental._ofm_application_value;
+        var applicationData = await GetApplicationData(applicationId);
+        var serializedApplicationData = System.Text.Json.JsonSerializer.Deserialize<List<OFM.Infrastructure.WebAPI.Models.Application>>(applicationData.Data, Setup.s_writeOptionsForLogs);
 
-        var application = serializedData?.FirstOrDefault();
-        var fundingId = application?.ofm_application_funding?.FirstOrDefault().ofm_fundingid;
-
-
+        var application = serializedApplicationData?.FirstOrDefault();
+        
         //Calculate the total operational spaces
         //Total spaces: Sum the ***ofm_operational_spaces*** for each category of each licence
         
@@ -243,93 +223,78 @@ public class P301SupplememtalFundingCalculatorProvider : ID365ProcessProvider
 
         #region Step 2: Calculate Allowance
 
-        //Calculate the 
+        decimal calculatedFundingAmount = 0.0M;
+        /*
+            Support Needs Programming = 1
+            Indigenous Programming = 2
+            Transportation = 3
+        */
+        switch (supplemental.ofm_allowance_type)
+        {
+            case 1:
+                if(totalSpaces <= 9)
+                {
+                    calculatedFundingAmount = supplemental.ofm_supplementary_schedule.ofm_needs_le_9_spaces;
+                }else if( totalSpaces <= 19)
+                {
+                    calculatedFundingAmount = supplemental.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces;
+                }
+                else
+                {
+                    calculatedFundingAmount = supplemental.ofm_supplementary_schedule.ofm_needs_ge_20_spaces;
+                }
+                break;
+            case 2:
+                if (totalSpaces <= 9)
+                {
+                    calculatedFundingAmount = supplemental.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces;
+                }
+                else if (totalSpaces <= 19)
+                {
+                    calculatedFundingAmount = supplemental.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces;
+                }
+                else
+                {
+                    calculatedFundingAmount = supplemental.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces;
+                }
+                break;
+            case 3:
+                //if lease = Yes
+                if(supplemental.ofm_transport_lease == 1)
+                {
+                    if(totalSpaces < 20)
+                    {
+                        calculatedFundingAmount += Math.Min(supplemental.ofm_transport_monthly_lease, supplemental.ofm_supplementary_schedule.ofm_transport_less_20_spaces_lease_cap_month) * 12;
+
+                    }else if( totalSpaces >= 20)
+                    {
+                        calculatedFundingAmount += Math.Min(supplemental.ofm_transport_monthly_lease, supplemental.ofm_supplementary_schedule.ofm_transport_ge_20_spaces_lease_cap_month) * 12;
+                    }
+                }
+
+                calculatedFundingAmount += supplemental.ofm_transport_estimated_monthly_km * supplemental.ofm_supplementary_schedule.ofm_transport_reimbursement_rate_per_km * 12;
+
+                break;
+        }
 
         #endregion
 
         #region  Step 4: Post-Calculation
 
-        //Update the funding record
+        //Update the supplemental record
 
-        var updateFundingUrl = @$"ofm_fundings({fundingId})";
+        var updateSupplementalUrl = @$"ofm_allowances({supplemental.ofm_allowanceid})";
         var updateContent = new
         {
-            ofm_envelope_programming_proj = programmingAdjustedFunding,
-            ofm_envelope_administrative_proj = adminAdjustedFunding,
-            ofm_envelope_operational_proj = operationalAdjustedFunding,
-            ofm_envelope_facility_proj = facilityAdjustedFunding,
-            ofm_envelope_grand_total_pf = totoalParentFee
+            ofm_funding_amount = calculatedFundingAmount
         };
         var requestBody = System.Text.Json.JsonSerializer.Serialize(updateContent);
-        var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateFundingUrl, requestBody);
+        var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateSupplementalUrl, requestBody);
 
-        _logger.LogDebug(CustomLogEvent.Process, "Update Funding Record {fundingId}", fundingId);
+        _logger.LogDebug(CustomLogEvent.Process, "Update Supplemental Record {supplemental.ofm_allowanceid}", supplemental.ofm_allowanceid);
         #endregion
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
-
-    #region Local Validation & Setup Code
-
-/*    private async Task SetupConfiguration()
-    {
-        *//* For Reference
-         * <fetch>
-            <entity name="ofm_rate_schedule">
-             <attribute name="ofm_caption" />
-             <attribute name="ofm_end_date" />
-             <attribute name="ofm_parent_fee_per_day_ft" />
-             <attribute name="ofm_parent_fee_per_day_pt" />
-             <attribute name="ofm_parent_fee_per_month_ft" />
-             <attribute name="ofm_parent_fee_per_month_pt" />
-             <attribute name="ofm_start_date" />
-             <attribute name="statecode" />
-             <link-entity name="ofm_funding_rate" from="ofm_rate_schedule" to="ofm_rate_scheduleid">
-               <attribute name="ofm_caption" />
-               <attribute name="ofm_nonhr_funding_envelope" />
-               <attribute name="ofm_rate" />
-               <attribute name="ofm_spaces_max" />
-               <attribute name="ofm_spaces_min" />
-               <attribute name="ofm_step" />
-               <attribute name="statecode" />
-               <attribute name="ofm_ownership" />
-             </link-entity>
-            </entity>
-           </fetch>
-        *//*
-
-        var requestUri = $"""
-                            ofm_rate_schedules?$select=ofm_caption,ofm_end_date,ofm_parent_fee_per_day_ft,ofm_parent_fee_per_day_pt,ofm_parent_fee_per_month_ft,ofm_parent_fee_per_month_pt,ofm_start_date,statecode
-                            &$expand=ofm_rateschedule_fundingrate($select=ofm_caption,ofm_nonhr_funding_envelope,ofm_rate,ofm_spaces_max,ofm_spaces_min,ofm_step,statecode,ofm_ownership)
-                            &$filter=(ofm_rateschedule_fundingrate/any(o1:(o1/ofm_funding_rateid ne null)))
-                            """;
-
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query the funding rate with a server error {responseBody}", responseBody.CleanLog());
-            }
-
-            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-            JsonNode d365Result = string.Empty;
-            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-            {
-                if (currentValue?.AsArray().Count == 0)
-                {
-                    _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", requestUri);
-                }
-                d365Result = currentValue!;
-            }
-
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<RateSchedule>>(d365Result, Setup.s_writeOptionsForLogs);
-
-        _config = serializedData?.FirstOrDefault();
-        _logger.LogInformation(CustomLogEvent.Process, "No funding rate found with query {requestUri}", requestUri);
-    }
-*/
-    #endregion
 
 }

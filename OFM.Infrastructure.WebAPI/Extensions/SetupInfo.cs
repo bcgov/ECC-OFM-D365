@@ -42,6 +42,9 @@ public static class Setup
             public const Int16 FundingCalculatorId = 300;
             public const string FundingCalculatorName = "Calculate funding";
 
+            public const Int16 SupplementalFundingCalculatorId = 301;
+            public const string SupplementalFundingCalculatorName = "Calculate supplemental funding";
+
         }
     }
 
