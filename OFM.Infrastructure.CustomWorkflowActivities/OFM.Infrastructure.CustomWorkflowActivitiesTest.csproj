@@ -17,12 +17,11 @@
     https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets
   -->
   <PropertyGroup>
-    <PackageId>OFM.Infrastructure.CustomWorkflowActivities</PackageId>
+    <PackageId>OFM.Infrastructure.CustomWorkflowActivitiesTest</PackageId>
     <Version>$(FileVersion)</Version>
     <Authors>hoang.le</Authors>
     <Company>Ministry of Education and Child Care BC</Company>
     <Description>This is a sample nuget package which contains a Dataverse plugin and its runtime dependencies like Newtonsoft.Json</Description>
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Properties\**" />

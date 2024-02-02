@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OFM.Infrastructure.CustomWorkflowActivities.Common
+namespace OFM.Infrastructure.CustomWorkflowActivitiesTest.Common
 {
     public class GetTeamByName : CodeActivity
     {
