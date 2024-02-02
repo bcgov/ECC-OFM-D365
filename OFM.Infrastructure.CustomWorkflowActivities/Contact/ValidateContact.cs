@@ -5,7 +5,7 @@ using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
 
-namespace OFM.Infrastructure.CustomWorkflowActivities.Contact
+namespace OFM.Infrastructure.CustomWorkflowActivitiesTest.Contact
 {
     public sealed class ValidateContact : CodeActivity
     {

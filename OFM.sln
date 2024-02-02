@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02 Core", "02 Core", "{0BA2
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 Application", "04 Application", "{1CA8FF5C-99C4-4CC8-B4B2-4D0EC65F8CD1}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OFM.Application.WebResources(1)", "OFM.Application.WebResources\", "{6869D6B7-1D39-4C6E-AA46-427430F6A3D5}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OFM.Application.WebResources", "OFM.Application.WebResources\", "{6869D6B7-1D39-4C6E-AA46-427430F6A3D5}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_58948"
@@ -38,13 +38,13 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ECC.Core.DataContext", "ECC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECC.Core.BusinessRules", "ECC.Core.BusinessRules\ECC.Core.BusinessRules.csproj", "{460BA0E0-A006-4B3A-8DDC-BF59326DDE14}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OFM.Infrastructure.CustomWorkflowActivities", "OFM.Infrastructure.CustomWorkflowActivities\OFM.Infrastructure.CustomWorkflowActivities.csproj", "{A6CFE6D2-7ECE-4470-92DE-2BBF72897488}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OFM.Infrastructure.CustomWorkflowActivitiesTest", "OFM.Infrastructure.CustomWorkflowActivities\OFM.Infrastructure.CustomWorkflowActivitiesTest.csproj", "{A6CFE6D2-7ECE-4470-92DE-2BBF72897488}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OFM.Infrastructure.Plugins", "OFM.Infrastructure.Plugins\OFM.Infrastructure.Plugins.csproj", "{2BF26DE8-F149-487D-BB32-AFC45C19F88D}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OFM.Infrastructure.PCF", "OFM.Infrastructure.PCF\", "{BCFED66B-8958-4F43-B089-18D97D6AF058}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_4420"
 		Debug.AspNetCompiler.PhysicalPath = "OFM.Infrastructure.PCF\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_4420\"

@@ -7,14 +7,14 @@ using System;
 using System.Activities;
 using System.Linq;
 
-namespace OFM.Infrastructure.CustomWorkflowActivitiesTest.Funding
+namespace OFM.Infrastructure.CustomWorkflowActivitiesTest.Supplementary
 {
     public sealed class OutputStartAndEndDate : CodeActivity
     {
-        [ReferenceTarget("ofm_application")]
+        [ReferenceTarget("ofm_allowance")]
         [RequiredArgument]
-        [Input("Application")]
-        public InArgument<EntityReference> application { get; set; }
+        [Input("Supplementary")]
+        public InArgument<EntityReference> supplementary { get; set; }
 
         [Output("Start Date")]
         public OutArgument<DateTime> startDate { get; set; }
@@ -30,18 +30,18 @@ namespace OFM.Infrastructure.CustomWorkflowActivitiesTest.Funding
             //Create an Organization Service
             IOrganizationServiceFactory serviceFactory = executionContext.GetExtension<IOrganizationServiceFactory>();
             IOrganizationService service = serviceFactory.CreateOrganizationService(context.InitiatingUserId);
-            tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: OutputStartAndEndDate", DateTime.Now.ToLongTimeString());
-            var recordId = application.Get(executionContext);
+            tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: Supplementary OutputStartAndEndDate", DateTime.Now.ToLongTimeString());
+            var recordId = supplementary.Get(executionContext);
             try
             {
                 RetrieveRequest request = new RetrieveRequest();
-                request.ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon});
+                request.ColumnSet = new ColumnSet(new string[] { "ofm__submittedon" });
                 request.Target = new EntityReference(recordId.LogicalName, recordId.Id);
 
                 Entity entity = ((RetrieveResponse)service.Execute(request)).Entity;
-                if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains(ofm_application.Fields.ofm_summary_submittedon))
+                if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm__submittedon"))
                 {
-                    var dateSubmittedOn = ((ofm_application)entity).ofm_summary_submittedon;
+                    var dateSubmittedOn = entity.GetAttributeValue<DateTime>("ofm__submittedon");
 
                     RetrieveRequest timeZoneCode = new RetrieveRequest();
                     timeZoneCode.ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode });
@@ -66,20 +66,18 @@ namespace OFM.Infrastructure.CustomWorkflowActivitiesTest.Funding
                         .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
                         .standardname)).FirstOrDefault().ToString()));
 
-                    var day = Convert.ToDateTime(convertedDateTime).Day;
+
                     var finalDate = new DateTime();
-                    if (day < 15)
-                    {
-                        finalDate = convertedDateTime.AddMonths(1);
-                        finalDate = new DateTime(finalDate.Year, finalDate.Month, 1, finalDate.Hour, finalDate.Minute, finalDate.Second);
-                    }
-                    else
-                    {
-                        finalDate = convertedDateTime.AddMonths(2);
-                        finalDate = new DateTime(finalDate.Year, finalDate.Month, 1, finalDate.Hour, finalDate.Minute, finalDate.Second);
-                    }
+
+                    //Start date is the month following application
+                    //(apply Feb 2 start is April 1)
+                    //(apply Jan 31 start is Mar 1)
+                    
+                    finalDate = convertedDateTime.AddMonths(2);
+                    finalDate = new DateTime(finalDate.Year, finalDate.Month, 1, finalDate.Hour, finalDate.Minute, finalDate.Second);
+                    
                     startDate.Set(executionContext, finalDate);
-                    endDate.Set(executionContext, finalDate.AddYears(3).AddDays(-1));
+                    endDate.Set(executionContext, finalDate.AddYears(1));
                 }
             }
             catch (Exception ex)
