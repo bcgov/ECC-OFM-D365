@@ -37,7 +37,7 @@ public static class Setup
         public static class Organization
         {
             public const Int16 VerifyGoodStandingId = 400;
-            public const string VerifyGoodStandingName = "Cancel inactive requests";
+            public const string VerifyGoodStandingName = "Verify Good Standing for Organization";
         }
     }
 

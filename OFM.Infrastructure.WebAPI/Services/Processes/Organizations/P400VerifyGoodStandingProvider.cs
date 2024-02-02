@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
@@ -7,21 +10,31 @@ using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+using System;
+using Microsoft.AspNetCore.Http;
+using Microsoft.VisualBasic;
+using System.Collections.Generic;
+using Microsoft.OpenApi.Services;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 
 public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 {
     private readonly ProcessSettings _processSettings;
+    private readonly APIKeyBCRegistry _ApiKeyBCRegistry;
     private readonly ID365AppUserService _appUserService;
     private readonly ID365WebApiService _d365webapiservice;
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
+    private ProcessParameter? _processParams;
 
-    public P400VerifyGoodStandingProvider(IOptionsSnapshot<ProcessSettings> processSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P400VerifyGoodStandingProvider(IOptionsSnapshot<ProcessSettings> processSettings, IOptionsSnapshot<APIKeyBCRegistry> ApiKeyBCRegistry, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _processSettings = processSettings.Value;
+        _ApiKeyBCRegistry = ApiKeyBCRegistry.Value; 
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
         _logger = loggerFactory.CreateLogger(LogCategory.Process); ;
@@ -34,29 +47,24 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
     {
         get
         {
-            var maxInactiveDays = _processSettings.MaxRequestInactiveDays;
-
             var fetchXml = $"""
                     <fetch distinct="true" no-lock="true">
-                      <entity name="ofm_assistance_request">
-                        <attribute name="ofm_assistance_requestid" />
-                        <attribute name="ofm_name" />
-                        <attribute name="ofm_subject" />
-                        <attribute name="ofm_request_category" />
-                        <attribute name="ofm_contact" />
+                      <entity name="account">
+                        <attribute name="accountid" />
+                        <attribute name="ofm_business_number" />
+                        <attribute name="name" />
                         <attribute name="modifiedon" />
                         <attribute name="statecode" />
                         <attribute name="statuscode" />
-                        <filter>
-                          <condition attribute="statuscode" operator="eq" value="4" />
-                          <condition attribute="ofm_last_action_time" operator="olderthan-x-days" value="{maxInactiveDays}" />
+                        <filter type="and">
+                          <condition attribute="accountid" operator="eq" value="{_processParams?.organization?.organizationId}" />                  
                         </filter>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_assistance_requests?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
             return requestUri;
@@ -73,7 +81,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query inactive requests with the server error {responseBody}", responseBody);
+                _logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -85,7 +93,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No inactive requests found");
+                    _logger.LogInformation(CustomLogEvent.Process, "No records found");
                 }
                 d365Result = currentValue!;
             }
@@ -100,57 +108,126 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Getting inactive requests with query {requestUri}", RequestUri);
+        _logger.LogDebug(CustomLogEvent.Process, "Getting account (organization) reords with query {requestUri}", RequestUri);
 
-        var client = new HttpClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, "https://bcregistry-sandbox.apigee.net/business/api/v2/businesses/FM0666811");
-        request.Headers.Add("Account-Id", "1");
-        request.Headers.Add("x-apikey", "OkogT4xvpfL8muVBhPuULLOsQ5bVzQdM");
-        var content = new StringContent("", null, "application/json");
-        request.Content = content;
-        var response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-        Console.WriteLine(await response.Content.ReadAsStringAsync());
+        _processParams = processParams;
 
         var startTime = _timeProvider.GetTimestamp();
 
         var localData = await GetData();
 
-        if (localData.Data.AsArray().Count == 0)
+        string? legalName = _processParams?.organization?.legalName;
+        string? incorporationNumber = _processParams?.organization?.incorporationNumber;
+        string? organizationId = _processParams?.organization?.organizationId.ToString();
+
+        var ApiKeyNameBCRegistry = _ApiKeyBCRegistry.KeyName;
+        var ApiKeyValueBCRegistry = _ApiKeyBCRegistry.KeyValue;
+
+        bool goodStanding;
+
+        string? queryValue = (incorporationNumber != null) ? incorporationNumber : legalName;
+
+        bool use_BusinessSearch_API_v1= true;        // v2 - indentifier (incorporationNumber), v1 - facets/generic multiple-retrieve (e.g. legalName) 
+
+        if (incorporationNumber != null && use_BusinessSearch_API_v1 == false)   // v2 - identifier used here
         {
-            _logger.LogInformation(CustomLogEvent.Process, "Close inactive requests process completed. No inactive requests found.");
-            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+            var identifier = incorporationNumber;
+            var baseUri = "https://bcregistry-sandbox.apigee.net/business/api/v2/businesses";
+            //var path = $"{baseUri}" + $"/{identifier}";
+            var path = $"{baseUri}" + $"/FM0666811";
+
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, path);
+
+            request.Headers.Add("Account-Id", "1");
+            request.Headers.Add(ApiKeyNameBCRegistry, ApiKeyValueBCRegistry);
+            var content = new StringContent("", null, "application/json");
+            request.Content = content;
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var obj = JObject.Parse(json);
+            goodStanding = (bool)obj["business"]["goodStanding"];
+
+        }
+        else
+        {                                                               // v1 - facet-based generic search used here   
+            var baseUri = "https://bcregistry-sandbox.apigee.net/registry-search/api/v1/businesses/search/facets";
+            var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
+            var status = "active";
+            var queryString = $"?query=value:{queryValue}::identifier:::bn:::name:" +
+                              $"&categories=legalType:{legalType}::status:{status}";
+
+            var path = $"{baseUri}" + $"{queryString}";
+
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, path);
+
+            request.Headers.Add("Account-Id", "1");
+            request.Headers.Add(ApiKeyNameBCRegistry, ApiKeyValueBCRegistry);
+            var content = new StringContent("", null, "application/json");
+            request.Content = content;
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine(await response.Content.ReadAsStringAsync());
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            JObject goodStandingSearch = JObject.Parse(json);
+            IList<JToken> results = goodStandingSearch["searchResults"]["results"].Children().ToList();
+            IList<GoodStanding> searchResults = new List<GoodStanding>();
+            foreach (JToken result in results)
+            {
+                GoodStanding searchResult = result.ToObject<GoodStanding>();
+                searchResults.Add(searchResult);
+            }
+
+            if (searchResults.Count == 1)
+            {
+                var templateobj = searchResults.FirstOrDefault();
+                var tmp_bn = templateobj.bn;
+                var tmp_goodStanding = templateobj.goodStanding;
+                var tmp_identifier = templateobj.identifier;
+                var tmp_legalType = templateobj.legalType;
+                var tmp_name = templateobj.name;
+                var tmp_identifierscore = templateobj.identifierscore;
+                var tmp_status = templateobj.status;
+
+                goodStanding = (bool)tmp_goodStanding;
+
+            }else if (searchResults.Count < 1)
+            {
+                _logger.LogError(CustomLogEvent.Process, "No record returned.");
+
+            }else
+            {
+                _logger.LogError(CustomLogEvent.Process, "More than one records returned. Please resolve this issue to ensure uniqueness");
+
+            }
         }
 
-        List<HttpRequestMessage> requests = new() { };
+        var goodStandingValue = (goodStanding = true) ? 1 : 0;
 
-        //foreach (var request in localData.Data.AsArray())
-        //{
-        //    var requestId = request!["ofm_assistance_requestid"]!.ToString();
+        // update goodStanding and validateOn fields in organization record
+        var statement = $"accounts({organizationId})";
 
-        //    var body = new JsonObject()
-        //    {
-        //        ["statecode"] = 1,
-        //        ["statuscode"] = 5,
-        //        ["ofm_closing_reason"] = _processSettings.ClosingReason
-        //    };
+        var payload = new JsonObject {
+                { "ofm_good_standing_status", $"{goodStandingValue}" },    // 0 - No, 1 = Yes
+                { "ofm_good_standing_validated_on", DateTime.UtcNow }
+             };
+        var requestBody = JsonSerializer.Serialize(payload);
 
-        //    requests.Add(new UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
-        //}
+        var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZPortalAppUser, statement, requestBody);
 
-        var batchResult = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, requests, null);
-       
-        var endTime = _timeProvider.GetTimestamp();
-
-        _logger.LogInformation(CustomLogEvent.Process, "Close inactive requests process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
-
-        if (batchResult.Errors.Any())
+        if (!patchResponse.IsSuccessStatusCode)
         {
-            var result = ProcessResult.Failure(ProcessId, batchResult.Errors, batchResult.TotalProcessed, batchResult.TotalRecords);
+            var responseBody = await patchResponse.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to patch GoodStanding status on organization with the server error {responseBody}", responseBody.CleanLog());
 
-            _logger.LogError(CustomLogEvent.Process, "Close inactive requests process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
-
-            return result.SimpleProcessResult;
+            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
         }
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;

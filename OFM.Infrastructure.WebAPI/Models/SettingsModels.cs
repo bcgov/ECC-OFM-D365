@@ -61,6 +61,12 @@ public record ProcessSettings
     public required string ClosingReason { get; set; }
 }
 
+public record APIKeyBCRegistry
+{
+    public required string KeyName { get; set; }
+    public required string KeyValue { get; set; }
+}
+
 public record D365AuthSettings
 {
     /// <summary>
