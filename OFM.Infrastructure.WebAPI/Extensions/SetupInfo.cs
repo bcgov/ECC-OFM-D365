@@ -34,6 +34,12 @@ public static class Setup
             public const string SendNotificationsName = "Send bulk emails on-demand";
         }
 
+        public static class Funding
+        {
+            public const Int16 CalculateSupplementaryFundingId = 305;
+            public const string CalculateSupplementaryFundingName = "Calculate the supplementary funding amounts";
+        }
+
         public static class ProviderProfile
         {
             public const Int16 VerifyGoodStandingId = 400;

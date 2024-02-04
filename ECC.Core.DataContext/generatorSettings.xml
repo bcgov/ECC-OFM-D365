@@ -1502,7 +1502,6 @@ systemuserroles|
 systemusersyncmappingprofiles|
 task|
 tdsmetadata|
-team|
 teammembership|
 teammobileofflineprofilemembership|
 teamprofiles|
@@ -1514,7 +1513,6 @@ territory|
 textanalyticsentitymapping|
 theme|
 timestampdatemapping|
-timezonedefinition|
 timezonelocalizedname|
 timezonerule|
 topic|
@@ -1544,7 +1542,6 @@ userquery|
 userqueryvisualization|
 userrating|
 usersearchfacet|
-usersettings|
 virtualentitymetadata|
 virtualresourcegroupresource|
 webresource|

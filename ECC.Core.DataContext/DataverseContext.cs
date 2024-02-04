@@ -41,17 +41,6 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.BusinessUnit"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.BusinessUnit> BusinessUnitSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.BusinessUnit>();
-			}
-		}
-		
-		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.Contact"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.Contact> ContactSet
@@ -70,6 +59,17 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.Email>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_allowance"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_allowance> ofm_allowanceSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_allowance>();
 			}
 		}
 		
@@ -217,6 +217,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_progress_tracker"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_progress_tracker> ofm_progress_trackerSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_progress_tracker>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_rate_schedule"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_rate_schedule> ofm_rate_scheduleSet
@@ -239,13 +250,13 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.SystemUser"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_supplementary_schedule"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.SystemUser> SystemUserSet
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_supplementary_schedule> ofm_supplementary_scheduleSet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.SystemUser>();
+				return this.CreateQuery<ECC.Core.DataContext.ofm_supplementary_schedule>();
 			}
 		}
 		
