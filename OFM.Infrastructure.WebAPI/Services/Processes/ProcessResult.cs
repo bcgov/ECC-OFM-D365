@@ -69,6 +69,7 @@ public class ProcessResult
                 { "processId",ProcessId},
                 { "status",Status},
                 { "completedAt",CompletedAt},
+                { "errors",Errors.FirstOrDefault()},
                 { "resultMessage",ResultMessage}
             };
         } 

@@ -66,7 +66,7 @@ services.Configure<D365AuthSettings>(builder.Configuration.GetSection(nameof(D36
 services.Configure<DocumentSettings>(builder.Configuration.GetSection(nameof(DocumentSettings)));
 services.Configure<NotificationSettings>(builder.Configuration.GetSection(nameof(NotificationSettings)));
 services.Configure<ProcessSettings>(builder.Configuration.GetSection(nameof(ProcessSettings)));
-services.Configure<APIKeyBCRegistry>(builder.Configuration.GetSection(nameof(APIKeyBCRegistry)));
+services.Configure<ExternalServices>(builder.Configuration.GetSection(nameof(ExternalServices)));
 //======== <<<
 
 // Wait 30 seconds for graceful shutdown.

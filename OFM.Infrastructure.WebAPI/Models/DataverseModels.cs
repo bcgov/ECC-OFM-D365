@@ -44,7 +44,7 @@ public class ProviderProfile
     public string? ofm_last_name { get; set; }
     public Organization? organization { get; set; }
     public int? ofm_portal_role { get; set; }
-      public IList<FacilityPermission>? facility_permission { get; set; }
+    public IList<FacilityPermission>? facility_permission { get; set; }
 
     public void MapProviderProfile(IEnumerable<D365Contact> contacts)
     {
@@ -63,7 +63,7 @@ public class ProviderProfile
         emailaddress1 = firstContact.emailaddress1;
         telephone1 = firstContact.telephone1;
         ofm_portal_role = firstContact.ofm_portal_role;
-        
+
 
         organization = new Organization
         {
@@ -118,7 +118,7 @@ public record D365Contact
     public string? contactid { get; set; }
     public string? emailaddress1 { get; set; }
     public string? telephone1 { get; set; }
-     public ofm_Facility_Business_Bceid[]? ofm_facility_business_bceid { get; set; }
+    public ofm_Facility_Business_Bceid[]? ofm_facility_business_bceid { get; set; }
     public Parentcustomerid_Account? parentcustomerid_account { get; set; }
 }
 
@@ -222,5 +222,7 @@ public record Email_Activity_Parties
 }
 
 #region External Parameters
+
+
 
 #endregion

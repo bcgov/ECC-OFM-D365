@@ -61,11 +61,6 @@ public record ProcessSettings
     public required string ClosingReason { get; set; }
 }
 
-public record APIKeyBCRegistry
-{
-    public required string KeyName { get; set; }
-    public required string KeyValue { get; set; }
-}
 
 public record D365AuthSettings
 {
@@ -126,6 +121,31 @@ public record ApiKey
     public required string ClientName { get; set; }
     public required string Value { get; set; }
 }
+public record ExternalServices
+{
+    public required BCRegistrySettings BCRegistryApi { get; set; }
+    public required BCCASApi BCCASApi { get; set; }
+}
+
+public record BCRegistrySettings
+{
+    public bool Enable { get; set; }
+    public required string BusinessSearchUrl { get; set; }
+    public required string RegistrySearchUrl { get; set; }
+    public required string KeyName { get; set; }
+    public required string KeyValue { get; set; }
+    public int MinsToCache { get; set; }
+}
+
+public record BCCASApi
+{
+    public bool Enable { get; set; }
+    public required string Url { get; set; }
+    public required string KeyName { get; set; }
+    public required string KeyValue { get; set; }
+    public int MinsToCache { get; set; }
+}
+
 
 [JsonSourceGenerationOptions(
     WriteIndented = true,
