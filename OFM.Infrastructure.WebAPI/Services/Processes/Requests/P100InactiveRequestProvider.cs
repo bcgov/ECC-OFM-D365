@@ -8,7 +8,7 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
+namespace OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 
 public class P100InactiveRequestProvider : ID365ProcessProvider
 {

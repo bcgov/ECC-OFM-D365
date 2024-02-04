@@ -11,6 +11,7 @@ using OFM.Infrastructure.WebAPI.Services.Documents;
 using OFM.Infrastructure.WebAPI.Services.Processes;
 using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
+using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,9 +45,11 @@ services.AddScoped<ID365DocumentProvider, ApplicationDocumentProvider>();
 services.AddScoped<ID365DocumentService, D365DocumentService>();
 
 services.AddScoped<ID365ScheduledProcessService, ProcessService>();
-services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
+services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
+
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
 
