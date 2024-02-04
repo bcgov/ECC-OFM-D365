@@ -192,17 +192,6 @@ public record D365Email
     }
 }
 
-public record GoodStanding
-{
-    public string? bn { get; set; }
-    public bool? goodStanding { get; set; }
-    public string? identifier { get; set; }
-    public string? legalType { get; set; }
-    public string? name { get; set; }
-    public string? identifierscore { get; set; }
-    public string? status { get; set; }
-}
-
 public record FileMapping
 {
     public required string ofm_subject { get; set; }
