@@ -78,8 +78,10 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                         finalDate = convertedDateTime.AddMonths(2);
                         finalDate = new DateTime(finalDate.Year, finalDate.Month, 1, finalDate.Hour, finalDate.Minute, finalDate.Second);
                     }
+                    var intermediateDate = finalDate.AddYears(3).AddDays(-1);
+                    var end_date = new DateTime(intermediateDate.Year, intermediateDate.Month, intermediateDate.Day, 23, 59, 0);
                     startDate.Set(executionContext, finalDate);
-                    endDate.Set(executionContext, finalDate.AddYears(3).AddDays(-1));
+                    endDate.Set(executionContext, end_date);
                 }
             }
             catch (Exception ex)

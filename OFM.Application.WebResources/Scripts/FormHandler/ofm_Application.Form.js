@@ -20,6 +20,7 @@ OFM.Application.Form = {
             case 1: //Create/QuickCreate
                 this.addSubgridEventListener("00000000-0000-0000-0000-000000000000", formContext);
                 this.filterPrimaryContactLookup(executionContext);
+                this.UpdateOrganizationdetails(executionContext);
                 break;
 
             case 2: // update  
@@ -83,10 +84,13 @@ OFM.Application.Form = {
                 "</row></grid>";
 
             formContext.getControl("ofm_contact").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
+            formContext.getControl("ofm_secondary_contact").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
 
         }
         else {
             formContext.getAttribute("ofm_contact").setValue(null);
+            formContext.getAttribute("ofm_secondary_contact").setValue(null);
+
         }
         // perform operations on record retrieval
     },
@@ -98,10 +102,27 @@ OFM.Application.Form = {
         var formContext = window.pageContext;
         this.addSubgridEventListener(Id, formContext);
     },
+    // function to validate seconday and primary contact
+    validateSecondaryContact: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var primaryContact = formContext.getAttribute("ofm_contact").getValue();
+        var secondaryContact = formContext.getAttribute("ofm_secondary_contact").getValue();
+        if (primaryContact != null && secondaryContact != null) {
+            if (primaryContact[0].id == secondaryContact[0].id) {
+                formContext.ui.setFormNotification("Primary and secondary contact can not be same.", "ERROR", "ContactValidation");
+                formContext.getAttribute("ofm_secondary_contact").setValue(null);
+            }
+            else {
+                formContext.ui.clearFormNotification("ContactValidation");
+            }
+        }
+
+    },
     // function to filter the licence details grid based on record selected in licence grid
     addSubgridEventListener: function (recordid, formContext) {
         var gridContext = formContext.getControl("Subgrid_new_2");
-        //ensure that the subgrid is ready…if not wait and call this function again
+        //ensure that the subgrid is readyâ€¦if not wait and call this function again
         if (gridContext == null) {
             setTimeout(function () { this.addSubgridEventListener(recordid, formContext); }, 500);
             return;
@@ -164,5 +185,93 @@ OFM.Application.Form = {
                 console.log(error.message);
             }
         );
+    },
+    UpdateOrganizationdetails: function (executionContext) {
+        //debugger;
+        var formContext = executionContext.getFormContext();
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+        if (facility != null) {
+            facilityid = facility[0].id;
+            Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=_parentaccountid_value").then(
+                function success(results) {
+                    console.log(results);
+                    if (results["_parentaccountid_value"] != null) {
+                        var lookup = new Array();
+                        lookup[0] = new Object;
+                        lookup[0].id = results["_parentaccountid_value"];
+                        lookup[0].name = results["_parentaccountid_value@OData.Community.Display.V1.FormattedValue"];
+                        lookup[0].entityType = results["_parentaccountid_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
+                        Xrm.Page.getAttribute("ofm_organization").setValue(lookup);
+                    }
+                    else {
+                        Xrm.Page.getAttribute("ofm_organization").setValue(null);
+                    }
+                },
+                function (error) {
+                    console.log(error.message);
+                }
+            );
+        }
+        else {
+            Xrm.Page.getAttribute("ofm_organization").setValue(null);
+        }
+    },
+
+    RecalculateFundings: function (executionContext) {
+        debugger;
+        //alert("Recalculation initiated!");
+        var formContext = executionContext;
+        var recordId = formContext.data.entity.getId();
+        var pageInput = {
+            pageType: "custom",
+            name: "ofm_ofmfundingrecalculation_08432",
+            entityName: "ofm_application",
+            recordId: recordId
+        };
+        var navigationOptions = {
+            target: 2,
+            position: 1,
+            height: 720,
+            width: 600,
+            title: "Recalculate the fundings"
+        };
+        Xrm.Navigation.navigateTo(pageInput, navigationOptions);
+    },
+    CreateFundingRecord: function (executionContext) {
+        debugger;
+        var formContext = executionContext;
+        var recordId = formContext.data.entity.getId();
+        var statusReason = formContext.getAttribute("statuscode").getValue();
+        var FundingBaseNum = formContext.getAttribute("ofm_funding_number_base").getValue();
+        var parameters = { EntityId: recordId };
+
+        var executeWorkflowRequest = {
+            entity: { entityType: "workflow", id: "2752f03f-8db5-ee11-a569-000d3af4865d" },
+            EntityId: { guid: recordId },
+            getMetadata: function () {
+                return {
+                    boundParameter: "entity",
+                    parameterTypes: {
+                        entity: { typeName: "mscrm.workflow", structuralProperty: 5 },
+                        EntityId: { typeName: "Edm.Guid", structuralProperty: 1 }
+                    },
+                    operationType: 0, operationName: "ExecuteWorkflow"
+                };
+            }
+        };
+        Xrm.WebApi.execute(executeWorkflowRequest).then(
+            function success(response) {
+                if (response.ok) {
+                    return response.json();
+                    alert("create funding sucessfully!");
+                }
+            }
+        ).then(function (responseBody) {
+            var result = responseBody;
+            console.log(result);
+        }).catch(function (error) {
+            console.log(error.message);
+        });
     }
 }
