@@ -10,7 +10,7 @@ using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Documents;
 using OFM.Infrastructure.WebAPI.Services.Processes;
 using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
-using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
+using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);

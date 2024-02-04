@@ -37,7 +37,7 @@ public static class Setup
         public static class ProviderProfile
         {
             public const Int16 VerifyGoodStandingId = 400;
-            public const string VerifyGoodStandingName = "Verify Good Standing for Organization";
+            public const string VerifyGoodStandingName = "Verify Good Standing Status for an Organization";
         }
     }
 

@@ -7,7 +7,7 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace OFM.Infrastructure.WebAPI.Services.Processes.Requests;
+namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 
 public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 {
