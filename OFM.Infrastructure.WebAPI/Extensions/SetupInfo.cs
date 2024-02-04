@@ -34,7 +34,7 @@ public static class Setup
             public const string SendNotificationsName = "Send bulk emails on-demand";
         }
 
-        public static class Organization
+        public static class ProviderProfile
         {
             public const Int16 VerifyGoodStandingId = 400;
             public const string VerifyGoodStandingName = "Verify Good Standing for Organization";
