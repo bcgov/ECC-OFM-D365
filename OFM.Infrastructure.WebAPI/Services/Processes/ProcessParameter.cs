@@ -14,6 +14,8 @@ public record ProcessParameter
     public Guid? CallerObjectId { get; set; }
     [property: JsonPropertyName("notification")]
     public EmailParameter? Notification { get; set; }
+    [property: JsonPropertyName("organization")]
+    public OrganizationParameter? Organization { get; set; }
 
     public record EmailParameter
     {
@@ -37,5 +39,17 @@ public record ProcessParameter
 
         [property: JsonPropertyName("emailBody")]
         public string? EmailBody { get; set; }
+    }
+
+    public record OrganizationParameter
+    {
+        [property: JsonPropertyName("organizationId")]
+        public Guid? organizationId { get; set; }
+
+        [property: JsonPropertyName("legalName")]
+        public string? legalName { get; set; }
+
+        [property: JsonPropertyName("incorporationNumber")]
+        public string? incorporationNumber { get; set; }
     }
 }
