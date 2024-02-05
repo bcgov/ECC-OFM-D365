@@ -12889,7 +12889,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_facility_application = "ofm_facility_application";
 			public const string ofm_facilityName = "ofm_facilityname";
 			public const string ofm_funding_number_base = "ofm_funding_number_base";
-			public const string ofm_licence_application = "ofm_licence_application";
 			public const string ofm_organization = "ofm_organization";
 			public const string ofm_organization_application = "ofm_organization_application";
 			public const string ofm_organizationName = "ofm_organizationname";
@@ -14200,24 +14199,6 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntities<ECC.Core.DataContext.ofm_document>("ofm_document_application", null, value);
-			}
-		}
-		
-		/// <summary>
-		/// 1:N ofm_licence_application
-		/// </summary>
-		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_licence_application")]
-		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_licence> ofm_licence_application
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_licence>("ofm_licence_application", null);
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetRelatedEntities<ECC.Core.DataContext.ofm_licence>("ofm_licence_application", null, value);
 			}
 		}
 		
@@ -21828,8 +21809,6 @@ namespace ECC.Core.DataContext
 			public const string modifiedonbehalfby = "modifiedonbehalfby";
 			public const string modifiedonbehalfbyName = "modifiedonbehalfbyname";
 			public const string ofm_accb_providerid = "ofm_accb_providerid";
-			public const string ofm_application = "ofm_application";
-			public const string ofm_applicationName = "ofm_applicationname";
 			public const string ofm_ccof_facilityid = "ofm_ccof_facilityid";
 			public const string ofm_ccof_organizationid = "ofm_ccof_organizationid";
 			public const string ofm_facility = "ofm_facility";
@@ -21837,7 +21816,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_facilityName = "ofm_facilityname";
 			public const string ofm_health_authority = "ofm_health_authority";
 			public const string ofm_Licence = "ofm_licence";
-			public const string ofm_licence_application = "ofm_licence_application";
 			public const string ofm_licence_licencedetail = "ofm_licence_licencedetail";
 			public const string ofm_licenceid = "ofm_licenceid";
 			public const string Id = "ofm_licenceid";
@@ -22028,24 +22006,6 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<string>("ofm_accb_providerid");
-			}
-		}
-		
-		/// <summary>
-		/// A facility licence on the application
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_application")]
-		public Microsoft.Xrm.Sdk.EntityReference ofm_application
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_application");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_application", value);
 			}
 		}
 		
@@ -22386,25 +22346,6 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntity<ECC.Core.DataContext.Account>("ofm_facility_licence", null, value);
-			}
-		}
-		
-		/// <summary>
-		/// N:1 ofm_licence_application
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_application")]
-		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_licence_application")]
-		public ECC.Core.DataContext.ofm_application ofm_licence_application
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetRelatedEntity<ECC.Core.DataContext.ofm_application>("ofm_licence_application", null);
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetRelatedEntity<ECC.Core.DataContext.ofm_application>("ofm_licence_application", null, value);
 			}
 		}
 		
@@ -24104,7 +24045,7 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// The record ID
+		/// The record identifier
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_caption")]
 		public string ofm_caption
@@ -26404,7 +26345,7 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// OFM Supplementary Schedule ID
+		/// OFM Supplementary Schedule Record Identifier
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_caption")]
 		public string ofm_caption
