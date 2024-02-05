@@ -336,6 +336,7 @@ public class Application : ofm_application
     public new decimal ofm_costs_property_municipal_tax { get; set; }
     public string ofm_summary_submittedby { get; set; }
     public new decimal ofm_costs_property_insurance { get; set; }
+    public new decimal ofm_costs_supplies { get; set; }
     public int ofm_summary_ownership { get; set; }
     public int ofm_staff_infant_ec_educator_ft { get; set; }
     public int versionnumber { get; set; }

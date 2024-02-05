@@ -8,6 +8,7 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Documents;
+using OFM.Infrastructure.WebAPI.Services.Fundings;
 using OFM.Infrastructure.WebAPI.Services.Processes;
 using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
@@ -49,6 +50,7 @@ services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
+services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
 
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
