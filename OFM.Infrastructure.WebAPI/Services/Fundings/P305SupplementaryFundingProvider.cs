@@ -97,10 +97,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         if (applicationId is not null)
         {
             var requestUri = $"""                                
-                                ofm_applications?$expand=ofm_licence_application($select=_ofm_application_value,ofm_licenceid,createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;
-                                $expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode);
-                                $filter=(statecode eq 0)),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))
-                                &$filter=(ofm_applicationid eq '{applicationId}') and (ofm_licence_application/any(o1:(o1/statecode eq 0) and (o1/ofm_licence_licencedetail/any(o2:(o2/ofm_licence_detailid ne null))))) and (ofm_application_funding/any(o3:(o3/statecode eq 0)))
+                                ofm_applications?$expand=ofm_facility($expand=ofm_facility_licence($select=ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_licenceid,ofm_tdad_funding_agreement_number,statecode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_detailid,ofm_licence_spaces,ofm_licence_type,ofm_operation_from_time,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_operations_to_time,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,statecode);$filter=(statecode eq 0))),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))&$filter=(ofm_applicationid eq '{applicationId}') and (ofm_application_funding/any(o1:(o1/statecode eq 0)))
                                 """;
 
             _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", requestUri);
@@ -195,7 +192,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         //Calculate the total operational spaces
         //Total spaces: Sum the ***ofm_operational_spaces*** for each category of each licence
 
-        var licences = application?.ofm_licence_application;
+        var licences = application.ofm_facility.ofm_facility_licence;
 
         var categories = licences?.SelectMany(licence => licence.ofm_licence_licencedetail);
 
@@ -213,52 +210,54 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
             Indigenous Programming = 2
             Transportation = 3
         */
-        switch (supplementary.ofm_allowance_type)
+        switch ((int)supplementary.ofm_allowance_type.Value)
         {
             case 1:
                 if (totalSpaces <= 9)
                 {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_le_9_spaces;
+                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_le_9_spaces??0;
                 }
                 else if (totalSpaces <= 19)
                 {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces;
+                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces??0;
                 }
                 else
                 {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_ge_20_spaces;
+                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_ge_20_spaces??0;
                 }
                 break;
             case 2:
                 if (totalSpaces <= 9)
                 {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces;
+                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces??0;
                 }
                 else if (totalSpaces <= 19)
                 {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces;
+                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces??0;
                 }
                 else
                 {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces;
+                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces??0;
                 }
                 break;
             case 3:
                 //if lease = Yes
-                if (supplementary.ofm_transport_lease == 1)
+                if (supplementary.ofm_transport_lease == ECC.Core.DataContext.ecc_ynempty.Yes && supplementary.ofm_transport_monthly_lease is not null)
                 {
                     if (totalSpaces < 20)
                     {
-                        calculatedFundingAmount += Math.Min(supplementary.ofm_transport_monthly_lease, supplementary.ofm_supplementary_schedule.ofm_transport_less_20_spaces_lease_cap_month) * 12;
+                        calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_less_20_spaces_lease_cap_month) * 12;
 
                     }
                     else if (totalSpaces >= 20)
                     {
-                        calculatedFundingAmount += Math.Min(supplementary.ofm_transport_monthly_lease, supplementary.ofm_supplementary_schedule.ofm_transport_ge_20_spaces_lease_cap_month) * 12;
+                        calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_ge_20_spaces_lease_cap_month) * 12;
                     }
                 }
 
-                calculatedFundingAmount += supplementary.ofm_transport_estimated_monthly_km * supplementary.ofm_supplementary_schedule.ofm_transport_reimbursement_rate_per_km * 12;
+                var monthlyKMCost = (supplementary.ofm_transport_estimated_monthly_km??0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * 12;
+
+                calculatedFundingAmount += monthlyKMCost;
 
                 break;
         }
