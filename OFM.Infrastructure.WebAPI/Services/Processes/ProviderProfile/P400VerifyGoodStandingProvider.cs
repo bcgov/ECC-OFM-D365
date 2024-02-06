@@ -101,8 +101,8 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        string? queryValue = (_processParams?.Organization?.organizationId.ToString() != null) ?
-            _processParams?.Organization?.incorporationNumber : _processParams?.Organization?.legalName;
+        string? queryValue = (!String.IsNullOrEmpty(processParams?.Organization?.incorporationNumber)) ?
+             (_processParams?.Organization?.incorporationNumber)!.Trim() : (_processParams?.Organization?.legalName)!.Trim();
 
         var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
         var status = "active";
