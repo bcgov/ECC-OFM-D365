@@ -4051,11 +4051,6 @@
             1:N ofm_document_application
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_application.ofm_licence_application">
-            <summary>
-            1:N ofm_licence_application
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_request_application">
             <summary>
             1:N ofm_request_application
@@ -5923,11 +5918,6 @@
             Unique identifier of the delegate user who modified the record.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_licence.ofm_application">
-            <summary>
-            A facility licence on the application
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_licence.ofm_ccof_organizationid">
             <summary>
             CCOF Organization ID
@@ -6011,11 +6001,6 @@
         <member name="P:ECC.Core.DataContext.ofm_licence.ofm_facility_licence">
             <summary>
             N:1 ofm_facility_licence
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_licence.ofm_licence_application">
-            <summary>
-            N:1 ofm_licence_application
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_licence.team_ofm_licence">
@@ -6418,7 +6403,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_caption">
             <summary>
-            The record ID
+            The record identifier
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_eht_maximum_cost_for_profit_base">
@@ -6816,7 +6801,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_caption">
             <summary>
-            OFM Supplementary Schedule ID
+            OFM Supplementary Schedule Record Identifier
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_end_date">
