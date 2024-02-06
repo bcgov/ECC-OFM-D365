@@ -210,58 +210,61 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
             Indigenous Programming = 2
             Transportation = 3
         */
-        switch ((int)supplementary.ofm_allowance_type.Value)
+        if (totalSpaces > 0)
         {
-            case 1:
-                if (totalSpaces <= 9)
-                {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_le_9_spaces??0;
-                }
-                else if (totalSpaces <= 19)
-                {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces??0;
-                }
-                else
-                {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_ge_20_spaces??0;
-                }
-                break;
-            case 2:
-                if (totalSpaces <= 9)
-                {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces??0;
-                }
-                else if (totalSpaces <= 19)
-                {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces??0;
-                }
-                else
-                {
-                    calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces??0;
-                }
-                break;
-            case 3:
-                //if lease = Yes
-                if (supplementary.ofm_transport_lease == ECC.Core.DataContext.ecc_ynempty.Yes && supplementary.ofm_transport_monthly_lease is not null)
-                {
-                    if (totalSpaces < 20)
+            switch ((int)supplementary.ofm_allowance_type.Value)
+            {
+                case 1:
+                    if (totalSpaces <= 9)
                     {
-                        calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_less_20_spaces_lease_cap_month) * 12;
-
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_le_9_spaces ?? 0;
                     }
-                    else if (totalSpaces >= 20)
+                    else if (totalSpaces <= 19)
                     {
-                        calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_ge_20_spaces_lease_cap_month) * 12;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces ?? 0;
                     }
-                }
+                    else
+                    {
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_ge_20_spaces ?? 0;
+                    }
+                    break;
+                case 2:
+                    if (totalSpaces <= 9)
+                    {
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces ?? 0;
+                    }
+                    else if (totalSpaces <= 19)
+                    {
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces ?? 0;
+                    }
+                    else
+                    {
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces ?? 0;
+                    }
+                    break;
+                case 3:
+                    //if lease = Yes
+                    if (supplementary.ofm_transport_lease == ECC.Core.DataContext.ecc_ynempty.Yes && supplementary.ofm_transport_monthly_lease is not null)
+                    {
+                        if (totalSpaces < 20)
+                        {
+                            calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_less_20_spaces_lease_cap_month) * 12;
 
-                var monthlyKMCost = (supplementary.ofm_transport_estimated_monthly_km??0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * 12;
+                        }
+                        else if (totalSpaces >= 20)
+                        {
+                            calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_ge_20_spaces_lease_cap_month) * 12;
+                        }
+                    }
 
-                calculatedFundingAmount += monthlyKMCost;
+                    var monthlyKMCost = (supplementary.ofm_transport_estimated_monthly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * 12;
 
-                break;
+                    calculatedFundingAmount += monthlyKMCost;
+
+                    break;
+            }
+
         }
-
         #endregion
 
         #region  Step 4: Post-Calculation
