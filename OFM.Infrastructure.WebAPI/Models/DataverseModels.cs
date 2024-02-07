@@ -23,6 +23,7 @@ public record Facility
     public int ccof_accounttype { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
+    public Licence[]? ofm_facility_licence { get; set; }
 }
 
 public record Organization
@@ -347,7 +348,7 @@ public class Application : ofm_application
     public new int ofm_summary_ownership { get; set; }
     public int ofm_staff_infant_ec_educator_ft { get; set; }
     public int versionnumber { get; set; }
-    public Licence[] ofm_licence_application { get; set; }
+    public new Facility? ofm_facility { get; set; }
     public Funding[] ofm_application_funding { get; set; }
 }
 

@@ -110,14 +110,14 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
                 */
 
                 var requestUri = $"""                                
-                                ofm_applications?$expand=ofm_facility($expand=ofm_facility_licence($select=ofm_accb_providerid,createdon,ofm_ccof_facilityid,
-                                ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_licenceid,ofm_licence,ofm_tdad_funding_agreement_number,
-                                _ownerid_value,statecode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,
-                                ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,
-                                ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statecode);$filter=(statecode eq 0))),ofm_application_funding
-                                ($select=ofm_fundingid;$filter=(statecode eq 0))&$filter=(ofm_applicationid eq '{applicationId}') and (ofm_facility/accountid ne null) 
-                                and (ofm_facility/ofm_facility_licence/any(o1:(o1/statecode eq 0) and (ofm_facility/o1/ofm_licence_licencedetail/any(o2:(o2/ofm_licence_detailid 
-                                ne null))))) and (ofm_application_funding/any(o3:(o3/statecode eq 0)))
+                                ofm_applications?$expand=ofm_facility($expand=ofm_facility_licence($select=ofm_accb_providerid,
+                                ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,
+                                ofm_licenceid,ofm_tdad_funding_agreement_number,statecode;$expand=ofm_licence_licencedetail($select=
+                                createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_detailid,
+                                ofm_licence_spaces,ofm_licence_type,ofm_operation_from_time,ofm_operation_hours_from,ofm_operation_hours_to,
+                                ofm_operational_spaces,ofm_operations_to_time,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,statecode);
+                                $filter=(statecode eq 0))),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))
+                                &$filter=(ofm_applicationid eq '{applicationId}') and (ofm_application_funding/any(o1:(o1/statecode eq 0)))
                                 """;
 
                 _requestUri = requestUri.CleanCRLF();
@@ -210,7 +210,7 @@ public class P300FundingCalculatorProvider : ID365ProcessProvider
         //Operation Hours: Select the max operation hours for each category of each licence
 
         double operationHours = 0;
-        var licences = application?.ofm_licence_application;
+        var licences = application?.ofm_facility.ofm_facility_licence;
 
         var categories = licences?.SelectMany(licence => licence.ofm_licence_licencedetail);
 
