@@ -5,7 +5,11 @@ using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
+using System.Activities.Statements;
+using System.Drawing;
 using System.Linq;
+using System.Windows;
+using System.Xml.Linq;
 
 namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
 {
@@ -32,13 +36,22 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
             IOrganizationService service = serviceFactory.CreateOrganizationService(context.InitiatingUserId);
             tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: Supplementary OutputStartAndEndDate", DateTime.Now.ToLongTimeString());
             var recordId = supplementary.Get(executionContext);
+
+            /*
+             * Req 1 If there is no supplementary funding of the same type associated with the main application, start date follows the one-month rule, the end date will be the anniversary date one year later.
+
+               Req 2 If there is an active supplementary funding of the same type for the previous year, apply either the one month after submission date or one day after previous end date, which ever is later.  The end date will be the anniversary date one year later.
+            */
+
+            //Fetch application & related supplementary & funding 
             try
             {
                 RetrieveRequest request = new RetrieveRequest();
-                request.ColumnSet = new ColumnSet(new string[] { "ofm_submittedon" });
+                request.ColumnSet = new ColumnSet(new string[] { "ofm_submittedon", "ofm_allowance_type", "ofm_application" });
                 request.Target = new EntityReference(recordId.LogicalName, recordId.Id);
 
                 Entity entity = ((RetrieveResponse)service.Execute(request)).Entity;
+
                 if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm_submittedon"))
                 {
                     var dateSubmittedOn = entity.GetAttributeValue<DateTime>("ofm_submittedon");
@@ -62,22 +75,139 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     };
                     var result = service.RetrieveMultiple(timeZoneQuery);
 
-                    var convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateSubmittedOn, TimeZoneInfo
+                    var convertedSubmittedOn = TimeZoneInfo.ConvertTimeFromUtc(dateSubmittedOn, TimeZoneInfo
                         .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
                         .standardname)).FirstOrDefault().ToString()));
 
+                    tracingService.Trace("{0}{1}", "SubmittedOn Date: ", convertedSubmittedOn);
 
-                    var finalDate = new DateTime();
+                    var finalStartDate = new DateTime();
+                    var finalEndDate = new DateTime();
 
-                    //Start date is the month following application
-                    //(apply Feb 2 start is April 1)
-                    //(apply Jan 31 start is Mar 1)
+                    //var finalStartDate = convertedSubmittedOn;
+                    //var finalEndDate = convertedSubmittedOn;
 
-                    finalDate = convertedDateTime.AddMonths(2);
-                    finalDate = new DateTime(finalDate.Year, finalDate.Month, 1, finalDate.Hour, finalDate.Minute, finalDate.Second);
+                    var allowanceType = (int)entity.GetAttributeValue<OptionSetValue>("ofm_allowance_type").Value;
+                    var applicationId = entity.GetAttributeValue<EntityReference>("ofm_application").Id;
+                    var statecode = 0; //Active
+                    var statuscode = 6; //Approved
 
-                    startDate.Set(executionContext, finalDate);
-                    endDate.Set(executionContext, finalDate.AddYears(1));
+                    tracingService.Trace("{0}{1}", "allowanceType: ", allowanceType);
+                    tracingService.Trace("{0}{1}", "applicationId: ", applicationId);
+
+                    //fetch related approved supplementary with application id
+                    var supplementaryQuery = new QueryExpression("ofm_allowance")
+                    {
+                        
+                        ColumnSet = new ColumnSet(true),
+                        Criteria =
+                        {
+                            // Add 2 conditions to ofm_allowance
+                            Conditions =
+                            {
+                                new ConditionExpression("ofm_allowance_type", ConditionOperator.Equal, allowanceType),
+                                new ConditionExpression("ofm_application", ConditionOperator.Equal, applicationId),
+                                new ConditionExpression("statecode", ConditionOperator.Equal, statecode),
+                                new ConditionExpression("statuscode", ConditionOperator.Equal, statuscode)
+                            }
+                        }
+                    };
+
+                    //fetch related funding agreement with application id
+                    // Instantiate QueryExpression query
+                    var fundingQuery = new QueryExpression("ofm_funding")
+                    {
+                        
+                        ColumnSet = new ColumnSet(true),
+                        Criteria =
+                        {
+                            // Add 2 conditions to ofm_funding
+                            Conditions =
+                            {
+                                new ConditionExpression("ofm_application", ConditionOperator.Equal, applicationId),
+                                new ConditionExpression("statecode", ConditionOperator.Equal, statecode)
+                            }
+                        }
+                    };
+
+                    var supplementaryResult = service.RetrieveMultiple(supplementaryQuery);
+
+                    var fundingResult = service.RetrieveMultiple(fundingQuery).Entities.FirstOrDefault();
+
+                    var fundingEndDate = fundingResult.GetAttributeValue<DateTime>("ofm_end_date");
+                    var convertedEndDate = TimeZoneInfo.ConvertTimeFromUtc(fundingEndDate, TimeZoneInfo
+                        .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
+                        .standardname)).FirstOrDefault().ToString()));
+
+                    tracingService.Trace("{0}{1}", "Funding End Date: ", convertedEndDate);
+
+                    var intermediateDate = convertedEndDate.AddYears(-2);
+                    var firstAnniversary = intermediateDate;
+                    intermediateDate = convertedEndDate.AddYears(-1);
+                    var secondAnniversary = intermediateDate;
+                    tracingService.Trace("{0}{1}", "Funding firstAnniversary Date: ", firstAnniversary);
+                    tracingService.Trace("{0}{1}", "Funding secondAnniversary Date: ", secondAnniversary);
+
+                    //there is an active supplementary funding of the same type for the previous year
+                    if (supplementaryResult.Entities.Count > 0 && supplementaryResult[0] != null)
+                    {
+                        var previousSupplementary = supplementaryResult.Entities.OrderByDescending(t => t.GetAttributeValue<DateTime>("ofm_end_date")).FirstOrDefault();
+                        var previouseEndDate = previousSupplementary.GetAttributeValue<DateTime>("ofm_end_date");
+
+                        var convertPreviouseEndDate = TimeZoneInfo.ConvertTimeFromUtc(previouseEndDate, TimeZoneInfo
+                        .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
+                        .standardname)).FirstOrDefault().ToString()));
+
+                        tracingService.Trace("{0}{1}", "Previous Funding End Date: ", convertPreviouseEndDate);
+
+                        //apply either the one month after submission date or one day after previous end date, which ever is later.
+                        var oneMonthAfterSubmission = convertedSubmittedOn.AddMonths(2);
+                        oneMonthAfterSubmission = new DateTime(oneMonthAfterSubmission.Year, oneMonthAfterSubmission.Month, 1, 0, 0, 0);
+                        var oneDayAfterPreviousEndDate = convertPreviouseEndDate.AddDays(1);
+                        oneDayAfterPreviousEndDate = new DateTime(oneDayAfterPreviousEndDate.Year, oneDayAfterPreviousEndDate.Month, oneDayAfterPreviousEndDate.Day, 0, 0, 0);
+
+                        tracingService.Trace("{0}{1}", "oneMonthAfterSubmission: ", oneMonthAfterSubmission);
+                        tracingService.Trace("{0}{1}", "oneDayAfterPreviousEndDate: ", oneDayAfterPreviousEndDate);
+
+                        if (oneMonthAfterSubmission > oneDayAfterPreviousEndDate)
+                        {
+                            finalStartDate = oneMonthAfterSubmission;
+                        }
+                        else
+                        {
+                            finalStartDate = oneDayAfterPreviousEndDate;
+                        }
+                    }
+                    else
+                    {
+                        //start date follows the one-month rule
+                        //(apply Feb 2 start is April 1)
+                        //(apply Jan 31 start is Mar 1)
+                        finalStartDate = convertedSubmittedOn.AddMonths(2);
+                        finalStartDate = new DateTime(finalStartDate.Year, finalStartDate.Month, 1, 0, 0, 0);
+
+                    }
+
+                    //the end date will be the anniversary date one year later
+                    intermediateDate = firstAnniversary.AddYears(-1);
+                    if (finalStartDate <= firstAnniversary && finalStartDate >= intermediateDate)
+                    {
+                        finalEndDate = firstAnniversary;
+                    }
+                    intermediateDate = secondAnniversary.AddYears(-1);
+                    if (finalStartDate <= secondAnniversary && finalStartDate >= intermediateDate)
+                    {
+                        finalEndDate = secondAnniversary;
+                    }
+                    intermediateDate = convertedEndDate.AddYears(-1);
+                    if (finalStartDate <= convertedEndDate && finalStartDate >= convertedEndDate.AddYears(-1))
+                    {
+                        finalEndDate = convertedEndDate;
+                    }
+
+
+                    startDate.Set(executionContext, finalStartDate);
+                    endDate.Set(executionContext, finalEndDate);
                 }
             }
             catch (Exception ex)
