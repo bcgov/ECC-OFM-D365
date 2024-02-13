@@ -45,6 +45,12 @@ public static class Setup
             public const Int16 VerifyGoodStandingId = 400;
             public const string VerifyGoodStandingName = "Verify Good Standing Status for an Organization";
         }
+
+        public static class Payment
+        {
+            public const Int16 SendPaymentRequestId = 500;
+            public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";
+        }
     }
 
     public static readonly JsonSerializerOptions s_writeOptions = new()

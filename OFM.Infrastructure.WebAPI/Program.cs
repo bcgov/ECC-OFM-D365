@@ -49,8 +49,9 @@ services.AddScoped<ID365ScheduledProcessService, ProcessService>();
 services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
-services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
 services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
+services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
+services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
 
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
@@ -110,7 +111,7 @@ app.RegisterOperationsEndpoints();
 
 app.MapGet("/api/health", (ILogger<string> logger) =>
 {
-    logger.LogInformation("Health checked on {currentTime}", DateTime.Now);
+    //logger.LogInformation("Health checked on {currentTime}", DateTime.Now);
 
     return TypedResults.Ok("I am healthy!");
 
