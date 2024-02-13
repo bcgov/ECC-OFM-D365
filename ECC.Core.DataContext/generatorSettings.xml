@@ -1572,11 +1572,14 @@ ofm_facility_request|
 ofm_fiscal_year|
 ofm_funding|
 ofm_funding_rate|
+ofm_integration_log|
 ofm_licence|
 ofm_licence_detail|
+ofm_payment|
 ofm_progress_tracker|
 ofm_rate_schedule|
 ofm_request_category|
+ofm_space_allocation|
 ofm_supplementary_schedule|
 systemuser|
 team|
