@@ -258,6 +258,7 @@ conversationtranscript|
 convertrule|
 convertruleitem|
 copilotexamplequestion|
+crc7e_table|
 credential|
 customapi|
 customapirequestparameter|
@@ -402,7 +403,6 @@ leadproduct|
 leadtoopportunitysalesprocess|
 letter|
 license|
-list|
 listmember|
 listoperation|
 localconfigstore|
@@ -1390,7 +1390,6 @@ ribbondiff|
 ribbonmetadatatoprocess|
 ribbonrule|
 ribbontabtocommandmap|
-role|
 roleeditorlayout|
 roleprivileges|
 roletemplate|
@@ -1502,6 +1501,7 @@ systemuserroles|
 systemusersyncmappingprofiles|
 task|
 tdsmetadata|
+team|
 teammembership|
 teammobileofflineprofilemembership|
 teamprofiles|
@@ -1513,6 +1513,7 @@ territory|
 textanalyticsentitymapping|
 theme|
 timestampdatemapping|
+timezonedefinition|
 timezonelocalizedname|
 timezonerule|
 topic|
@@ -1542,6 +1543,7 @@ userquery|
 userqueryvisualization|
 userrating|
 usersearchfacet|
+usersettings|
 virtualentitymetadata|
 virtualresourcegroupresource|
 webresource|
@@ -1577,6 +1579,7 @@ ofm_licence_detail|
 ofm_progress_tracker|
 ofm_rate_schedule|
 ofm_request_category|
+ofm_space_allocation|
 ofm_supplementary_schedule|
 systemuser|
 team|

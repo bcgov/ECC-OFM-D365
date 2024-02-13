@@ -36,8 +36,14 @@ public static class Setup
 
         public static class Funding
         {
+            public const Int16 CalculateBaseFundingId = 300;
+            public const string CalculateBaseFundingName = "Calculate the envelope funding amounts";
+
             public const Int16 CalculateSupplementaryFundingId = 305;
             public const string CalculateSupplementaryFundingName = "Calculate the supplementary funding amounts";
+
+            public const Int16 CalculateDefaultAllocationId = 310;
+            public const string CalculateDefaultAllocationName = "Calculate the default room allocation in the room split scenario";
         }
 
         public static class ProviderProfile

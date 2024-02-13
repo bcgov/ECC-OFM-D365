@@ -212,19 +212,15 @@ public record Email_Activity_Parties
     public string? activitypartyid { get; set; }
 }
 
-#region Funding
+#region Fundings
 
 
 public class RateSchedule : ofm_rate_schedule
 {
-    public new decimal? ofm_transport_reimbursement_per_km { get; set; }
-    public new decimal? ofm_greater_than20_spaces_lease_cap_per_month { get; set; }
-    public new decimal? ofm_facilities_with_9_or_less_spaces_inclusio { get; set; }
-    public new decimal? ofm_facilities_with_20_or_more_spaces_ip { get; set; }
+
     public new decimal? ofm_wages_ra_cost { get; set; }
     public new decimal? ofm_licenced_childcare_cap_per_fte_per_year { get; set; }
     public new decimal? ofm_wages_ecea_cost { get; set; }
-    public new decimal? ofm_facilities_with_9_or_less_spaces_ip { get; set; }
     public new decimal? ofm_wages_ite_cost { get; set; }
     public new decimal? ofm_wages_ece_cost { get; set; }
     public new decimal? ofm_elf_educational_programming_cap_fte_year { get; set; }
@@ -232,21 +228,59 @@ public class RateSchedule : ofm_rate_schedule
     public new decimal? ofm_wages_ra_supervisor_differential { get; set; }
     public new decimal? ofm_standard_dues_per_fte { get; set; }
     public new decimal? ofm_parent_fee_per_month_ft { get; set; }
-    public new decimal? ofm_facilities_with_10_to_19_spaces_inclusion { get; set; }
-    public new decimal? ofm_less_than20_spaces_lease_cap_per_month { get; set; }
+
+
     public new decimal? ofm_wages_ite_sne_supervisor_differential { get; set; }
     public new decimal? ofm_parent_fee_per_day_ft { get; set; }
-    public new decimal? ofm_facilities_with_20_or_more_spaces_inclusi { get; set; }
-    public new decimal? ofm_facilities_with_10_to_19_spaces_ip { get; set; }
+
     public new decimal? ofm_parent_fee_per_month_pt { get; set; }
-    public new decimal? ofm_facilities_with_10_to_19_spaces_ip_base { get; set; }
+
     public new decimal? ofm_wages_ece_supervisor_differential { get; set; }
-    public FundingRate[] ofm_rateschedule_fundingrate { get; set; }
+    public new FundingRate[]? ofm_rateschedule_fundingrate { get; set; }
+
+    public new Ofm_Rateschedule_Cclr[]? ofm_rateschedule_cclr { get; set; }
+    //public Ofm_Rateschedule_Fundingrate[] ofm_rateschedule_fundingrate { get; set; }
+
+    //public int ofm_average_benefit_load { get; set; }
+    public new decimal? ofm_cpp { get; set; }
+    //public int ofm_cultural_hours_per_fte { get; set; }
+    //public int ofm_days_in_a_week { get; set; }
+    public new decimal? ofm_eht_maximum_cost_for_profit { get; set; }
+    public new decimal? ofm_eht_maximum_cost_not_for_profit { get; set; }
+    public new decimal? ofm_eht_minimum_cost_for_profit { get; set; }
+    public new decimal? ofm_ei { get; set; }
+    //public int ofm_elf_hours_per_fte { get; set; }
+    public new decimal? ofm_extended_benefits { get; set; }
+    public new decimal? ofm_for_profit_eht_over_1_5m { get; set; }
+    public new decimal? ofm_for_profit_eht_over_500k { get; set; }
+    public new decimal? ofm_hours_per_day { get; set; }
+    //public int ofm_inclusion_hours_per_fte { get; set; }
+    //public int ofm_licensed_childcare_hours_per_fte { get; set; }
+    //public int ofm_no_of_sick_days { get; set; }
+    //public int ofm_no_of_stat_holidays { get; set; }
+    //public int ofm_no_of_vacation_days { get; set; }
+    public new decimal? ofm_not_for_profit_eht_over_1_5m { get; set; }
+    public new decimal? ofm_pde_cultural_training { get; set; }
+    public new decimal? ofm_pde_inclusion_training { get; set; }
+    //public int ofm_professional_development_hours { get; set; }
+    public new decimal? ofm_pto_breaks { get; set; }
+    public new decimal? ofm_quality_enhancement_factor { get; set; }
+    //public string ofm_rate_scheduleid { get; set; }
+    //public int ofm_schedule_number { get; set; }
+    //public int ofm_sick_hours_per_fte { get; set; }
+    //public int ofm_statutory_breaks { get; set; }
+    //public string ofm_supervisor_rate { get; set; }
+    //public int ofm_supervisor_ratio { get; set; }
+    public new decimal? ofm_total_fte_hours_per_year { get; set; }
+    public new decimal? ofm_vacation_hours_per_fte { get; set; }
+    //public int ofm_wage_grid_markup { get; set; }
+    public new decimal? ofm_wcb { get; set; }
+    //public int ofm_weeks_in_a_year { get; set; }
 }
 
 public class FundingRate : ofm_funding_rate
 {
-    public new decimal? ofm_rate { get; set; }
+    public decimal? ofm_rate { get; set; }
 }
 
 
@@ -270,18 +304,17 @@ public class Application : ofm_application
     public new Facility? ofm_facility { get; set; }
 }
 
-public class FacilityLicence: ofm_licence
+public class FacilityLicence : ofm_licence
 {
     public new LicenceDetail[]? ofm_licence_licencedetail { get; set; }
 }
 
-public class LicenceDetail: ofm_licence_detail
+public class LicenceDetail : ofm_licence_detail
 {
     public new string ofm_week_days { get; set; }
 }
 
-
-public class Supplementary : ofm_allowance
+public class SupplementaryApplication : ofm_allowance
 {
     public new decimal? ofm_funding_amount { get; set; }
     public new decimal? ofm_transport_estimated_monthly_km { get; set; }
@@ -310,6 +343,49 @@ public class SupplementarySchedule : ofm_supplementary_schedule
 
 #region External Parameters
 
+public class Ofm_Rateschedule_Fundingrate
+{
+    public string odataetag { get; set; }
+    public string ofm_caption { get; set; }
+    public int ofm_nonhr_funding_envelope { get; set; }
+    public float ofm_rate { get; set; }
+    public int ofm_spaces_max { get; set; }
+    public int ofm_spaces_min { get; set; }
+    public int ofm_step { get; set; }
+    public int statecode { get; set; }
+    public int ofm_ownership { get; set; }
+    public string ofm_funding_rateid { get; set; }
+    public string _ofm_rate_schedule_value { get; set; }
+    public int statuscode { get; set; }
+    public DateTime createdon { get; set; }
+    public DateTime modifiedon { get; set; }
+    public string _ownerid_value { get; set; }
+    public string _owningbusinessunit_value { get; set; }
+    public string _transactioncurrencyid_value { get; set; }
+}
+
+public class Ofm_Rateschedule_Cclr: ofm_cclr_ratio
+{
+    //public string odataetag { get; set; }
+    //public string ofm_caption { get; set; }
+    //public string ofm_cclr_ratioid { get; set; }
+    //public int ofm_fte_min_ece { get; set; }
+    //public int ofm_fte_min_ecea { get; set; }
+    //public int ofm_fte_min_ite { get; set; }
+    //public int ofm_fte_min_ra { get; set; }
+    //public int ofm_group_size { get; set; }
+    //public string ofm_licence_group { get; set; }
+    public new string ofm_licence_mapping { get; set; }
+    //public string _ofm_rate_schedule_value { get; set; }
+    //public int ofm_spaces_max { get; set; }
+    //public int ofm_spaces_min { get; set; }
+    //public int statuscode { get; set; }
+    //public DateTime createdon { get; set; }
+    //public DateTime modifiedon { get; set; }
+    //public int ofm_order_number { get; set; }
+    //public string _ownerid_value { get; set; }
+    //public string _owningbusinessunit_value { get; set; }
+}
 
 
 #endregion

@@ -12976,35 +12976,39 @@ namespace ECC.Core.DataContext
 		/// 647,390,000
 		/// </summary>
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Choice", 0, "#0000ff", "647,390,000")]
+		[OptionSetMetadataAttribute("Choice", 1, "#0000ff", "647,390,000")]
 		Choice = 647390000,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Currency", 1, "#0000ff")]
+		[OptionSetMetadataAttribute("Currency", 2, "#0000ff")]
 		Currency = 506580004,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Date", 2, "#0000ff")]
+		[OptionSetMetadataAttribute("Date", 3, "#0000ff")]
 		Date = 647390003,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Multiple Choice", 3, "#0000ff")]
+		[OptionSetMetadataAttribute("Multiple Choice", 4, "#0000ff")]
 		MultipleChoice = 506580006,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Table", 4, "#0000ff")]
+		[OptionSetMetadataAttribute("Number", 0, "#0000ff")]
+		Number = 506580000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Table", 5, "#0000ff")]
 		Table = 506580005,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Text", 5, "#0000ff")]
+		[OptionSetMetadataAttribute("Text", 6, "#0000ff")]
 		Text = 647390001,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Text Area", 6, "#0000ff")]
+		[OptionSetMetadataAttribute("Text Area", 7, "#0000ff")]
 		TextArea = 506580001,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Two Option", 7, "#0000ff")]
+		[OptionSetMetadataAttribute("Two Option", 8, "#0000ff")]
 		TwoOption = 506580007,
 	}
 	
@@ -13029,6 +13033,38 @@ namespace ECC.Core.DataContext
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_request_category_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Space Allocation
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_space_allocation_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Space Allocation
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_space_allocation_StatusCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -15226,54 +15262,6 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
-	/// Information about team membership type.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum Team_membershiptype
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Guests", 3)]
-		Guests = 3,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Members", 1)]
-		Members = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Members and guests", 0)]
-		Membersandguests = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Owners", 2)]
-		Owners = 2,
-	}
-	
-	/// <summary>
-	/// Information about team type.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum Team_teamtype
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Access", 1)]
-		Access = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Office Group", 3)]
-		OfficeGroup = 3,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Owner", 0)]
-		Owner = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Security Group", 2)]
-		SecurityGroup = 2,
-	}
-	
-	/// <summary>
 	/// Options for Template Default View
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -15300,215 +15288,6 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Tiles View", 0, "#0000ff", "Tiles View")]
 		TilesView = 1,
-	}
-	
-	/// <summary>
-	/// Determines the status of auto install of Dynamics 365 to Teams attempt has been completed
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum UserSettings_d365autoinstallattemptstatus
-	{
-		
-		/// <summary>
-		/// Dynamics 365 app is already installed in Teams
-		/// </summary>
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Already installed", 2, null, "Dynamics 365 app is already installed in Teams")]
-		Alreadyinstalled = 2,
-		
-		/// <summary>
-		/// Dynamics 365 App installed successfully
-		/// </summary>
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Auto installed", 1, null, "Dynamics 365 App installed successfully")]
-		Autoinstalled = 1,
-		
-		/// <summary>
-		/// Graph API is not available for auto install
-		/// </summary>
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("No Graph API", 6, null, "Graph API is not available for auto install")]
-		NoGraphAPI = 6,
-		
-		/// <summary>
-		/// D365 auto install solution is no available
-		/// </summary>
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("No Solution", 5, null, "D365 auto install solution is no available")]
-		NoSolution = 5,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Not attempted", 0)]
-		Notattempted = 0,
-		
-		/// <summary>
-		/// Resource to call graph api is disabled by tenant
-		/// </summary>
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Resource Disabled", 7, null, "Resource to call graph api is disabled by tenant")]
-		ResourceDisabled = 7,
-		
-		/// <summary>
-		/// Teams admin blocked installing Dynamics 365 app
-		/// </summary>
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Teams admin blocked", 3, null, "Teams admin blocked installing Dynamics 365 app")]
-		Teamsadminblocked = 3,
-		
-		/// <summary>
-		/// Not authorized to execute auto install
-		/// </summary>
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Unauthorized", 4, null, "Not authorized to execute auto install")]
-		Unauthorized = 4,
-	}
-	
-	/// <summary>
-	/// Information that specifies the level of data validation in excel worksheets exported in a format suitable for import.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum UserSettings_datavalidationmodeforexporttoexcel
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Full", 0)]
-		Full = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("None", 1)]
-		None = 1,
-	}
-	
-	/// <summary>
-	/// Default search experience for the user.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum UserSettings_defaultsearchexperience
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Categorized search", 2)]
-		Categorizedsearch = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Custom search", 3)]
-		Customsearch = 3,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Relevance search", 1)]
-		Relevancesearch = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Use last search", 0)]
-		Uselastsearch = 2,
-	}
-	
-	/// <summary>
-	/// Information that specifies the preferred form mode.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum UserSettings_entityformmode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Edit", 2)]
-		Edit = 2,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Organization default", 0)]
-		Organizationdefault = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Read-optimized", 1)]
-		Readoptimized = 1,
-	}
-	
-	/// <summary>
-	/// Incoming email filtering method.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum UserSettings_incomingemailfilteringmethod
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("All email messages", 0)]
-		Allemailmessages = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Email messages from Dynamics 365 Leads, Contacts and Accounts", 2)]
-		EmailmessagesfromDynamics365LeadsContactsandAccounts = 2,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Email messages from Dynamics 365 records that are email enabled", 3)]
-		EmailmessagesfromDynamics365recordsthatareemailenabled = 3,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Email messages in response to Dynamics 365 email", 1)]
-		EmailmessagesinresponsetoDynamics365email = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("No email messages", 4)]
-		Noemailmessages = 4,
-	}
-	
-	/// <summary>
-	/// Model app channel override
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum UserSettings_releasechannel
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inner channel override", 3)]
-		Innerchanneloverride = 3,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Monthly channel override", 2)]
-		Monthlychanneloverride = 2,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("None", 0)]
-		None = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Semi-annual channel override", 1)]
-		Semiannualchanneloverride = 1,
-	}
-	
-	/// <summary>
-	/// Picklist for selecting the user preference for reporting scripting errors.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum UserSettings_reportscripterrors
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Ask me for permission to send an error report to Microsoft", 0)]
-		AskmeforpermissiontosendanerrorreporttoMicrosoft = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Automatically send an error report to Microsoft without asking me for permission", 1)]
-		AutomaticallysendanerrorreporttoMicrosoftwithoutaskingmeforpermission = 2,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Never send an error report to Microsoft about Microsoft Dynamics 365", 2)]
-		NeversendanerrorreporttoMicrosoftaboutMicrosoftDynamics365 = 3,
-	}
-	
-	/// <summary>
-	/// The layout of the visualization pane.
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum UserSettings_visualizationpanelayout
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Side-by-side", 1)]
-		Sidebyside = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Top-bottom", 0)]
-		Topbottom = 0,
 	}
 	
 	/// <summary>

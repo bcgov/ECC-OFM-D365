@@ -292,6 +292,12 @@
             Specifies the behavior for an Upsert operation.
             </summary>
         </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.Fundings.ValueObject">
+            <summary>
+            Based on https://github.com/dotnet-architecture/eShopOnContainers/blob/master/src/Services/Ordering/Ordering.Domain/SeedWork/ValueObject.cs
+            which is licensed under the MIT license: https://github.com/dotnet-architecture/eShopOnContainers/blob/master/LICENSE
+            </summary>
+        </member>
         <member name="P:OFM.Infrastructure.WebAPI.Models.AppSettings.MaxRetries">
             <summary>
             Maximum number of times to re-try when service protection limits hit
@@ -369,6 +375,17 @@
             <param name="request">The request</param>
             <param name="client"></param>
             <returns></returns>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingAmountCommand.TotalSpaces">
+            <summary>
+            Total Spaces: sum of all operational spaces of all licence types from all licences that a facility is granted (Non-HR ONLY)
+            </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.CoreService.AnnualAvailableHoursPerFTE">
+            <summary>
+            Note that an FTE is expected to work 1957.5 hours a year and the number of available hours for childcare is less after accounting for training, sick days, vacation, and stat days
+            </summary>
+            
         </member>
         <member name="T:ECC.Core.DataContext.DataverseContext">
             <summary>
@@ -480,24 +497,14 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_request_category"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_space_allocationSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_space_allocation"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_supplementary_scheduleSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_supplementary_schedule"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.TeamSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.Team"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.TimeZoneDefinitionSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.TimeZoneDefinition"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.UserSettingsSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.UserSettings"/> entities.
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.OptionSetMetadataAttribute">
@@ -1202,6 +1209,11 @@
             Validated On
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_incorporation_number">
+            <summary>
+            Incorporation Number
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_indigenous_led">
             <summary>
             Indigenous Led
@@ -1605,11 +1617,6 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_contact_account">
             <summary>
             N:1 ofm_contact_account
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.team_accounts">
-            <summary>
-            N:1 team_accounts
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.Account.#ctor(System.Object)">
@@ -2798,6 +2805,11 @@
             1:N ofm_contact_applications
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Contact.ofm_expenseauthority_application">
+            <summary>
+            1:N ofm_expenseauthority_application
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Contact.ofm_facility_business_bceid">
             <summary>
             1:N ofm_facility_business_bceid
@@ -2836,11 +2848,6 @@
         <member name="P:ECC.Core.DataContext.Contact.msa_contact_managingpartner">
             <summary>
             N:1 msa_contact_managingpartner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Contact.team_contacts">
-            <summary>
-            N:1 team_contacts
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.Contact.#ctor(System.Object)">
@@ -3439,11 +3446,6 @@
             N:1 ofm_email_communication_type
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Email.team_email">
-            <summary>
-            N:1 team_email
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.Email.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
@@ -3665,11 +3667,6 @@
             N:1 ofm_supplementaryschedule_allowance
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_allowance.team_ofm_allowance">
-            <summary>
-            N:1 team_ofm_allowance
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.ofm_allowance.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
@@ -3881,6 +3878,16 @@
             Value of the Yearly operating costs in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_declaration">
+            <summary>
+            I certify that all of the information provided is true and complete to the best of my knowledge
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_expense_authority">
+            <summary>
+            The associated expense authority on the application
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_facility">
             <summary>
             The associated facility on the application
@@ -3889,6 +3896,11 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_funding_number_base">
             <summary>
             The base funding agreement number without the version
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_licence_declaration">
+            <summary>
+            I confirm that my licence information is correct
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_organization">
@@ -4061,6 +4073,11 @@
             N:1 ofm_contact_applications
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_expenseauthority_application">
+            <summary>
+            N:1 ofm_expenseauthority_application
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_facility_application">
             <summary>
             N:1 ofm_facility_application
@@ -4074,11 +4091,6 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_secondary_contact_application">
             <summary>
             N:1 ofm_secondary_contact_application
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_application.team_ofm_application">
-            <summary>
-            N:1 team_ofm_application
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_application.#ctor(System.Object)">
@@ -4237,11 +4249,6 @@
             N:1 ofm_request_contact
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_assistance_request.team_ofm_assistance_request">
-            <summary>
-            N:1 team_ofm_assistance_request
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.ofm_assistance_request.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
@@ -4361,11 +4368,6 @@
         <member name="P:ECC.Core.DataContext.ofm_bceid_facility.ofm_facility_business_bceid">
             <summary>
             N:1 ofm_facility_business_bceid
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_bceid_facility.team_ofm_bceid_facility">
-            <summary>
-            N:1 team_ofm_bceid_facility
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_bceid_facility.#ctor(System.Object)">
@@ -4529,14 +4531,14 @@
             Version Number
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_cclr_ratio.ofm_cclr_spaceallocation">
+            <summary>
+            1:N ofm_cclr_spaceallocation
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_cclr_ratio.ofm_rateschedule_cclr">
             <summary>
             N:1 ofm_rateschedule_cclr
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cclr_ratio.team_ofm_cclr_ratio">
-            <summary>
-            N:1 team_ofm_cclr_ratio
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_cclr_ratio.#ctor(System.Object)">
@@ -4655,11 +4657,6 @@
             1:N ofm_email_communication_type
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_communication_type.team_ofm_communication_type">
-            <summary>
-            N:1 team_ofm_communication_type
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.ofm_communication_type.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
@@ -4774,11 +4771,6 @@
         <member name="P:ECC.Core.DataContext.ofm_conversation.ofm_conversation_request">
             <summary>
             N:1 ofm_conversation_request
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_conversation.team_ofm_conversation">
-            <summary>
-            N:1 team_ofm_conversation
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_conversation.#ctor(System.Object)">
@@ -4912,11 +4904,6 @@
             N:1 ofm_document_assistance_request
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_document.team_ofm_document">
-            <summary>
-            N:1 team_ofm_document
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.ofm_document.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
@@ -5031,11 +5018,6 @@
         <member name="P:ECC.Core.DataContext.ofm_facility_request.ofm_facility_request_request">
             <summary>
             N:1 ofm_facility_request_request
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_request.team_ofm_facility_request">
-            <summary>
-            N:1 team_ofm_facility_request
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_facility_request.#ctor(System.Object)">
@@ -5172,11 +5154,6 @@
         <member name="P:ECC.Core.DataContext.ofm_fiscal_year.versionnumber">
             <summary>
             Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_fiscal_year.team_ofm_fiscal_year">
-            <summary>
-            N:1 team_ofm_fiscal_year
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_fiscal_year.#ctor(System.Object)">
@@ -5586,6 +5563,11 @@
             ofm_manual_intervention
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_new_allocation_date">
+            <summary>
+            New Allocation Date
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_rate_schedule">
             <summary>
             The associated Rate Schedule
@@ -5656,6 +5638,11 @@
             Version Number
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_spaceallocation">
+            <summary>
+            1:N ofm_funding_spaceallocation
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_tracker">
             <summary>
             1:N ofm_funding_tracker
@@ -5674,11 +5661,6 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_rateschedule_funding">
             <summary>
             N:1 ofm_rateschedule_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.team_ofm_funding">
-            <summary>
-            N:1 team_ofm_funding
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_funding.#ctor(System.Object)">
@@ -5852,11 +5834,6 @@
             N:1 ofm_rateschedule_fundingrate
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding_rate.team_ofm_funding_rate">
-            <summary>
-            N:1 team_ofm_funding_rate
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.ofm_funding_rate.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
@@ -6001,11 +5978,6 @@
         <member name="P:ECC.Core.DataContext.ofm_licence.ofm_facility_licence">
             <summary>
             N:1 ofm_facility_licence
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_licence.team_ofm_licence">
-            <summary>
-            N:1 team_ofm_licence
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_licence.#ctor(System.Object)">
@@ -6189,11 +6161,6 @@
             N:1 ofm_licence_licencedetail
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_licence_detail.team_ofm_licence_detail">
-            <summary>
-            N:1 team_ofm_licence_detail
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.ofm_licence_detail.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
@@ -6335,11 +6302,6 @@
             N:1 ofm_funding_tracker
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_progress_tracker.team_ofm_progress_tracker">
-            <summary>
-            N:1 team_ofm_progress_tracker
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.ofm_progress_tracker.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
@@ -6426,42 +6388,6 @@
             Value of the ELF Educational Programming cap/ FTE / Year in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_facilities_with_10_to_19_spaces_inclusion_base">
-            <summary>
-            Value of the Facilities with 10 - 19 spaces (Inclusion) in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_facilities_with_10_to_19_spaces_ip_base">
-            <summary>
-            Value of the Facilities with 10 - 19 spaces (IP) in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_facilities_with_20_or_more_spaces_inclusi_base">
-            <summary>
-            Value of the Facilities with 20+ spaces (Inclusion) in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_facilities_with_20_or_more_spaces_ip_base">
-            <summary>
-            Value of the Facilities with 20+ spaces (IP) in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_facilities_with_9_or_less_spaces_inclusio_base">
-            <summary>
-            Value of the Facilities with 9 or less spaces (Inclusion) in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_facilities_with_9_or_less_spaces_ip_base">
-            <summary>
-            Value of the Facilities with 9 or less spaces (IP) in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_greater_than20_spaces_lease_cap_per_month_base">
-            <summary>
-            Value of the >= 20 spaces lease cap/month in base currency.
-            </summary>
-        </member>
-        <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_rate_schedule.ofm_less_than20_spaces_lease_cap_per_month_base" -->
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_licenced_childcare_cap_per_fte_per_year_base">
             <summary>
             Value of the Licenced Childcare cap/ FTE / Year in base currency.
@@ -6505,11 +6431,6 @@
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_standard_dues_per_fte_base">
             <summary>
             Value of the Standard Dues/FTE in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_transport_reimbursement_per_km_base">
-            <summary>
-            Value of the Transport reimbursement/km in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_wages_ece_cost_base">
@@ -6615,11 +6536,6 @@
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_rateschedule_fundingrate">
             <summary>
             1:N ofm_rateschedule_fundingrate
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.team_ofm_rate_schedule">
-            <summary>
-            N:1 team_ofm_rate_schedule
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_rate_schedule.#ctor(System.Object)">
@@ -6733,12 +6649,153 @@
             1:N ofm_assistance_request_category
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_request_category.team_ofm_request_category">
+        <member name="M:ECC.Core.DataContext.ofm_request_category.#ctor(System.Object)">
             <summary>
-            N:1 team_ofm_request_category
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="M:ECC.Core.DataContext.ofm_request_category.#ctor(System.Object)">
+        <member name="T:ECC.Core.DataContext.ofm_space_allocation">
+            <summary>
+            Space Allocation
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_space_allocation.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_space_allocation entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_space_allocation.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ofm_adjusted_allocation">
+            <summary>
+            New Allocation
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ofm_caption">
+            <summary>
+            ID
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ofm_cclr_ratio">
+            <summary>
+            The associated CCLR Ratio
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ofm_default_allocation">
+            <summary>
+            Default Allocation
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ofm_funding">
+            <summary>
+            The associated Funding
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ofm_space_allocationid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.statecode">
+            <summary>
+            Status of the Space Allocation
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.statuscode">
+            <summary>
+            Reason for the status of the Space Allocation
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ofm_cclr_spaceallocation">
+            <summary>
+            N:1 ofm_cclr_spaceallocation
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_space_allocation.ofm_funding_spaceallocation">
+            <summary>
+            N:1 ofm_funding_spaceallocation
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_space_allocation.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -6981,940 +7038,7 @@
             1:N ofm_supplementaryschedule_allowance
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.team_ofm_supplementary_schedule">
-            <summary>
-            N:1 team_ofm_supplementary_schedule
-            </summary>
-        </member>
         <member name="M:ECC.Core.DataContext.ofm_supplementary_schedule.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.Team">
-            <summary>
-            Collection of system users that routinely collaborate. Teams can be used to simplify record sharing and provide team members with common access to organization data when team members belong to different Business Units.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.Team.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the team entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.Team.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.administratorid">
-            <summary>
-            Unique identifier of the user primary responsible for the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.azureactivedirectoryobjectid">
-            <summary>
-            The object Id for a group.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.businessunitid">
-            <summary>
-            Unique identifier of the business unit with which the team is associated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.createdby">
-            <summary>
-            Unique identifier of the user who created the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.createdon">
-            <summary>
-            Date and time when the team was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.delegatedauthorizationid">
-            <summary>
-            The delegated authorization context for the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.description">
-            <summary>
-            Description of the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.emailaddress">
-            <summary>
-            Email address for the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.exchangerate">
-            <summary>
-            Exchange rate for the currency associated with the team with respect to the base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.importsequencenumber">
-            <summary>
-            Unique identifier of the data import or data migration that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.isdefault">
-            <summary>
-            Information about whether the team is a default business unit team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.modifiedby">
-            <summary>
-            Unique identifier of the user who last modified the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.modifiedon">
-            <summary>
-            Date and time when the team was last modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who last modified the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.name">
-            <summary>
-            Name of the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.organizationid">
-            <summary>
-            Unique identifier of the organization associated with the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.processid">
-            <summary>
-            Shows the ID of the process.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.queueid">
-            <summary>
-            Unique identifier of the default queue for the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.regardingobjectid">
-            <summary>
-            Choose the record that the team relates to.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.sharelinkqualifier">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.stageid">
-            <summary>
-            Shows the ID of the stage.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.systemmanaged">
-            <summary>
-            Select whether the team will be managed by the system.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.teamid">
-            <summary>
-            Unique identifier for the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.teamtemplateid">
-            <summary>
-            Shows the team template that is associated with the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.teamtype">
-            <summary>
-            Select the team type.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.transactioncurrencyid">
-            <summary>
-            Unique identifier of the currency associated with the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.traversedpath">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.versionnumber">
-            <summary>
-            Version number of the team.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.yominame">
-            <summary>
-            Pronunciation of the full name of the team, written in phonetic hiragana or katakana characters.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_accounts">
-            <summary>
-            1:N team_accounts
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_contacts">
-            <summary>
-            1:N team_contacts
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_email">
-            <summary>
-            1:N team_email
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_allowance">
-            <summary>
-            1:N team_ofm_allowance
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_application">
-            <summary>
-            1:N team_ofm_application
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_assistance_request">
-            <summary>
-            1:N team_ofm_assistance_request
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_bceid_facility">
-            <summary>
-            1:N team_ofm_bceid_facility
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_cclr_ratio">
-            <summary>
-            1:N team_ofm_cclr_ratio
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_communication_type">
-            <summary>
-            1:N team_ofm_communication_type
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_conversation">
-            <summary>
-            1:N team_ofm_conversation
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_document">
-            <summary>
-            1:N team_ofm_document
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_facility_request">
-            <summary>
-            1:N team_ofm_facility_request
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_fiscal_year">
-            <summary>
-            1:N team_ofm_fiscal_year
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_funding">
-            <summary>
-            1:N team_ofm_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_funding_rate">
-            <summary>
-            1:N team_ofm_funding_rate
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_licence">
-            <summary>
-            1:N team_ofm_licence
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_licence_detail">
-            <summary>
-            1:N team_ofm_licence_detail
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_progress_tracker">
-            <summary>
-            1:N team_ofm_progress_tracker
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_rate_schedule">
-            <summary>
-            1:N team_ofm_rate_schedule
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_request_category">
-            <summary>
-            1:N team_ofm_request_category
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_supplementary_schedule">
-            <summary>
-            1:N team_ofm_supplementary_schedule
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.Team.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.TimeZoneDefinition">
-            <summary>
-            Time zone definition, including name and time zone code.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.TimeZoneDefinition.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the timezonedefinition entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.TimeZoneDefinition.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.bias">
-            <summary>
-            Base time bias of the time zone.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.createdby">
-            <summary>
-            Unique identifier of the user who created the time zone record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.createdon">
-            <summary>
-            Date and time when the time zone record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the timezonedefinition.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.daylightname">
-            <summary>
-            Time zone name for the daylight time.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.modifiedby">
-            <summary>
-            Unique identifier of the user who last modified the time zone record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.modifiedon">
-            <summary>
-            Date and time when the time zone record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who last modified the timezonedefinition.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.organizationid">
-            <summary>
-            Unique identifier of the organization associated with the time zone definition.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.retiredorder">
-            <summary>
-            Order an entry for a time zone definition is retired. 0 for the latest entry.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.standardname">
-            <summary>
-            Time zone name for the standard time.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.timezonecode">
-            <summary>
-            Time zone identification code.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.timezonedefinitionid">
-            <summary>
-            Unique identifier of the time zone record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.TimeZoneDefinition.userinterfacename">
-            <summary>
-            Display name for the time zone in the Microsoft Windows registry.
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.TimeZoneDefinition.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings">
-            <summary>
-            User's preferred settings.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the usersettings entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.UserSettings.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.addressbooksyncinterval">
-            <summary>
-            Normal polling frequency used for address book synchronization in Microsoft Office Outlook.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.advancedfindstartupmode">
-            <summary>
-            Default mode, such as simple or detailed, for advanced find.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.allowemailcredentials">
-            <summary>
-            This attribute is no longer used. The data is now in the Mailbox.AllowEmailConnectorToUseCredentials attribute.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.amdesignator">
-            <summary>
-            AM designator to use in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.autocaptureuserstatus">
-            <summary>
-            Set user status for ADC Suggestions
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.autocreatecontactonpromote">
-            <summary>
-            Auto-create contact on client promote
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.businessunitid">
-            <summary>
-            Unique identifier of the business unit with which the user is associated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.calendartype">
-            <summary>
-            Calendar type for the system. Set to Gregorian US by default.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.createdby">
-            <summary>
-            Unique identifier of the user who created the user settings.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.createdon">
-            <summary>
-            Date and time when the user settings object was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the usersettings.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.currencydecimalprecision">
-            <summary>
-            Number of decimal places that can be used for currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.currencyformatcode">
-            <summary>
-            Information about how currency symbols are placed in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.currencysymbol">
-            <summary>
-            Symbol used for currency in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.d365autoinstallattemptstatus">
-            <summary>
-            Determines the status of auto install of Dynamics 365 to Teams attempt has been completed
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.datavalidationmodeforexporttoexcel">
-            <summary>
-            Information that specifies the level of data validation in excel worksheets exported in a format suitable for import.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.dateformatcode">
-            <summary>
-            Information about how the date is displayed in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.dateformatstring">
-            <summary>
-            String showing how the date is displayed throughout Microsoft 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.dateseparator">
-            <summary>
-            Character used to separate the month, the day, and the year in dates in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.decimalsymbol">
-            <summary>
-            Symbol used for decimal in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.defaultcalendarview">
-            <summary>
-            Default calendar view for the user.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.defaultcountrycode">
-            <summary>
-            Text area to enter default country code.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.defaultdashboardid">
-            <summary>
-            Unique identifier of the default dashboard.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.defaultsearchexperience">
-            <summary>
-            Default search experience for the user.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.emailpassword">
-            <summary>
-            This attribute is no longer used. The data is now in the Mailbox.Password attribute.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.emailusername">
-            <summary>
-            This attribute is no longer used. The data is now in the Mailbox.UserName attribute.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.entityformmode">
-            <summary>
-            Indicates the form mode to be used.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.fullnameconventioncode">
-            <summary>
-            Order in which names are to be displayed in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.getstartedpanecontentenabled">
-            <summary>
-            Information that specifies whether the Get Started pane in lists is enabled.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.helplanguageid">
-            <summary>
-            Unique identifier of the Help language.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.homepagearea">
-            <summary>
-            Web site home page for the user.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.homepagelayout">
-            <summary>
-            Configuration of the home page layout.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.homepagesubarea">
-            <summary>
-            Web site page for the user.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.ignoreunsolicitedemail">
-            <summary>
-            Information that specifies whether a user account is to ignore unsolicited email (deprecated).
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.incomingemailfilteringmethod">
-            <summary>
-            Incoming email filtering method.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.isappsforcrmalertdismissed">
-            <summary>
-            Show or dismiss alert for Apps for 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.isautodatacaptureenabled">
-            <summary>
-            Indicates whether to use the Auto Capture feature enabled or not.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.isdefaultcountrycodecheckenabled">
-            <summary>
-            Enable or disable country code selection .
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.isduplicatedetectionenabledwhengoingonline">
-            <summary>
-            Indicates if duplicate detection is enabled when going online.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.isemailconversationviewenabled">
-            <summary>
-            Enable or disable email conversation view on timeline wall selection.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.isguidedhelpenabled">
-            <summary>
-            Enable or disable guided help.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.isresourcebookingexchangesyncenabled">
-            <summary>
-            Indicates if the synchronization of user resource booking with Exchange is enabled at user level.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.issendasallowed">
-            <summary>
-            Indicates if send as other user privilege is enabled or not.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.lastalertsviewedtime">
-            <summary>
-            Shows the last time when the traces were read from the database.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.lastmodifiedtimeforviewpersonalizationsettings">
-            <summary>
-            Stores the timestamp for when the ViewPersonalizationSettings attribute was updated for this user in the UserEntityUISettings table.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.localeid">
-            <summary>
-            Unique identifier of the user locale.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.longdateformatcode">
-            <summary>
-            Information that specifies how Long Date is displayed throughout Microsoft 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.modifiedby">
-            <summary>
-            Unique identifier of the user who last modified the user settings.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.modifiedon">
-            <summary>
-            Date and time when the user settings object was last modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who last modified the usersettings.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.negativecurrencyformatcode">
-            <summary>
-            Information that specifies how negative currency numbers are displayed in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.negativeformatcode">
-            <summary>
-            Information that specifies how negative numbers are displayed in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.nexttrackingnumber">
-            <summary>
-            Next tracking number.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.numbergroupformat">
-            <summary>
-            Information that specifies how numbers are grouped in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.numberseparator">
-            <summary>
-            Symbol used for number separation in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.offlinesyncinterval">
-            <summary>
-            Normal polling frequency used for background offline synchronization in Microsoft Office Outlook.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.outlooksyncinterval">
-            <summary>
-            Normal polling frequency used for record synchronization in Microsoft Office Outlook.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.paginglimit">
-            <summary>
-            Information that specifies how many items to list on a page in list views.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.personalizationsettings">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.pmdesignator">
-            <summary>
-            PM designator to use in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.preferredsolution">
-            <summary>
-            Preferred Solution when create a component without under a solution in this organization
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.pricingdecimalprecision">
-            <summary>
-            Number of decimal places that can be used for prices.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.releasechannel">
-            <summary>
-            Model app channel override
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.reportscripterrors">
-            <summary>
-            Picklist for selecting the user preference for reporting scripting errors.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.resourcebookingexchangesyncversion">
-            <summary>
-            The version number for resource booking synchronization with Exchange.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.selectedglobalfilterid">
-            <summary>
-            Store selected customer service hub dashboard saved filter id.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.showweeknumber">
-            <summary>
-            Information that specifies whether to display the week number in calendar displays in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.splitviewstate">
-            <summary>
-            For Internal use only
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.synccontactcompany">
-            <summary>
-            Indicates if the company field in Microsoft Office Outlook items are set during Outlook synchronization.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.systemuserid">
-            <summary>
-            Unique identifier of the user.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.tablescopeddvsearchfeatureteachingbubbleviews">
-            <summary>
-            The number of times a user has interacted with the Tabled Scoped Dataverse Search feature teaching bubble.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.tablescopeddvsearchquickfindteachingbubbleviews">
-            <summary>
-            The number of times a user has interacted with the Tabled Scoped Dataverse Search Quick Find teaching bubble.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timeformatcode">
-            <summary>
-            Information that specifies how the time is displayed in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timeformatstring">
-            <summary>
-            Text for how time is displayed in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timeseparator">
-            <summary>
-            Text for how time is displayed in Microsoft Dynamics 365.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonebias">
-            <summary>
-            Local time zone adjustment for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonecode">
-            <summary>
-            Local time zone for the user.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonedaylightbias">
-            <summary>
-            Local time zone daylight adjustment for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonedaylightday">
-            <summary>
-            Local time zone daylight day for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonedaylightdayofweek">
-            <summary>
-            Local time zone daylight day of week for the user. System calculated based on the time zone selected in Options.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonedaylighthour">
-            <summary>
-            Local time zone daylight hour for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonedaylightminute">
-            <summary>
-            Local time zone daylight minute for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonedaylightmonth">
-            <summary>
-            Local time zone daylight month for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonedaylightsecond">
-            <summary>
-            Local time zone daylight second for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonedaylightyear">
-            <summary>
-            Local time zone daylight year for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonestandardbias">
-            <summary>
-            Local time zone standard time bias for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonestandardday">
-            <summary>
-            Local time zone standard day for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonestandarddayofweek">
-            <summary>
-            Local time zone standard day of week for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonestandardhour">
-            <summary>
-            Local time zone standard hour for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonestandardminute">
-            <summary>
-            Local time zone standard minute for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonestandardmonth">
-            <summary>
-            Local time zone standard month for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonestandardsecond">
-            <summary>
-            Local time zone standard second for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.timezonestandardyear">
-            <summary>
-            Local time zone standard year for the user. System calculated based on the time zone selected.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.trackingtokenid">
-            <summary>
-            Tracking token ID.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.transactioncurrencyid">
-            <summary>
-            Unique identifier of the default currency of the user.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.trytogglesets">
-            <summary>
-            The list of app modules with try toggle sets
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.trytogglestatus">
-            <summary>
-            Enable or disable try toggle status.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.uilanguageid">
-            <summary>
-            Unique identifier of the language in which to view the user interface (UI).
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.usecrmformforappointment">
-            <summary>
-            Indicates whether to use the Microsoft Dynamics 365 appointment form within Microsoft Office Outlook for creating new appointments.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.usecrmformforcontact">
-            <summary>
-            Indicates whether to use the Microsoft Dynamics 365 contact form within Microsoft Office Outlook for creating new contacts.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.usecrmformforemail">
-            <summary>
-            Indicates whether to use the Microsoft Dynamics 365 email form within Microsoft Office Outlook for creating new emails.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.usecrmformfortask">
-            <summary>
-            Indicates whether to use the Microsoft Dynamics 365 task form within Microsoft Office Outlook for creating new tasks.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.useimagestrips">
-            <summary>
-            Indicates whether image strips are used to render images.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.userprofile">
-            <summary>
-            Specifies user profile ids in comma separated list.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.visualizationpanelayout">
-            <summary>
-            The layout of the visualization pane.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.workdaystarttime">
-            <summary>
-            Workday start time for the user.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.UserSettings.workdaystoptime">
-            <summary>
-            Workday stop time for the user.
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.UserSettings.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -10600,6 +9724,16 @@
             Reason for the status of the Request Category
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_space_allocation_statecode">
+            <summary>
+            Status of the Space Allocation
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_space_allocation_StatusCode">
+            <summary>
+            Reason for the status of the Space Allocation
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ofm_supplementary_schedule_statecode">
             <summary>
             Status of the Supplementary Schedule
@@ -11175,16 +10309,6 @@
             Shows the sync status.
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.Team_membershiptype">
-            <summary>
-            Information about team membership type.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.Team_teamtype">
-            <summary>
-            Information about team type.
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.TemplateDefaultView">
             <summary>
             Options for Template Default View
@@ -11203,81 +10327,6 @@
         <member name="F:ECC.Core.DataContext.TemplateDefaultView.TilesView">
             <summary>
             Tiles View
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings_d365autoinstallattemptstatus">
-            <summary>
-            Determines the status of auto install of Dynamics 365 to Teams attempt has been completed
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.UserSettings_d365autoinstallattemptstatus.Alreadyinstalled">
-            <summary>
-            Dynamics 365 app is already installed in Teams
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.UserSettings_d365autoinstallattemptstatus.Autoinstalled">
-            <summary>
-            Dynamics 365 App installed successfully
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.UserSettings_d365autoinstallattemptstatus.NoGraphAPI">
-            <summary>
-            Graph API is not available for auto install
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.UserSettings_d365autoinstallattemptstatus.NoSolution">
-            <summary>
-            D365 auto install solution is no available
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.UserSettings_d365autoinstallattemptstatus.ResourceDisabled">
-            <summary>
-            Resource to call graph api is disabled by tenant
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.UserSettings_d365autoinstallattemptstatus.Teamsadminblocked">
-            <summary>
-            Teams admin blocked installing Dynamics 365 app
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.UserSettings_d365autoinstallattemptstatus.Unauthorized">
-            <summary>
-            Not authorized to execute auto install
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings_datavalidationmodeforexporttoexcel">
-            <summary>
-            Information that specifies the level of data validation in excel worksheets exported in a format suitable for import.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings_defaultsearchexperience">
-            <summary>
-            Default search experience for the user.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings_entityformmode">
-            <summary>
-            Information that specifies the preferred form mode.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings_incomingemailfilteringmethod">
-            <summary>
-            Incoming email filtering method.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings_releasechannel">
-            <summary>
-            Model app channel override
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings_reportscripterrors">
-            <summary>
-            Picklist for selecting the user preference for reporting scripting errors.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.UserSettings_visualizationpanelayout">
-            <summary>
-            The layout of the visualization pane.
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.Workflow_RunAs">

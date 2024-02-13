@@ -6,7 +6,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace OFM.Infrastructure.WebAPI.Services.Fundings;
+namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
 public class P305SupplementaryFundingProvider : ID365ProcessProvider
 {
@@ -26,7 +26,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Funding.CalculateSupplementaryFundingId;
+    public short ProcessId => Setup.Process.Funding.CalculateSupplementaryFundingId;
     public string ProcessName => Setup.Process.Funding.CalculateSupplementaryFundingName;
 
     public string RequestUri
@@ -178,14 +178,14 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
 
         //fetch the supplemental data
         var localData = await GetData();
-        var deserializedData = JsonSerializer.Deserialize<List<Supplementary>>(localData.Data, Setup.s_writeOptionsForLogs);
+        var deserializedData = localData.Data.Deserialize<List<SupplementaryApplication>>(Setup.s_writeOptionsForLogs);
 
         var supplementary = deserializedData?.FirstOrDefault();
 
         //fetch the application and licences data
         var applicationId = supplementary._ofm_application_value;
         var applicationData = await GetApplicationData(applicationId);
-        var deserializedApplicationData = JsonSerializer.Deserialize<List<Models.Application>>(applicationData.Data, Setup.s_writeOptionsForLogs);
+        var deserializedApplicationData = applicationData.Data.Deserialize<List<Models.Application>>(Setup.s_writeOptionsForLogs);
 
         var application = deserializedApplicationData?.FirstOrDefault();
 
@@ -276,7 +276,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         {
             ofm_funding_amount = calculatedFundingAmount
         };
-        var requestBody = System.Text.Json.JsonSerializer.Serialize(updateContent);
+        var requestBody = JsonSerializer.Serialize(updateContent);
         var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateSupplementalUrl, requestBody);
 
         _logger.LogDebug(CustomLogEvent.Process, "Update Supplemental Record {supplemental.ofm_allowanceid}", supplementary.ofm_allowanceid);

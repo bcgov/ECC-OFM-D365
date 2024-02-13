@@ -250,6 +250,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_space_allocation"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_space_allocation> ofm_space_allocationSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_space_allocation>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_supplementary_schedule"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_supplementary_schedule> ofm_supplementary_scheduleSet
@@ -257,39 +268,6 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.ofm_supplementary_schedule>();
-			}
-		}
-		
-		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.Team"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.Team> TeamSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.Team>();
-			}
-		}
-		
-		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.TimeZoneDefinition"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.TimeZoneDefinition> TimeZoneDefinitionSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.TimeZoneDefinition>();
-			}
-		}
-		
-		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.UserSettings"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.UserSettings> UserSettingsSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.UserSettings>();
 			}
 		}
 	}
