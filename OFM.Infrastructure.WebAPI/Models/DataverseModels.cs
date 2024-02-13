@@ -293,11 +293,11 @@ public class Supplementary : ofm_allowance
 
 public class SupplementarySchedule : ofm_supplementary_schedule
 {
-    public new decimal? ofm_indigenous_10_to_19_spaces { get; set; }
-    public new decimal? ofm_indigenous_ge_20_spaces { get; set; }
+    public new decimal? ofm_indigenous_10_to_20_spaces { get; set; }
+    public new decimal? ofm_indigenous_ge_21_spaces { get; set; }
     public new decimal? ofm_indigenous_le_9_spaces { get; set; }
-    public new decimal? ofm_needs_10_to_19_spaces { get; set; }
-    public new decimal? ofm_needs_ge_20_spaces { get; set; }
+    public new decimal? ofm_needs_10_to_20_spaces { get; set; }
+    public new decimal? ofm_needs_ge_21_spaces { get; set; }
     public new decimal? ofm_needs_le_9_spaces { get; set; }
     public new decimal? ofm_sqw_caps_for_centers { get; set; }
     public new decimal? ofm_sqw_caps_for_homebased { get; set; }

@@ -60,11 +60,11 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                                     </filter>
                                     <link-entity name="ofm_supplementary_schedule" from="ofm_supplementary_scheduleid" to="ofm_supplementary_schedule">
                                       <attribute name="ofm_end_date" />
-                                      <attribute name="ofm_indigenous_10_to_19_spaces" />
-                                      <attribute name="ofm_indigenous_ge_20_spaces" />
+                                      <attribute name="ofm_indigenous_10_to_20_spaces" />
+                                      <attribute name="ofm_indigenous_ge_21_spaces" />
                                       <attribute name="ofm_indigenous_le_9_spaces" />
-                                      <attribute name="ofm_needs_10_to_19_spaces" />
-                                      <attribute name="ofm_needs_ge_20_spaces" />
+                                      <attribute name="ofm_needs_10_to_20_spaces" />
+                                      <attribute name="ofm_needs_ge_21_spaces" />
                                       <attribute name="ofm_needs_le_9_spaces" />
                                       <attribute name="ofm_sqw_caps_for_centers" />
                                       <attribute name="ofm_sqw_caps_for_homebased" />
@@ -80,7 +80,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
 
                 var requestUri = $"""                                
                                 ofm_allowances?$select=ofm_allowance_number,ofm_allowance_type,_ofm_application_value,ofm_funding_amount,ofm_needs_number_of_children_scd,ofm_transport_estimated_monthly_km,ofm_transport_lease,ofm_transport_monthly_lease,ofm_transport_odometer,statuscode
-                                &$expand=ofm_supplementary_schedule($select=ofm_end_date,ofm_indigenous_10_to_19_spaces,ofm_indigenous_ge_20_spaces,ofm_indigenous_le_9_spaces,ofm_needs_10_to_19_spaces,ofm_needs_ge_20_spaces,ofm_needs_le_9_spaces,ofm_sqw_caps_for_centers,ofm_sqw_caps_for_homebased,ofm_start_date,ofm_transport_ge_20_spaces_lease_cap_month,ofm_transport_less_20_spaces_lease_cap_month,ofm_transport_reimbursement_rate_per_km)
+                                &$expand=ofm_supplementary_schedule($select=ofm_end_date,ofm_indigenous_10_to_20_spaces,ofm_indigenous_ge_21_spaces,ofm_indigenous_le_9_spaces,ofm_needs_10_to_20_spaces,ofm_needs_ge_21_spaces,ofm_needs_le_9_spaces,ofm_sqw_caps_for_centers,ofm_sqw_caps_for_homebased,ofm_start_date,ofm_transport_ge_20_spaces_lease_cap_month,ofm_transport_less_20_spaces_lease_cap_month,ofm_transport_reimbursement_rate_per_km)
                                 &$filter=(ofm_allowanceid eq '{supplementaryId}') and (ofm_supplementary_schedule/ofm_supplementary_scheduleid ne null)
                                 """;
                 _requestUri = requestUri.CleanCRLF();
@@ -219,13 +219,13 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                     {
                         calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_le_9_spaces ?? 0;
                     }
-                    else if (totalSpaces <= 19)
+                    else if (totalSpaces <= 20)
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_10_to_20_spaces ?? 0;
                     }
                     else
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_ge_20_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_ge_21_spaces ?? 0;
                     }
                     break;
                 case 2:
@@ -233,28 +233,20 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                     {
                         calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces ?? 0;
                     }
-                    else if (totalSpaces <= 19)
+                    else if (totalSpaces <= 20)
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_10_to_20_spaces ?? 0;
                     }
                     else
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_ge_21_spaces ?? 0;
                     }
                     break;
                 case 3:
                     //if lease = Yes
                     if (supplementary.ofm_transport_lease == ECC.Core.DataContext.ecc_ynempty.Yes && supplementary.ofm_transport_monthly_lease is not null)
                     {
-                        if (totalSpaces < 20)
-                        {
-                            calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_less_20_spaces_lease_cap_month) * 12;
-
-                        }
-                        else if (totalSpaces >= 20)
-                        {
-                            calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_ge_20_spaces_lease_cap_month) * 12;
-                        }
+                        calculatedFundingAmount += (decimal)supplementary.ofm_transport_monthly_lease * 12;
                     }
 
                     var monthlyKMCost = (supplementary.ofm_transport_estimated_monthly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * 12;
