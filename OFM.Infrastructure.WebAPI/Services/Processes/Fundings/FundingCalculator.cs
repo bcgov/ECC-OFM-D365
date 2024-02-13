@@ -317,6 +317,19 @@ public class FundingCalculator
 
         return await Task.FromResult(false); 
     }
+
+    public async Task<bool> CalculateDefaultSpaceAllocation()
+    {
+        if (_fundingResult is null || !_fundingResult.IsValidFundingResult())
+            return await Task.FromResult(false); //Log the message
+
+        return await Task.FromResult(false);
+    }
+
+    internal Task<bool> SetDefaultSpaceAllocations(IEnumerable<ofm_space_allocation> spaceAllocations)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public enum ValidationMode
