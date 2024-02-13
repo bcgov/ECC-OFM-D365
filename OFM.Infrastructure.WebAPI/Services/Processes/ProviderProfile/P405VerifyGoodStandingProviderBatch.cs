@@ -9,7 +9,7 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 
-public class P400VerifyGoodStandingProvider : ID365ProcessProvider
+public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
 {
     private readonly BCRegistrySettings _BCRegistrySettings;
     private readonly ID365AppUserService _appUserService;
@@ -19,7 +19,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
 
-    public P400VerifyGoodStandingProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _BCRegistrySettings = ApiKeyBCRegistry.Value.BCRegistryApi;
         _appUserService = appUserService;
@@ -28,8 +28,9 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.ProviderProfile.VerifyGoodStandingId;
-    public string ProcessName => Setup.Process.ProviderProfile.VerifyGoodStandingName;
+    public Int16 ProcessId => Setup.Process.ProviderProfile.VerifyGoodStandingBatchId;
+    public string ProcessName => Setup.Process.ProviderProfile.VerifyGoodStandingBatchName;
+
     public string RequestUri
     {
         get
@@ -60,7 +61,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
     public async Task<ProcessData> GetData()
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P400VerifyGoodStandingProvider));
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P405VerifyGoodStandingBatchProvider));
 
         if (_data is null)
         {
