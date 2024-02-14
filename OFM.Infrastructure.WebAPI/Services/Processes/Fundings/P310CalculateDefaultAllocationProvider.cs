@@ -107,7 +107,7 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
         IEnumerable<ofm_space_allocation> spacesAllocation = await _fundingRepository!.GetSpacesAllocationByFundingIdAsync(new Guid(processParams.Funding!.FundingId!));
 
-        var calculator = new FundingCalculator(_funding, _rateSchedules);
+        var calculator = new FundingCalculator(_funding, _rateSchedules, _fundingRepository);
         await calculator.CalculateDefaultSpacesAllocation(spacesAllocation);
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;

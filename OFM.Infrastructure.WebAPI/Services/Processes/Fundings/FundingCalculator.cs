@@ -28,10 +28,11 @@ public class FundingCalculator
     private RateSchedule _rateSchedule;
     private readonly Funding _funding;
 
-    public FundingCalculator(Funding funding, IEnumerable<RateSchedule> rateSchedules)
+    public FundingCalculator(Funding funding, IEnumerable<RateSchedule> rateSchedules, IFundingRepository fundingRepository)
     {
         _funding = funding;
         _rateSchedule = rateSchedules.First(sch => sch.Id == _funding?.ofm_rate_schedule?.ofm_rate_scheduleid);
+        _fundingRepository = fundingRepository;
     }
 
     private IEnumerable<LicenceDetail> LicenceDetails
@@ -43,6 +44,7 @@ public class FundingCalculator
             {
                 service.RateSchedule = _rateSchedule;
             }
+
             return coreServices;
         }
     }
@@ -166,6 +168,7 @@ public class FundingCalculator
     public async Task<bool> CalculateDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation)
     {
         // Do validation as needed here
+        var groupSizes = LicenceDetails.Select(cs => cs.AllocatedGroupSizes);
 
         // Update with the default values
         await _fundingRepository.SaveDefaultSpacesAllocation(spacesAllocation);

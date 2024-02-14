@@ -106,7 +106,7 @@ public class P300BaseFundingProvider : ID365ProcessProvider
         _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
 
-        var calculator = new FundingCalculator(_funding, _rateSchedules);
+        var calculator = new FundingCalculator(_funding, _rateSchedules, _fundingRepository);
         await calculator.Evaluate();
         await calculator.ProcessFundingResult();
 
