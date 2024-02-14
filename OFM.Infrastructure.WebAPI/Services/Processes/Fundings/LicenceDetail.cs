@@ -34,8 +34,8 @@ public class LicenceDetail : ofm_licence_detail
     private int DaysPerWeek => ofm_week_days?.Split(",").Length ?? 0;
     private DateTime TimeFrom => base.GetAttributeValue<DateTime>(Fields.ofm_operation_hours_from);
     private DateTime TimeTo => base.GetAttributeValue<DateTime>(Fields.ofm_operation_hours_to);
-    private decimal HoursPerDay => (TimeTo - TimeFrom).Hours; // Todo: consider Minutes?
-    public decimal AnnualStandardHours => HoursPerDay * DaysPerWeek * WeeksPerYear; //Example: 10 * 5 * 50.2 = 2510
+    private decimal HoursPerDay => (TimeTo - TimeFrom).Hours; // Todo: consider Minutes ?
+    public decimal AnnualStandardHours => HoursPerDay * DaysPerWeek * WeeksPerYear; // Example: 10 * 5 * 50.2 = 2510
     /// <summary>
     /// Note that an FTE is expected to work 1957.5 hours a year and the number of available hours for childcare is less after accounting for training, sick days, vacation, and stat days
     /// </summary>
@@ -59,7 +59,7 @@ public class LicenceDetail : ofm_licence_detail
             var caretypesMap = cclr.ofm_licence_mapping!.Split(",")?.Select(Int32.Parse);
             bool hasMap = caretypesMap!.Contains((int)careType);
             return hasMap;
-        });
+        }).OrderBy(c=>c.ofm_group_size);
 
         return FilterCCLRBySpaces(filteredByCareTypes);
     }
@@ -89,11 +89,11 @@ public class LicenceDetail : ofm_licence_detail
 
     #region HR: Step 02 - Determine Minimum Staffing Required
 
-    private int RawITE => FilterCCLRByCareType(LicenceType).Sum(x => x.ofm_fte_min_ite!.Value);
-    private int RawECE => FilterCCLRByCareType(LicenceType).Sum(x => x.ofm_fte_min_ece!.Value);
-    private int RawECEA => FilterCCLRByCareType(LicenceType).Sum(x => x.ofm_fte_min_ecea!.Value);
-    private int RawRA => FilterCCLRByCareType(LicenceType).Sum(x => x.ofm_fte_min_ra!.Value);
-    private int TotalRawFTEs => RawITE + RawECE + RawECEA + RawRA;
+    public int RawITE => FilterCCLRByCareType(LicenceType).Sum(x => x.ofm_fte_min_ite!.Value);
+    public int RawECE => FilterCCLRByCareType(LicenceType).Sum(x => x.ofm_fte_min_ece!.Value);
+    public int RawECEA => FilterCCLRByCareType(LicenceType).Sum(x => x.ofm_fte_min_ecea!.Value);
+    public int RawRA => FilterCCLRByCareType(LicenceType).Sum(x => x.ofm_fte_min_ra!.Value);
+    public int TotalRawFTEs => RawITE + RawECE + RawECEA + RawRA;
 
     #endregion
 

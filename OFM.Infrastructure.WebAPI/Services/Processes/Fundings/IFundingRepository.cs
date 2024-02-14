@@ -321,12 +321,19 @@ public class FundingRepository : IFundingRepository
                                 <filter>
                                   <condition attribute="ofm_funding" operator="eq" value="00000000-0000-0000-0000-000000000000" />
                                 </filter>
+                                <link-entity name="ofm_cclr_ratio" from="ofm_cclr_ratioid" to="ofm_cclr_ratio" alias="CCLR">
+                                  <attribute name="ofm_caption" />
+                                  <attribute name="ofm_cclr_ratioid" />
+                                  <attribute name="ofm_group_size" />
+                                  <attribute name="ofm_licence_group" />
+                                  <attribute name="ofm_licence_mapping" />
+                                </link-entity>
                               </entity>
                             </fetch>
                             """;
 
             var requestUri = $"""                                
-                             ofm_space_allocations?$select=createdon,ofm_adjusted_allocation,ofm_caption,_ofm_cclr_ratio_value,ofm_default_allocation,_ofm_funding_value,ofm_order_number,ofm_space_allocationid,_ownerid_value,_owningbusinessunit_value,statuscode&$filter=(_ofm_funding_value eq '{_fundingId!.Value}')
+                             ofm_space_allocations?$select=createdon,ofm_adjusted_allocation,ofm_caption,_ofm_cclr_ratio_value,ofm_default_allocation,_ofm_funding_value,ofm_order_number,ofm_space_allocationid,_ownerid_value,_owningbusinessunit_value,statuscode&$expand=ofm_cclr_ratio($select=ofm_caption,ofm_cclr_ratioid,ofm_group_size,ofm_licence_group,ofm_licence_mapping)&$filter=(_ofm_funding_value eq '{_fundingId!.Value}') and (ofm_cclr_ratio/ofm_cclr_ratioid ne null) 
                              """;
 
             return requestUri;
@@ -468,15 +475,15 @@ public class FundingRepository : IFundingRepository
         foreach (var space in spacesAllocation)
         {
             var data = new JsonObject {
-                { "ofm_default_allocation", space.ofm_default_allocation },
+                { "ofm_default_allocation", space.ofm_default_allocation ?? 0 }
             };
 
             updateRequests.Add(new UpdateRequest(new EntityReference(ofm_space_allocation.EntityLogicalName, space.ofm_space_allocationid), data));
         }
 
-        var sendEmailBatchResult = await _d365webapiservice.SendBatchMessageAsync(_appUserService.AZSystemAppUser, updateRequests, null);
+        var batchResult = await _d365webapiservice.SendBatchMessageAsync(_appUserService.AZSystemAppUser, updateRequests, null);
 
-        if (sendEmailBatchResult.Errors.Any())
+        if (batchResult.Errors.Any())
         {
             await Task.FromResult(false);
         }

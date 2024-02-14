@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Xrm.Sdk;
@@ -168,7 +169,18 @@ public class FundingCalculator
     public async Task<bool> CalculateDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation)
     {
         // Do validation as needed here
+
+        // Updating the default spaces allocation
         var groupSizes = LicenceDetails.Select(cs => cs.AllocatedGroupSizes);
+        var coreservice = LicenceDetails.First(d => d.LicenceType == ecc_licence_type.GroupChildCareUnder36Months);
+        var test = coreservice.TotalRawFTEs;
+        foreach (var licenceDetail in LicenceDetails)
+        {
+            foreach (var space in spacesAllocation)
+            {
+                var t = space.ofm_cclr_ratio;
+            }
+        }
 
         // Update with the default values
         await _fundingRepository.SaveDefaultSpacesAllocation(spacesAllocation);
