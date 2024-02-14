@@ -2,6 +2,7 @@
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -113,7 +114,8 @@ namespace OFM.Infrastructure.Plugins.Funding
                                                             Id = spaceAllocation.FirstOrDefault().Id,
                                                             statecode = ofm_space_allocation_statecode.Active,
                                                             statuscode = ofm_space_allocation_StatusCode.Active,
-                                                            ofm_adjusted_allocation = 0
+                                                            ofm_adjusted_allocation = 0,
+                                                            ofm_default_allocation = 0
                                                         };
                                                         UpdateRequest updateRequest = new UpdateRequest { Target = entity };
                                                         crmContext.Execute(updateRequest);
@@ -125,6 +127,13 @@ namespace OFM.Infrastructure.Plugins.Funding
                                     }
                                 });
                             });
+                            var entityFunding = new ofm_funding
+                            {
+                                Id = localPluginContext.Target.Id,
+                                ofm_new_allocation_date = DateTime.Now
+                            };
+                            UpdateRequest updateFundingRequest = new UpdateRequest { Target = entityFunding };
+                            crmContext.Execute(updateFundingRequest);
                         }
                     }
                     else
