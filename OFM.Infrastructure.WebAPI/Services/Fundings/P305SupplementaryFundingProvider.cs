@@ -242,7 +242,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                     break;
                 case 3:
                     //if lease = Yes
-                    if (supplementary.ofm_transport_lease == ECC.Core.DataContext.ecc_ynempty.Yes && supplementary.ofm_transport_monthly_lease is not null)
+                    if (supplementary.ofm_transport_monthly_lease is not null)
                     {
                         calculatedFundingAmount += (decimal)supplementary.ofm_transport_monthly_lease * 12;
                     }
