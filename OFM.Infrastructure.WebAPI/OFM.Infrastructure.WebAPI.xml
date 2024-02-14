@@ -376,6 +376,11 @@
             <param name="client"></param>
             <returns></returns>
         </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.EmployerHealthTax">
+            <summary>
+            Apply the employer health tax at calculator level
+            </summary>
+        </member>
         <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingAmountCommand.TotalSpaces">
             <summary>
             Total Spaces: sum of all operational spaces of all licence types from all licences that a facility is granted (Non-HR ONLY)

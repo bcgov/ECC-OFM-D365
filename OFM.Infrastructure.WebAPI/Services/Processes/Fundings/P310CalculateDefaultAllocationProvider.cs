@@ -14,7 +14,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
 public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
 {
-    private readonly IOptionsSnapshot<ProcessSettings>? processSettings;
     private readonly ID365AppUserService? _appUserService;
     private readonly ID365WebApiService? _d365webapiservice;
     private readonly ILoggerFactory? loggerFactory;
@@ -25,9 +24,8 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
     private ProcessData? _data;
     private Funding? _funding;
 
-    public P310CalculateDefaultAllocationProvider(IOptionsSnapshot<ProcessSettings> processSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IFundingRepository fundingRepository, TimeProvider timeProvider)
+    public P310CalculateDefaultAllocationProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IFundingRepository fundingRepository, TimeProvider timeProvider)
     {
-        _processSettings = processSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
         _fundingRepository = fundingRepository;
@@ -105,15 +103,12 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
     {
         var startTime = _timeProvider?.GetTimestamp();
 
-        _funding = await _fundingRepository!.GetFundingAsync(new Guid(processParams.Funding!.FundingId!));
+        _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
-
-        // Retrieve the related space allocation records
-        IEnumerable<ofm_space_allocation> spaceAllocations = [];
+        IEnumerable<ofm_space_allocation> spacesAllocation = await _fundingRepository!.GetSpacesAllocationByFundingIdAsync(new Guid(processParams.Funding!.FundingId!));
 
         var calculator = new FundingCalculator(_funding, _rateSchedules);
-        calculator.Evaluate();
-        await calculator.SetDefaultSpaceAllocations(spaceAllocations);
+        await calculator.CalculateDefaultSpacesAllocation(spacesAllocation);
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }

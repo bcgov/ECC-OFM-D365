@@ -25,7 +25,6 @@ public class LicenceDetail : ofm_licence_detail
 
     public new string? ofm_week_days { get; set; }
     public RateSchedule RateSchedule { set { _rateSchedule = value; } }
-    private int OrderId { get; set; }
     private Guid LicenceTypeId => base.GetAttributeValue<Guid>(Fields.ofm_licence_detailid);
     private string LicenceTypeName => FormattedValues[Fields.ofm_licence_type];
     public ecc_licence_type LicenceType => (ecc_licence_type)base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
@@ -43,55 +42,23 @@ public class LicenceDetail : ofm_licence_detail
     /// 
     public decimal AnnualAvailableHoursPerFTE => ExpectedAnnualFTEHours -
                                                     (ProfessionalDevelopmentHours + // ToDo: Development Hours has a new logic/value
-                                                    _rateSchedule.ofm_vacation_hours_per_fte!.Value +
-                                                    (decimal)_rateSchedule.ofm_sick_hours_per_fte +
-                                                    (decimal)_rateSchedule.ofm_statutory_breaks);
+                                                    _rateSchedule!.ofm_vacation_hours_per_fte!.Value +
+                                                    _rateSchedule!.ofm_sick_hours_per_fte!.Value +
+                                                    _rateSchedule!.ofm_statutory_breaks!.Value);
     public decimal AnnualHoursAdjustmentRatio => AnnualStandardHours / AnnualAvailableHoursPerFTE;
-    public decimal ExpectedAnnualFTEHours => _rateSchedule.ofm_total_fte_hours_per_year!.Value; // 1957.5 
-    public decimal ProfessionalDevelopmentHours => _rateSchedule.ofm_professional_development_hours!.Value;
+    public decimal ExpectedAnnualFTEHours => _rateSchedule!.ofm_total_fte_hours_per_year!.Value; // 1957.5 
+    public decimal ProfessionalDevelopmentHours => _rateSchedule!.ofm_professional_development_hours!.Value;
 
     #region HR: Step 01 - Allocate Spaces to Efficient Group Sizes
 
-    //public IEnumerable<CCLRType> GroupSizes => FilterCCLRByCareType(LicenceTypeNumber).Select(cclr => cclr.GroupSize);
-    //private IEnumerable<CCLRRatio> FilterCCLRByCareType(int careType)
-    //{
-    //    var filteredByCareTypes = _CCLRRatioTable.Where(r =>
-    //    {
-    //        bool isEqual = r.CareTypes.Contains(careType);
-    //        return isEqual;
-    //    });
-
-    //    return FilterCCLRBySpaces(filteredByCareTypes);
-    //}
-    //private IEnumerable<CCLRRatio> FilterCCLRBySpaces(IEnumerable<CCLRRatio> filteredList)
-    //{
-    //    var spacesCount = Spaces;
-    //    Stack<CCLRRatio> stack = new(filteredList);
-
-    //    while (stack.Count > 0 && spacesCount > 0)
-    //    {
-    //        var currentItem = stack.Peek();
-    //        if (currentItem.SpacesMax <= spacesCount || spacesCount >= currentItem.SpacesMin)
-    //        {
-    //            spacesCount -= currentItem.SpacesMax;
-    //            if (spacesCount < currentItem.SpacesMin)
-    //                yield return stack.Pop();
-    //            else
-    //                yield return stack.Peek();
-    //        }
-    //        else
-    //            stack.Pop();
-    //    }
-    //}
-
-    public IEnumerable<ecc_group_size> GroupSizes => FilterCCLRByCareType(LicenceType).Select(cclr => cclr.ofm_group_size!.Value);
+    public IEnumerable<ecc_group_size> AllocatedGroupSizes => FilterCCLRByCareType(LicenceType).Select(cclr => cclr.ofm_group_size!.Value);
     private IEnumerable<CCLRRatio> FilterCCLRByCareType(ecc_licence_type careType)
     {
         var filteredByCareTypes = CCLRRatios.Where(cclr =>
         {
-            var caretypesMap = cclr.ofm_licence_mapping.Split(",")?.Select(Int32.Parse)?.ToList<int>();
-            bool isEqual = caretypesMap.Contains<int>((int)careType);
-            return isEqual;
+            var caretypesMap = cclr.ofm_licence_mapping!.Split(",")?.Select(Int32.Parse);
+            bool hasMap = caretypesMap!.Contains((int)careType);
+            return hasMap;
         });
 
         return FilterCCLRBySpaces(filteredByCareTypes);
@@ -148,10 +115,10 @@ public class LicenceDetail : ofm_licence_detail
         {
             return new Dictionary<WageType, decimal>()
             {
-                [WageType.ITE] = _rateSchedule.ofm_wages_ite_cost.Value,
-                [WageType.ECE] = _rateSchedule.ofm_wages_ece_cost.Value,
-                [WageType.ECEA] = _rateSchedule.ofm_wages_ecea_cost.Value,
-                [WageType.RA] = _rateSchedule.ofm_wages_ra_cost.Value
+                [WageType.ITE] = _rateSchedule!.ofm_wages_ite_cost!.Value,
+                [WageType.ECE] = _rateSchedule.ofm_wages_ece_cost!.Value,
+                [WageType.ECEA] = _rateSchedule.ofm_wages_ecea_cost!.Value,
+                [WageType.RA] = _rateSchedule.ofm_wages_ra_cost!.Value
             };
         }
     }
@@ -165,7 +132,7 @@ public class LicenceDetail : ofm_licence_detail
 
     #region  HR: Step 05 - Account for Supervisor Role
 
-    private decimal RequiredSupervisors => _rateSchedule.ofm_supervisor_ratio!.Value * GroupSizes.Count();
+    private decimal RequiredSupervisors => _rateSchedule!.ofm_supervisor_ratio!.Value * AllocatedGroupSizes.Count();
     private decimal SupervisorRateDifference
     {
         get
@@ -174,8 +141,8 @@ public class LicenceDetail : ofm_licence_detail
         }
     }
     private decimal SupervisorCostDiffPerYear => RequiredSupervisors * SupervisorRateDifference * (AnnualStandardHours * Spaces / Spaces);
-    private decimal WageGridMarkup => (1 + _rateSchedule.ofm_wage_grid_markup!.Value); // Plus 1 so that it does not zero out the calculation
-    public decimal TotalStaffingCost => TotalAdjustedFTEsCostPerHour * SupervisorCostDiffPerYear * ExpectedAnnualFTEHours * WageGridMarkup; // Including Supervisors
+    private decimal WageGridMarkup => (1 + _rateSchedule!.ofm_wage_grid_markup!.Value); // Plus 1 so that it does not zero out the related calculation
+    public decimal TotalStaffingCost => TotalAdjustedFTEsCostPerHour * SupervisorCostDiffPerYear * ExpectedAnnualFTEHours * WageGridMarkup; // Including Supervisor Differentials
     private decimal TotalCostPerFTEPerYear => TotalStaffingCost / TotalAdjustedFTEs;
 
     #endregion
@@ -195,29 +162,29 @@ public class LicenceDetail : ofm_licence_detail
 
     #endregion
 
-    #region  HR: Step 09 - Add EHT (Employer Health Tax)
+    #region  HR: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at calculator level ***
 
     public decimal TotalRenumeration => TotalStaffingCost + TotalBenefitsCostPerYear + QualityEnhancementCost;
-    private decimal GetEHTRate(ofm_application application)
-    {
-        var tempData = new { Ownership = application.ofm_summary_ownership, Renumeration = TotalRenumeration };
-        var threshold = tempData switch
-        {
-            { Ownership: ecc_Ownership.Private, Renumeration: < 1_500_000m, Renumeration: > 500_000m } => _rateSchedule.ofm_for_profit_eht_over_500k!.Value,
-            { Ownership: ecc_Ownership.Private, Renumeration: > 1_500_000m } => _rateSchedule.ofm_for_profit_eht_over_1_5m!.Value,
-            { Ownership: ecc_Ownership.Notforprofit, Renumeration: > 1_500_000m } => _rateSchedule.ofm_not_for_profit_eht_over_1_5m!.Value,
-            null => throw new ArgumentNullException(nameof(application), "Can't calculate EHT threshold on null funding application"),
-            _ => 0m
-        };
+    //private decimal GetEHTRate()
+    //{
+    //    var tempData = new { Ownership = Ownership, Renumeration = TotalRenumeration };
+    //    var threshold = tempData switch
+    //    {
+    //        { Ownership: ecc_Ownership.Private, Renumeration: < 1_500_000m, Renumeration: > 500_000m } => _rateSchedule.ofm_for_profit_eht_over_500k!.Value,
+    //        { Ownership: ecc_Ownership.Private, Renumeration: > 1_500_000m } => _rateSchedule.ofm_for_profit_eht_over_1_5m!.Value,
+    //        { Ownership: ecc_Ownership.Notforprofit, Renumeration: > 1_500_000m } => _rateSchedule.ofm_not_for_profit_eht_over_1_5m!.Value,
+    //        null => throw new ArgumentNullException(nameof(application), "Can't calculate EHT threshold on null funding application"),
+    //        _ => 0m
+    //    };
 
-        return threshold;
-    }
-    public decimal GetEmployerHealthTax(ofm_application application)
-    {
-        var rate = GetEHTRate(application);
+    //    return threshold;
+    //}
+    //public decimal GetEmployerHealthTax(ofm_application application)
+    //{
+    //    var rate = GetEHTRate(application);
 
-        return TotalRenumeration * rate;
-    }
+    //    return TotalRenumeration * rate;
+    //}
 
     #endregion
 

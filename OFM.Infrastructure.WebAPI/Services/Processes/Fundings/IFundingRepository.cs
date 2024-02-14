@@ -14,8 +14,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 public interface IFundingRepository
 {
     Task<IEnumerable<RateSchedule>> LoadRateSchedulesAsync();
-    Task<Funding> GetFundingAsync(Guid id);
+    Task<Funding> GetFundingByIdAsync(Guid id);
+    Task<IEnumerable<ofm_space_allocation>> GetSpacesAllocationByFundingIdAsync(Guid id);
     Task<bool> SaveFundingAmounts(FundingResult fundingResult);
+    Task<bool> SaveDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation);
 }
 
 public class FundingRepository : IFundingRepository
@@ -210,7 +212,7 @@ public class FundingRepository : IFundingRepository
                                 <attribute name="statecode" />
                                 <attribute name="statuscode" />
                                 <filter>
-                                    <condition attribute="ofm_fundingid" operator="eq" value="b586cb2f-8bc7-ee11-907a-000d3af4f17d" />
+                                    <condition attribute="ofm_fundingid" operator="eq" value="00000000-0000-0000-0000-000000000000" />
                                 </filter>
                                 <link-entity name="ofm_space_allocation" from="ofm_funding" to="ofm_fundingid" link-type="outer" alias="NewAllocation">
                                     <attribute name="createdon" />
@@ -261,6 +263,23 @@ public class FundingRepository : IFundingRepository
                                 <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="outer" alias="App">
                                     <attribute name="ofm_application" />
                                     <attribute name="ofm_applicationid" />
+                                    <attribute name="ofm_summary_ownership" />
+                                    <attribute name="ofm_application_type" />
+                                    <attribute name="ofm_costs_applicable_fee" />
+                                    <attribute name="ofm_costs_facility_type" />
+                                    <attribute name="ofm_costs_furniture_equipment" />
+                                    <attribute name="ofm_costs_maintenance_repairs" />
+                                    <attribute name="ofm_costs_mortgage" />
+                                    <attribute name="ofm_costs_property_insurance" />
+                                    <attribute name="ofm_costs_property_municipal_tax" />
+                                    <attribute name="ofm_costs_rent_lease" />
+                                    <attribute name="ofm_costs_strata_fee" />
+                                    <attribute name="ofm_costs_supplies" />
+                                    <attribute name="ofm_costs_upkeep_labour_supplies" />
+                                    <attribute name="ofm_costs_utilities" />
+                                    <attribute name="ofm_costs_year_facility_costs" />
+                                    <attribute name="ofm_costs_yearly_operating_costs" />
+                                    <attribute name="ofm_funding_number_base" />
                                 </link-entity>
                                 <link-entity name="ofm_rate_schedule" from="ofm_rate_scheduleid" to="ofm_rate_schedule" alias="RateSchedule">
                                     <attribute name="ofm_rate_scheduleid" />
@@ -270,12 +289,42 @@ public class FundingRepository : IFundingRepository
                             </fetch>
                             """;
 
-            //var requestUri = $"""                                
-            //                 ofm_fundings?$select=_createdby_value,createdon,_modifiedby_value,modifiedon,_ofm_application_value,ofm_apply_duplicate_caretypes_condition,ofm_apply_room_split_condition,ofm_end_date,ofm_envelope_administrative,ofm_envelope_administrative_pf,ofm_envelope_administrative_proj,ofm_envelope_facility,ofm_envelope_facility_pf,ofm_envelope_facility_proj,ofm_envelope_grand_total,ofm_envelope_grand_total_pf,ofm_envelope_grand_total_proj,ofm_envelope_hr_benefits,ofm_envelope_hr_benefits_pf,ofm_envelope_hr_benefits_proj,ofm_envelope_hr_employerhealthtax,ofm_envelope_hr_employerhealthtax_pf,ofm_envelope_hr_employerhealthtax_proj,ofm_envelope_hr_prodevexpenses,ofm_envelope_hr_prodevexpenses_pf,ofm_envelope_hr_prodevexpenses_proj,ofm_envelope_hr_prodevhours,ofm_envelope_hr_prodevhours_pf,ofm_envelope_hr_prodevhours_proj,ofm_envelope_hr_total,ofm_envelope_hr_total_pf,ofm_envelope_hr_total_proj,ofm_envelope_hr_wages_paidtimeoff,ofm_envelope_hr_wages_paidtimeoff_pf,ofm_envelope_hr_wages_paidtimeoff_proj,ofm_envelope_operational,ofm_envelope_operational_pf,ofm_envelope_operational_proj,ofm_envelope_programming,ofm_envelope_programming_pf,ofm_envelope_programming_proj,_ofm_facility_value,ofm_funding_envelope,ofm_funding_number,ofm_fundingid,ofm_manual_intervention,ofm_new_allocation_date,_ofm_rate_schedule_value,ofm_start_date,ofm_version_number,_ownerid_value,_owningbusinessunit_value,statecode,statuscode&$expand=ofm_funding_spaceallocation($select=createdon,ofm_adjusted_allocation,ofm_caption,_ofm_cclr_ratio_value,ofm_default_allocation,_ofm_funding_value,ofm_order_number,_ownerid_value,_owningbusinessunit_value,statuscode),ofm_facility($select=accountid,accountnumber,name;$expand=ofm_facility_licence($select=createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode))),ofm_application($select=ofm_application,ofm_applicationid),ofm_rate_schedule($select=ofm_rate_scheduleid,ofm_schedule_number)&$filter=(ofm_fundingid eq '{_fundingId.ToString()}')
-            //                 """;
+            var requestUri = $"""                                
+                             ofm_fundings?$select=_createdby_value,createdon,_modifiedby_value,modifiedon,_ofm_application_value,ofm_apply_duplicate_caretypes_condition,ofm_apply_room_split_condition,ofm_end_date,ofm_envelope_administrative,ofm_envelope_administrative_pf,ofm_envelope_administrative_proj,ofm_envelope_facility,ofm_envelope_facility_pf,ofm_envelope_facility_proj,ofm_envelope_grand_total,ofm_envelope_grand_total_pf,ofm_envelope_grand_total_proj,ofm_envelope_hr_benefits,ofm_envelope_hr_benefits_pf,ofm_envelope_hr_benefits_proj,ofm_envelope_hr_employerhealthtax,ofm_envelope_hr_employerhealthtax_pf,ofm_envelope_hr_employerhealthtax_proj,ofm_envelope_hr_prodevexpenses,ofm_envelope_hr_prodevexpenses_pf,ofm_envelope_hr_prodevexpenses_proj,ofm_envelope_hr_prodevhours,ofm_envelope_hr_prodevhours_pf,ofm_envelope_hr_prodevhours_proj,ofm_envelope_hr_total,ofm_envelope_hr_total_pf,ofm_envelope_hr_total_proj,ofm_envelope_hr_wages_paidtimeoff,ofm_envelope_hr_wages_paidtimeoff_pf,ofm_envelope_hr_wages_paidtimeoff_proj,ofm_envelope_operational,ofm_envelope_operational_pf,ofm_envelope_operational_proj,ofm_envelope_programming,ofm_envelope_programming_pf,ofm_envelope_programming_proj,_ofm_facility_value,ofm_funding_envelope,ofm_funding_number,ofm_fundingid,ofm_manual_intervention,ofm_new_allocation_date,_ofm_rate_schedule_value,ofm_start_date,ofm_version_number,_ownerid_value,_owningbusinessunit_value,statecode,statuscode&$expand=ofm_funding_spaceallocation($select=createdon,ofm_adjusted_allocation,ofm_caption,_ofm_cclr_ratio_value,ofm_default_allocation,_ofm_funding_value,ofm_order_number,_ownerid_value,_owningbusinessunit_value,statuscode),ofm_facility($select=accountid,accountnumber,name;$expand=ofm_facility_licence($select=createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode))),ofm_application($select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_costs_applicable_fee,ofm_costs_facility_type,ofm_costs_furniture_equipment,ofm_costs_maintenance_repairs,ofm_costs_mortgage,ofm_costs_property_insurance,ofm_costs_property_municipal_tax,ofm_costs_rent_lease,ofm_costs_strata_fee,ofm_costs_supplies,ofm_costs_upkeep_labour_supplies,ofm_costs_utilities,ofm_costs_year_facility_costs,ofm_costs_yearly_operating_costs,ofm_funding_number_base),ofm_rate_schedule($select=ofm_rate_scheduleid,ofm_schedule_number)&$filter=(ofm_fundingid eq '{_fundingId!.Value}') and (ofm_facility/accountid ne null) and (ofm_rate_schedule/ofm_rate_scheduleid ne null)
+                             """;
+        
+            return requestUri;
+        }
+    }
+
+    private string SpacesAllocationRequestUri
+    {
+        get
+        {
+            // For reference only
+            var fetchXml = $"""
+                            <fetch distinct="true" no-lock="true">
+                              <entity name="ofm_space_allocation">
+                                <attribute name="createdon" />
+                                <attribute name="ofm_adjusted_allocation" />
+                                <attribute name="ofm_caption" />
+                                <attribute name="ofm_cclr_ratio" />
+                                <attribute name="ofm_default_allocation" />
+                                <attribute name="ofm_funding" />
+                                <attribute name="ofm_order_number" />
+                                <attribute name="ofm_space_allocationid" />
+                                <attribute name="ownerid" />
+                                <attribute name="owningbusinessunit" />
+                                <attribute name="statuscode" />
+                                <filter>
+                                  <condition attribute="ofm_funding" operator="eq" value="00000000-0000-0000-0000-000000000000" />
+                                </filter>
+                              </entity>
+                            </fetch>
+                            """;
 
             var requestUri = $"""                                
-                             ofm_fundings?$select=_createdby_value,createdon,_modifiedby_value,modifiedon,_ofm_application_value,ofm_apply_duplicate_caretypes_condition,ofm_apply_room_split_condition,ofm_end_date,ofm_envelope_administrative,ofm_envelope_administrative_pf,ofm_envelope_administrative_proj,ofm_envelope_facility,ofm_envelope_facility_pf,ofm_envelope_facility_proj,ofm_envelope_grand_total,ofm_envelope_grand_total_pf,ofm_envelope_grand_total_proj,ofm_envelope_hr_benefits,ofm_envelope_hr_benefits_pf,ofm_envelope_hr_benefits_proj,ofm_envelope_hr_employerhealthtax,ofm_envelope_hr_employerhealthtax_pf,ofm_envelope_hr_employerhealthtax_proj,ofm_envelope_hr_prodevexpenses,ofm_envelope_hr_prodevexpenses_pf,ofm_envelope_hr_prodevexpenses_proj,ofm_envelope_hr_prodevhours,ofm_envelope_hr_prodevhours_pf,ofm_envelope_hr_prodevhours_proj,ofm_envelope_hr_total,ofm_envelope_hr_total_pf,ofm_envelope_hr_total_proj,ofm_envelope_hr_wages_paidtimeoff,ofm_envelope_hr_wages_paidtimeoff_pf,ofm_envelope_hr_wages_paidtimeoff_proj,ofm_envelope_operational,ofm_envelope_operational_pf,ofm_envelope_operational_proj,ofm_envelope_programming,ofm_envelope_programming_pf,ofm_envelope_programming_proj,_ofm_facility_value,ofm_funding_envelope,ofm_funding_number,ofm_fundingid,ofm_manual_intervention,ofm_new_allocation_date,_ofm_rate_schedule_value,ofm_start_date,ofm_version_number,_ownerid_value,_owningbusinessunit_value,statecode,statuscode&$expand=ofm_funding_spaceallocation($select=createdon,ofm_adjusted_allocation,ofm_caption,_ofm_cclr_ratio_value,ofm_default_allocation,_ofm_funding_value,ofm_order_number,_ownerid_value,_owningbusinessunit_value,statuscode),ofm_facility($select=accountid,accountnumber,name;$expand=ofm_facility_licence($select=createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode))),ofm_application($select=ofm_application,ofm_applicationid),ofm_rate_schedule($select=ofm_rate_scheduleid,ofm_schedule_number,ofm_caption)&$filter=(ofm_fundingid eq '{_fundingId.ToString()}')
+                             ofm_space_allocations?$select=createdon,ofm_adjusted_allocation,ofm_caption,_ofm_cclr_ratio_value,ofm_default_allocation,_ofm_funding_value,ofm_order_number,ofm_space_allocationid,_ownerid_value,_owningbusinessunit_value,statuscode&$filter=(_ofm_funding_value eq '{_fundingId!.Value}')
                              """;
 
             return requestUri;
@@ -292,7 +341,7 @@ public class FundingRepository : IFundingRepository
         return await Task.FromResult(deserializedData!); ;
     }
 
-    public async Task<Funding> GetFundingAsync(Guid id)
+    public async Task<Funding> GetFundingByIdAsync(Guid id)
     {
         _fundingId = id;
         var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, FundingRequestUri);
@@ -321,6 +370,37 @@ public class FundingRepository : IFundingRepository
         var deserializedData = d365Result.Deserialize<List<Funding>>(Setup.s_writeOptionsForLogs);
 
         return await Task.FromResult(deserializedData!.First());
+    }
+
+    public async Task<IEnumerable<ofm_space_allocation>> GetSpacesAllocationByFundingIdAsync(Guid id)
+    {
+        _fundingId = id;
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, SpacesAllocationRequestUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            //_logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
+
+            //return await Task.FromResult([]);
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                //_logger.LogInformation(CustomLogEvent.Process, "No records found");
+            }
+
+            d365Result = currentValue!;
+        }
+
+        var deserializedData = d365Result.Deserialize<IEnumerable<ofm_space_allocation>>(Setup.s_writeOptionsForLogs);
+
+        return await Task.FromResult(deserializedData!);
     }
 
     public async Task<bool> SaveFundingAmounts(FundingResult fundingResult)
@@ -376,6 +456,13 @@ public class FundingRepository : IFundingRepository
         var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateFundingUrl, requestBody);
 
         //_logger.LogDebug(CustomLogEvent.Process, "Update Funding Record {fundingId}", fundingId);
+
+        return await Task.FromResult(true);
+    }
+
+    public async Task<bool> SaveDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation)
+    {
+        //Save the updated data in dataverse. use batch operation
 
         return await Task.FromResult(true);
     }

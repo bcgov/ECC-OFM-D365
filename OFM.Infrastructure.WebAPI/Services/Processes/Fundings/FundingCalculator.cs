@@ -34,11 +34,11 @@ public class FundingCalculator
         _rateSchedule = rateSchedules.First(sch => sch.Id == _funding?.ofm_rate_schedule?.ofm_rate_scheduleid);
     }
 
-    private IEnumerable<LicenceDetail> CoreServices
+    private IEnumerable<LicenceDetail> LicenceDetails
     {
         get
         {
-            var coreServices = _funding.ofm_facility.ofm_facility_licence.SelectMany(licence => licence.ofm_licence_licencedetail);
+            var coreServices = _funding.ofm_facility!.ofm_facility_licence.SelectMany(licence => licence.ofm_licence_licencedetail);
             foreach (var service in coreServices)
             {
                 service.RateSchedule = _rateSchedule;
@@ -46,196 +46,38 @@ public class FundingCalculator
             return coreServices;
         }
     }
+    private int TotalSpaces => LicenceDetails.Sum(detail => detail.ofm_operational_spaces!.Value);
+    private ecc_Ownership Ownership => _funding.ofm_application!.ofm_summary_ownership!.Value;
 
-    private int TotalSpaces => CoreServices.Sum(detail => detail.ofm_operational_spaces!.Value);
-
-    #region Pre-defined Queries
-
-    private string RequestUriCCLR
+    /// <summary>
+    /// Apply the employer health tax at calculator level
+    /// </summary>
+    private decimal EmployerHealthTax
     {
         get
         {
-            string fetchXml = $"""
-                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
-                      <entity name="ofm_cclr_ratio">
-                        <attribute name="ofm_cclr_ratioid" />
-                        <attribute name="ofm_order_number" />
-                        <attribute name="ofm_caption" />
-                        <attribute name="ofm_fte_min_ite" />
-                        <attribute name="ofm_fte_min_ece" />
-                        <attribute name="ofm_fte_min_ecea" />
-                        <attribute name="ofm_fte_min_ra" />
-                        <attribute name="ofm_spaces_max" />
-                        <attribute name="ofm_spaces_min" />
-                        <attribute name="ofm_group_size" />
-                        <attribute name="ofm_licence_group" />
-                        <attribute name="ofm_licence_mapping" />
-                        <attribute name="ofm_rate_schedule" />
-                        <filter>
-                          <condition attribute="statuscode" operator="eq" value="1">
-                            <value>1</value>
-                          </condition>
-                        </filter>
-                        <order attribute="ofm_order_number" />
-                      </entity>
-                    </fetch>          
-                    """;
+            var tempData = new { Ownership = Ownership, Renumeration = LicenceDetails.Sum(ld => ld.TotalRenumeration) };
+            var threshold = tempData switch
+            {
+                { Ownership: ecc_Ownership.Private, Renumeration: < 1_500_000m, Renumeration: > 500_000m } => _rateSchedule.ofm_for_profit_eht_over_500k!.Value,
+                { Ownership: ecc_Ownership.Private, Renumeration: > 1_500_000m } => _rateSchedule.ofm_for_profit_eht_over_1_5m!.Value,
+                { Ownership: ecc_Ownership.Notforprofit, Renumeration: > 1_500_000m } => _rateSchedule.ofm_not_for_profit_eht_over_1_5m!.Value,
+                null => throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with null value"),
+                _ => 0m
+            };
 
-            var requestUri = $"""
-                         ofm_cclr_ratios?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                         """;
-
-            return requestUri;
+            return threshold * LicenceDetails.Sum(ld => ld.TotalRenumeration);
         }
     }
 
-    private string RequestUriApplication
-    {
-        get
-        {
-            //for reference only
-            /*
-            var fetchXml = $"""
-                            <fetch>
-                              <entity name="ofm_application">
-                                <filter>
-                                  <condition attribute="ofm_applicationid" operator="eq" value="41733dc8-d292-ee11-be37-000d3a09d499" />
-                                </filter>
-                                <link-entity name="ofm_licence" from="ofm_application" to="ofm_applicationid" alias="ApplicationLicense">
-                                  <attribute name="ofm_application" />
-                                  <attribute name="ofm_licenceid" />
-                                  <attribute name="createdon" />
-                                  <attribute name="ofm_accb_providerid" />
-                                  <attribute name="ofm_ccof_facilityid" />
-                                  <attribute name="ofm_ccof_organizationid" />
-                                  <attribute name="ofm_facility" />
-                                  <attribute name="ofm_health_authority" />
-                                  <attribute name="ofm_licence" />
-                                  <attribute name="ofm_tdad_funding_agreement_number" />
-                                  <attribute name="ownerid" />
-                                  <attribute name="statuscode" />
-                                  <filter>
-                                    <condition attribute="statecode" operator="eq" value="0" />
-                                  </filter>
-                                  <link-entity name="ofm_licence_detail" from="ofm_licence" to="ofm_licenceid" alias="Licence">
-                                    <attribute name="createdon" />
-                                    <attribute name="ofm_care_type" />
-                                    <attribute name="ofm_enrolled_spaces" />
-                                    <attribute name="ofm_licence" />
-                                    <attribute name="ofm_licence_detail" />
-                                    <attribute name="ofm_licence_spaces" />
-                                    <attribute name="ofm_licence_type" />
-                                    <attribute name="ofm_operation_hours_from" />
-                                    <attribute name="ofm_operation_hours_to" />
-                                    <attribute name="ofm_operational_spaces" />
-                                    <attribute name="ofm_overnight_care" />
-                                    <attribute name="ofm_week_days" />
-                                    <attribute name="ofm_weeks_in_operation" />
-                                    <attribute name="ownerid" />
-                                    <attribute name="statuscode" />
-                                  </link-entity>
-                                </link-entity>
-                                <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid" alias="Funding">
-                                  <attribute name="ofm_fundingid" />
-                                  <filter>
-                                    <condition attribute="statecode" operator="eq" value="0" />
-                                  </filter>
-                                </link-entity>
-                              </entity>
-                            </fetch>
-                            """;
-            */
-
-            var requestUri = $"""                                
-                                ofm_applications?$expand=ofm_licence_application($select=_ofm_application_value,ofm_licenceid,createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;
-                                $expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,_ownerid_value,statuscode);
-                                $filter=(statecode eq 0)),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))
-                                &$filter=(ofm_applicationid eq '{_funding?.ofm_application}') and (ofm_licence_application/any(o1:(o1/statecode eq 0) and (o1/ofm_licence_licencedetail/any(o2:(o2/ofm_licence_detailid ne null))))) and (ofm_application_funding/any(o3:(o3/statecode eq 0)))
-                                """;
-
-            return requestUri;
-        }
-    }
-
-    #endregion
-
-    #region DATA
-
-    //public ofm_rate_schedule? RateSchedule
-    //{
-    //    get
-    //    {
-    //        if (_rateSchedule == null)
-    //        {
-    //            var rateScheduleData = _d365dataService.FetchData(RequestUriRateSchedule, "ratescheduleKey");
-    //            _rateSchedule = rateScheduleData.Deserialize<ofm_rate_schedule>(Setup.s_readOptionsRelaxed)!;
-    //        }
-
-    //        return _rateSchedule;
-    //    }
-    //}
-
-    //public async Task<ofm_rate_schedule> GetRateScheduleData()
-    //{
-    //    //_logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P205SendNotificationProvider));
-
-    //    //if (_data is null && _processParams is not null)
-    //    //{
-    //    //_logger.LogDebug(CustomLogEvent.Process, "Getting active contacts from a marketinglist with query {requestUri}", RequestUri.CleanLog());
-
-    //    var response = await _d365dataService.FetchDataAsync(RequestUriRateSchedule, "ratescheduleKey");
-
-
-    //    //if (!response.IsSuccessStatusCode)
-    //        //{
-    //        //    var responseBody = await response.Content.ReadAsStringAsync();
-    //        //    _logger.LogError(CustomLogEvent.Process, "Failed to query members on the contact list with the server error {responseBody}", responseBody.CleanLog());
-
-    //        //    return await Task.FromResult(new ProcessData(string.Empty));
-    //        //}
-
-    //        //var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-    //        JsonNode d365Result = string.Empty;
-    //        if (response?.TryGetPropertyValue("value", out var currentValue) == true)
-    //        {
-    //            //if (currentValue?.AsArray().Count == 0)
-    //            //{
-    //            //    _logger.LogInformation(CustomLogEvent.Process, "No members on the contact list found with query {requestUri}", RequestUri.CleanLog());
-    //            //}
-    //            d365Result = currentValue!;
-    //        }
-
-    //        var data = new ProcessData(d365Result);
-
-    //        var rateScheduleData = await _d365dataService.FetchDataAsync(RequestUriRateSchedule, "ratescheduleKey");
-    //        var deserializedRateScheduleData = JsonSerializer.Deserialize<ofm_rate_schedule>(rateScheduleData, Setup.s_readOptionsRelaxed);
-
-    //    //_logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data?.Data.ToString().CleanLog());
-    //    //}
-
-    //    return await Task.FromResult(deserializedRateScheduleData);
-    //}
-
-    #endregion
-
-    #region HR Envelopes
-
-    #endregion
-
-    public void Evaluate()
+    public async Task<bool> Evaluate()
     {
         // NOTE: For HR envelopes, apply the FTE minimum (0.5) at the combined care type level.(Decision made on Feb 07, 2024 with the Ministry)
 
         #region Validation
 
         var fundingRules = new MustHaveFundingNumberBaseRule();
-        fundingRules.NextValidator(new ValidApplicationStatusRule())
-                       //            .NextValidator(new ValidCoreServiceRule())
-                       //            .NextValidator(new ApplicationLastModifiedRule())
-                       //            .NextValidator(new GoodStandingRule())
-                       //            .NextValidator(new DuplicateLicenceTypeRule())
-                       //.NextValidator(new SplitRoomRule())
+        fundingRules.NextValidator(new MustHaveValidApplicationStatusRule())
                        .NextValidator(new MustHaveValidRateScheduleRule());
         try
         {
@@ -248,14 +90,15 @@ public class FundingCalculator
 
         #endregion
 
-        FundingAmounts fundingAmounts = new() {
+        FundingAmounts fundingAmounts = new()
+        {
             //Projected Base Amounts
-            HRTotal_Projected = CoreServices.Sum(cs => cs.TotalRenumeration),
-            HRWagesPaidTimeOff_Projected = CoreServices.Sum(cs => cs.TotalStaffingCost),
-            HRBenefits_Projected = CoreServices.Sum(cs => cs.TotalBenefitsCostPerYear),
-            //HREmployerHealthTax_Projected = CoreServices.Sum(cs => cs.GetEmployerHealthTax()),
-            HRProfessionalDevelopmentHours_Projected = CoreServices.Sum(cs => cs.TotalProfessionalDevelopmentExpenses),
-            HRProfessionalDevelopmentExpenses_Projected = CoreServices.Sum(cs => cs.TotalProfessionalDevelopmentExpenses),
+            HRTotal_Projected = LicenceDetails.Sum(cs => cs.TotalRenumeration),
+            HRWagesPaidTimeOff_Projected = LicenceDetails.Sum(cs => cs.TotalStaffingCost),
+            HRBenefits_Projected = LicenceDetails.Sum(cs => cs.TotalBenefitsCostPerYear),
+            HREmployerHealthTax_Projected = EmployerHealthTax,
+            HRProfessionalDevelopmentHours_Projected = LicenceDetails.Sum(cs => cs.TotalProfessionalDevelopmentExpenses),
+            HRProfessionalDevelopmentExpenses_Projected = LicenceDetails.Sum(cs => cs.TotalProfessionalDevelopmentExpenses),
 
             //NonHRProgramming_Projected = CoreServices.Sum(cs => cs.TotalProfessionalDevelopmentExpenses),
             //NonHRAdmistrative_Projected = CoreServices.Sum(cs => cs.TotalProfessionalDevelopmentExpenses),
@@ -300,6 +143,8 @@ public class FundingCalculator
         #endregion
 
         _fundingResult = FundingResult.AutoApproved(_funding.ofm_funding_number, fundingAmounts, null);
+
+        return await Task.FromResult(true);
     }
 
     public async Task<bool> ProcessFundingResult()
@@ -315,20 +160,17 @@ public class FundingCalculator
 
         // Other tasks
 
-        return await Task.FromResult(false); 
-    }
-
-    public async Task<bool> CalculateDefaultSpaceAllocation()
-    {
-        if (_fundingResult is null || !_fundingResult.IsValidFundingResult())
-            return await Task.FromResult(false); //Log the message
-
         return await Task.FromResult(false);
     }
 
-    internal Task<bool> SetDefaultSpaceAllocations(IEnumerable<ofm_space_allocation> spaceAllocations)
+    public async Task<bool> CalculateDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation)
     {
-        throw new NotImplementedException();
+        // Do validation as needed here
+
+        // Update with the default values
+        await _fundingRepository.SaveDefaultSpacesAllocation(spacesAllocation);
+
+        return await Task.FromResult(true);
     }
 }
 
