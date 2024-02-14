@@ -26139,18 +26139,18 @@ namespace ECC.Core.DataContext
 			public const string modifiedonbehalfbyName = "modifiedonbehalfbyname";
 			public const string ofm_caption = "ofm_caption";
 			public const string ofm_end_date = "ofm_end_date";
-			public const string ofm_indigenous_10_to_20_spaces = "ofm_indigenous_10_to_20_spaces";
-			public const string ofm_indigenous_10_to_20_spaces_base = "ofm_indigenous_10_to_20_spaces_base";
-			public const string ofm_indigenous_ge_21_spaces = "ofm_indigenous_ge_21_spaces";
-			public const string ofm_indigenous_ge_21_spaces_base = "ofm_indigenous_ge_21_spaces_base";
-			public const string ofm_indigenous_le_9_spaces = "ofm_indigenous_le_9_spaces";
-			public const string ofm_indigenous_le_9_spaces_base = "ofm_indigenous_le_9_spaces_base";
-			public const string ofm_needs_10_to_20_spaces = "ofm_needs_10_to_20_spaces";
-			public const string ofm_needs_10_to_20_spaces_base = "ofm_needs_10_to_20_spaces_base";
-			public const string ofm_needs_ge_21_spaces = "ofm_needs_ge_21_spaces";
-			public const string ofm_needs_ge_21_spaces_base = "ofm_needs_ge_21_spaces_base";
-			public const string ofm_needs_le_9_spaces = "ofm_needs_le_9_spaces";
-			public const string ofm_needs_le_9_spaces_base = "ofm_needs_le_9_spaces_base";
+			public const string ofm_indigenous_between_limits_amount = "ofm_indigenous_between_limits_amount";
+			public const string ofm_indigenous_between_limits_amount_base = "ofm_indigenous_between_limits_amount_base";
+			public const string ofm_indigenous_greater_upper_limit_amount = "ofm_indigenous_greater_upper_limit_amount";
+			public const string ofm_indigenous_greater_upper_limit_amount_base = "ofm_indigenous_greater_upper_limit_amount_base";
+			public const string ofm_indigenous_less_lower_limit_amount = "ofm_indigenous_less_lower_limit_amount";
+			public const string ofm_indigenous_less_lower_limit_amount_base = "ofm_indigenous_less_lower_limit_amount_base";
+			public const string ofm_needs_between_limits_amount = "ofm_needs_between_limits_amount";
+			public const string ofm_needs_between_limits_amount_base = "ofm_needs_between_limits_amount_base";
+			public const string ofm_needs_greater_upper_limit_amount = "ofm_needs_greater_upper_limit_amount";
+			public const string ofm_needs_greater_upper_limit_amount_base = "ofm_needs_greater_upper_limit_amount_base";
+			public const string ofm_needs_less_lower_limit_amount = "ofm_needs_less_lower_limit_amount";
+			public const string ofm_needs_less_lower_limit_amount_base = "ofm_needs_less_lower_limit_amount_base";
 			public const string ofm_overnight_care_premium = "ofm_overnight_care_premium";
 			public const string ofm_schedule_number = "ofm_schedule_number";
 			public const string ofm_sqw_caps_for_centers = "ofm_sqw_caps_for_centers";
@@ -26182,7 +26182,9 @@ namespace ECC.Core.DataContext
 			public const string transactioncurrencyidName = "transactioncurrencyidname";
 			public const string utcconversiontimezonecode = "utcconversiontimezonecode";
 			public const string versionnumber = "versionnumber";
-		}
+            public const string ofm_space_lower_limit = "ofm_space_lower_limit";
+            public const string ofm_space_upper_limit = "ofm_space_upper_limit";
+        }
 		
 		[System.Diagnostics.DebuggerNonUserCode()]
 		public ofm_supplementary_schedule(System.Guid id) : 
@@ -26383,193 +26385,229 @@ namespace ECC.Core.DataContext
 		/// <summary>
 		/// Facilities with 10 - 20 spaces
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_10_to_20_spaces")]
-		public Microsoft.Xrm.Sdk.Money ofm_indigenous_10_to_20_spaces
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_between_limits_amount")]
+		public Microsoft.Xrm.Sdk.Money ofm_indigenous_between_limits_amount
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_10_to_20_spaces");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_between_limits_amount");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_indigenous_10_to_20_spaces", value);
+				this.SetAttributeValue("ofm_indigenous_between_limits_amount", value);
 			}
 		}
 		
 		/// <summary>
 		/// Value of the Facilities with 10 - 20 spaces in base currency.
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_10_to_20_spaces_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_indigenous_10_to_20_spaces_base
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_between_limits_amount_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_indigenous_between_limits_amount_base
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_10_to_20_spaces_base");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_between_limits_amount_base");
 			}
 		}
 		
 		/// <summary>
 		/// Facilities with 20+ spaces
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_ge_21_spaces")]
-		public Microsoft.Xrm.Sdk.Money ofm_indigenous_ge_21_spaces
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_greater_upper_limit_amount")]
+		public Microsoft.Xrm.Sdk.Money ofm_indigenous_greater_upper_limit_amount
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_ge_21_spaces");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_greater_upper_limit_amount");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_indigenous_ge_21_spaces", value);
+				this.SetAttributeValue("ofm_indigenous_greater_upper_limit_amount", value);
 			}
 		}
 		
 		/// <summary>
 		/// Value of the Facilities with 20+ spaces in base currency.
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_ge_21_spaces_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_indigenous_ge_21_spaces_base
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_greater_upper_limit_amount_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_indigenous_greater_upper_limit_amount_base
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_ge_21_spaces_base");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_greater_upper_limit_amount_base");
 			}
 		}
 		
 		/// <summary>
 		/// Facilities with 9 or less spaces
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_le_9_spaces")]
-		public Microsoft.Xrm.Sdk.Money ofm_indigenous_le_9_spaces
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_less_lower_limit_amount")]
+		public Microsoft.Xrm.Sdk.Money ofm_indigenous_less_lower_limit_amount
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_le_9_spaces");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_less_lower_limit_amount");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_indigenous_le_9_spaces", value);
+				this.SetAttributeValue("ofm_indigenous_less_lower_limit_amount", value);
 			}
 		}
 		
 		/// <summary>
 		/// Value of the Facilities with 9 or less spaces in base currency.
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_le_9_spaces_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_indigenous_le_9_spaces_base
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_indigenous_less_lower_limit_amount_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_indigenous_less_lower_limit_amount_base
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_le_9_spaces_base");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_indigenous_less_lower_limit_amount_base");
 			}
 		}
 		
 		/// <summary>
 		/// Facilities with 10 - 20 spaces
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_10_to_20_spaces")]
-		public Microsoft.Xrm.Sdk.Money ofm_needs_10_to_20_spaces
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_between_limits_amount")]
+		public Microsoft.Xrm.Sdk.Money ofm_needs_between_limits_amount
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_10_to_20_spaces");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_between_limits_amount");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_needs_10_to_20_spaces", value);
+				this.SetAttributeValue("ofm_needs_between_limits_amount", value);
 			}
 		}
 		
 		/// <summary>
 		/// Value of the Facilities with 10 - 20 spaces in base currency.
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_10_to_20_spaces_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_needs_10_to_20_spaces_base
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_between_limits_amount_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_needs_between_limits_amount_base
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_10_to_20_spaces_base");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_between_limits_amount_base");
 			}
 		}
 		
 		/// <summary>
 		/// Facilities with 20+ spaces
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_ge_21_spaces")]
-		public Microsoft.Xrm.Sdk.Money ofm_needs_ge_21_spaces
-		{
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_greater_upper_limit_amount")]
+		public Microsoft.Xrm.Sdk.Money ofm_needs_greater_upper_limit_amount
+        {
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_ge_21_spaces");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_greater_upper_limit_amount");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_needs_ge_21_spaces", value);
+				this.SetAttributeValue("ofm_needs_greater_upper_limit_amount", value);
 			}
 		}
 		
 		/// <summary>
 		/// Value of the Facilities with 20+ spaces in base currency.
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_ge_21_spaces_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_needs_ge_21_spaces_base
-		{
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_greater_upper_limit_amount_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_needs_greater_upper_limit_amount_base
+        {
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_ge_21_spaces_base");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_greater_upper_limit_amount_base");
 			}
 		}
 		
 		/// <summary>
 		/// Facilities with 9 or less spaces
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_le_9_spaces")]
-		public Microsoft.Xrm.Sdk.Money ofm_needs_le_9_spaces
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_less_lower_limit_amount")]
+		public Microsoft.Xrm.Sdk.Money ofm_needs_less_lower_limit_amount
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_le_9_spaces");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_less_lower_limit_amount");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_needs_le_9_spaces", value);
+				this.SetAttributeValue("ofm_needs_less_lower_limit_amount", value);
 			}
 		}
 		
 		/// <summary>
 		/// Value of the Facilities with 9 or less spaces in base currency.
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_le_9_spaces_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_needs_le_9_spaces_base
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_less_lower_limit_amount_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_needs_less_lower_limit_amount_base
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_le_9_spaces_base");
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_needs_less_lower_limit_amount_base");
 			}
 		}
-		
-		/// <summary>
-		/// Premium
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_overnight_care_premium")]
+
+        /// <summary>
+        /// Spaces Lower Limit
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_space_lower_limit")]
+        public System.Nullable<int> ofm_space_lower_limit
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<int>>("ofm_space_lower_limit");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_space_lower_limit", value);
+            }
+        }
+
+        /// <summary>
+        /// Spaces Upper Limit
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_space_upper_limit")]
+        public System.Nullable<int> ofm_space_upper_limit
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<int>>("ofm_space_upper_limit");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_space_upper_limit", value);
+            }
+        }
+
+        /// <summary>
+        /// Premium
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_overnight_care_premium")]
 		public System.Nullable<decimal> ofm_overnight_care_premium
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
