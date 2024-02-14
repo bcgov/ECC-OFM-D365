@@ -140,7 +140,7 @@ public class FundingRepository : IFundingRepository
                     """;
 
             var requestUri = $"""
-                         ofm_rate_schedules?$select=&$expand=ofm_rateschedule_fundingrate($select=ofm_caption,ofm_nonhr_funding_envelope,ofm_rate,ofm_spaces_max,ofm_spaces_min,ofm_step,statecode,ofm_ownership,ofm_funding_rateid,_ofm_rate_schedule_value,statuscode,createdon,modifiedon,_ownerid_value,_owningbusinessunit_value),ofm_rateschedule_cclr($select=ofm_caption,ofm_cclr_ratioid,ofm_fte_min_ece,ofm_fte_min_ecea,ofm_fte_min_ite,ofm_fte_min_ra,ofm_group_size,ofm_licence_group,ofm_licence_mapping,_ofm_rate_schedule_value,ofm_spaces_max,ofm_spaces_min,statuscode,createdon,modifiedon,ofm_order_number,_ownerid_value,_owningbusinessunit_value)&$filter=(ofm_rateschedule_fundingrate/any(o1:(o1/ofm_funding_rateid%20ne%20null)))%20and%20(ofm_rateschedule_cclr/any(o2:(o2/ofm_cclr_ratioid%20ne%20null)))
+                         ofm_rate_schedules?$select=&$expand=ofm_rateschedule_fundingrate($select=),ofm_rateschedule_cclr($select=)&$filter=(ofm_rateschedule_fundingrate/any(o1:(o1/ofm_funding_rateid%20ne%20null)))%20and%20(ofm_rateschedule_cclr/any(o2:(o2/ofm_cclr_ratioid%20ne%20null)))
                          """;
 
             return requestUri;

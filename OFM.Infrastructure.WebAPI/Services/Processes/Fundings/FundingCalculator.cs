@@ -31,10 +31,10 @@ public class FundingCalculator
     public FundingCalculator(Funding funding, IEnumerable<RateSchedule> rateSchedules)
     {
         _funding = funding;
-        _rateSchedule = rateSchedules.First(sch => sch.Id.ToString() == _funding?.ofm_rate_schedule?.ofm_rate_scheduleid);
+        _rateSchedule = rateSchedules.First(sch => sch.Id == _funding?.ofm_rate_schedule?.ofm_rate_scheduleid);
     }
 
-    private IEnumerable<CoreService> CoreServices
+    private IEnumerable<LicenceDetail> CoreServices
     {
         get
         {

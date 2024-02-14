@@ -9,13 +9,13 @@ using Polly.Caching;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
-public class CoreService : ofm_licence_detail
+public class LicenceDetail : ofm_licence_detail
 {
     private RateSchedule? _rateSchedule;
     private readonly bool _applyDuplicateCareType;
     private readonly bool _applySplitRoom;
 
-    private IEnumerable<Ofm_Rateschedule_Cclr> CCLRRatios
+    private IEnumerable<CCLRRatio> CCLRRatios
     {
         get
         {
@@ -44,8 +44,8 @@ public class CoreService : ofm_licence_detail
     public decimal AnnualAvailableHoursPerFTE => ExpectedAnnualFTEHours -
                                                     (ProfessionalDevelopmentHours + // ToDo: Development Hours has a new logic/value
                                                     _rateSchedule.ofm_vacation_hours_per_fte!.Value +
-                                                    _rateSchedule.ofm_sick_hours_per_fte!.Value +
-                                                    _rateSchedule.ofm_statutory_breaks!.Value);
+                                                    (decimal)_rateSchedule.ofm_sick_hours_per_fte +
+                                                    (decimal)_rateSchedule.ofm_statutory_breaks);
     public decimal AnnualHoursAdjustmentRatio => AnnualStandardHours / AnnualAvailableHoursPerFTE;
     public decimal ExpectedAnnualFTEHours => _rateSchedule.ofm_total_fte_hours_per_year!.Value; // 1957.5 
     public decimal ProfessionalDevelopmentHours => _rateSchedule.ofm_professional_development_hours!.Value;
@@ -85,7 +85,7 @@ public class CoreService : ofm_licence_detail
     //}
 
     public IEnumerable<ecc_group_size> GroupSizes => FilterCCLRByCareType(LicenceType).Select(cclr => cclr.ofm_group_size!.Value);
-    private IEnumerable<Ofm_Rateschedule_Cclr> FilterCCLRByCareType(ecc_licence_type careType)
+    private IEnumerable<CCLRRatio> FilterCCLRByCareType(ecc_licence_type careType)
     {
         var filteredByCareTypes = CCLRRatios.Where(cclr =>
         {
@@ -97,10 +97,10 @@ public class CoreService : ofm_licence_detail
         return FilterCCLRBySpaces(filteredByCareTypes);
     }
 
-    private IEnumerable<Ofm_Rateschedule_Cclr> FilterCCLRBySpaces(IEnumerable<Ofm_Rateschedule_Cclr> filteredList)
+    private IEnumerable<CCLRRatio> FilterCCLRBySpaces(IEnumerable<CCLRRatio> filteredList)
     {
         var spacesCount = Spaces;
-        Stack<Ofm_Rateschedule_Cclr> stack = new(filteredList);
+        Stack<CCLRRatio> stack = new(filteredList);
 
         while (stack.Count > 0 && spacesCount > 0)
         {
@@ -149,7 +149,7 @@ public class CoreService : ofm_licence_detail
             return new Dictionary<WageType, decimal>()
             {
                 [WageType.ITE] = _rateSchedule.ofm_wages_ite_cost.Value,
-                [WageType.ECE] = _rateSchedule.ofm_wages_ece_cost_base.Value,
+                [WageType.ECE] = _rateSchedule.ofm_wages_ece_cost.Value,
                 [WageType.ECEA] = _rateSchedule.ofm_wages_ecea_cost.Value,
                 [WageType.RA] = _rateSchedule.ofm_wages_ra_cost.Value
             };
@@ -170,13 +170,7 @@ public class CoreService : ofm_licence_detail
     {
         get
         {
-            return _rateSchedule.ofm_supervisor_rate switch
-            {
-                "ITE/SNE Supervisor" => _rateSchedule.ofm_wages_ite_sne_supervisor_differential!.Value,
-                "ECE Supervisor" => _rateSchedule.ofm_wages_ece_supervisor_differential!.Value,
-                "RA Supervisor" => _rateSchedule.ofm_wages_ra_supervisor_differential!.Value,
-                _ => 0m
-            };
+            return _rateSchedule.ofm_supervisor_rate.Value;
         }
     }
     private decimal SupervisorCostDiffPerYear => RequiredSupervisors * SupervisorRateDifference * (AnnualStandardHours * Spaces / Spaces);

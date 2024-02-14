@@ -3934,6 +3934,30 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Log Category
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ecc_integration_log_category
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Critical", 3)]
+		Critical = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Error", 2)]
+		Error = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Information", 0)]
+		Information = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Warning", 1)]
+		Warning = 2,
+	}
+	
+	/// <summary>
 	/// Licence Choice
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -12817,6 +12841,23 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Inactive", 1)]
 		Inactive = 2,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_good_standing_status
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Good", 0, "#0000ff")]
+		Good = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Integration Error", 2, "#0000ff")]
+		IntegrationError = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("No Good", 1, "#0000ff")]
+		NoGood = 2,
 	}
 	
 	/// <summary>

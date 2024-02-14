@@ -25,6 +25,7 @@
   <ItemGroup>
     <Compile Remove="Services\Processes\Fundings\ApplicationState.cs" />
     <Compile Remove="Services\Processes\Fundings\FundingRate.cs" />
+    <Compile Remove="Services\Processes\Fundings\P305SupplementaryFundingProvider.cs" />
     <Compile Remove="Services\Processes\Fundings\Validators\GoodStandingValidator.cs" />
     <Compile Remove="Services\Processes\Fundings\Validators\IGoodStandingValidator.cs" />
     <Compile Remove="Services\Processes\Fundings\Validators\ProviderConditionsLookups.cs" />

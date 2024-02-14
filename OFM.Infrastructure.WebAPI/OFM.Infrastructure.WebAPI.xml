@@ -381,7 +381,7 @@
             Total Spaces: sum of all operational spaces of all licence types from all licences that a facility is granted (Non-HR ONLY)
             </summary>
         </member>
-        <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.CoreService.AnnualAvailableHoursPerFTE">
+        <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.LicenceDetail.AnnualAvailableHoursPerFTE">
             <summary>
             Note that an FTE is expected to work 1957.5 hours a year and the number of available hours for childcare is less after accounting for training, sick days, vacation, and stat days
             </summary>
@@ -3795,12 +3795,12 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_property_insurance">
             <summary>
-            Property Insurance
+            Insurance (formerly 'Property Insurance')
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_property_insurance_base">
             <summary>
-            Value of the Property Insurance in base currency.
+            Value of the Insurance in base currency. (Formerly Property Insurance (Base))
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_property_municipal_tax">
@@ -6433,14 +6433,19 @@
             Value of the Standard Dues/FTE in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_supervisor_rate">
+            <summary>
+            Supervisor Rate
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_supervisor_rate_base">
+            <summary>
+            Value of the Supervisor Rate in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_wages_ece_cost_base">
             <summary>
             Value of the ECE Cost in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_wages_ece_supervisor_differential_base">
-            <summary>
-            Value of the ECE Supervisor Differential in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_wages_ecea_cost_base">
@@ -6453,19 +6458,9 @@
             Value of the ITE cost in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_wages_ite_sne_supervisor_differential_base">
-            <summary>
-            Value of the ITE/SNE Supervisor Differential in base currency.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_wages_ra_cost_base">
             <summary>
             Value of the RA Cost in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_wages_ra_supervisor_differential_base">
-            <summary>
-            Value of the RA Supervisor Differential in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.overriddencreatedon">
@@ -6866,62 +6861,62 @@
             End Date
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_between_limits_amount">
             <summary>
-            Facilities with 10 - 19 spaces
+            Facilities with 10 - 20 spaces
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces_base">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_between_limits_amount_base">
             <summary>
-            Value of the Facilities with 10 - 19 spaces in base currency.
+            Value of the Facilities with 10 - 20 spaces in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_greater_upper_limit_amount">
             <summary>
             Facilities with 20+ spaces
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces_base">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_greater_upper_limit_amount_base">
             <summary>
             Value of the Facilities with 20+ spaces in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_less_lower_limit_amount">
             <summary>
             Facilities with 9 or less spaces
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces_base">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_indigenous_less_lower_limit_amount_base">
             <summary>
             Value of the Facilities with 9 or less spaces in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_between_limits_amount">
             <summary>
-            Facilities with 10 - 19 spaces
+            Facilities with 10 - 20 spaces
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces_base">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_between_limits_amount_base">
             <summary>
-            Value of the Facilities with 10 - 19 spaces in base currency.
+            Value of the Facilities with 10 - 20 spaces in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_ge_20_spaces">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_greater_upper_limit_amount">
             <summary>
             Facilities with 20+ spaces
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_ge_20_spaces_base">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_greater_upper_limit_amount_base">
             <summary>
             Value of the Facilities with 20+ spaces in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_le_9_spaces">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_less_lower_limit_amount">
             <summary>
             Facilities with 9 or less spaces
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_le_9_spaces_base">
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_needs_less_lower_limit_amount_base">
             <summary>
             Value of the Facilities with 9 or less spaces in base currency.
             </summary>
@@ -6934,6 +6929,16 @@
         <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_schedule_number">
             <summary>
             Schedule Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_space_lower_limit">
+            <summary>
+            Space Lower Limit
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_space_upper_limit">
+            <summary>
+            Space Upper Limit
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_supplementary_schedule.ofm_sqw_caps_for_centers">
@@ -7732,6 +7737,11 @@
         <member name="T:ECC.Core.DataContext.ecc_indigenous_programming_expenses">
             <summary>
             Indigenous Programming Expenses
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ecc_integration_log_category">
+            <summary>
+            Log Category
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ecc_licence_type">

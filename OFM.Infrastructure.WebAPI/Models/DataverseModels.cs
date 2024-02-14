@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System;
 
 namespace OFM.Infrastructure.WebAPI.Models;
@@ -11,10 +12,10 @@ public record FacilityPermission
     public bool? ofm_portal_access { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
-    public required Facility facility { get; set; }
+    public required D365Facility facility { get; set; }
 }
 
-public record Facility
+public record D365Facility
 {
     public required string accountid { get; set; }
     public string? accountnumber { get; set; }
@@ -25,7 +26,7 @@ public record Facility
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
 
-public record Organization
+public record D365Organization
 {
     public required string accountid { get; set; }
     public string? accountnumber { get; set; }
@@ -44,7 +45,7 @@ public class ProviderProfile
     public string? telephone1 { get; set; }
     public string? ofm_first_name { get; set; }
     public string? ofm_last_name { get; set; }
-    public Organization? organization { get; set; }
+    public D365Organization? organization { get; set; }
     public int? ofm_portal_role { get; set; }
     public IList<FacilityPermission>? facility_permission { get; set; }
 
@@ -67,7 +68,7 @@ public class ProviderProfile
         ofm_portal_role = firstContact.ofm_portal_role;
 
 
-        organization = new Organization
+        organization = new D365Organization
         {
             accountid = firstContact!.parentcustomerid_account!.accountid!,
             accountnumber = firstContact.parentcustomerid_account.accountnumber,
@@ -86,7 +87,7 @@ public class ProviderProfile
                 facilityPermissions.Add(new FacilityPermission
                 {
                     ofm_bceid_facilityid = firstContact.ofm_facility_business_bceid![i].ofm_bceid_facilityid!,
-                    facility = new Facility
+                    facility = new D365Facility
                     {
                         accountid = facility.accountid ?? "",
                         accountnumber = facility.accountnumber,
@@ -159,6 +160,7 @@ public record ofm_Facility
 }
 
 #endregion
+
 public record D365Template
 {
     public string? title { get; set; }
@@ -214,10 +216,8 @@ public record Email_Activity_Parties
 
 #region Fundings
 
-
 public class RateSchedule : ofm_rate_schedule
 {
-
     public new decimal? ofm_wages_ra_cost { get; set; }
     public new decimal? ofm_licenced_childcare_cap_per_fte_per_year { get; set; }
     public new decimal? ofm_wages_ecea_cost { get; set; }
@@ -225,23 +225,14 @@ public class RateSchedule : ofm_rate_schedule
     public new decimal? ofm_wages_ece_cost { get; set; }
     public new decimal? ofm_elf_educational_programming_cap_fte_year { get; set; }
     public new decimal? ofm_parent_fee_per_day_pt { get; set; }
-    public new decimal? ofm_wages_ra_supervisor_differential { get; set; }
     public new decimal? ofm_standard_dues_per_fte { get; set; }
     public new decimal? ofm_parent_fee_per_month_ft { get; set; }
-
-
-    public new decimal? ofm_wages_ite_sne_supervisor_differential { get; set; }
     public new decimal? ofm_parent_fee_per_day_ft { get; set; }
-
     public new decimal? ofm_parent_fee_per_month_pt { get; set; }
-
-    public new decimal? ofm_wages_ece_supervisor_differential { get; set; }
     public new FundingRate[]? ofm_rateschedule_fundingrate { get; set; }
-
-    public new Ofm_Rateschedule_Cclr[]? ofm_rateschedule_cclr { get; set; }
+    public new CCLRRatio[]? ofm_rateschedule_cclr { get; set; }
     //public Ofm_Rateschedule_Fundingrate[] ofm_rateschedule_fundingrate { get; set; }
-
-    //public int ofm_average_benefit_load { get; set; }
+    public new decimal? ofm_average_benefit_load { get; set; }
     public new decimal? ofm_cpp { get; set; }
     //public int ofm_cultural_hours_per_fte { get; set; }
     //public int ofm_days_in_a_week { get; set; }
@@ -267,22 +258,22 @@ public class RateSchedule : ofm_rate_schedule
     public new decimal? ofm_quality_enhancement_factor { get; set; }
     //public string ofm_rate_scheduleid { get; set; }
     //public int ofm_schedule_number { get; set; }
-    //public int ofm_sick_hours_per_fte { get; set; }
-    //public int ofm_statutory_breaks { get; set; }
+    public new decimal? ofm_sick_hours_per_fte { get; set; }
+    public new decimal? ofm_statutory_breaks { get; set; }
     //public string ofm_supervisor_rate { get; set; }
     //public int ofm_supervisor_ratio { get; set; }
     public new decimal? ofm_total_fte_hours_per_year { get; set; }
     public new decimal? ofm_vacation_hours_per_fte { get; set; }
-    //public int ofm_wage_grid_markup { get; set; }
+    //public new decimal? ofm_wage_grid_markup { get; set; }
     public new decimal? ofm_wcb { get; set; }
     //public int ofm_weeks_in_a_year { get; set; }
+    public new decimal? ofm_supervisor_rate { get; set; }
 }
 
 public class FundingRate : ofm_funding_rate
 {
     public decimal? ofm_rate { get; set; }
 }
-
 
 public class Application : ofm_application
 {
@@ -301,7 +292,7 @@ public class Application : ofm_application
     public new decimal? ofm_costs_supplies { get; set; }
     public new decimal? ofm_costs_strata_fee { get; set; }
 
-    public new Facility? ofm_facility { get; set; }
+    public new D365Facility? ofm_facility { get; set; }
 }
 
 public class FacilityLicence : ofm_licence
@@ -309,10 +300,10 @@ public class FacilityLicence : ofm_licence
     public new LicenceDetail[]? ofm_licence_licencedetail { get; set; }
 }
 
-public class LicenceDetail : ofm_licence_detail
-{
-    public new string ofm_week_days { get; set; }
-}
+//public class LicenceDetail : ofm_licence_detail
+//{
+//    public new string ofm_week_days { get; set; }
+//}
 
 public class SupplementaryApplication : ofm_allowance
 {
@@ -326,12 +317,6 @@ public class SupplementaryApplication : ofm_allowance
 
 public class SupplementarySchedule : ofm_supplementary_schedule
 {
-    public new decimal? ofm_indigenous_10_to_19_spaces { get; set; }
-    public new decimal? ofm_indigenous_ge_20_spaces { get; set; }
-    public new decimal? ofm_indigenous_le_9_spaces { get; set; }
-    public new decimal? ofm_needs_10_to_19_spaces { get; set; }
-    public new decimal? ofm_needs_ge_20_spaces { get; set; }
-    public new decimal? ofm_needs_le_9_spaces { get; set; }
     public new decimal? ofm_sqw_caps_for_centers { get; set; }
     public new decimal? ofm_sqw_caps_for_homebased { get; set; }
     public new decimal? ofm_transport_ge_20_spaces_lease_cap_month { get; set; }
@@ -364,7 +349,7 @@ public class Ofm_Rateschedule_Fundingrate
     public string _transactioncurrencyid_value { get; set; }
 }
 
-public class Ofm_Rateschedule_Cclr: ofm_cclr_ratio
+public class CCLRRatio : ofm_cclr_ratio
 {
     //public string odataetag { get; set; }
     //public string ofm_caption { get; set; }
@@ -375,7 +360,7 @@ public class Ofm_Rateschedule_Cclr: ofm_cclr_ratio
     //public int ofm_fte_min_ra { get; set; }
     //public int ofm_group_size { get; set; }
     //public string ofm_licence_group { get; set; }
-    public new string ofm_licence_mapping { get; set; }
+    public new string? ofm_licence_mapping { get; set; }
     //public string _ofm_rate_schedule_value { get; set; }
     //public int ofm_spaces_max { get; set; }
     //public int ofm_spaces_min { get; set; }
@@ -386,6 +371,5 @@ public class Ofm_Rateschedule_Cclr: ofm_cclr_ratio
     //public string _ownerid_value { get; set; }
     //public string _owningbusinessunit_value { get; set; }
 }
-
 
 #endregion

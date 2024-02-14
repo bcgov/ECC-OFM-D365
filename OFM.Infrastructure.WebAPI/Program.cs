@@ -51,7 +51,7 @@ services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
-services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
+//services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>();
 services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
 
