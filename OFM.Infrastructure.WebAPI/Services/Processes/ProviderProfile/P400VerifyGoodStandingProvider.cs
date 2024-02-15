@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Services;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
@@ -24,7 +25,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         _BCRegistrySettings = ApiKeyBCRegistry.Value.BCRegistryApi;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process); ;
+        _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
 
@@ -119,10 +120,25 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
         BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
 
+        // Integration Log - Create
+        var externalService = "BC Registries";
+        var subject = string.Empty;      
+        var logCategory = 1;           // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
+        var message = string.Empty;
+
+        // Organization - Update
+        var goodStandingStatus = 3;    // 1 - Good, 2 - No Good, 3 - Error 
+
         if (searchResult is null || searchResult.searchResults.totalResults < 1)
         {
             // Todo: Add a new message for this scenario or try seach by name
             _logger.LogError(CustomLogEvent.Process, "No results found.");
+
+            goodStandingStatus = 3;         // 1 - Good, 2 - No Good, 3 - Error 
+            logCategory = 3;                // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
+            subject = "No results found";
+            await UpdateOrganizationCreateIntegrationLog(appUserService, d365WebApiService, processParams, goodStandingStatus, subject, logCategory, message, externalService);
+ 
             return ProcessResult.PartialSuccess(ProcessId, ["No records found."], 0, 0).SimpleProcessResult;
         }
 
@@ -130,13 +146,29 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         {
             // ToDo: Process and filter the result further
             _logger.LogError(CustomLogEvent.Process, "More than one records returned. Please resolve this issue to ensure uniqueness");
+
+            goodStandingStatus = 3;         // 1 - Good, 2 - No Good, 3 - Error 
+            logCategory = 3;                // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
+            subject = "Multiple results returned";
+            await UpdateOrganizationCreateIntegrationLog(appUserService, d365WebApiService, processParams, goodStandingStatus, subject, logCategory, message, externalService);
+
             return ProcessResult.PartialSuccess(ProcessId, ["Multiple results returned."], 0, 0).SimpleProcessResult;
         }
 
-        var statement = $"accounts({_processParams?.Organization?.organizationId.ToString()})";
+        goodStandingStatus = searchResult.searchResults.results.First().goodStanding ? 1 : 2;         // 1 - Good, 2 - No Good, 3 - Error 
+        logCategory = 1;                                                                              // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
+        subject = "One record returned";
+        await UpdateOrganizationCreateIntegrationLog(appUserService, d365WebApiService, processParams, goodStandingStatus, subject, logCategory, message, externalService);
 
+        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+    }
+
+
+    private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams, int goodStandingStatus,string subject, int category, string message, string externalService)
+    {
+        var statement = $"accounts({_processParams?.Organization?.organizationId.ToString()})";
         var payload = new JsonObject {
-                { "ofm_good_standing_status", searchResult.searchResults.results.First().goodStanding ? 1 : 0},
+                { "ofm_good_standing_status", goodStandingStatus},
                 { "ofm_good_standing_validated_on", DateTime.UtcNow }
         };
 
@@ -151,6 +183,17 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
             return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
         }
+
+        var entitySetName = "ofm_integration_logs";
+        var payload2 = new JsonObject {
+                { "ofm_subject", subject },
+                { "ofm_category", category},
+                { "ofm_message", message},
+                { "ofm_service_name", externalService},
+                { "ofm_regardingid_account@odata.bind", $"/accounts({_processParams?.Organization?.organizationId})"}
+        };
+        var requestBody2 = JsonSerializer.Serialize(payload2);
+        var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }

@@ -24,7 +24,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         _BCRegistrySettings = ApiKeyBCRegistry.Value.BCRegistryApi;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process); ;
+        _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
 
