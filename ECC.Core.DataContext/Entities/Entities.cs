@@ -11993,7 +11993,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_application_allowance = "ofm_application_allowance";
 			public const string ofm_applicationName = "ofm_applicationname";
 			public const string ofm_document_allowance = "ofm_document_allowance";
-			public const string ofm_eligible = "ofm_eligible";
 			public const string ofm_end_date = "ofm_end_date";
 			public const string ofm_funding_amount = "ofm_funding_amount";
 			public const string ofm_funding_amount_base = "ofm_funding_amount_base";
@@ -12001,14 +12000,12 @@ namespace ECC.Core.DataContext
 			public const string ofm_indigenous_expenses = "ofm_indigenous_expenses";
 			public const string ofm_needs_description = "ofm_needs_description";
 			public const string ofm_needs_expenses = "ofm_needs_expenses";
-			public const string ofm_needs_number_of_children_scd = "ofm_needs_number_of_children_scd";
 			public const string ofm_start_date = "ofm_start_date";
 			public const string ofm_submittedon = "ofm_submittedon";
 			public const string ofm_supplementary_schedule = "ofm_supplementary_schedule";
 			public const string ofm_supplementary_scheduleName = "ofm_supplementary_schedulename";
 			public const string ofm_supplementaryschedule_allowance = "ofm_supplementaryschedule_allowance";
 			public const string ofm_transport_estimated_monthly_km = "ofm_transport_estimated_monthly_km";
-			public const string ofm_transport_lease = "ofm_transport_lease";
 			public const string ofm_transport_monthly_lease = "ofm_transport_monthly_lease";
 			public const string ofm_transport_monthly_lease_base = "ofm_transport_monthly_lease_base";
 			public const string ofm_transport_odometer = "ofm_transport_odometer";
@@ -12286,21 +12283,6 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_eligible")]
-		public System.Nullable<bool> ofm_eligible
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<bool>>("ofm_eligible");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_eligible", value);
-			}
-		}
-		
 		/// <summary>
 		/// End Date
 		/// </summary>
@@ -12420,24 +12402,6 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Number of children for SCD
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_needs_number_of_children_scd")]
-		public System.Nullable<int> ofm_needs_number_of_children_scd
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<int>>("ofm_needs_number_of_children_scd");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_needs_number_of_children_scd", value);
-			}
-		}
-		
-		/// <summary>
 		/// Start Date
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_start_date")]
@@ -12503,24 +12467,6 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("ofm_transport_estimated_monthly_km", value);
-			}
-		}
-		
-		/// <summary>
-		/// Lease
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_lease")]
-		public virtual ecc_ynempty? ofm_transport_lease
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return ((ecc_ynempty?)(EntityOptionSetEnum.GetEnum(this, "ofm_transport_lease")));
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_transport_lease", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
 			}
 		}
 		
