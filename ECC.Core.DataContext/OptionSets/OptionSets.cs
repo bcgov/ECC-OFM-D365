@@ -3934,6 +3934,30 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Log Category
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ecc_integration_log_category
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Critical", 3)]
+		Critical = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Error", 2)]
+		Error = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Information", 0)]
+		Information = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Warning", 1)]
+		Warning = 2,
+	}
+	
+	/// <summary>
 	/// Licence Choice
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -12819,6 +12843,23 @@ namespace ECC.Core.DataContext
 		Inactive = 2,
 	}
 	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_good_standing_status
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Good", 0, "#0000ff")]
+		Good = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Integration Error", 2, "#0000ff")]
+		IntegrationError = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("No Good", 1, "#0000ff")]
+		NoGood = 2,
+	}
+	
 	/// <summary>
 	/// Status of the Licence Details
 	/// </summary>
@@ -12976,35 +13017,39 @@ namespace ECC.Core.DataContext
 		/// 647,390,000
 		/// </summary>
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Choice", 0, "#0000ff", "647,390,000")]
+		[OptionSetMetadataAttribute("Choice", 1, "#0000ff", "647,390,000")]
 		Choice = 647390000,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Currency", 1, "#0000ff")]
+		[OptionSetMetadataAttribute("Currency", 2, "#0000ff")]
 		Currency = 506580004,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Date", 2, "#0000ff")]
+		[OptionSetMetadataAttribute("Date", 3, "#0000ff")]
 		Date = 647390003,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Multiple Choice", 3, "#0000ff")]
+		[OptionSetMetadataAttribute("Multiple Choice", 4, "#0000ff")]
 		MultipleChoice = 506580006,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Table", 4, "#0000ff")]
+		[OptionSetMetadataAttribute("Number", 0, "#0000ff")]
+		Number = 506580000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Table", 5, "#0000ff")]
 		Table = 506580005,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Text", 5, "#0000ff")]
+		[OptionSetMetadataAttribute("Text", 6, "#0000ff")]
 		Text = 647390001,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Text Area", 6, "#0000ff")]
+		[OptionSetMetadataAttribute("Text Area", 7, "#0000ff")]
 		TextArea = 506580001,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Two Option", 7, "#0000ff")]
+		[OptionSetMetadataAttribute("Two Option", 8, "#0000ff")]
 		TwoOption = 506580007,
 	}
 	
