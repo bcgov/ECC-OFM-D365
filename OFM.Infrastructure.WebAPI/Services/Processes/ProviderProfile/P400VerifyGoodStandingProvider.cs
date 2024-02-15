@@ -126,6 +126,9 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         var logCategory = 1;           // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
         var message = string.Empty;
 
+        var responseBody = await response.Content.ReadAsStringAsync();
+        message = $"{responseBody.CleanLog()}";
+
         // Organization - Update
         var goodStandingStatus = 3;    // 1 - Good, 2 - No Good, 3 - Error 
 
