@@ -4,7 +4,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
-public class Funding: ofm_funding
+public class Funding : ofm_funding
 {
     //public string odataetag { get; set; }
     //public string _createdby_value { get; set; }
@@ -61,19 +61,43 @@ public class Funding: ofm_funding
     //public string _owningbusinessunit_value { get; set; }
     //public int statecode { get; set; }
     //public int statuscode { get; set; }
-    public new object[] ofm_funding_spaceallocation { get; set; }
+    public new SpaceAllocation[]? ofm_funding_spaceallocation { get; set; }
     public new Facility? ofm_facility { get; set; }
     //public new Ofm_Application? ofm_application { get; set; }
     public new Application? ofm_application { get; set; }
     public new RateSchedule? ofm_rate_schedule { get; set; }
 }
 
-public class Facility: Account
+public class Facility : Account
 {
     public Licence[] ofm_facility_licence { get; set; }
 }
 
-public class Licence: ofm_licence
+public class Licence : ofm_licence
 {
     public LicenceDetail[] ofm_licence_licencedetail { get; set; }
 }
+
+public class SpaceAllocation : ofm_space_allocation
+{
+    //public int ofm_adjusted_allocation { get; set; }
+    //public string ofm_caption { get; set; }
+    //public string _ofm_cclr_ratio_value { get; set; }
+    //public object ofm_default_allocation { get; set; }
+    //public string _ofm_funding_value { get; set; }
+    //public int ofm_order_number { get; set; }
+    //public string ofm_space_allocationid { get; set; }
+    //public string _ownerid_value { get; set; }
+    //public string _owningbusinessunit_value { get; set; }
+    //public int statuscode { get; set; }
+    public new CCLRRatio? ofm_cclr_ratio { get; set; }
+}
+
+//public class Ofm_Cclr_Ratio : CCLRRatio
+//{
+//    //public string ofm_caption { get; set; }
+//    //public string ofm_cclr_ratioid { get; set; }
+//    //public int ofm_group_size { get; set; }
+//    //public string ofm_licence_group { get; set; }
+//    //public string ofm_licence_mapping { get; set; }
+//}

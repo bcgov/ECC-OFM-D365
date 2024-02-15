@@ -19,7 +19,6 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
     private readonly ILoggerFactory? loggerFactory;
     private readonly IFundingRepository? _fundingRepository;
     private readonly ILogger? _logger;
-    private readonly ProcessSettings? _processSettings;
     private readonly TimeProvider? _timeProvider;
     private ProcessData? _data;
     private Funding? _funding;

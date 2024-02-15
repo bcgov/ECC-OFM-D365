@@ -5,13 +5,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
-using Polly.Caching;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
 public class LicenceDetail : ofm_licence_detail
 {
     private RateSchedule? _rateSchedule;
+    private SpaceAllocation[]? _newSpacesAllocation = Array.Empty<SpaceAllocation>();
     private readonly bool _applyDuplicateCareType;
     private readonly bool _applySplitRoom;
 
@@ -34,7 +34,7 @@ public class LicenceDetail : ofm_licence_detail
     private int DaysPerWeek => ofm_week_days?.Split(",").Length ?? 0;
     private DateTime TimeFrom => base.GetAttributeValue<DateTime>(Fields.ofm_operation_hours_from);
     private DateTime TimeTo => base.GetAttributeValue<DateTime>(Fields.ofm_operation_hours_to);
-    private decimal HoursPerDay => (TimeTo - TimeFrom).Hours; // Todo: consider Minutes ?
+    private decimal HoursPerDay => (TimeTo - TimeFrom).Hours; // Todo: consider Minutes ? Also to review if the dates can be used for the calculation.
     public decimal AnnualStandardHours => HoursPerDay * DaysPerWeek * WeeksPerYear; // Example: 10 * 5 * 50.2 = 2510
     /// <summary>
     /// Note that an FTE is expected to work 1957.5 hours a year and the number of available hours for childcare is less after accounting for training, sick days, vacation, and stat days
@@ -48,22 +48,63 @@ public class LicenceDetail : ofm_licence_detail
     public decimal AnnualHoursAdjustmentRatio => AnnualStandardHours / AnnualAvailableHoursPerFTE;
     public decimal ExpectedAnnualFTEHours => _rateSchedule!.ofm_total_fte_hours_per_year!.Value; // 1957.5 
     public decimal ProfessionalDevelopmentHours => _rateSchedule!.ofm_professional_development_hours!.Value;
+    public bool ApplySplitRoomCondition { get; set; }
+    public SpaceAllocation[]? NewSpacesAllocation
+    {
+        get { return _newSpacesAllocation; }
+        set { _newSpacesAllocation = value ?? Array.Empty<SpaceAllocation>(); }
+    }
 
     #region HR: Step 01 - Allocate Spaces to Efficient Group Sizes
 
     public IEnumerable<ecc_group_size> AllocatedGroupSizes => FilterCCLRByCareType(LicenceType).Select(cclr => cclr.ofm_group_size!.Value);
+
     private IEnumerable<CCLRRatio> FilterCCLRByCareType(ecc_licence_type careType)
     {
-        var filteredByCareTypes = CCLRRatios.Where(cclr =>
+        IEnumerable<CCLRRatio> filteredByCareType = [];
+        if (ApplySplitRoomCondition)
         {
-            var caretypesMap = cclr.ofm_licence_mapping!.Split(",")?.Select(Int32.Parse);
-            bool hasMap = caretypesMap!.Contains((int)careType);
-            return hasMap;
-        }).OrderBy(c=>c.ofm_group_size);
+            // Use the new allocation    
+            var adjustedAllocationOnly = NewSpacesAllocation!.Where(allo => allo.ofm_adjusted_allocation!.Value > 0);
+            var localCCLRs = adjustedAllocationOnly.Select(space => space.ofm_cclr_ratio!);
 
-        return FilterCCLRBySpaces(filteredByCareTypes);
+            filteredByCareType = localCCLRs.Where(cclr =>
+            {
+                var typesMapping = cclr.ofm_licence_mapping!.Split(",")?.Select(Int32.Parse);
+                bool isMapped = typesMapping!.Contains((int)careType);
+                return isMapped;
+            });
+
+            return FilterCCLRByNewAllocation(adjustedAllocationOnly, filteredByCareType);
+        }
+
+        filteredByCareType = CCLRRatios.Where(cclr =>
+        {
+            var typesMapping = cclr.ofm_licence_mapping!.Split(",")?.Select(Int32.Parse);
+            bool isMapped = typesMapping!.Contains((int)careType);
+            return isMapped;
+        });
+
+        return FilterCCLRBySpaces(filteredByCareType.OrderBy(cclr => cclr.ofm_group_size));
     }
+    private IEnumerable<CCLRRatio> FilterCCLRByNewAllocation(IEnumerable<SpaceAllocation> sourceList, IEnumerable<CCLRRatio> filteredList)
+    {
+        // Adjust the number of group sizes according to the new allocation; ofm_adjusted_allocation
+        Stack<CCLRRatio> stack = new(filteredList);
 
+        while (stack.Count > 0)
+        {
+            var currentItem = stack.Peek();
+            var currentSource = sourceList.First(space => space.ofm_cclr_ratio.ofm_caption == currentItem.ofm_caption);
+            for (int i = 0; i < currentSource.ofm_adjusted_allocation.Value; i++)
+            {
+                if (i + 1 == currentSource.ofm_adjusted_allocation.Value)
+                    yield return stack.Pop();
+                else
+                    yield return stack.Peek();
+            }
+        }
+    }
     private IEnumerable<CCLRRatio> FilterCCLRBySpaces(IEnumerable<CCLRRatio> filteredList)
     {
         var spacesCount = Spaces;
@@ -193,10 +234,9 @@ public class LicenceDetail : ofm_licence_detail
                                                                _rateSchedule.ofm_elf_educational_programming_cap_fte_year.Value +
                                                                _rateSchedule.ofm_pde_inclusion_training.Value +
                                                                _rateSchedule.ofm_pde_cultural_training.Value) *
-                                                               TotalAdjustedFTEs
-                                                           ;
+                                                               TotalAdjustedFTEs;
 
-    public decimal TotalProfessionalDues => _rateSchedule.ofm_standard_dues_per_fte.Value * TotalAdjustedFTEs;
+    public decimal TotalProfessionalDues => _rateSchedule!.ofm_standard_dues_per_fte!.Value * TotalAdjustedFTEs;
 
     #endregion
 }

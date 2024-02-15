@@ -26,7 +26,7 @@ public class FundingCalculator
     private readonly IProviderProfileRepository _providerRepository;
     private readonly ID365DataService _d365dataService;
     private FundingResult? _fundingResult;
-    private RateSchedule _rateSchedule;
+    private readonly RateSchedule _rateSchedule;
     private readonly Funding _funding;
 
     public FundingCalculator(Funding funding, IEnumerable<RateSchedule> rateSchedules, IFundingRepository fundingRepository)
@@ -40,17 +40,20 @@ public class FundingCalculator
     {
         get
         {
-            var coreServices = _funding.ofm_facility!.ofm_facility_licence.SelectMany(licence => licence.ofm_licence_licencedetail);
-            foreach (var service in coreServices)
+            var licenceDetails = _funding.ofm_facility!.ofm_facility_licence.SelectMany(licence => licence.ofm_licence_licencedetail);
+            foreach (var service in licenceDetails)
             {
                 service.RateSchedule = _rateSchedule;
+                service.ApplySplitRoomCondition = ApplySplitRoomCondition;
+                service.NewSpacesAllocation = _funding.ofm_funding_spaceallocation;
             }
 
-            return coreServices;
+            return licenceDetails;
         }
     }
     private int TotalSpaces => LicenceDetails.Sum(detail => detail.ofm_operational_spaces!.Value);
     private ecc_Ownership Ownership => _funding.ofm_application!.ofm_summary_ownership!.Value;
+    private bool ApplySplitRoomCondition => _funding.ofm_apply_room_split_condition!.Value;
 
     /// <summary>
     /// Apply the employer health tax at calculator level
@@ -75,13 +78,13 @@ public class FundingCalculator
 
     public async Task<bool> Evaluate()
     {
-        // NOTE: For HR envelopes, apply the FTE minimum (0.5) at the combined care type level.(Decision made on Feb 07, 2024 with the Ministry)
+        // NOTE: For HR envelopes, apply the FTE minimum (0.5) at the combined care type level for duplicates.(Decision made on Feb 07, 2024 with the Ministry)
 
         #region Validation
 
         var fundingRules = new MustHaveFundingNumberBaseRule();
-        fundingRules.NextValidator(new MustHaveValidApplicationStatusRule())
-                       .NextValidator(new MustHaveValidRateScheduleRule());
+            fundingRules.NextValidator(new MustHaveValidApplicationStatusRule())
+                        .NextValidator(new MustHaveValidRateScheduleRule());
         try
         {
             var validationResult = fundingRules.Validate(_funding);
