@@ -159,7 +159,7 @@ public class FundingCalculator
         return await Task.FromResult(false);
     }
 
-    public async Task<bool> CalculateDefaultSpacesAllocation(IEnumerable<SpaceAllocation> spacesAllocation)
+    public async Task<bool> CalculateDefaultSpacesAllocation()
     {
         // Do validation as needed here
         //if (_funding.ofm_apply_room_split_condition.Value)
@@ -177,8 +177,10 @@ public class FundingCalculator
             }
         }
 
+        var newSpaces = LicenceDetails.SelectMany(s => s.NewSpacesAllocationByLicenceType);
+
         // Save the default values in dataverse
-        await _fundingRepository.SaveDefaultSpacesAllocation(spacesAllocation);
+        await _fundingRepository.SaveDefaultSpacesAllocation(newSpaces.Where(s => s.ofm_default_allocation.Value > 0));
 
         return await Task.FromResult(true);
     }

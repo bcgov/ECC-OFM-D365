@@ -15,13 +15,7 @@ public class LicenceDetail : ofm_licence_detail
     private readonly bool _applyDuplicateCareType;
     private readonly bool _applySplitRoom;
 
-    private IEnumerable<CCLRRatio> CCLRRatios
-    {
-        get
-        {
-            return _rateSchedule?.ofm_rateschedule_cclr ?? [];
-        }
-    }
+    private IEnumerable<CCLRRatio> CCLRRatios => _rateSchedule?.ofm_rateschedule_cclr ?? [];
 
     public new string? ofm_week_days { get; set; }
     public RateSchedule RateSchedule { set { _rateSchedule = value; } }
@@ -56,7 +50,8 @@ public class LicenceDetail : ofm_licence_detail
     }
     public IEnumerable<SpaceAllocation>? NewSpacesAllocationByLicenceType
     {
-        get {
+        get
+        {
 
             var filteredByCareType = NewSpacesAllocation.Where(space =>
             {
@@ -76,7 +71,7 @@ public class LicenceDetail : ofm_licence_detail
     private IEnumerable<CCLRRatio> FilterCCLRByCareType(ecc_licence_type careType)
     {
         IEnumerable<CCLRRatio> filteredByCareType = [];
-        if (ApplySplitRoomCondition)
+        if (!ApplySplitRoomCondition)
         {
             // Use the new allocation    
             var adjustedAllocationOnly = NewSpacesAllocation!.Where(allo => allo.ofm_adjusted_allocation!.Value > 0);
