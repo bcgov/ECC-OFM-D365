@@ -194,6 +194,16 @@ public record D365Email
     }
 }
 
+public record D365Organization_Account
+{
+    public string? accountid { get; set; }
+    public string? name { get; set; }
+    public string? ofm_incorporation_number { get; set; }
+    public string? ofm_business_number { get; set; }
+    public int statecode { get; set; }
+
+}
+
 public record FileMapping
 {
     public required string ofm_subject { get; set; }

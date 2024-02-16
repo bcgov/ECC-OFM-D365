@@ -43,7 +43,7 @@ public static class Setup
         public static class ProviderProfile
         {
             public const Int16 VerifyGoodStandingId = 400;
-            public const string VerifyGoodStandingName = "Verify Good Standing Status for Organizations in batch";
+            public const string VerifyGoodStandingName = "Verify Good Standing Status for Organization";
 
             public const Int16 VerifyGoodStandingBatchId = 405;
             public const string VerifyGoodStandingBatchName = "Verify Good Standing Status for Organizations in batch";
