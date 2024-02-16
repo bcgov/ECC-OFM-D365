@@ -215,7 +215,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                     {
                         calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_less_lower_limit_amount ?? 0;
                     }
-                    else if (totalSpaces < supplementary.ofm_supplementary_schedule.ofm_space_upper_limit)
+                    else if (totalSpaces <= supplementary.ofm_supplementary_schedule.ofm_space_upper_limit)
                     {
                         calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_between_limits_amount ?? 0;
                     }
@@ -229,7 +229,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                     {
                         calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_less_lower_limit_amount ?? 0;
                     }
-                    else if (totalSpaces < supplementary.ofm_supplementary_schedule.ofm_space_upper_limit)
+                    else if (totalSpaces <= supplementary.ofm_supplementary_schedule.ofm_space_upper_limit)
                     {
                         calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_between_limits_amount ?? 0;
                     }
