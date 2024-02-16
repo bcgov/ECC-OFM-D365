@@ -54,10 +54,24 @@ public class LicenceDetail : ofm_licence_detail
         get { return _newSpacesAllocation; }
         set { _newSpacesAllocation = value ?? Array.Empty<SpaceAllocation>(); }
     }
+    public IEnumerable<SpaceAllocation>? NewSpacesAllocationByLicenceType
+    {
+        get {
+
+            var filteredByCareType = NewSpacesAllocation.Where(space =>
+            {
+                var typesMapping = space.ofm_cclr_ratio.ofm_licence_mapping!.Split(",")?.Select(Int32.Parse);
+                bool isMapped = typesMapping!.Contains(LicenceTypeNumber);
+                return isMapped;
+            });
+
+            return filteredByCareType;
+        }
+    }
 
     #region HR: Step 01 - Allocate Spaces to Efficient Group Sizes
 
-    public IEnumerable<ecc_group_size> AllocatedGroupSizes => FilterCCLRByCareType(LicenceType).Select(cclr => cclr.ofm_group_size!.Value);
+    public IEnumerable<ecc_group_size>? AllocatedGroupSizes => FilterCCLRByCareType(LicenceType).Select(cclr => cclr.ofm_group_size!.Value);
 
     private IEnumerable<CCLRRatio> FilterCCLRByCareType(ecc_licence_type careType)
     {

@@ -1,22 +1,12 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
-using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings.Validators;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Net;
-using System.Net.Sockets;
-using System.Reflection.Metadata.Ecma335;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
@@ -83,8 +73,8 @@ public class FundingCalculator
         #region Validation
 
         var fundingRules = new MustHaveFundingNumberBaseRule();
-            fundingRules.NextValidator(new MustHaveValidApplicationStatusRule())
-                        .NextValidator(new MustHaveValidRateScheduleRule());
+        fundingRules.NextValidator(new MustHaveValidApplicationStatusRule())
+                    .NextValidator(new MustHaveValidRateScheduleRule());
         try
         {
             var validationResult = fundingRules.Validate(_funding);
@@ -169,23 +159,25 @@ public class FundingCalculator
         return await Task.FromResult(false);
     }
 
-    public async Task<bool> CalculateDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation)
+    public async Task<bool> CalculateDefaultSpacesAllocation(IEnumerable<SpaceAllocation> spacesAllocation)
     {
         // Do validation as needed here
+        //if (_funding.ofm_apply_room_split_condition.Value)
+        //    throw new InvalidOperationException("Invalid data - Apply Room Split Condition should not be True before calculating the default allocation.");
 
-        // Updating the default spaces allocation
-        var groupSizes = LicenceDetails.Select(cs => cs.AllocatedGroupSizes);
-        var coreservice = LicenceDetails.First(d => d.LicenceType == ecc_licence_type.GroupChildCareUnder36Months);
-        var test = coreservice.TotalRawFTEs;
+        // Update the default spaces allocation
+
         foreach (var licenceDetail in LicenceDetails)
         {
-            foreach (var space in spacesAllocation)
+            var projected = licenceDetail.AllocatedGroupSizes!.GroupBy(gs1 => gs1, gs2 => gs2, (s1, s2) => new { GroupSize = s1, Count = s2.Count() });
+
+            foreach (var space in licenceDetail.NewSpacesAllocationByLicenceType)
             {
-                var t = space.ofm_cclr_ratio;
+                space.ofm_default_allocation = projected.FirstOrDefault(p => p.GroupSize == space.ofm_cclr_ratio.ofm_group_size)?.Count ?? 0;
             }
         }
 
-        // Update with the default values
+        // Save the default values in dataverse
         await _fundingRepository.SaveDefaultSpacesAllocation(spacesAllocation);
 
         return await Task.FromResult(true);
