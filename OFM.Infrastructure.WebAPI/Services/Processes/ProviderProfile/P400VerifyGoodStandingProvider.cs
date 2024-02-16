@@ -39,11 +39,10 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                     <fetch distinct="true" no-lock="true">
                       <entity name="account">
                         <attribute name="accountid" />
-                        <attribute name="ofm_business_number" />
                         <attribute name="name" />
-                        <attribute name="modifiedon" />
+                        <attribute name="ofm_incorporation_number" />
+                        <attribute name="ofm_business_number" />
                         <attribute name="statecode" />
-                        <attribute name="statuscode" />
                         <filter type="and">
                           <condition attribute="accountid" operator="eq" value="{_processParams?.Organization?.organizationId}" />                  
                         </filter>
@@ -100,76 +99,89 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        string? queryValue = (!String.IsNullOrEmpty(processParams?.Organization?.incorporationNumber)) ?
-             (_processParams?.Organization?.incorporationNumber)!.Trim() : (_processParams?.Organization?.legalName)!.Trim();
+        var localData = await GetData();
 
-        var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
-        var status = "active";
-        var queryString = $"?query=value:{queryValue}::identifier:::bn:::name:" +
-                          $"&categories=legalType:{legalType}::status:{status}";
+        var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
 
-        var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
-
-        var client = new HttpClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, path);
-        request.Headers.Add("Account-Id", "1");
-        request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
-
-        var response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-
-        BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
-
-        // Integration Log - Create
-        var externalService = "BC Registries";
-        var subject = string.Empty;      
-        var logCategory = 1;           // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
-        var message = string.Empty;
-
-        var responseBody = await response.Content.ReadAsStringAsync();
-        message = $"{responseBody.CleanLog()}";
-
-        // Organization - Update
-        var goodStandingStatus = 3;    // 1 - Good, 2 - No Good, 3 - Error 
-
-        if (searchResult is null || searchResult.searchResults.totalResults < 1)
+        deserializedData?.ForEach(async organization =>
         {
-            // Todo: Add a new message for this scenario or try seach by name
-            _logger.LogError(CustomLogEvent.Process, "No results found.");
+            String organizationId = organization.accountid;
+            String legalName = organization.name;
+            String incorporationNumber = organization.ofm_incorporation_number;
+            String businessNumber = organization.ofm_business_number;
 
-            goodStandingStatus = 3;         // 1 - Good, 2 - No Good, 3 - Error 
-            logCategory = 3;                // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
-            subject = "No results found";
-            await UpdateOrganizationCreateIntegrationLog(appUserService, d365WebApiService, processParams, goodStandingStatus, subject, logCategory, message, externalService);
- 
-            return ProcessResult.PartialSuccess(ProcessId, ["No records found."], 0, 0).SimpleProcessResult;
-        }
+            string? queryValue = (!String.IsNullOrEmpty(incorporationNumber)) ?
+                 incorporationNumber : legalName.Trim();
 
-        if (searchResult.searchResults.totalResults > 1)
-        {
-            // ToDo: Process and filter the result further
-            _logger.LogError(CustomLogEvent.Process, "More than one records returned. Please resolve this issue to ensure uniqueness");
+            var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
+            var status = "active";
+            var queryString = $"?query=value:{queryValue}::identifier:::bn:::name:" +
+                              $"&categories=legalType:{legalType}::status:{status}";
 
-            goodStandingStatus = 3;         // 1 - Good, 2 - No Good, 3 - Error 
-            logCategory = 3;                // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
-            subject = "Multiple results returned";
-            await UpdateOrganizationCreateIntegrationLog(appUserService, d365WebApiService, processParams, goodStandingStatus, subject, logCategory, message, externalService);
+            var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
 
-            return ProcessResult.PartialSuccess(ProcessId, ["Multiple results returned."], 0, 0).SimpleProcessResult;
-        }
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, path);
+            request.Headers.Add("Account-Id", "1");
+            request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
 
-        goodStandingStatus = searchResult.searchResults.results.First().goodStanding ? 1 : 2;         // 1 - Good, 2 - No Good, 3 - Error 
-        logCategory = 1;                                                                              // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
-        subject = "One record returned";
-        await UpdateOrganizationCreateIntegrationLog(appUserService, d365WebApiService, processParams, goodStandingStatus, subject, logCategory, message, externalService);
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            // Organization - Update
+            var goodStandingStatus = 3;                    // 1 - Good, 2 - No Good, 3 - Error 
+
+            // Integration Log - Create
+            var externalService = "BC Registries";
+            var subject = string.Empty;
+            var logCategory = 1;                           // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
+            var message = $"{responseBody.CleanLog()}";
+
+            if (searchResult is null || searchResult.searchResults.totalResults < 1)
+            {
+                // Todo: Add a new message for this scenario or try seach by name
+                _logger.LogError(CustomLogEvent.Process, "No results found.");
+
+                goodStandingStatus = 3;
+                logCategory = 3;
+                subject = "No results found";
+                await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
+                // return ProcessResult.PartialSuccess(ProcessId, ["No records found."], 0, 0).SimpleProcessResult;
+            }
+
+            if (searchResult.searchResults.totalResults > 1)
+            {
+                // ToDo: Process and filter the result further
+                _logger.LogError(CustomLogEvent.Process, "More than one records returned. Please resolve this issue to ensure uniqueness");
+
+                goodStandingStatus = 3;
+                logCategory = 3;
+                subject = "Multiple results returned";
+                await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
+                // return ProcessResult.PartialSuccess(ProcessId, ["Multiple results returned."], 0, 0).SimpleProcessResult;
+            }
+
+            if (searchResult.searchResults.totalResults == 1)
+            {
+                goodStandingStatus = searchResult.searchResults.results.First().goodStanding ? 1 : 2;         // 1 - Good, 2 - No Good, 3 - Error 
+                logCategory = 1;                                                                              // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
+                subject = "One result found";
+                await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
+                // return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+            }
+
+        });
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 
-
-    private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams, int goodStandingStatus,string subject, int category, string message, string externalService)
+    private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, String organizationId, int goodStandingStatus, string subject, int category, string message, string externalService)
     {
-        var statement = $"accounts({_processParams?.Organization?.organizationId.ToString()})";
+        var statement = $"accounts({organizationId})";
         var payload = new JsonObject {
                 { "ofm_good_standing_status", goodStandingStatus},
                 { "ofm_good_standing_validated_on", DateTime.UtcNow }
@@ -193,7 +205,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                 { "ofm_category", category},
                 { "ofm_message", message},
                 { "ofm_service_name", externalService},
-                { "ofm_regardingid_account@odata.bind", $"/accounts({_processParams?.Organization?.organizationId})"}
+                { "ofm_regardingid_account@odata.bind", $"/accounts({organizationId})"}
         };
         var requestBody2 = JsonSerializer.Serialize(payload2);
         var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
