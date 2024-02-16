@@ -13,7 +13,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 public class FundingCalculator
 {
     private readonly IFundingRepository _fundingRepository;
-    private readonly IProviderProfileRepository _providerRepository;
     private readonly ID365DataService _d365dataService;
     private FundingResult? _fundingResult;
     private readonly RateSchedule _rateSchedule;

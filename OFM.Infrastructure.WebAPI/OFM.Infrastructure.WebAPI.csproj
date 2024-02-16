@@ -30,6 +30,7 @@
     <Compile Remove="Services\Processes\Fundings\Validators\IGoodStandingValidator.cs" />
     <Compile Remove="Services\Processes\Fundings\Validators\ProviderConditionsLookups.cs" />
     <Compile Remove="Services\Processes\Fundings\WageGrid_TBD.cs" />
+    <Compile Remove="Services\Processes\ProviderProfiles\IProviderProfileRepository.cs" />
   </ItemGroup>
 
 
