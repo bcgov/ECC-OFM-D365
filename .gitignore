@@ -401,3 +401,13 @@ FodyWeavers.xsd
 *.sln.iml
 /OFM.Infrastructure.WebAPI/appsettings.Development.json
 /ECC.Core.DataContext/builderSettings.json
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Other/Solution.xml
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/platformlibs/fluent_8_29_0.js
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/css/FundingEnvelope.css
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/.gitignore
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/bundle.js
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/OFMPCFs.zip
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/OFMPCFs.cdsproj
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Other/Customizations.xml
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/ControlManifest.xml.data.xml
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/ControlManifest.xml

@@ -11,6 +11,7 @@ export interface IGoodStandingProps {
   defaultMessage: string | undefined;
   successMessage: string | undefined;
   blockedMessage: string | undefined;
+  errorMessage: string | undefined;
   context: any
 }
 
@@ -34,22 +35,22 @@ const verticalStackProps: IStackProps = {
 const BlockedMessageBar = (props: IMessageProps) => (
   <MessageBar
     messageBarType={MessageBarType.blocked}
-    isMultiline={false}
+    isMultiline={true}
     truncated={true}
     overflowButtonAriaLabel="See more"
   >
-    <b>The organization is <u>NOT</u> in good standing.</b> (Last checked: {props.lastChecked} ) A notification has been sent to inform the provider about the status and instructions to rectify the situation."
+    <b>The organization is <u>NOT</u> in good standing.</b> A notification has been sent to inform the provider about the status and instructions to rectify the situation. (Last checked: {props.lastChecked} )
   </MessageBar>
 );
 
-const SuccessMessageBar = (p: IMessageProps) => (
+const SuccessMessageBar = (props: IMessageProps) => (
   <MessageBar
     messageBarType={MessageBarType.success}
-    isMultiline={false}
+    isMultiline={true}
     truncated={true}
     overflowButtonAriaLabel="See more"
   >
-    <b>The organization is in good standing</b> (Last checked: {p.lastChecked})
+    <b>The organization is in Good Standing.</b> (Last checked: {props.lastChecked})
     
   </MessageBar>
 );
@@ -57,26 +58,38 @@ const SuccessMessageBar = (p: IMessageProps) => (
 const WarningMessageBar = (props: IMessageProps) => (
   <MessageBar
     messageBarType={MessageBarType.warning}
-    isMultiline={false}
+    isMultiline={true}
     truncated={true}
     overflowButtonAriaLabel="See more"
   >
-   <b>The organization have not been verified with BC Registries for the good standing status.</b>
+   <b>The organization have not been verified with BC Registries for the good standing status.</b> (Last checked: {props.lastChecked})
   </MessageBar>
 );
 
+const ErrorMessageBar = (props: IMessageProps) => (
+  <MessageBar
+    messageBarType={MessageBarType.error}
+    isMultiline={true}
+    truncated={true}
+    overflowButtonAriaLabel="See more"
+  >
+   <b>There is an integration error happened during the last good standing check with the BC Registries. Please check the integration log for details.</b> (Last checked: {props.lastChecked})
+  </MessageBar>
+);
 export const MessageBarForGoodStanding: React.FunctionComponent<IGoodStandingProps> = (props) => {
   const defaultMessages = "The organization have not been verified with BC Registries for the good standing status.";
   const blockedMessages = ["<b>The organization is <u>NOT</u> in good standing.</b> (Last checked: ", props.lastChecked, ") A notification has been sent to inform the provider about the status and instructions to rectify."];
   const successMessages = ["<b>The organization is in good standing</b> (Last checked: ",props.lastChecked,")"];
+  const errorMessages = ["<b>There is an integration error happened during the last good standing check with the BC Registries. Please check the integration log for details.</b> (Last checked: ",props.lastChecked,")"];
 
   return (
     <div>
       <Stack {...horizontalStackProps}>
         <Stack {...verticalStackProps}>
-          {(props.status === 0)                       &&  <BlockedMessageBar lastChecked={props.lastChecked} customMessage={blockedMessages.join()}/>}
           {(props.status === 1)                       &&  <SuccessMessageBar lastChecked={props.lastChecked} customMessage={successMessages.join()}/>}
-          {(props.status !== 0 && props.status !== 1) &&  <WarningMessageBar lastChecked={props.lastChecked} customMessage={defaultMessages}/>}
+          {(props.status === 2)                       &&  <BlockedMessageBar lastChecked={props.lastChecked} customMessage={blockedMessages.join()}/>}
+          {(props.status === 3)                       &&  <ErrorMessageBar lastChecked={props.lastChecked} customMessage={errorMessages.join()}/>}
+          {(props.status !== 1 && props.status !== 2 && props.status !== 3) && <WarningMessageBar lastChecked={props.lastChecked} customMessage={defaultMessages}/>}
         </Stack>
       </Stack>
     </div>
