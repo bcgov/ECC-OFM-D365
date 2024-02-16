@@ -492,8 +492,8 @@ public class FundingRepository : IFundingRepository
             var data = new JsonObject {
                 { "ofm_default_allocation", space.ofm_default_allocation ?? 0 }
             };
-
-            updateRequests.Add(new UpdateRequest(new EntityReference(ofm_space_allocation.EntityLogicalName, space.ofm_space_allocationid), data));
+            //new EntityReference("emails", new Guid(email.activityid))
+            updateRequests.Add(new UpdateRequest(new EntityReference(ofm_space_allocation.EntityLogicalCollectionName, space.ofm_space_allocationid), data));
         }
 
         var batchResult = await _d365webapiservice.SendBatchMessageAsync(_appUserService.AZSystemAppUser, updateRequests, null);

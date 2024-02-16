@@ -161,15 +161,10 @@ public class FundingCalculator
 
     public async Task<bool> CalculateDefaultSpacesAllocation()
     {
-        // Do validation as needed here
-        //if (_funding.ofm_apply_room_split_condition.Value)
-        //    throw new InvalidOperationException("Invalid data - Apply Room Split Condition should not be True before calculating the default allocation.");
-
         // Update the default spaces allocation
-
         foreach (var licenceDetail in LicenceDetails)
         {
-            var projected = licenceDetail.AllocatedGroupSizes!.GroupBy(gs1 => gs1, gs2 => gs2, (s1, s2) => new { GroupSize = s1, Count = s2.Count() });
+            var projected = licenceDetail.DefaultGroupSizes!.GroupBy(gs1 => gs1, gs2 => gs2, (s1, s2) => new { GroupSize = s1, Count = s2.Count() });
 
             foreach (var space in licenceDetail.NewSpacesAllocationByLicenceType)
             {
