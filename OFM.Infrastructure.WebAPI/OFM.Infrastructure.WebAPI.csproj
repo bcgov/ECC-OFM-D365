@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -22,6 +22,16 @@
     <WarningsAsErrors>$(WarningsAsErrors);NU1605</WarningsAsErrors>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Services\Processes\Fundings\ApplicationState.cs" />
+    <Compile Remove="Services\Processes\Fundings\FundingRate.cs" />
+    <Compile Remove="Services\Processes\Fundings\Validators\GoodStandingValidator.cs" />
+    <Compile Remove="Services\Processes\Fundings\Validators\IGoodStandingValidator.cs" />
+    <Compile Remove="Services\Processes\Fundings\Validators\ProviderConditionsLookups.cs" />
+    <Compile Remove="Services\Processes\Fundings\WageGrid_TBD.cs" />
+    <Compile Remove="Services\Processes\ProviderProfiles\IProviderProfileRepository.cs" />
+  </ItemGroup>
+
 
   
   <ItemGroup>
@@ -33,6 +43,12 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.57.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+
+  
+  <ItemGroup>
+    <Folder Include="Services\Processes\Fundings\Supplementary\" />
   </ItemGroup>
 
 

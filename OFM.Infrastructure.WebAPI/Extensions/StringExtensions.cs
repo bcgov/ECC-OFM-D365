@@ -45,12 +45,12 @@ public class Licence
 {
 }
 
-public record LicenceDetailResponse : IHaveItems<LicenceDetail>
-{
-    public List<LicenceDetail> Items { get; set; } = new();
-}
+//public record LicenceDetailResponse : IHaveItems<LicenceDetail>
+//{
+//    public List<LicenceDetail> Items { get; set; } = new();
+//}
 
-public class LicenceDetail
-{
-}
+//public class LicenceDetail
+//{
+//}
 
