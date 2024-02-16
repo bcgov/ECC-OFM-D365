@@ -195,6 +195,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_integration_log"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_integration_log> ofm_integration_logSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_integration_log>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_licence"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_licence> ofm_licenceSet
@@ -213,6 +224,17 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.ofm_licence_detail>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_payment"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_payment> ofm_paymentSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_payment>();
 			}
 		}
 		
@@ -246,6 +268,17 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.ofm_request_category>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_space_allocation"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_space_allocation> ofm_space_allocationSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_space_allocation>();
 			}
 		}
 		

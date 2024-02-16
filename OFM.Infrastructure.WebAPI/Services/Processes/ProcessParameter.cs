@@ -1,7 +1,26 @@
-﻿using System.Diagnostics;
+﻿using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes;
+
+public class Location
+{
+    [property: JsonProperty("@odata.type")]
+    public string ODataType => "Microsoft.Dynamics.CRM.expando";
+
+    // Gets or sets the latitude of the Location.
+    public double? Latitude { get; set; }
+
+    [JsonProperty("Latitude@odata.type")]
+    public static string LatitudeType => "Double";
+
+    // Gets or sets the longitude of the Location.
+    public double? Longitude { get; set; }
+
+    [JsonProperty("Longitude@odata.type")]
+    public static string LongitudeType => "Double";
+}
 
 public record ProcessParameter
 {
@@ -57,6 +76,9 @@ public record ProcessParameter
 
     public record FundingParameter
     {
+        //[property: JsonPropertyName("facilityId")]
+        //public string? FacilityId { get; set; }
+
         [property: JsonPropertyName("fundingId")]
         public string? FundingId { get; set; }
 

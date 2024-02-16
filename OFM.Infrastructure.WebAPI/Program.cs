@@ -8,10 +8,11 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Documents;
-using OFM.Infrastructure.WebAPI.Services.Fundings;
 using OFM.Infrastructure.WebAPI.Services.Processes;
 using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
+using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
+using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using System.Reflection;
 
@@ -40,6 +41,7 @@ services.AddScoped<ID365TokenService, D365TokenService>();
 services.AddScoped<ID365AppUserService, D365AppUserService>();
 services.AddScoped<ID365WebApiService, D365WebAPIService>();
 services.AddScoped<ID365AuthenticationService, D365AuthServiceMSAL>();
+services.AddScoped<ID365DataService, D365DataService>();
 
 services.AddScoped<ID365DocumentProvider, DocumentProvider>();
 services.AddScoped<ID365DocumentProvider, ApplicationDocumentProvider>();
@@ -49,7 +51,9 @@ services.AddScoped<ID365ScheduledProcessService, ProcessService>();
 services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
+services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>();
 services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
 services.AddScoped<ID365ProcessProvider, P405VerifyGoodStandingBatchProvider>();
 services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
@@ -60,6 +64,7 @@ services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>(
 services.AddScoped<ID365BatchService, D365BatchService>();
 services.AddScoped<ID365BatchProvider, BatchProvider>();
 services.AddScoped<ID365BatchProvider, ContactEditProvider>();
+services.AddScoped<IFundingRepository, FundingRepository>();
 
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
