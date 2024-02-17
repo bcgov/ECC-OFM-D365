@@ -85,7 +85,7 @@ public class LicenceDetail : ofm_licence_detail
     private IEnumerable<CCLRRatio> FilterCCLRByCareType(ecc_licence_type careType)
     {
         IEnumerable<CCLRRatio> filteredByCareType = [];
-        if (!ApplySplitRoomCondition)
+        if (ApplySplitRoomCondition)
         {
             // Use the new allocation    
             var adjustedAllocationOnly = NewSpacesAllocation!.Where(allo => allo.ofm_adjusted_allocation!.Value > 0);
@@ -206,7 +206,7 @@ public class LicenceDetail : ofm_licence_detail
     }
     private decimal SupervisorCostDiffPerYear => RequiredSupervisors * SupervisorRateDifference * (AnnualStandardHours * Spaces / Spaces);
     private decimal WageGridMarkup => (1 + _rateSchedule!.ofm_wage_grid_markup!.Value); // Plus 1 so that it does not zero out the related calculation
-    public decimal TotalStaffingCost => TotalAdjustedFTEsCostPerHour * SupervisorCostDiffPerYear * ExpectedAnnualFTEHours * WageGridMarkup; // Including Supervisor Differentials
+    public decimal TotalStaffingCost => TotalAdjustedFTEsCostPerHour * ExpectedAnnualFTEHours * WageGridMarkup + SupervisorCostDiffPerYear; // Including Supervisor Differentials
     private decimal TotalCostPerFTEPerYear => TotalStaffingCost / TotalAdjustedFTEs;
 
     #endregion

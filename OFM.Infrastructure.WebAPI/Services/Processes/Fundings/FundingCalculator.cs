@@ -144,8 +144,8 @@ public class FundingCalculator
 
     public async Task<bool> ProcessFundingResult()
     {
-        if (_fundingResult is null || !_fundingResult.IsValidFundingResult())
-            return await Task.FromResult(false); //Log the message
+        //if (_fundingResult is null || !_fundingResult.IsValidFundingResult())
+        //    return await Task.FromResult(false); //Log the message
 
         await _fundingRepository.SaveFundingAmounts(_fundingResult);
 
