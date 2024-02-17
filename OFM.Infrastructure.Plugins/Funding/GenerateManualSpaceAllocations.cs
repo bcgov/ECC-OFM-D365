@@ -50,7 +50,7 @@ namespace OFM.Infrastructure.Plugins.Funding
                 {
                     if (roomSplit)
                     {
-                        var licence = crmContext.ofm_licenceSet.Where(lic => lic.ofm_facility.Id == facilityId.Id).ToList();
+                        var licence = crmContext.ofm_licenceSet.Where(lic => lic.ofm_facility.Id == facilityId.Id && lic.statecode == ofm_licence_statecode.Active).ToList();
                         if (licence.Count > 0)
                         {
                             licence.ForEach(lic =>
@@ -59,11 +59,12 @@ namespace OFM.Infrastructure.Plugins.Funding
                                 {
                                     EntityName = ofm_licence_detail.EntityLogicalName,
                                     ColumnSet = new ColumnSet(true),
-                                    Criteria = new FilterExpression
+                                    Criteria = new FilterExpression(LogicalOperator.And)
                                     {
                                         Conditions =
                                         {
-                                            new ConditionExpression(ofm_licence_detail.Fields.ofm_licence, ConditionOperator.Equal,lic.Id)
+                                            new ConditionExpression(ofm_licence_detail.Fields.ofm_licence, ConditionOperator.Equal,lic.Id),
+                                            new ConditionExpression(ofm_licence_detail.Fields.statecode, ConditionOperator.Equal,(int)ofm_licence_detail_statecode.Active)
                                         }
                                     }
                                 };
@@ -83,6 +84,7 @@ namespace OFM.Infrastructure.Plugins.Funding
                                                 <value>{record.GetAttributeValue<OptionSetValue>(ofm_licence_detail.Fields.ofm_licence_type).Value}</value>
                                               </condition>
                                             </filter>
+                                            <order attribute=""ofm_group_size"" />
                                           </entity>
                                         </fetch>";
                                         EntityCollection cclrRecords = localPluginContext.PluginUserService.RetrieveMultiple(new FetchExpression(fetchXml));
@@ -102,6 +104,7 @@ namespace OFM.Infrastructure.Plugins.Funding
                                                             ofm_cclr_ratio = new EntityReference(ofm_cclr_ratio.EntityLogicalName, cclrDetail.Id),
                                                             ofm_funding = new EntityReference(ofm_funding.EntityLogicalName, localPluginContext.Target.Id),
                                                             ofm_adjusted_allocation = 0,
+                                                            ofm_default_allocation = 0,
                                                             ofm_order_number = ++count
                                                         };
                                                         CreateRequest createRequest = new CreateRequest { Target = entity };
