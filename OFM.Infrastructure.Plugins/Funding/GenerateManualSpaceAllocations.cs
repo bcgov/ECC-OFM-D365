@@ -130,10 +130,31 @@ namespace OFM.Infrastructure.Plugins.Funding
                                     }
                                 });
                             });
+                            var timeZoneCode = localPluginContext.PluginUserService.Retrieve(UserSettings.EntityLogicalName, localPluginContext.PluginExecutionContext.InitiatingUserId, new ColumnSet(UserSettings.Fields.timezonecode));
+                            localPluginContext.Trace("time zone code retrieved");
+                            var timeZoneQuery = new QueryExpression()
+                            {
+                                EntityName = TimeZoneDefinition.EntityLogicalName,
+                                ColumnSet = new ColumnSet(TimeZoneDefinition.Fields.standardname),
+                                Criteria = new FilterExpression
+                                {
+                                    Conditions =
+                                {
+                                    new ConditionExpression(TimeZoneDefinition.Fields.timezonecode, ConditionOperator.Equal,timeZoneCode.GetAttributeValue<int>(UserSettings.Fields.timezonecode))
+                                }
+                                }
+                            };
+                            var result = localPluginContext.PluginUserService.RetrieveMultiple(timeZoneQuery);
+
+                            var new_allocated_date = string.Format("{0:yyyy/MM/dd hh:mm tt}", TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                                TimeZoneInfo.FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>
+                                (TimeZoneDefinition.Fields.standardname)).FirstOrDefault().ToString())));
+
+                            localPluginContext.Trace("new date allocated " + new_allocated_date);
                             var entityFunding = new ofm_funding
                             {
                                 Id = localPluginContext.Target.Id,
-                                ofm_new_allocation_date = DateTime.Now
+                                ofm_new_allocation_date = DateTime.Parse(new_allocated_date)
                             };
                             UpdateRequest updateFundingRequest = new UpdateRequest { Target = entityFunding };
                             crmContext.Execute(updateFundingRequest);
