@@ -128,6 +128,9 @@ public class FundingCalculator
             //ofm_envelope_grand_total_proj = fm.GrandTotal_Projected,
             //ofm_envelope_grand_total_pf = fm.GrandTotal_PF,
             //ofm_envelope_grand_total = fm.GrandTotal
+
+            //Calculation Date
+            NewCalculationDate = DateTime.Now
         };
 
         #region Non-HR Calculation

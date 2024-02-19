@@ -445,6 +445,7 @@ public class FundingRepository : IFundingRepository
             ofm_envelope_administrative_proj = fm.NonHRAdmistrative_Projected,
             ofm_envelope_operational_proj = fm.NonHROperational_Projected,
             ofm_envelope_facility_proj = fm.NonHRFacility_Projected,
+            ofm_new_allocation_date = fm.NewCalculationDate,
 
             ////Parent Fees
             //ofm_envelope_hr_total_pf = fm.HRTotal_PF,

@@ -21,6 +21,7 @@ public record FundingAmounts
 {
     // Projected Base Amounts
     public decimal HRTotal_Projected { get; set; } = 0m;
+    public DateTime NewCalculationDate { get; set; }
     public decimal HRWagesPaidTimeOff_Projected { get; set; } = 0m;
     public decimal HRBenefits_Projected { get; set; } = 0m;
     public decimal HREmployerHealthTax_Projected { get; set; } = 0m;
