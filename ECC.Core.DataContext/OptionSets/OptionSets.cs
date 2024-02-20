@@ -12861,38 +12861,6 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
-	/// Status of the Integration Log
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_integration_log_statecode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 1,
-	}
-	
-	/// <summary>
-	/// Reason for the status of the Integration Log
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_integration_log_StatusCode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 2,
-	}
-	
-	/// <summary>
 	/// Status of the Licence Details
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -12945,51 +12913,6 @@ namespace ECC.Core.DataContext
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_licence_StatusCode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 2,
-	}
-	
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_payment_ofm_payment_process
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Fixed in CAS", 1)]
-		FixedinCAS = 506580001,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Resubmit to CAS", 0)]
-		ResubmittoCAS = 506580000,
-	}
-	
-	/// <summary>
-	/// Status of the Payment
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_payment_statecode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 1,
-	}
-	
-	/// <summary>
-	/// Reason for the status of the Payment
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_payment_StatusCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]

@@ -466,7 +466,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
             ofm_envelope_grand_total_pf = fm.GrandTotal_PF,
             ofm_envelope_grand_total = fm.GrandTotal,
 
-            ofm_new_allocation_date = fm.NewCalculationDate,
+            ofm_calculated_on = fm.NewCalculationDate,
         };
 
         var statement = @$"ofm_fundings({_fundingId})";
