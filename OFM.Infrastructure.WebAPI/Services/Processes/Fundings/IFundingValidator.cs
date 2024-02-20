@@ -3,40 +3,12 @@ using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System.ComponentModel.DataAnnotations;
 
-namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings.Validators;
+namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
 public interface IFundingValidator<T> where T : class
 {
     bool Validate(T funding);
     IFundingValidator<T> NextValidator(IFundingValidator<T> next);
-}
-
-public class MustHaveValidApplicationStatusRule : IFundingValidator<Funding>
-{
-    private IFundingValidator<Funding>? _next;
-
-    public bool Validate(Funding funding)
-    {
-        //if (funding.statuscode == ofm_application_StatusCode.Cancelled)
-        //{
-        //    return false;
-        //    throw new ValidationException(
-        //        new ValidationResult("Application must be submitted", new List<string>() { "Application Status" }), null, null);
-
-        //    //return FundingResult.Rejected(funding.ofm_funding_agreement_number, null, null);
-        //}
-
-        _next?.Validate(funding);
-
-        return true;
-    }
-
-    public IFundingValidator<Funding> NextValidator(IFundingValidator<Funding>? next)
-    {
-        _next = next;
-        return next;
-    }
-    
 }
 
 public class MustHaveFundingNumberBaseRule : IFundingValidator<Funding>
@@ -45,10 +17,10 @@ public class MustHaveFundingNumberBaseRule : IFundingValidator<Funding>
 
     public bool Validate(Funding funding)
     {
-        if (string.IsNullOrEmpty(funding.ofm_funding_number))
+        if (funding is null || string.IsNullOrEmpty(funding.ofm_funding_number))
         {
             throw new ValidationException(
-                new ValidationResult("Application must have a funding agreement number", new List<string>() { "Funding Agreement Number" }), null, null);
+                new ValidationResult("Invalid Funding record or Funding record must have a funding agreement number", new List<string>() { "Funding Record / Funding Agreement Number" }), null, null);
         }
 
         _next?.Validate(funding);
@@ -61,6 +33,31 @@ public class MustHaveFundingNumberBaseRule : IFundingValidator<Funding>
         _next = next;
         return next;
     }
+}
+
+public class MustHaveValidApplicationStatusRule : IFundingValidator<Funding>
+{
+    private IFundingValidator<Funding>? _next;
+
+    public bool Validate(Funding funding)
+    {
+        if (funding.ofm_application!.statuscode >= ofm_application_StatusCode.Submitted)
+        {
+            throw new ValidationException(
+                new ValidationResult("Application must be at least submitted", new List<string>() { "Application Status" }), null, null);
+        }
+
+        _next?.Validate(funding);
+
+        return true;
+    }
+
+    public IFundingValidator<Funding> NextValidator(IFundingValidator<Funding>? next)
+    {
+        _next = next;
+        return next;
+    }
+
 }
 
 public class MustHaveValidRateScheduleRule : IFundingValidator<Funding>

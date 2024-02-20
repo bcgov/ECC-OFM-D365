@@ -1,7 +1,8 @@
 ﻿using ECC.Core.DataContext;
+using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
-using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
@@ -19,19 +20,13 @@ public interface IFundingRepository
     Task<bool> SaveDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation);
 }
 
-public class FundingRepository : IFundingRepository
+public class FundingRepository(ID365AppUserService appUserService, ID365WebApiService service, ID365DataService dataService, ILoggerFactory loggerFactory) : IFundingRepository
 {
-    private readonly ID365AppUserService _appUserService;
-    private readonly ID365WebApiService _d365webapiservice;
-    private readonly ID365DataService _dataService;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly ID365DataService _dataService = dataService;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = service;
     private Guid? _fundingId;
-
-    public FundingRepository(ID365AppUserService appUserService, ID365WebApiService service, ID365DataService dataService)
-    {
-        _appUserService = appUserService;
-        _d365webapiservice = service;
-        _dataService = dataService;
-    }
 
     #region Pre-Defined Queries
 
@@ -357,7 +352,7 @@ public class FundingRepository : IFundingRepository
     public async Task<IEnumerable<RateSchedule>> LoadRateSchedulesAsync()
     {
         var localdata = await _dataService.FetchDataAsync(RateScheduleRequestUri, "RateSchedules");
-        var deserializedData = localdata.Data.Deserialize<List<RateSchedule>>(Setup.s_readOptionsRelaxed);
+        var deserializedData = localdata.Data.Deserialize<List<RateSchedule>>(Setup.s_writeOptionsForLogs);
 
         return await Task.FromResult(deserializedData!); ;
     }
@@ -370,9 +365,9 @@ public class FundingRepository : IFundingRepository
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            //_logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
+            _logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
 
-            //return await Task.FromResult(new ProcessData(string.Empty));
+            return await Task.FromResult<Funding>(null);
         }
 
         var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -380,17 +375,17 @@ public class FundingRepository : IFundingRepository
         JsonNode d365Result = string.Empty;
         if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
         {
-            //if (currentValue?.AsArray().Count == 0)
-            //{
-            //    _logger.LogInformation(CustomLogEvent.Process, "No records found");
-            //}
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No records found");
+            }
 
             d365Result = currentValue!;
         }
 
         var deserializedData = d365Result.Deserialize<List<Funding>>(Setup.s_writeOptionsForLogs);
 
-        return await Task.FromResult(deserializedData!.First());
+        return await Task.FromResult<Funding>(deserializedData.FirstOrDefault());
     }
 
     public async Task<IEnumerable<SpaceAllocation>> GetSpacesAllocationByFundingIdAsync(Guid id)
@@ -401,9 +396,9 @@ public class FundingRepository : IFundingRepository
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            //_logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
+            _logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
 
-            //return await Task.FromResult([]);
+            return await Task.FromResult<IEnumerable<SpaceAllocation>>(null);
         }
 
         var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -413,7 +408,7 @@ public class FundingRepository : IFundingRepository
         {
             if (currentValue?.AsArray().Count == 0)
             {
-                //_logger.LogInformation(CustomLogEvent.Process, "No records found");
+                _logger.LogInformation(CustomLogEvent.Process, "No records found");
             }
 
             d365Result = currentValue!;
@@ -426,11 +421,10 @@ public class FundingRepository : IFundingRepository
 
     public async Task<bool> SaveFundingAmounts(FundingResult fundingResult)
     {
-        FundingAmounts fm = fundingResult.FundingAmounts;
-        var updateFundingUrl = @$"ofm_fundings({_fundingId})";
+        FundingAmounts fm = fundingResult.FundingAmounts!;
         var newfundingAmounts = new
         {
-            //Projected Base Amounts
+            //Projected Amounts
             ofm_envelope_hr_total_proj = fm.HRTotal_Projected,
             ofm_envelope_hr_wages_paidtimeoff_proj = fm.HRWagesPaidTimeOff_Projected,
             ofm_envelope_hr_benefits_proj = fm.HRBenefits_Projected,
@@ -443,40 +437,47 @@ public class FundingRepository : IFundingRepository
             ofm_envelope_operational_proj = fm.NonHROperational_Projected,
             ofm_envelope_facility_proj = fm.NonHRFacility_Projected,
 
-            ////Parent Fees
-            //ofm_envelope_hr_total_pf = fm.HRTotal_PF,
-            //ofm_envelope_hr_wages_paidtimeoff_pf = fm.HRWagesPaidTimeOff_PF,
-            //ofm_envelope_hr_benefits_pf = fm.HRBenefits_PF,
-            //ofm_envelope_hr_employerhealthtax_pf = fm.HREmployerHealthTax_PF,
-            //ofm_envelope_hr_prodevexpenses_pf = fm.HRProfessionalDevelopmentExpenses_PF,
+            //Parent Fees
+            ofm_envelope_hr_total_pf = fm.HRTotal_PF,
+            ofm_envelope_hr_wages_paidtimeoff_pf = fm.HRWagesPaidTimeOff_PF,
+            ofm_envelope_hr_benefits_pf = fm.HRBenefits_PF,
+            ofm_envelope_hr_employerhealthtax_pf = fm.HREmployerHealthTax_PF,
+            ofm_envelope_hr_prodevexpenses_pf = fm.HRProfessionalDevelopmentExpenses_PF,
 
-            //ofm_envelope_programming_pf = fm.NonHRProgramming_PF,
-            //ofm_envelope_administrative_pf = fm.NonHRAdmistrative_PF,
-            //ofm_envelope_operational_pf = fm.NonHROperational_PF,
-            //ofm_envelope_facility_pf = fm.NonHRFacility_PF,
+            ofm_envelope_programming_pf = fm.NonHRProgramming_PF,
+            ofm_envelope_administrative_pf = fm.NonHRAdmistrative_PF,
+            ofm_envelope_operational_pf = fm.NonHROperational_PF,
+            ofm_envelope_facility_pf = fm.NonHRFacility_PF,
 
-            ////Base Amounts Column
-            //ofm_envelope_hr_total = fm.HRTotal,
-            //ofm_envelope_hr_wages_paidtimeoff = fm.HRWagesPaidTimeOff,
-            //ofm_envelope_hr_benefits = fm.HRBenefits,
-            //ofm_envelope_hr_employerhealthtax = fm.HREmployerHealthTax,
-            //ofm_envelope_hr_prodevexpenses = fm.HRProfessionalDevelopmentExpenses,
+            //Base Amounts
+            ofm_envelope_hr_total = fm.HRTotal,
+            ofm_envelope_hr_wages_paidtimeoff = fm.HRWagesPaidTimeOff,
+            ofm_envelope_hr_benefits = fm.HRBenefits,
+            ofm_envelope_hr_employerhealthtax = fm.HREmployerHealthTax,
+            ofm_envelope_hr_prodevexpenses = fm.HRProfessionalDevelopmentExpenses,
 
-            //ofm_envelope_programming = fm.NonHRProgramming,
-            //ofm_envelope_administrative = fm.NonHRAdmistrative,
-            //ofm_envelope_operational = fm.NonHROperational,
-            //ofm_envelope_facility = fm.NonHRFacility,
+            ofm_envelope_programming = fm.NonHRProgramming,
+            ofm_envelope_administrative = fm.NonHRAdmistrative,
+            ofm_envelope_operational = fm.NonHROperational,
+            ofm_envelope_facility = fm.NonHRFacility,
 
-            ////Grand Totals
-            //ofm_envelope_grand_total_proj = fm.GrandTotal_Projected,
-            //ofm_envelope_grand_total_pf = fm.GrandTotal_PF,
-            //ofm_envelope_grand_total = fm.GrandTotal
+            //Grand Totals
+            ofm_envelope_grand_total_proj = fm.GrandTotal_Projected,
+            ofm_envelope_grand_total_pf = fm.GrandTotal_PF,
+            ofm_envelope_grand_total = fm.GrandTotal,
+
+            ofm_new_allocation_date = fm.NewCalculationDate,
         };
 
+        var statement = @$"ofm_fundings({_fundingId})";
         var requestBody = JsonSerializer.Serialize(newfundingAmounts);
-        var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateFundingUrl, requestBody);
+        var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, statement, requestBody);
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("Failed to update the Funding Amounts for {fundingNumber}. Response: {response}.", fundingResult.FundingNumber, response);
+        }
 
-        //_logger.LogDebug(CustomLogEvent.Process, "Update Funding Record {fundingId}", fundingId);
+        _logger.LogDebug(CustomLogEvent.Process, "Update Funding Record {fundingId}", _fundingId);
 
         return await Task.FromResult(true);
     }
@@ -490,7 +491,7 @@ public class FundingRepository : IFundingRepository
                 { "ofm_default_allocation", space.ofm_default_allocation ?? 0 }
             };
             //new EntityReference("emails", new Guid(email.activityid))
-            updateRequests.Add(new UpdateRequest(new EntityReference(ofm_space_allocation.EntityLogicalCollectionName, space.ofm_space_allocationid), data));
+            updateRequests.Add(new D365UpdateRequest(new Messages.EntityReference(ofm_space_allocation.EntityLogicalCollectionName, space.ofm_space_allocationid), data));
         }
 
         var batchResult = await _d365webapiservice.SendBatchMessageAsync(_appUserService.AZSystemAppUser, updateRequests, null);

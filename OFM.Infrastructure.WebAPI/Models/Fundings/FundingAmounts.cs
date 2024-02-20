@@ -2,21 +2,6 @@
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
-public class TypedSet<T> : KeyedCollection<Type, T>
-{
-    protected override Type GetKeyForItem(T item)
-    {
-        return item.GetType();
-    }
-}
-
-public enum FundingAmountType
-{
-    Base,
-    ParentFees,
-    Projected
-}
-
 public record FundingAmounts
 {
     // Projected Base Amounts
@@ -33,12 +18,12 @@ public record FundingAmounts
     public decimal NonHRFacility_Projected { get; set; } = 0m;
 
     // Parent Fees
-    public decimal HRTotal_PF { get; set; } = 0m;
+    public decimal HRTotal_PF => HRWagesPaidTimeOff_PF + HRBenefits_PF + HREmployerHealthTax_PF + HRProfessionalDevelopmentHours_PF + HRProfessionalDevelopmentExpenses_PF;
     public decimal HRWagesPaidTimeOff_PF { get; set; } = 0m;
     public decimal HRBenefits_PF { get; set; } = 0m;
     public decimal HREmployerHealthTax_PF { get; set; } = 0m;
     public decimal HRProfessionalDevelopmentHours_PF { get; set; } = 0m;
-    public decimal HRProfessionalDevelopmentExpenses_PF{ get; set; } = 0m;
+    public decimal HRProfessionalDevelopmentExpenses_PF { get; set; } = 0m;
 
     public decimal NonHRProgramming_PF { get; set; } = 0m;
     public decimal NonHRAdmistrative_PF { get; set; } = 0m;
@@ -59,7 +44,9 @@ public record FundingAmounts
     public decimal NonHRFacility { get; set; } = 0m;
 
     //Grand Totals
-    public decimal GrandTotal_Projected { get { return HRTotal_Projected + NonHRProgramming_Projected + NonHRAdmistrative_Projected + NonHROperational_Projected + NonHRFacility_Projected ; } }
-    public decimal GrandTotal_PF { get { return HRTotal_PF + NonHRProgramming_PF + NonHRAdmistrative_PF + NonHROperational_PF + NonHRFacility_PF; } }
-    public decimal GrandTotal { get { return HRTotal + NonHRProgramming + NonHRAdmistrative + NonHROperational + NonHRFacility; } }
+    public decimal GrandTotal_Projected { get; set; }
+    public decimal GrandTotal_PF { get; set; }
+    public decimal GrandTotal => GrandTotal_Projected - GrandTotal_PF;
+
+    public DateTime NewCalculationDate { get;  set; }
 }

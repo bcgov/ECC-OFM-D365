@@ -23,11 +23,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\Processes\Fundings\NonHR\**" />
+    <Compile Remove="Services\Processes\Fundings\Supplementary\**" />
+    <Content Remove="Services\Processes\Fundings\NonHR\**" />
+    <Content Remove="Services\Processes\Fundings\Supplementary\**" />
+    <EmbeddedResource Remove="Services\Processes\Fundings\NonHR\**" />
+    <EmbeddedResource Remove="Services\Processes\Fundings\Supplementary\**" />
+    <None Remove="Services\Processes\Fundings\NonHR\**" />
+    <None Remove="Services\Processes\Fundings\Supplementary\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\Fundings\ValueObject.cs" />
     <Compile Remove="Services\Processes\Fundings\ApplicationState.cs" />
     <Compile Remove="Services\Processes\Fundings\FundingRate.cs" />
-    <Compile Remove="Services\Processes\Fundings\Validators\GoodStandingValidator.cs" />
-    <Compile Remove="Services\Processes\Fundings\Validators\IGoodStandingValidator.cs" />
-    <Compile Remove="Services\Processes\Fundings\Validators\ProviderConditionsLookups.cs" />
+    <Compile Remove="Services\Processes\Fundings\IFundingCommand.cs" />
+    <Compile Remove="Services\Processes\Fundings\NonHRFundingRateService.cs" />
     <Compile Remove="Services\Processes\Fundings\WageGrid_TBD.cs" />
     <Compile Remove="Services\Processes\ProviderProfiles\IProviderProfileRepository.cs" />
   </ItemGroup>
@@ -43,12 +54,6 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.57.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-  </ItemGroup>
-
-
-  
-  <ItemGroup>
-    <Folder Include="Services\Processes\Fundings\Supplementary\" />
   </ItemGroup>
 
 

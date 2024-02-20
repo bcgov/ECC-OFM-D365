@@ -42,8 +42,8 @@ public static class Setup
             public const Int16 CalculateSupplementaryFundingId = 305;
             public const string CalculateSupplementaryFundingName = "Calculate the supplementary funding amounts";
 
-            public const Int16 CalculateDefaultAllocationId = 310;
-            public const string CalculateDefaultAllocationName = "Calculate the default room allocation in the room split scenario";
+            public const Int16 CalculateDefaultSpacesAllocationId = 310;
+            public const string CalculateDefaultSpacesAllocationName = "Calculate the default spaces allocation in the room split scenario";
         }
 
         public static class ProviderProfile
@@ -117,9 +117,9 @@ public static class Setup
 
         if (requertUrl.ToLowerInvariant().Contains("/api/data/v"))
         {
-            requertUrl = requertUrl.Substring(requertUrl.IndexOf("/api/data/v"));
-            requertUrl = requertUrl.Substring(requertUrl.IndexOf('v'));
-            requertUrl = requertUrl.Substring(requertUrl.IndexOf('/'));
+            requertUrl = requertUrl[requertUrl.IndexOf("/api/data/v")..];
+            requertUrl = requertUrl[requertUrl.IndexOf('v')..];
+            requertUrl = requertUrl[requertUrl.IndexOf('/')..];
         }
 
         return requertUrl;

@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 /// <summary>
 /// Contains the data to update a record
 /// </summary>
-public sealed class UpdateRequest : HttpRequestMessage
+public sealed class D365UpdateRequest : HttpRequestMessage
     {
         /// <summary>
         /// Initializes the UpdateRequest
@@ -16,7 +16,7 @@ public sealed class UpdateRequest : HttpRequestMessage
         /// <param name="preventDuplicateRecord">Whether to throw an error when a duplicate record is detected.</param>
         /// <param name="partitionId">The partition key to use.</param>
         /// <param name="eTag">The current ETag value to compare.</param>
-        public UpdateRequest(
+        public D365UpdateRequest(
             EntityReference entityReference, 
             JsonObject record, 
             bool preventDuplicateRecord = false, 

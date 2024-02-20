@@ -1,30 +1,21 @@
 ﻿using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
-public class P305SupplementaryFundingProvider : ID365ProcessProvider
+public class P305SupplementaryFundingProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
-    private readonly ID365AppUserService _appUserService;
-    private readonly ID365WebApiService _d365webapiservice;
-    private readonly ILogger _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
-
-    public P305SupplementaryFundingProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
-    {
-        _appUserService = appUserService;
-        _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process);
-        _timeProvider = timeProvider;
-    }
 
     public short ProcessId => Setup.Process.Funding.CalculateSupplementaryFundingId;
     public string ProcessName => Setup.Process.Funding.CalculateSupplementaryFundingName;
@@ -181,7 +172,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         //fetch the application and licences data
         var applicationId = supplementary._ofm_application_value;
         var applicationData = await GetApplicationData(applicationId);
-        var deserializedApplicationData = applicationData.Data.Deserialize<List<Models.Application>>(Setup.s_writeOptionsForLogs);
+        var deserializedApplicationData = applicationData.Data.Deserialize<List<Application>>(Setup.s_writeOptionsForLogs);
 
         var application = deserializedApplicationData?.FirstOrDefault();
 

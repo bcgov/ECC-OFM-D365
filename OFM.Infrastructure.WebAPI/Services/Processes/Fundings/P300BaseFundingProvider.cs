@@ -16,20 +16,17 @@ public class P300BaseFundingProvider : ID365ProcessProvider
 {
     private readonly ID365AppUserService? _appUserService;
     private readonly ID365WebApiService? _d365webapiservice;
-    private readonly ILoggerFactory? loggerFactory;
     private readonly IFundingRepository? _fundingRepository;
-    private readonly ILogger? _logger;
-    private readonly ProcessSettings? _processSettings;
+    private readonly ILogger _logger;
     private readonly TimeProvider? _timeProvider;
     private ProcessData? _data;
-    private Funding? _funding;
 
     public P300BaseFundingProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IFundingRepository fundingRepository, TimeProvider timeProvider)
     {
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
         _fundingRepository = fundingRepository;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process); ;
+        _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
 
@@ -66,7 +63,7 @@ public class P300BaseFundingProvider : ID365ProcessProvider
 
     public async Task<ProcessData> GetData()
     {
-        //_logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P400VerifyGoodStandingProvider));
+        _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P300BaseFundingProvider));
 
         if (_data is null)
         {
@@ -74,7 +71,7 @@ public class P300BaseFundingProvider : ID365ProcessProvider
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
+                //_logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -101,14 +98,12 @@ public class P300BaseFundingProvider : ID365ProcessProvider
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        var startTime = _timeProvider?.GetTimestamp();
-
-        _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
+        Funding? _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
 
-        var calculator = new FundingCalculator(_funding, _rateSchedules, _fundingRepository);
-        await calculator.Evaluate();
-        await calculator.ProcessFundingResult();
+        var calculator = new FundingCalculator(_logger,_fundingRepository, _funding, _rateSchedules);
+        _ = await calculator.Calculate();
+        _ = await calculator.ProcessFundingResult();
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }

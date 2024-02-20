@@ -125,7 +125,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
                 ["ofm_closing_reason"] = _processSettings.ClosingReason
             };
 
-            requests.Add(new UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
+            requests.Add(new D365UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
         }
 
         var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);

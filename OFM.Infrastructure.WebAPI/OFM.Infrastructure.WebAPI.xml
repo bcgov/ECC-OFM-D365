@@ -254,12 +254,12 @@
             The calculated relative Uri to the record.
             </summary>
         </member>
-        <member name="T:OFM.Infrastructure.WebAPI.Messages.UpdateRequest">
+        <member name="T:OFM.Infrastructure.WebAPI.Messages.D365UpdateRequest">
             <summary>
             Contains the data to update a record
             </summary>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Messages.UpdateRequest.#ctor(OFM.Infrastructure.WebAPI.Messages.EntityReference,System.Text.Json.Nodes.JsonObject,System.Boolean,System.String,System.String)">
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.D365UpdateRequest.#ctor(OFM.Infrastructure.WebAPI.Messages.EntityReference,System.Text.Json.Nodes.JsonObject,System.Boolean,System.String,System.String)">
             <summary>
             Initializes the UpdateRequest
             </summary>
@@ -292,11 +292,17 @@
             Specifies the behavior for an Upsert operation.
             </summary>
         </member>
-        <member name="T:OFM.Infrastructure.WebAPI.Models.Fundings.ValueObject">
+        <member name="F:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail._applyDuplicateCareType">
             <summary>
-            Based on https://github.com/dotnet-architecture/eShopOnContainers/blob/master/src/Services/Ordering/Ordering.Domain/SeedWork/ValueObject.cs
-            which is licensed under the MIT license: https://github.com/dotnet-architecture/eShopOnContainers/blob/master/LICENSE
+            Split Room is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
+            The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
             </summary>
+        </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail.AnnualAvailableHoursPerFTE">
+            <summary>
+            Note that an FTE is expected to work 1957.5 hours a year and the number of available hours for childcare is less after accounting for training, sick days, vacation, and stat days
+            </summary>
+            
         </member>
         <member name="P:OFM.Infrastructure.WebAPI.Models.AppSettings.MaxRetries">
             <summary>
@@ -378,19 +384,14 @@
         </member>
         <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.EmployerHealthTax">
             <summary>
-            Apply the employer health tax at calculator level
+             HR Envelopes: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at the calculator level to HR Total Renumeration Only ***
             </summary>
         </member>
-        <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingAmountCommand.TotalSpaces">
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.CalculateDefaultSpacesAllocation">
             <summary>
-            Total Spaces: sum of all operational spaces of all licence types from all licences that a facility is granted (Non-HR ONLY)
+            Only used for split room scenario. It will calculate and set the default allocation values for each applicable space allocation record.
             </summary>
-        </member>
-        <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.LicenceDetail.AnnualAvailableHoursPerFTE">
-            <summary>
-            Note that an FTE is expected to work 1957.5 hours a year and the number of available hours for childcare is less after accounting for training, sick days, vacation, and stat days
-            </summary>
-            
+            <returns></returns>
         </member>
         <member name="T:ECC.Core.DataContext.DataverseContext">
             <summary>
