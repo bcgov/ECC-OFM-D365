@@ -121,8 +121,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
             String incorporationNumber = organization.ofm_incorporation_number;
             String businessNumber = organization.ofm_business_number;
 
-            string? queryValue = (!String.IsNullOrEmpty(incorporationNumber)) ?
-                 incorporationNumber : legalName.Trim();
+            string? queryValue = (!String.IsNullOrEmpty(incorporationNumber))?incorporationNumber:legalName.Trim();
 
             var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
             var status = "active";
@@ -139,9 +138,9 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
             var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
-            BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
-
             var responseBody = await response.Content.ReadAsStringAsync();
+
+            BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
 
             // Organization - Update
             var goodStandingStatus = 3;                    // 1 - Good, 2 - No Good, 3 - Error 
@@ -180,7 +179,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
             {
                 goodStandingStatus = searchResult.searchResults.results.First().goodStanding ? 1 : 2;         // 1 - Good, 2 - No Good, 3 - Error 
                 logCategory = 1;                                                                              // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
-                subject = "One result found";
+                subject = "One result returned";
                 await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
                 // return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
