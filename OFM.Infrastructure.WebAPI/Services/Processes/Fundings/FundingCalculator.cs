@@ -243,10 +243,12 @@ public class FundingCalculator : IFundingCalculator
     /// <returns></returns>
     public async Task<bool> CalculateDefaultSpacesAllocation()
     {
+        _rateSchedule = _rateSchedules.First(sch => sch.Id == _funding!.ofm_rate_schedule!.ofm_rate_scheduleid);
+
         foreach (LicenceDetail licenceDetail in LicenceDetails)
         {
             //Note: For each licence detail, calculate the default group sizes based on the cclr ratios table and grouped by the group size
-            var groupedByGSize = licenceDetail.DefaultGroupSizes!.GroupBy(grp1 => grp1, grp2 => grp2, (gs1, gs2) => new { GroupSize = gs1, Count = gs2.Count() });
+            var groupedByGSize = licenceDetail.DefaultGroupSizes!.GroupBy(grp1 => grp1, grp2 => grp2, (s1, s2) => new { GroupSize = s1, Count = s2.Count() });
 
             foreach (var space in licenceDetail.NewSpacesAllocationByLicenceType)
             {
@@ -257,9 +259,15 @@ public class FundingCalculator : IFundingCalculator
         var newSpaces = LicenceDetails.SelectMany(s => s.NewSpacesAllocationByLicenceType)
                         .Where(s => s.ofm_default_allocation.Value > 0);
 
-        await _fundingRepository.SaveDefaultSpacesAllocation(newSpaces);
+        if (!newSpaces.Any())
+        {
+            _logger.LogWarning("No new spaces allocation records to update.");
+            return await Task.FromResult(false);       
+        }
 
-        return await Task.FromResult(true);
+        var result = await _fundingRepository.SaveDefaultSpacesAllocation(newSpaces);
+
+        return await Task.FromResult(result);
     }
 
     #endregion

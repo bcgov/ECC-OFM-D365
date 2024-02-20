@@ -490,7 +490,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
             var data = new JsonObject {
                 { "ofm_default_allocation", space.ofm_default_allocation ?? 0 }
             };
-            //new EntityReference("emails", new Guid(email.activityid))
+
             updateRequests.Add(new D365UpdateRequest(new Messages.EntityReference(ofm_space_allocation.EntityLogicalCollectionName, space.ofm_space_allocationid), data));
         }
 
