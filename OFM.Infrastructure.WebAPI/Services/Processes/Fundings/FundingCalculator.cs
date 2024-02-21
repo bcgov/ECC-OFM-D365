@@ -125,7 +125,7 @@ public class FundingCalculator : IFundingCalculator
                 _ => 0m
             };
 
-            return ehtRate * TotalHRRenumeration;
+            return (ehtRate/100) * TotalHRRenumeration;
         }
     }
 
@@ -203,7 +203,7 @@ public class FundingCalculator : IFundingCalculator
                 GrandTotal_PF = TotalParentFees,
 
                 //Calculation Date
-                NewCalculationDate = DateTime.UtcNow
+                //NewCalculationDate = DateTime.UtcNow
             };
 
             _fundingResult = FundingResult.AutoCalculated(_funding.ofm_funding_number, fundingAmounts, null);
