@@ -22590,6 +22590,7 @@ namespace ECC.Core.DataContext
 			public const string modifiedon = "modifiedon";
 			public const string modifiedonbehalfby = "modifiedonbehalfby";
 			public const string modifiedonbehalfbyName = "modifiedonbehalfbyname";
+			public const string ofm_apply_room_split_condition = "ofm_apply_room_split_condition";
 			public const string ofm_care_type = "ofm_care_type";
 			public const string ofm_enrolled_spaces = "ofm_enrolled_spaces";
 			public const string ofm_licence = "ofm_licence";
@@ -22769,6 +22770,24 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("modifiedonbehalfby", value);
+			}
+		}
+		
+		/// <summary>
+		/// Boolean Attribute
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_apply_room_split_condition")]
+		public System.Nullable<bool> ofm_apply_room_split_condition
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("ofm_apply_room_split_condition");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_apply_room_split_condition", value);
 			}
 		}
 		
@@ -23609,7 +23628,7 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// OFM Progress Tracker Record
+		/// OFM Progress Tracker ID
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_tracking_number")]
 		public string ofm_tracking_number

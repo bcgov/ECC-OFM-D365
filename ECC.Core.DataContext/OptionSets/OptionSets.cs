@@ -12446,23 +12446,35 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Approved", 4)]
+		[OptionSetMetadataAttribute("Approved", 3, "#0000ff")]
 		Approved = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cancelled", 1)]
-		Cancelled = 2,
+		[OptionSetMetadataAttribute("Cancelled by Applicant", 6, "#0000ff")]
+		CancelledbyApplicant = 506580001,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Draft", 0)]
+		[OptionSetMetadataAttribute("Cancelled by Ministry", 5, "#0000ff")]
+		CancelledbyMinistry = 506580000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Cancelled Deadline Expired", 7, "#0000ff")]
+		CancelledDeadlineExpired = 506580002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Draft", 0, "#0000ff")]
 		Draft = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("In Review", 3)]
+		[OptionSetMetadataAttribute("Ineligible", 4, "#0000ff")]
+		Ineligible = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("In Review", 2, "#0000ff")]
 		InReview = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Submitted", 2)]
+		[OptionSetMetadataAttribute("Submitted", 1, "#0000ff")]
 		Submitted = 3,
 	}
 	
@@ -12835,12 +12847,44 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
+		[OptionSetMetadataAttribute("Action Required", 5, "#0000ff")]
+		ActionRequired = 506580005,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 6, "#0000ff")]
 		Active = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 2,
+		[OptionSetMetadataAttribute("Cancelled", 9, "#0000ff")]
+		Cancelled = 506580007,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Draft", 0, "#0000ff")]
+		Draft = 506580000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Expired", 7, "#0000ff")]
+		Expired = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("FA Review", 1, "#0000ff")]
+		FAReview = 506580001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("FA Signature Pending", 3, "#0000ff")]
+		FASignaturePending = 506580003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("FA Submitted to Ministry", 4, "#0000ff")]
+		FASubmittedtoMinistry = 506580004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("PCM Review", 2, "#0000ff")]
+		PCMReview = 506580002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Terminated", 8, "#0000ff")]
+		Terminated = 506580006,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
