@@ -92,8 +92,9 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
         //         return Object.assign(result, {[current.name]: current.control.raw!});
         // }, {});
         
-		let params : IEnvelopeProps = {				
-			fields,
+		let params : IEnvelopeProps = {		
+            pcfContext: context,	
+			fields: fields,
 			onValueChanged : this.onChangeAmount, 
 			isReadOnly : isReadOnly,
 			isMasked : isMasked, 

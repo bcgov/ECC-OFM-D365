@@ -11,6 +11,7 @@ export interface IEnvelopeField{
 }
 
 export interface IEnvelopeProps{
+    pcfContext: any,
     fields : IEnvelopeField[];
     isReadOnly: boolean;
     isMasked : boolean;
@@ -18,7 +19,7 @@ export interface IEnvelopeProps{
 }
 
 export const EnvelopeCompositeControl = React.memo(
-    function EnvelopeCompositeControlApp({fields, isReadOnly, isMasked, onValueChanged}: IEnvelopeProps): JSX.Element{
+    function EnvelopeCompositeControlApp({pcfContext, fields, isReadOnly, isMasked, onValueChanged}: IEnvelopeProps): JSX.Element{
 
     let fieldIndex = 0;
     const dataHR = [
@@ -32,8 +33,8 @@ export const EnvelopeCompositeControl = React.memo(
     const dataNonHR = [
         { column01: "Programming",      column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },
         { column01: "Administrative",   column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },
-        { column01: "Operational",      column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++]},
-        { column01: "Facility",         column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++]}
+        { column01: "Operational",      column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] },
+        { column01: "Facility",         column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++] }
     ];
 
     let HRTotal_Colum02 = dataHR.reduce((a,v) =>  a = a + v.column02.control.raw!, 0);
@@ -42,15 +43,6 @@ export const EnvelopeCompositeControl = React.memo(
     let NonHRTotal_Colum03 = (dataNonHR.reduce((a,v) =>  a = a + v.column03.control.raw!, 0));
     let HRTotal_Colum04 = dataHR.reduce((a,v) =>  a = a + v.column04.control.raw! , 0 );
     let NonHRTotal_Colum04 = (dataNonHR.reduce((a,v) =>  a = a + v.column04.control.raw!, 0));
-
-    console.log(JSON.stringify({
-        "The column02 HR Total" : HRTotal_Colum02,
-        "The column02 Non-HR Total" : NonHRTotal_Colum02,
-        "The column03 HR Total" : HRTotal_Colum03,
-        "The column03 Non-HR Total" : + NonHRTotal_Colum03,
-        "The column04 HR Total" : HRTotal_Colum04,
-        "The column04 Non-HR Total" : + NonHRTotal_Colum04
-    }, null, 2));
     
     const infoText =" (plus % inflation as defined by ministry)";
 
@@ -61,85 +53,41 @@ export const EnvelopeCompositeControl = React.memo(
     return (
       <Stack tokens={stackTokens} >
         <Stack style={{width:"100%"}} >   
-            <table style={{width:"100%"}} >
+            <table style={{width:"100%", padding:"3px"}} >
               <thead></thead>
                 <tbody>
                 <tr style={{textAlign: "left"}} >
-                    <th style={{textAlign: "center"}}>Funding Envelope</th>
+                    <th>Funding Envelope</th>
                     <th>Annual Province Base Funding</th>
                     <th>Projected Annual Parent Fees</th>
                     <th>Projected Annual Base Funding</th>
                 </tr>
                 <tr style={{ fontWeight: "bold"}} > 
                     <td style={{textAlign: "left", minWidth:"250px"}}><Label style={{textAlign: "left", fontWeight: "bold"}}>Instructional Human Resources</Label></td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={ (HRTotal_Colum04 - HRTotal_Colum03).toFixed(2)}                               
-                                key= {"hrtotal1"} 
-                                disabled= {true} />
+                    <td>
+                        <Label>{pcfContext.formatting.formatCurrency(HRTotal_Colum04 - HRTotal_Colum03)}</Label>
                     </td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={HRTotal_Colum03.toFixed(2)}                                 
-                                key={"hrtotal2"} 
-                                disabled={true} />
+                    <td>
+                        <Label>{pcfContext.formatting.formatCurrency(HRTotal_Colum03)}</Label>
                     </td>
-                    <td><TextField type="number" 
-                                prefix="$"
-                                value={HRTotal_Colum04.toFixed(2)}                                
-                                key={"hrtotal3"} 
-                                disabled={true} />
+                    <td>
+                        <Label>{pcfContext.formatting.formatCurrency(HRTotal_Colum04)}</Label>                     
                     </td>
                  </tr>
                  {dataHR.map((val, key) => {
                     return (
                         <tr key={key} style= {{verticalAlign: "top"}}>
-                            <td style={{textAlign: "left", minWidth:"250px", fontStyle:"italic"}}><Label>&#160;&#160;{val.column01}</Label></td>
+                            <td style={{textAlign: "left", minWidth:"250px", fontStyle:"italic"}}>
+                                <Label>&#160;&#160;{val.column01}</Label>
+                            </td>
                             <td>
-                                {/* <EnvelopeField
-                                    field={val.column02}
-                                    amount={(val.column04.control.raw! - val.column03.control.raw!)}
-                                    defaultAmount={(val.column04.control.raw! - val.column03.control.raw!)}
-                                    min={0}
-                                    max={val.column02.control.attributes?.MaxValue}
-                                    isReadOnly={true}
-                                    isMasked={isMasked}
-                                    onValueChanged={onValueChanged}
-                                    key={val.column02.name} 
-                                    errorMessage= {showMessage(val.column03.control.raw!,val.column04.control.raw!)}
-                                ></EnvelopeField>  */}
-                                <TextField type="number" 
-                                prefix="$"
-                                value={(val.column04.control.raw! - val.column03.control.raw!).toFixed(2)}                                
-                                key={val.column02.name} 
-                                disabled={true}
-                                errorMessage= {showMessage(val.column03.control.raw!,val.column04.control.raw!)} />
+                                <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw! - val.column03.control.raw!)}</Label>                             
                             </td>
-                            <td><EnvelopeField
-                                    field={val.column03}
-                                    amount={val.column03.control.raw!}
-                                    defaultAmount={0.00}
-                                    min={0}
-                                    max={val.column03.control.attributes?.MaxValue}
-                                    isReadOnly={!isReadOnly}
-                                    isMasked={isMasked}
-                                    onValueChanged={onValueChanged}
-                                    key={val.column03.name}  
-                                    errorMessage= {showMessage(val.column03.control.raw!,val.column04.control.raw!)}
-                                ></EnvelopeField> 
+                            <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column03.control.raw!)}</Label>
                             </td>
-                            <td><EnvelopeField
-                                    field={val.column04}
-                                    amount={val.column04.control.raw!}
-                                    defaultAmount={0.00}
-                                    min={0}
-                                    max={val.column04.control.attributes?.MaxValue}
-                                    isReadOnly={isReadOnly}
-                                    isMasked={isMasked}
-                                    onValueChanged={onValueChanged}
-                                    key={val.column04.name} 
-                                    errorMessage= {undefined}
-                                ></EnvelopeField>                          
+                            <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw!)}</Label>
                             </td>     
                         </tr>
                     )
@@ -147,53 +95,17 @@ export const EnvelopeCompositeControl = React.memo(
                   {dataNonHR.map((val, key) => {
                     return (
                             <tr key= {key} style= {{verticalAlign: "top"}} >
-                              <td style= {{textAlign: "left", minWidth:"250px"}}><Label>{val.column01}</Label></td>
-                              <td>
-                                {/* <EnvelopeField
-                                  field={val.column02}
-                                  amount={(val.column04.control.raw! - val.column03.control.raw!)}
-                                  defaultAmount={(val.column04.control.raw! - val.column03.control.raw!)}
-                                  min= {0}
-                                  max= {val.column02.control.attributes?.MaxValue}
-                                  isReadOnly={true}
-                                  isMasked={isMasked}
-                                  onValueChanged= {onValueChanged}
-                                  key= {val.column02.name} 
-                                  errorMessage= {showMessage(val.column03.control.raw!,val.column04.control.raw!)}
-                                  ></EnvelopeField>  */}
-                                <TextField type="number" 
-                                  prefix="$"
-                                  value= {(val.column04.control.raw! - val.column03.control.raw!).toFixed(2)}                                 
-                                  key= {val.column02.name} 
-                                  disabled={true}
-                                  errorMessage= {showMessage(val.column03.control.raw!,val.column04.control.raw!)}/>
+                              <td style= {{textAlign: "left", minWidth:"250px"}}>
+                                <Label>{val.column01}</Label>
                               </td>
                               <td>
-                                <EnvelopeField
-                                  field={val.column03}
-                                  amount={val.column03.control.raw!}
-                                  defaultAmount={0.00}
-                                  min= {0}
-                                  max= {val.column03.control.attributes?.MaxValue}
-                                  isReadOnly={!isReadOnly}
-                                  isMasked={isMasked}
-                                  onValueChanged= {onValueChanged}
-                                  key= {val.column03.name} 
-                                  errorMessage= {showMessage(val.column03.control.raw!,val.column04.control.raw!)}
-                                  ></EnvelopeField> 
+                                <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw! - val.column03.control.raw!)}</Label>
                               </td>
-                              <td><EnvelopeField
-                                  field= {val.column04}
-                                  amount= {val.column04.control.raw!}
-                                  defaultAmount={0.00}
-                                  min= {0}
-                                  max= {val.column04.control.attributes?.MaxValue}
-                                  isReadOnly={isReadOnly}
-                                  isMasked={isMasked}
-                                  onValueChanged= {onValueChanged}
-                                  key= {val.column04.name}
-                                  errorMessage= {undefined}
-                                  ></EnvelopeField>                    
+                              <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column03.control.raw!)}</Label>
+                              </td>
+                              <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw!)}</Label>
                               </td>
                           </tr>           
                           )
@@ -201,31 +113,24 @@ export const EnvelopeCompositeControl = React.memo(
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td><Label style={{textAlign: "left", fontWeight: "bolder", fontSize:15}}>Total</Label></td>
-                    <td><TextField type="number" 
-                                prefix= "$"
-                                value= {((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03)).toFixed(2)}                                 
-                                key= {"nonHRTotal1"} 
-                                disabled= {true} />
+                    <td>
+                        <Label style={{textAlign: "left", fontWeight: "bolder", fontSize:15}}>Total</Label>
                     </td>
-                    <td><TextField type= "number" 
-                                prefix= "$"
-                                value= {(HRTotal_Colum03 + NonHRTotal_Colum03).toFixed(2)}                                
-                                key= {"nonHRTotal2"} 
-                                disabled= {false} />
+                    <td>
+                        <Label>{pcfContext.formatting.formatCurrency((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))}</Label>
                     </td>
-                    <td><TextField type= "number" 
-                                prefix= "$"
-                                value= {(HRTotal_Colum04 + NonHRTotal_Colum04).toFixed(2)}                               
-                                key= {"nonHRTotal3"} 
-                                disabled= {true} />
+                    <td>
+                        <Label>{pcfContext.formatting.formatCurrency(HRTotal_Colum03 + NonHRTotal_Colum03)}</Label>
+                    </td>
+                    <td>
+                        <Label>{pcfContext.formatting.formatCurrency(HRTotal_Colum04 + NonHRTotal_Colum04)}</Label>
                     </td>
                   </tr>
                 </tfoot> 
             </table>
           </Stack>
           <Stack style={{width:"100%"}} >   
-            <table style={{width:"100%"}} > 
+            <table style={{width:"100%", padding:"3px"}} > 
               <thead>
                 <tr style={{textAlign: "left"}}>
                     <th>Monthly Base Funding</th>
@@ -236,33 +141,33 @@ export const EnvelopeCompositeControl = React.memo(
               </thead>
               <tbody>
                 <tr style={{ fontWeight: "bold"}}> 
-                    <td style={{textAlign: "left", minWidth:"250px", fontSize:15}}>
+                    <td style={{textAlign: "left", minWidth:"280px", fontSize:15}}>
                         <Label style={{textAlign: "left", fontWeight: "bold"}}>Year 1</Label>
                     </td>                    
                     <td>
-                        <Label style={{textAlign: "left"}}>$ {(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12).toFixed(2).toString()}</Label>
+                        <Label>{pcfContext.formatting.formatCurrency((((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12))}</Label>
                     </td>
                     <td>
-                        <Label style={{textAlign: "left"}}>$ {((HRTotal_Colum03 + NonHRTotal_Colum03)/12).toFixed(2)}</Label>
+                        <Label>{pcfContext.formatting.formatCurrency(((HRTotal_Colum03 + NonHRTotal_Colum03)/12))}</Label>
                     </td>
                     <td>
-                        <Label style={{textAlign: "left"}}>$ {((HRTotal_Colum04 + NonHRTotal_Colum04)/12).toFixed(2)}</Label> 
+                        <Label>{pcfContext.formatting.formatCurrency(((HRTotal_Colum04 + NonHRTotal_Colum04)/12))}</Label> 
                     </td>
                 </tr>
                 <tr style={{textAlign: "left", verticalAlign: "top"}}>
                     <td>
-                        <Label style={{textAlign: "left", minWidth:"325px", fontWeight: "bolder", fontSize:15}}>Year 2 & 3</Label>
+                        <Label style={{textAlign: "left", fontWeight: "bolder", fontSize:15}}>Year 2 & 3</Label>
                     </td>
                     <td>
-                        <Label style={{textAlign: "left"}}>$ {(((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12).toFixed(2).toString()}</Label>
+                        <Label>{pcfContext.formatting.formatCurrency((((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12))}</Label>
                         <Label style={{textAlign: "left", fontStyle: "italic"}}>{infoText}</Label>
                     </td>
                     <td>
-                        <Label style={{textAlign: "left"}}>$ {((HRTotal_Colum03 + NonHRTotal_Colum03)/12).toFixed(2)}</Label>
+                        <Label>{pcfContext.formatting.formatCurrency(((HRTotal_Colum03 + NonHRTotal_Colum03)/12))}</Label>
                         <Label style={{textAlign: "left", fontStyle: "italic"}}>{infoText}</Label>
                     </td>
                     <td>
-                        <Label style={{textAlign: "left"}}>$ {((HRTotal_Colum04 + NonHRTotal_Colum04)/12).toFixed(2)}</Label>
+                        <Label>{pcfContext.formatting.formatCurrency(((HRTotal_Colum04 + NonHRTotal_Colum04)/12))}</Label>
                         <Label style={{textAlign: "left", fontStyle: "italic"}}>{infoText}</Label> 
                     </td>
                 </tr>               

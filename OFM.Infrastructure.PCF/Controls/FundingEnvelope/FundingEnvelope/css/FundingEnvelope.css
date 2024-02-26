@@ -8,6 +8,7 @@ th {
  
 td {
     text-align: center;
+    background-color:#eee;
 }
 
 input[type=number]::-webkit-inner-spin-button,

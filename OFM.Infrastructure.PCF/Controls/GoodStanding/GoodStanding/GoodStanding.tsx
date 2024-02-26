@@ -62,7 +62,7 @@ const WarningMessageBar = (props: IMessageProps) => (
     truncated={true}
     overflowButtonAriaLabel="See more"
   >
-   <b>The organization have not been verified with BC Registries for the good standing status.</b> (Last checked: {props.lastChecked})
+   <b>The organization has not been verified with BC Registries for the good standing status.</b> (Last checked: {props.lastChecked})
   </MessageBar>
 );
 
@@ -77,7 +77,7 @@ const ErrorMessageBar = (props: IMessageProps) => (
   </MessageBar>
 );
 export const MessageBarForGoodStanding: React.FunctionComponent<IGoodStandingProps> = (props) => {
-  const defaultMessages = "The organization have not been verified with BC Registries for the good standing status.";
+  const defaultMessages = props.defaultMessage; //"The organization has not been verified with BC Registries for the good standing status.";
   const blockedMessages = ["<b>The organization is <u>NOT</u> in good standing.</b> (Last checked: ", props.lastChecked, ") A notification has been sent to inform the provider about the status and instructions to rectify."];
   const successMessages = ["<b>The organization is in good standing</b> (Last checked: ",props.lastChecked,")"];
   const errorMessages = ["<b>There is an integration error happened during the last good standing check with the BC Registries. Please check the integration log for details.</b> (Last checked: ",props.lastChecked,")"];
