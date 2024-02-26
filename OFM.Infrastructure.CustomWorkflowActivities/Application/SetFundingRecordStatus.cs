@@ -35,13 +35,13 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                 int statusReason = applicationRcord.GetAttributeValue<OptionSetValue>("statuscode").Value;
 
                 tracingService.Trace("Checking Application record StatusReason value:{0} ", statusReason);
-                if (applicationRcord != null && applicationRcord.Attributes.Count > 0 && statusReason == 5)        // 5 - approved (application)
+                if (applicationRcord != null && applicationRcord.Attributes.Count > 0 && statusReason == 6)        // 6 - approved (application)
                 {
 					tracingService.Trace("\nThe Application Record - logical name: {0}, id:{1}", applicationRcord.LogicalName, applicationRcord.Id);
 					var fetchData = new
 					{
 						ofm_application = recordId.ToString(),
-						statecode = "0",                                                                           // 0 - active (funding)
+						statecode = "0",                                                                           // 0 - Active (funding)
                         statuscode = "3"                                                                           // 3 - Draft (funding)
                     };
 					var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
@@ -62,7 +62,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
 
 					EntityCollection fundingRecords = service.RetrieveMultiple(new FetchExpression(fetchXml));
 
-                    //Change Active Funding record status: Draft (3) --> FA Review(4)
+                    //Change Active Funding record status: Draft (3) --> FA Review (4)
                     if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null)
                     {
 						var id = fundingRecords[0].Id;
