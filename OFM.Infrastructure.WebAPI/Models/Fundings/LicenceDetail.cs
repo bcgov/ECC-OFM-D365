@@ -53,6 +53,7 @@ public class LicenceDetail : ofm_licence_detail
     public ecc_licence_type LicenceType => (ecc_licence_type)base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
     private int LicenceTypeNumber => base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
     public int Spaces => base.GetAttributeValue<int>(Fields.ofm_operational_spaces);
+    private bool RoomSplit => base.GetAttributeValue<bool>(Fields.ofm_apply_room_split_condition);
 
     #endregion
 
@@ -114,7 +115,7 @@ public class LicenceDetail : ofm_licence_detail
     private IEnumerable<CCLRRatio> FilterCCLRByCareType(ecc_licence_type careType)
     {
         IEnumerable<CCLRRatio> filteredByCareType = [];
-        if (ApplySplitRoomCondition)
+        if (RoomSplit)
         {
             // Use the new spaces allocation    
             var adjustedAllocationOnly = NewSpacesAllocation!.Where(allo => allo.ofm_adjusted_allocation!.Value > 0);
@@ -225,12 +226,12 @@ public class LicenceDetail : ofm_licence_detail
 
     #region  HR: Step 05 - Account for Supervisor Role
 
-    private decimal RequiredSupervisors => _rateSchedule!.ofm_supervisor_ratio!.Value * AllocatedGroupSizes.Count();
+    private decimal RequiredSupervisors => _rateSchedule!.ofm_supervisor_ratio!.Value * AllocatedGroupSizes!.Count();
     private decimal SupervisorRateDifference
     {
         get
         {
-            return _rateSchedule.ofm_supervisor_rate.Value;
+            return _rateSchedule!.ofm_supervisor_rate!.Value;
         }
     }
     private decimal SupervisorCostDiffPerYear => RequiredSupervisors * SupervisorRateDifference * (AnnualStandardHours * Spaces / Spaces);
