@@ -478,11 +478,6 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_funding_rate"/> entities.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_integration_logSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_integration_log"/> entities.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_licenceSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_licence"/> entities.
@@ -491,11 +486,6 @@
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_licence_detailSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_licence_detail"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_paymentSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_payment"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_progress_trackerSet">
@@ -1620,19 +1610,9 @@
             1:N ofm_funding_facility_account
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_integrationlog_provider">
-            <summary>
-            1:N ofm_integrationlog_provider
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_organization_application">
             <summary>
             1:N ofm_organization_application
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_payment_facility_account">
-            <summary>
-            1:N ofm_payment_facility_account
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.Referencingaccount_master_account">
@@ -2866,11 +2846,6 @@
             1:N ofm_facility_business_bceid
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Contact.ofm_payment_expense_authority_contact">
-            <summary>
-            1:N ofm_payment_expense_authority_contact
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Contact.ofm_request_contact">
             <summary>
             1:N ofm_request_contact
@@ -3145,6 +3120,11 @@
         <member name="P:ECC.Core.DataContext.Email.isbilled">
             <summary>
             Information regarding whether the email activity was billed as part of resolving a case.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Email.isduplicatesenderunresolved">
+            <summary>
+            Indicates if the sender of the email is unresolved in case of multiple match
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Email.isemailfollowed">
@@ -4122,16 +4102,6 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_document_application">
             <summary>
             1:N ofm_document_application
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_application.ofm_integrationlog_application">
-            <summary>
-            1:N ofm_integrationlog_application
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_application.ofm_payment_application_ofm_application">
-            <summary>
-            1:N ofm_payment_application_ofm_application
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_request_application">
@@ -5348,6 +5318,11 @@
             Boolean Attribute
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_calculated_on">
+            <summary>
+            Calculated On
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_end_date">
             <summary>
             Funding End Date
@@ -5764,16 +5739,6 @@
             1:N ofm_funding_tracker
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_integrationlog_funding">
-            <summary>
-            1:N ofm_integrationlog_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_payment_funding_ofm_funding">
-            <summary>
-            1:N ofm_payment_funding_ofm_funding
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_application_funding">
             <summary>
             N:1 ofm_application_funding
@@ -5971,172 +5936,6 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_funding_rate.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_integration_log">
-            <summary>
-            Integration Log
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_integration_log.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_integration_log entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_integration_log.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_caption">
-            <summary>
-            ID
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_category">
-            <summary>
-            Category
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_integration_logid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_message">
-            <summary>
-            Message
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_regardingid">
-            <summary>
-            Regarding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_service_name">
-            <summary>
-            External Service
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_subject">
-            <summary>
-            Subject
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.statecode">
-            <summary>
-            Status of the Integration Log
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.statuscode">
-            <summary>
-            Reason for the status of the Integration Log
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_integrationlog_application">
-            <summary>
-            N:1 ofm_integrationlog_application
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_integrationlog_funding">
-            <summary>
-            N:1 ofm_integrationlog_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_integrationlog_payment">
-            <summary>
-            N:1 ofm_integrationlog_payment
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_integrationlog_provider">
-            <summary>
-            N:1 ofm_integrationlog_provider
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_log.team_ofm_integration_log">
-            <summary>
-            N:1 team_ofm_integration_log
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_integration_log.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -6343,6 +6142,11 @@
             Unique identifier of the delegate user who modified the record.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_apply_room_split_condition">
+            <summary>
+            Boolean Attribute
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_care_type">
             <summary>
             Care Type
@@ -6479,167 +6283,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_payment">
-            <summary>
-            Represents payment records that must be submitted to CAS to trigger payments to contractors.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_payment.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_payment entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_payment.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.exchangerate">
-            <summary>
-            Exchange rate for the currency associated with the entity with respect to the base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_funding_amount_base">
-            <summary>
-            Value of the Funding Amount in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_process">
-            <summary>
-            Allows users to adjust payment records by either marking it as complete or resubmitting the request to CAS.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_paymentid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.statecode">
-            <summary>
-            Status of the Payment
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.statuscode">
-            <summary>
-            Reason for the status of the Payment
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.transactioncurrencyid">
-            <summary>
-            Unique identifier of the currency associated with the entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_integrationlog_payment">
-            <summary>
-            1:N ofm_integrationlog_payment
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_application_ofm_application">
-            <summary>
-            N:1 ofm_payment_application_ofm_application
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_expense_authority_contact">
-            <summary>
-            N:1 ofm_payment_expense_authority_contact
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_facility_account">
-            <summary>
-            N:1 ofm_payment_facility_account
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_funding_ofm_funding">
-            <summary>
-            N:1 ofm_payment_funding_ofm_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.team_ofm_payment">
-            <summary>
-            N:1 team_ofm_payment
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_payment.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_progress_tracker">
             <summary>
             Progress Tracker Record
@@ -6717,7 +6360,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_progress_tracker.ofm_tracking_number">
             <summary>
-            OFM Progress Tracker Record
+            OFM Progress Tracker ID
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_progress_tracker.overriddencreatedon">
@@ -7792,11 +7435,6 @@
             1:N team_ofm_funding_rate
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_integration_log">
-            <summary>
-            1:N team_ofm_integration_log
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_licence">
             <summary>
             1:N team_ofm_licence
@@ -7805,11 +7443,6 @@
         <member name="P:ECC.Core.DataContext.Team.team_ofm_licence_detail">
             <summary>
             1:N team_ofm_licence_detail
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_payment">
-            <summary>
-            1:N team_ofm_payment
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_progress_tracker">
@@ -11120,16 +10753,6 @@
             Reason for the status of the Funding
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_integration_log_statecode">
-            <summary>
-            Status of the Integration Log
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_integration_log_StatusCode">
-            <summary>
-            Reason for the status of the Integration Log
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_licence_detail_statecode">
             <summary>
             Status of the Licence Details
@@ -11148,16 +10771,6 @@
         <member name="T:ECC.Core.DataContext.ofm_licence_StatusCode">
             <summary>
             Reason for the status of the Licence
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_payment_statecode">
-            <summary>
-            Status of the Payment
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_payment_StatusCode">
-            <summary>
-            Reason for the status of the Payment
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_progress_tracker_statecode">
