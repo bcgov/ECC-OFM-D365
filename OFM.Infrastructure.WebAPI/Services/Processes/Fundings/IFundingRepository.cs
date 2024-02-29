@@ -426,7 +426,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
         var newfundingAmounts = new
         {
             //Projected Amounts
-            ofm_envelope_hr_total_proj = fm.HRTotal_Projected + fm.HRProfessionalDevelopmentHours_Projected + fm.HRProfessionalDevelopmentExpenses_Projected,
+            ofm_envelope_hr_total_proj = fm.HRTotal_Projected,
             ofm_envelope_hr_wages_paidtimeoff_proj = fm.HRWagesPaidTimeOff_Projected,
             ofm_envelope_hr_benefits_proj = fm.HRBenefits_Projected,
             ofm_envelope_hr_employerhealthtax_proj = fm.HREmployerHealthTax_Projected,

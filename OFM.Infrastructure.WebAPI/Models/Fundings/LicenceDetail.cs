@@ -72,7 +72,7 @@ public class LicenceDetail : ofm_licence_detail
     /// </summary>
     /// 
     public decimal AnnualAvailableHoursPerFTE => ExpectedAnnualFTEHours -
-                                                    (ProfessionalDevelopmentHours +
+                                                    (ProfessionalDevelopmentHours * 15 +
                                                     _rateSchedule!.ofm_vacation_hours_per_fte!.Value +
                                                     _rateSchedule!.ofm_sick_hours_per_fte!.Value +
                                                     _rateSchedule!.ofm_statutory_breaks!.Value); // Typically 1580
@@ -245,7 +245,7 @@ public class LicenceDetail : ofm_licence_detail
 
     public decimal BenefitsCostPerYear => StaffingCost * (_rateSchedule!.ofm_average_benefit_load!.Value / 100); // The default is 18% of the Total Wages
     private decimal QualityEnhancementCost => (StaffingCost + BenefitsCostPerYear) * (_rateSchedule!.ofm_quality_enhancement_factor!.Value / 100); // The default is 0% currently
-    public decimal HRRenumeration => StaffingCost + BenefitsCostPerYear + QualityEnhancementCost;
+    public decimal HRRenumeration => StaffingCost + BenefitsCostPerYear + QualityEnhancementCost + ProfessionalDevelopmentExpenses + ProfessionalDevelopmentHours;
 
     #endregion
 

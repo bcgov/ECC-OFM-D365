@@ -100,6 +100,8 @@ public class FundingCalculator : IFundingCalculator
     private bool ApplyDuplicateCareTypesCondition => _funding.ofm_apply_duplicate_caretypes_condition!.Value;
     private ecc_Ownership OwnershipType => _funding.ofm_application!.ofm_summary_ownership!.Value;
     private decimal AnnualFacilityCurrentCost => _funding.ofm_application!.ofm_costs_year_facility_costs!.Value;
+    private decimal AnnualOperatingCurrentCost => _funding.ofm_application!.ofm_costs_yearly_operating_costs!.Value;
+    private ofm_facility_type FacilityType => _funding.ofm_application!.ofm_costs_facility_type!.Value;
 
     #region HR Costs & Rates
 
@@ -125,7 +127,7 @@ public class FundingCalculator : IFundingCalculator
                 _ => 0m
             };
 
-            return (ehtRate/100) * TotalHRRenumeration;
+            return (ehtRate / 100) * TotalHRRenumeration;
         }
     }
 
@@ -142,8 +144,13 @@ public class FundingCalculator : IFundingCalculator
 
     private decimal AdjustedNonHRProgrammingAmount => NonHRProgrammingAmount; // Note: No adjustment is required for programming envelope.
     private decimal AdjustedNonHRAdministrativeAmount => NonHRAdministrativeAmount / AdjustmentRateForNonHREnvelopes; // Note: with adjustment rate
-    private decimal AdjustedNonHROperationalAmount => NonHROperationalAmount; // Todo:Complete the logic
-    private decimal AdjustedNonHRFacilityAmount => Math.Min(NonHRFacilityAmount, AnnualFacilityCurrentCost); // ToDo:Complete the logic
+    //private decimal AdjustedNonHROperationalAmount => NonHROperationalAmount; // Todo:Complete the logic
+    private decimal AdjustedNonHROperationalAmount => OwnershipType == ecc_Ownership.Homebased ? Math.Min(NonHROperationalAmount
+        / AdjustmentRateForNonHREnvelopes, AnnualOperatingCurrentCost) : NonHROperationalAmount / AdjustmentRateForNonHREnvelopes; // Todo:Complete the logic
+    //private decimal AdjustedNonHRFacilityAmount => Math.Min(NonHRFacilityAmount, AnnualFacilityCurrentCost); // ToDo:Complete the logic
+    private decimal AdjustedNonHRFacilityAmount => AnnualFacilityCurrentCost == 0 ? 0 : OwnershipType == ecc_Ownership.Private && 
+        (FacilityType == ofm_facility_type.OwnedWithMortgage || FacilityType == ofm_facility_type.OwnedWithoutMortgage) ? 0 : 
+        Math.Min(NonHRFacilityAmount, AnnualFacilityCurrentCost); // ToDo:Complete the logic
 
     private decimal TotalNonHRCost => (AdjustedNonHRProgrammingAmount + AdjustedNonHRAdministrativeAmount + AdjustedNonHROperationalAmount + AdjustedNonHRFacilityAmount);
 
@@ -262,7 +269,7 @@ public class FundingCalculator : IFundingCalculator
         if (!newSpaces.Any())
         {
             _logger.LogWarning("No new spaces allocation records to update.");
-            return await Task.FromResult(false);       
+            return await Task.FromResult(false);
         }
 
         var result = await _fundingRepository.SaveDefaultSpacesAllocation(newSpaces);
