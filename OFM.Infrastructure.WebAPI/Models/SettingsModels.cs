@@ -29,7 +29,7 @@ public record NotificationSettings
     public required string DefaultSenderId { get; set; }
     public required EmailTemplate[] EmailTemplates { get; set; }
     public required CommunicationTypes CommunicationTypes { get; set; }
-    public required string Recepients { get; set; }
+    public required string Recipients { get; set; }
     public required string DefaultContactId { get; set; }
 }
 

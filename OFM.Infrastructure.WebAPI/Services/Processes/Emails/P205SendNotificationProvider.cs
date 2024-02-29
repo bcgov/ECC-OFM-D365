@@ -308,45 +308,6 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         await MarkEmailsAsComppleted(appUserService, d365WebApiService, processParams);
 
         #endregion
-
-        #region Step 3: Send the notifications
-
-        //send email to the users mailboxes based on the communication Type 
-        await SetupCommunicationTypes();
-        if(_communicationTypesForEmailSentToUserMailBox.Count() != 0)
-        {
-            var contentBody = new JsonObject {
-                { "TemplateId" , _notificationSettings.EmailTemplates.First(t=>t.TemplateNumber == 202).TemplateId}, //Action Required: A communication regarding OFM funding requires your attention.
-                { "Sender" , new JsonObject {
-                                        { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
-                                        { "systemuserid",_notificationSettings.DefaultSenderId}
-                                }
-                },
-                { "Recipients" , recipientsList },
-                { "Regarding" , new JsonObject {
-                                        { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
-                                        { "systemuserid",_notificationSettings.DefaultSenderId}
-                                }
-                } // Regarding is a required parameter.Temporarily set it to the PA service account, but this will not set the Regarding on the new records
-        };
-            HttpResponseMessage bulkEmailsResponse = await d365WebApiService.SendBulkEmailTemplateMessageAsync(appUserService.AZSystemAppUser, contentBody, null);
-
-            if (!bulkEmailsResponse.IsSuccessStatusCode)
-            {
-                var responseBody = await bulkEmailsResponse.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to create email to be sent to User Mailbox records with a server error: {error}", responseBody);
-
-                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
-            }
-
-            _logger.LogInformation(CustomLogEvent.Process, "Total emails created to be sent to  User Mailbox {recipientsList}", recipientsList.Count);
-
-
-        }
-        // Emails are created with "Completed - Pending Send" status. Step 3 is needed to send emails via GC-Notify or Exchange Online
-
-        #endregion
-
         var result = ProcessResult.Success(ProcessId, serializedData!.Count);
 
         var endTime = _timeProvider.GetTimestamp();
@@ -426,53 +387,5 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         return step2BatchResult.SimpleBatchResult;
     }
-    private async Task SetupCommunicationTypes()
-    {
-            var fetchXml = $"""
-                            <fetch distinct="true" no-lock="true">
-                              <entity name="ofm_communication_type">
-                                <attribute name="ofm_communication_typeid" />
-                                <attribute name="ofm_communication_type_number" />
-                                <attribute name="ofm_name" />
-                                <attribute name="statecode" />
-                                <attribute name="statuscode" />
-                                <filter>
-                                  <condition attribute="statecode" operator="eq" value="0" />
-                                     <condition attribute="ofm_communication_typeid" operator="eq" value ="{_processParams.Notification.CommunicationTypeId}" />
-                                </filter>
-                              </entity>
-                            </fetch>
-                """;
-
-            var requestUri = $"""
-                              ofm_communication_types?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                              """;
-
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query the communcation types with a server error {responseBody}", responseBody.CleanLog());
-            }
-
-            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-            JsonNode d365Result = string.Empty;
-            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-            {
-                if (currentValue?.AsArray().Count == 0)
-                {
-                    _logger.LogInformation(CustomLogEvent.Process, "No communcation types found with query {requestUri}", requestUri);
-                }
-                d365Result = currentValue!;
-            }
-        _communicationTypesForEmailSentToUserMailBox = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.ActionRequired.ToString() ||
-                                                                                     type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.DebtLetter.ToString() ||
-                                                                                      type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.FundingAgreement.ToString())
-                                                                .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
-
-    }
-
     #endregion
 }

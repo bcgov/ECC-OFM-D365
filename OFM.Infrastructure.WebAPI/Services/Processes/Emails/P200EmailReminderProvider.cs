@@ -171,7 +171,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         #region Step 1: Create the email reminders as Completed-Pending Send
 
         JsonArray recipientsList = new() { };
-        var emailaddressList = _notificationSettings.Recepients.Split(';').ToList();
+        var emailaddressList = _notificationSettings.Recipients.Split(';').ToList();
         string? contactId;
         // foreach contact check if the email address is in the list of emails provided on config if yes then carry on else replace the email with one of those email addresses 
         uniqueContacts.ForEach(contact =>
