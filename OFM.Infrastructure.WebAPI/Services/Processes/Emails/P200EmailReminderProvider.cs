@@ -171,12 +171,22 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         #region Step 1: Create the email reminders as Completed-Pending Send
 
         JsonArray recipientsList = new() { };
-
+        var emailaddressList = _notificationSettings.Recepients.Split(';').ToList();
+        string? contactId;
+        // foreach contact check if the email address is in the list of emails provided on config if yes then carry on else replace the email with one of those email addresses 
         uniqueContacts.ForEach(contact =>
         {
-            var contactId = contact.ElementAt(0).email_activity_parties?.First()._partyid_value?.Replace("\\u0027", "'");
-            recipientsList.Add($"contacts({contactId})");
-        });
+                if (emailaddressList.Any(x => x.Equals(contact.Key.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
+                {
+                    contactId = contact.ElementAt(0).email_activity_parties?.First()._partyid_value?.Replace("\\u0027", "'");
+                    recipientsList.Add($"contacts({contactId})");
+                }
+                else
+                {
+                    contactId = _notificationSettings.DefaultContactId;
+                    recipientsList.Add($"contacts({contactId})");
+                }
+            });
 
         var contentBody = new JsonObject {
                 { "TemplateId" , _notificationSettings.EmailTemplates.First(t=>t.TemplateNumber == 201).TemplateId}, //Action Required: A communication regarding OFM funding requires your attention.
