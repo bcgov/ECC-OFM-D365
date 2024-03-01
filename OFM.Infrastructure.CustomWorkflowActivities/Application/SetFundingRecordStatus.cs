@@ -35,14 +35,14 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                 int statusReason = applicationRcord.GetAttributeValue<OptionSetValue>("statuscode").Value;
 
                 tracingService.Trace("Checking Application record StatusReason value:{0} ", statusReason);
-                if (applicationRcord != null && applicationRcord.Attributes.Count > 0 && statusReason == 6)        // 6 - approved (application)
+                if (applicationRcord != null && applicationRcord.Attributes.Count > 0 && statusReason == 6)        // 6 - Approved (application)
                 {
 					tracingService.Trace("\nThe Application Record - logical name: {0}, id:{1}", applicationRcord.LogicalName, applicationRcord.Id);
 					var fetchData = new
 					{
 						ofm_application = recordId.ToString(),
 						statecode = "0",                                                                           // 0 - Active (funding)
-                        statuscode = "3"                                                                           // 3 - Draft (funding)
+                        statuscode = "1"                                                                           // 1 - Draft (funding)
                     };
 					var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
 									<fetch>
@@ -62,7 +62,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
 
 					EntityCollection fundingRecords = service.RetrieveMultiple(new FetchExpression(fetchXml));
 
-                    //Change Active Funding record status: Draft (3) --> FA Review (4)
+                    //Change Active Funding record status: Draft (1) --> FA Review (3)
                     if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null)
                     {
 						var id = fundingRecords[0].Id;
@@ -70,7 +70,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
 
                         Entity fundingRecordTable = new Entity("ofm_funding");
 						fundingRecordTable.Id = id;
-						fundingRecordTable["statuscode"] = new OptionSetValue(4);                                    // 4 - FA Review (funding)
+						fundingRecordTable["statuscode"] = new OptionSetValue(3);                                    // 3 - FA Review (funding)
                         service.Update(fundingRecordTable);
 
 						tracingService.Trace("\nChange sucessfully active funding detail record status from Draft to FA review.");
