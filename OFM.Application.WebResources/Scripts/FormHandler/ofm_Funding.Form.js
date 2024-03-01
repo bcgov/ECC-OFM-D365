@@ -67,5 +67,15 @@ OFM.Funding.Form = {
                     console.log(Error);
                 }
             );
+    },
+
+    onGridRowSelected: function (executionContext) {
+        executionContext.getFormContext().getData().getEntity().attributes.forEach(function (attr) {
+            if (attr.getName() != "ofm_adjusted_allocation") {
+                attr.controls.forEach(function (myField) {
+                    myField.setDisabled(true);
+                });
+            }
+        });
     }
 }

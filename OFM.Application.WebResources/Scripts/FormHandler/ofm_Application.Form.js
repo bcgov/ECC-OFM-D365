@@ -104,7 +104,7 @@ OFM.Application.Form = {
         if (facility != null) {
             facilityid = facility[0].id;
 
-            var viewId = "{00000000-0000-0000-0000-000000000089}";
+            var viewId = "{00000000-0000-0000-0000-000000000090}";
             var entity = "contact";
             var ViewDisplayName = "Facility Contacts";
             var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
@@ -118,6 +118,7 @@ OFM.Application.Form = {
                 "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
                 "<filter type='and'>" +
                 "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + facilityid + "'/>" +
+                "<condition attribute='ofm_portal_access' operator='eq' value='1' />" +
                 "</filter></link-entity></entity></fetch>";
 
 
@@ -249,34 +250,45 @@ OFM.Application.Form = {
         var statusReason = formContext.getAttribute("statuscode").getValue();
         var FundingBaseNum = formContext.getAttribute("ofm_funding_number_base").getValue();
         var parameters = { EntityId: recordId };
-
-        var executeWorkflowRequest = {
-            entity: { entityType: "workflow", id: "2752f03f-8db5-ee11-a569-000d3af4865d" },
-            EntityId: { guid: recordId },
-            getMetadata: function () {
-                return {
-                    boundParameter: "entity",
-                    parameterTypes: {
-                        entity: { typeName: "mscrm.workflow", structuralProperty: 5 },
-                        EntityId: { typeName: "Edm.Guid", structuralProperty: 1 }
-                    },
-                    operationType: 0, operationName: "ExecuteWorkflow"
+        Xrm.WebApi.retrieveMultipleRecords("workflow", "?$select=workflowid&$filter=(name eq 'OFM - Application: Creating Funding Record' and statecode eq 1 and type eq 1)").then(
+            function success(results) {
+                console.log(results);
+                //for (var i = 0; i < results.entities.length; i++) {
+                //    var result = results.entities[i];
+                    // Columns
+                var workflowid = results.entities[0]["workflowid"]; // Guid
+                //}
+                var executeWorkflowRequest = {
+                    entity: { entityType: "workflow", id: workflowid },
+                    EntityId: { guid: recordId },
+                    getMetadata: function () {
+                        return {
+                            boundParameter: "entity",
+                            parameterTypes: {
+                                entity: { typeName: "mscrm.workflow", structuralProperty: 5 },
+                                EntityId: { typeName: "Edm.Guid", structuralProperty: 1 }
+                            },
+                            operationType: 0, operationName: "ExecuteWorkflow"
+                        };
+                    }
                 };
-            }
-        };
-        Xrm.WebApi.execute(executeWorkflowRequest).then(
-            function success(response) {
-                if (response.ok) {
-                    return response.json();
-                    alert("create funding sucessfully!");
-                }
-            }
-        ).then(function (responseBody) {
-            var result = responseBody;
-            console.log(result);
-        }).catch(function (error) {
-            console.log(error.message);
-        });
+                Xrm.WebApi.execute(executeWorkflowRequest).then(
+                    function success(response) {
+                        if (response.ok) {
+                            return response.json();
+                            alert("create funding sucessfully!");
+                        }
+                    }
+                ).then(function (responseBody) {
+                    var result = responseBody;
+                    console.log(result);
+                }).catch(function (error) {
+                    console.log(error.message);
+                });
+            },
+            function (error) {
+                console.log(error.message);
+            });
     },
 
     filterExpenseAuthorityLookup: function (executionContext) {
