@@ -5,7 +5,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 public enum FundingDecision
 {
-    AutoCalculated,
+    AutoCalculated = 1,
     ManuallyRecalculated,
     InvalidData,
     Aproved,

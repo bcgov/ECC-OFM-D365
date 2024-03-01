@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
@@ -12,26 +13,17 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
-public class P300BaseFundingProvider : ID365ProcessProvider
+public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IFundingRepository fundingRepository, TimeProvider timeProvider) : ID365ProcessProvider
 {
-    private readonly ID365AppUserService? _appUserService;
-    private readonly ID365WebApiService? _d365webapiservice;
-    private readonly IFundingRepository? _fundingRepository;
-    private readonly ILogger _logger;
-    private readonly TimeProvider? _timeProvider;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
+    private readonly IFundingRepository _fundingRepository = fundingRepository;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
 
-    public P300BaseFundingProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IFundingRepository fundingRepository, TimeProvider timeProvider)
-    {
-        _appUserService = appUserService;
-        _d365webapiservice = d365WebApiService;
-        _fundingRepository = fundingRepository;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process);
-        _timeProvider = timeProvider;
-    }
-
-    public short ProcessId => Setup.Process.Funding.CalculateBaseFundingId;
-    public string ProcessName => Setup.Process.Funding.CalculateBaseFundingName;
+    public short ProcessId => Setup.Process.Fundings.CalculateBaseFundingId;
+    public string ProcessName => Setup.Process.Fundings.CalculateBaseFundingName;
 
     public string RequestUri
     {
@@ -101,10 +93,10 @@ public class P300BaseFundingProvider : ID365ProcessProvider
         Funding? _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
 
-        var calculator = new FundingCalculator(_logger,_fundingRepository, _funding, _rateSchedules);
-        _ = await calculator.Calculate();
-        _ = await calculator.ProcessFundingResult();
-
+        var calculator = new FundingCalculator(_fundingRepository, _funding, _rateSchedules, _logger);
+        _ = await calculator.CalculateAsync();
+        _ = await calculator.ProcessFundingResultAsync();
+      
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 }

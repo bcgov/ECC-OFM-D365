@@ -13,19 +13,19 @@ public class LicenceDetail : ofm_licence_detail
     /// </summary>
 
     private readonly bool _applyDuplicateCareType;
-    private readonly bool _applySplitRoom;
-    public bool ApplySplitRoomCondition { get; set; }
-    private IEnumerable<SpaceAllocation>? _newSpacesAllocation = [];
-    public IEnumerable<SpaceAllocation>? NewSpacesAllocation
+    private readonly bool _applyRoomSplit;
+    public bool ApplyRoomSplitCondition { get; set; }
+    private IEnumerable<SpaceAllocation>? _newSpacesAllocationAll = [];
+    public IEnumerable<SpaceAllocation>? NewSpacesAllocationAll
     {
-        get { return _newSpacesAllocation; }
-        set { _newSpacesAllocation = value ?? Array.Empty<SpaceAllocation>(); }
+        get { return _newSpacesAllocationAll; }
+        set { _newSpacesAllocationAll = value ?? Array.Empty<SpaceAllocation>(); }
     }
     public IEnumerable<SpaceAllocation>? NewSpacesAllocationByLicenceType
     {
         get
         {
-            var filteredByCareType = NewSpacesAllocation.Where(space =>
+            var filteredByCareType = NewSpacesAllocationAll.Where(space =>
             {
                 var typesMapping = space.ofm_cclr_ratio.ofm_licence_mapping!.Split(",")?.Select(int.Parse);
                 bool isMapped = typesMapping!.Contains(LicenceTypeNumber);
@@ -40,10 +40,10 @@ public class LicenceDetail : ofm_licence_detail
 
     #region Funding Schedule Data
 
-    private readonly decimal MIN_HOURS_FTE_RATIO = 0.5m; // ToDo: Load from dataverse
+    private readonly decimal MIN_CARE_HOURS_FTE_RATIO = 0.5m; // ToDo: Load from dataverse
     private IEnumerable<CCLRRatio> CCLRRatios => _rateSchedule?.ofm_rateschedule_cclr ?? [];
     private RateSchedule? _rateSchedule;
-    public RateSchedule RateSchedule { set { _rateSchedule = value; } }
+    public RateSchedule? RateSchedule { set { _rateSchedule = value; } }
 
     #endregion
 
@@ -78,7 +78,7 @@ public class LicenceDetail : ofm_licence_detail
                                                     _rateSchedule!.ofm_statutory_breaks!.Value); // Typically 1580
 
     // NOTE: If a facility has duplicate care types/licence types with the same address (seasonal schedules), the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
-    public decimal AnnualHoursFTERatio => Math.Max((AnnualStandardHours / AnnualAvailableHoursPerFTE), MIN_HOURS_FTE_RATIO);
+    public decimal AnnualCareHoursFTERatio => Math.Max(AnnualStandardHours / AnnualAvailableHoursPerFTE, MIN_CARE_HOURS_FTE_RATIO);
     public decimal ExpectedAnnualFTEHours => _rateSchedule!.ofm_total_fte_hours_per_year!.Value; // The default is 1957.5
 
     #endregion
@@ -99,6 +99,44 @@ public class LicenceDetail : ofm_licence_detail
 
     public IEnumerable<ecc_group_size>? AllocatedGroupSizes => FilterCCLRByCareType(LicenceType).Select(cclr => cclr.ofm_group_size!.Value);
     public IEnumerable<ecc_group_size>? DefaultGroupSizes => FilterCCLRByCareTypeDefault(LicenceType).Select(cclr => cclr.ofm_group_size!.Value);
+    public IEnumerable<dynamic>? RawGroupedSizesByType
+    {
+        get
+        {
+            var groupSizesByLicenceType = FilterCCLRByCareType(LicenceType);
+            var groupedByGroupType = groupSizesByLicenceType!.GroupBy(grp1 => grp1, grp2 => grp2, (g1, g2) => new
+            {
+                GroupSize = g1,
+                GroupCount = g2.Count(),
+                GroupType = g1.ofm_group_size,
+                RawITE = g2.Max(g => g.ofm_fte_min_ite),
+                RawECE = g2.Max(g => g.ofm_fte_min_ece),
+                RawECEA = g2.Max(g => g.ofm_fte_min_ecea),
+                RawRA = g2.Max(g => g.ofm_fte_min_ra)
+            });
+
+            return groupedByGroupType;
+        }
+    }
+    public IEnumerable<dynamic>? AdjustedGroupedSizesByType
+    {
+        get
+        {
+            var groupSizesByLicenceType = FilterCCLRByCareType(LicenceType);
+            var groupedByGroupType = groupSizesByLicenceType!.GroupBy(grp1 => grp1, grp2 => grp2, (g1, g2) => new
+            {
+                GroupSize = g1,
+                GroupCount = g2.Count(),
+                GroupType = g1.ofm_group_size,
+                AdjustedITE = g2.Max(g => g.ofm_fte_min_ite) * AnnualCareHoursFTERatio,
+                AdjustedECE = g2.Max(g => g.ofm_fte_min_ece) * AnnualCareHoursFTERatio,
+                AdjustedECEA = g2.Max(g => g.ofm_fte_min_ecea) * AnnualCareHoursFTERatio,
+                AdjustedRA = g2.Max(g => g.ofm_fte_min_ra) * AnnualCareHoursFTERatio
+            });
+
+            return groupedByGroupType;
+        }
+    }
     private IEnumerable<CCLRRatio> FilterCCLRByCareTypeDefault(ecc_licence_type careType)
     {
         IEnumerable<CCLRRatio> filteredByCareType = [];
@@ -118,7 +156,7 @@ public class LicenceDetail : ofm_licence_detail
         if (RoomSplit)
         {
             // Use the new spaces allocation    
-            var adjustedAllocationOnly = NewSpacesAllocation!.Where(allo => allo.ofm_adjusted_allocation!.Value > 0);
+            var adjustedAllocationOnly = NewSpacesAllocationAll!.Where(allo => allo.ofm_adjusted_allocation!.Value > 0);
             var localCCLRs = adjustedAllocationOnly.Select(space => space.ofm_cclr_ratio!);
 
             filteredByCareType = localCCLRs.Where(cclr =>
@@ -193,11 +231,11 @@ public class LicenceDetail : ofm_licence_detail
 
     #region HR: Step 03 - Adjust Staffing Required by Hrs of Child Care
 
-    private decimal AdjustedITE => RawITE * AnnualHoursFTERatio;
-    private decimal AdjustedECE => RawECE * AnnualHoursFTERatio;
-    private decimal AdjustedECEA => RawECEA * AnnualHoursFTERatio;
-    private decimal AdjustedRA => RawRA * AnnualHoursFTERatio;
-    private decimal TotalAdjustedFTEs => TotalRawFTEs * AnnualHoursFTERatio;
+    private decimal AdjustedITE => RawITE * AnnualCareHoursFTERatio;
+    private decimal AdjustedECE => RawECE * AnnualCareHoursFTERatio;
+    private decimal AdjustedECEA => RawECEA * AnnualCareHoursFTERatio;
+    private decimal AdjustedRA => RawRA * AnnualCareHoursFTERatio;
+    private decimal TotalAdjustedFTEs => TotalRawFTEs * AnnualCareHoursFTERatio;
 
     #endregion
 
@@ -257,7 +295,7 @@ public class LicenceDetail : ofm_licence_detail
 
     #endregion
 
-    #region  HR: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at calculator level ***
+    #region  HR: Step 09 - *** EHT Tax is applied at the calculator level *** Add EHT (Employer Health Tax) 
 
     #endregion
 
@@ -280,11 +318,11 @@ public class LicenceDetail : ofm_licence_detail
 public enum WageType
 {
     [Description("Infant Toddler Educator")]
-    ITE,
+    ITE = 1,
     [Description("Early Childhood Educator")]
-    ECE,
+    ECE = 2,
     [Description("Early Childhood Educator Assitance")]
-    ECEA,
+    ECEA = 3,
     [Description("Responsible Adult")]
-    RA
+    RA = 4
 }

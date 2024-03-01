@@ -29,8 +29,8 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.ProviderProfile.VerifyGoodStandingId;
-    public string ProcessName => Setup.Process.ProviderProfile.VerifyGoodStandingName;
+    public Int16 ProcessId => Setup.Process.ProviderProfiles.VerifyGoodStandingId;
+    public string ProcessName => Setup.Process.ProviderProfiles.VerifyGoodStandingName;
     public string RequestUri
     {
         get

@@ -30,8 +30,8 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Email.SendNotificationsId;
-    public string ProcessName => Setup.Process.Email.SendNotificationsName;
+    public Int16 ProcessId => Setup.Process.Emails.SendNotificationsId;
+    public string ProcessName => Setup.Process.Emails.SendNotificationsName;
     public string RequestUri
     {
         get

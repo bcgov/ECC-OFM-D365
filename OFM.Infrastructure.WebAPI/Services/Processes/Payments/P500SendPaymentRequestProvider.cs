@@ -30,8 +30,8 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Payment.SendPaymentRequestId;
-    public string ProcessName => Setup.Process.Payment.SendPaymentRequestName;
+    public Int16 ProcessId => Setup.Process.Payments.SendPaymentRequestId;
+    public string ProcessName => Setup.Process.Payments.SendPaymentRequestName;
 
     public string RequestUri
     {

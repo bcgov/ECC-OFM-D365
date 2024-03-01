@@ -34,8 +34,8 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Email.SendEmailRemindersId;
-    public string ProcessName => Setup.Process.Email.SendEmailRemindersName;
+    public Int16 ProcessId => Setup.Process.Emails.SendEmailRemindersId;
+    public string ProcessName => Setup.Process.Emails.SendEmailRemindersName;
     public string RequestUri
     {
         get

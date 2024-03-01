@@ -2325,12 +2325,20 @@ namespace ECC.Core.DataContext
 		English = 1033,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("English (United Kingdom)", 24)]
+		EnglishUnitedKingdom = 2057,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Finnish", 21)]
 		Finnish = 1035,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("French", 3)]
 		French = 1036,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("French (Canada)", 25)]
+		FrenchCanada = 3084,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("German", 9)]
@@ -2379,6 +2387,10 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Spanish", 1)]
 		Spanish = 1034,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Spanish (United States)", 26)]
+		SpanishUnitedStates = 21514,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Swedish", 7)]
@@ -3817,6 +3829,26 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Programming", 0)]
 		Programming = 1,
+	}
+	
+	/// <summary>
+	/// Funding Mod Type
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ecc_funding_mod_type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Ministry Decision", 1)]
+		MinistryDecision = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("New Licence", 0)]
+		NewLicence = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Other", 2)]
+		Other = 3,
 	}
 	
 	/// <summary>
@@ -12446,27 +12478,31 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Approved", 3, "#0000ff")]
-		Approved = 5,
+		[OptionSetMetadataAttribute("Approved", 4, "#0000ff")]
+		Approved = 6,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cancelled by Applicant", 6, "#0000ff")]
-		CancelledbyApplicant = 506580001,
+		[OptionSetMetadataAttribute("Awaiting Provider", 3, "#0000ff")]
+		AwaitingProvider = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cancelled by Ministry", 5, "#0000ff")]
-		CancelledbyMinistry = 506580000,
+		[OptionSetMetadataAttribute("Cancelled by Ministry", 6, "#0000ff")]
+		CancelledbyMinistry = 7,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cancelled Deadline Expired", 7, "#0000ff")]
-		CancelledDeadlineExpired = 506580002,
+		[OptionSetMetadataAttribute("Cancelled by SP", 7, "#0000ff")]
+		CancelledbySP = 8,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Cancelled - Expired Deadline", 8, "#0000ff")]
+		CancelledExpiredDeadline = 9,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Draft", 0, "#0000ff")]
 		Draft = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Ineligible", 4, "#0000ff")]
+		[OptionSetMetadataAttribute("Ineligible", 5, "#0000ff")]
 		Ineligible = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -12848,19 +12884,19 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Action Required", 5, "#0000ff")]
-		ActionRequired = 506580005,
+		ActionRequired = 7,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Active", 6, "#0000ff")]
-		Active = 1,
+		Active = 8,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Cancelled", 9, "#0000ff")]
-		Cancelled = 506580007,
+		Cancelled = 10,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Draft", 0, "#0000ff")]
-		Draft = 506580000,
+		Draft = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Expired", 7, "#0000ff")]
@@ -12868,23 +12904,23 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("FA Review", 1, "#0000ff")]
-		FAReview = 506580001,
+		FAReview = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("FA Signature Pending", 3, "#0000ff")]
-		FASignaturePending = 506580003,
+		FASignaturePending = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("FA Submitted to Ministry", 4, "#0000ff")]
-		FASubmittedtoMinistry = 506580004,
+		FASubmittedtoMinistry = 6,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("PCM Review", 2, "#0000ff")]
-		PCMReview = 506580002,
+		PCMReview = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Terminated", 8, "#0000ff")]
-		Terminated = 506580006,
+		Terminated = 9,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -12902,6 +12938,38 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("No Good", 1, "#0000ff")]
 		NoGood = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Integration Log
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_integration_log_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Integration Log
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_integration_log_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
 	}
 	
 	/// <summary>
@@ -12968,6 +13036,83 @@ namespace ECC.Core.DataContext
 		Inactive = 2,
 	}
 	
+	/// <summary>
+	/// Status of the Month
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_month_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Month
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_month_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_payment_ofm_payment_process
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Fixed in CAS", 1)]
+		FixedinCAS = 506580001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Resubmit to CAS", 0)]
+		ResubmittoCAS = 506580000,
+	}
+	
+	/// <summary>
+	/// Status of the Payment
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_payment_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Payment
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_payment_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_portal_role
 	{
@@ -13010,6 +13155,172 @@ namespace ECC.Core.DataContext
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_progress_tracker_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Question Business Rule
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_business_rule_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Question Business Rule
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_business_rule_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_ofm_choice_type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Multi Choice", 1, "#0000ff")]
+		MultiChoice = 647390001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("none", 2, "#0000ff")]
+		none = 647390002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Single Choice", 0, "#0000ff")]
+		SingleChoice = 647390000,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_ofm_occurence
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Annual", 3, "#0000ff")]
+		Annual = 506580003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Bi-annual", 2, "#0000ff")]
+		Biannual = 506580002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Monthly", 0, "#0000ff")]
+		Monthly = 506580000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Quarterly", 1, "#0000ff")]
+		Quarterly = 506580001,
+	}
+	
+	/// <summary>
+	/// Status of the Question Option
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_option_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Question Option
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_option_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Question Response
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_response_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Question Response
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_response_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Question
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Question
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_question_StatusCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -13130,6 +13441,38 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Status of the Section
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_section_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Section
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_section_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
 	/// Status of the Space Allocation
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -13182,6 +13525,102 @@ namespace ECC.Core.DataContext
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_supplementary_schedule_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Survey Response
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_survey_response_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Survey Response
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_survey_response_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Survey
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_survey_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Survey
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_survey_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the System Configuration
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_system_configuration_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the System Configuration
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_system_configuration_StatusCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]

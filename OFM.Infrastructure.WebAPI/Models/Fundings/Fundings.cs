@@ -156,3 +156,5 @@ public class SupplementarySchedule : ofm_supplementary_schedule
     public new decimal? ofm_transport_less_20_spaces_lease_cap_month { get; set; }
     public new decimal? ofm_transport_reimbursement_rate_per_km { get; set; }
 }
+
+public record NonHRStepAction(int Step, int AllocatedSpaces, decimal Rate, decimal Cost, string Envelope, int MinSpaces, int MaxSpaces, string Ownership);

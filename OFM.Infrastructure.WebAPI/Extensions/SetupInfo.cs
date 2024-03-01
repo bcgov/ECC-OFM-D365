@@ -19,13 +19,13 @@ public static class Setup
 
     public static class Process
     {
-        public static class Request
+        public static class Requests
         {
             public const Int16 CloseInactiveRequestsId = 100;
             public const string CloseInactiveRequestsName = "Cancel inactive requests";
         }
 
-        public static class Email
+        public static class Emails
         {
             public const Int16 SendEmailRemindersId = 200;
             public const string SendEmailRemindersName = "Send nightly email reminders";
@@ -34,7 +34,7 @@ public static class Setup
             public const string SendNotificationsName = "Send bulk emails on-demand";
         }
 
-        public static class Funding
+        public static class Fundings
         {
             public const Int16 CalculateBaseFundingId = 300;
             public const string CalculateBaseFundingName = "Calculate the envelope funding amounts";
@@ -46,7 +46,7 @@ public static class Setup
             public const string CalculateDefaultSpacesAllocationName = "Calculate the default spaces allocation in the room split scenario";
         }
 
-        public static class ProviderProfile
+        public static class ProviderProfiles
         {
             public const Int16 VerifyGoodStandingId = 400;
             public const string VerifyGoodStandingName = "Verify Good Standing Status for Organization";
@@ -55,7 +55,7 @@ public static class Setup
             public const string VerifyGoodStandingBatchName = "Verify Good Standing Status for Organizations in batch";
         }
 
-        public static class Payment
+        public static class Payments
         {
             public const Int16 SendPaymentRequestId = 500;
             public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";

@@ -17,8 +17,8 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
 
-    public short ProcessId => Setup.Process.Funding.CalculateSupplementaryFundingId;
-    public string ProcessName => Setup.Process.Funding.CalculateSupplementaryFundingName;
+    public short ProcessId => Setup.Process.Fundings.CalculateSupplementaryFundingId;
+    public string ProcessName => Setup.Process.Fundings.CalculateSupplementaryFundingName;
 
     public string RequestUri
     {

@@ -30,8 +30,8 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.ProviderProfile.VerifyGoodStandingBatchId;
-    public string ProcessName => Setup.Process.ProviderProfile.VerifyGoodStandingBatchName;
+    public Int16 ProcessId => Setup.Process.ProviderProfiles.VerifyGoodStandingBatchId;
+    public string ProcessName => Setup.Process.ProviderProfiles.VerifyGoodStandingBatchName;
 
     public string RequestUri
     {

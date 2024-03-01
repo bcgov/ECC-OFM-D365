@@ -28,8 +28,8 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public short ProcessId => Setup.Process.Funding.CalculateDefaultSpacesAllocationId;
-    public string ProcessName => Setup.Process.Funding.CalculateDefaultSpacesAllocationName;
+    public short ProcessId => Setup.Process.Fundings.CalculateDefaultSpacesAllocationId;
+    public string ProcessName => Setup.Process.Fundings.CalculateDefaultSpacesAllocationName;
 
     public string RequestUri
     {
@@ -56,8 +56,8 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
         _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
 
-        var calculator = new FundingCalculator(_logger,_fundingRepository, _funding, _rateSchedules);
-        await calculator.CalculateDefaultSpacesAllocation();
+        var calculator = new FundingCalculator(_fundingRepository, _funding, _rateSchedules, _logger);
+        await calculator.CalculateDefaultSpacesAllocationAsync();
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }

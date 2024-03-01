@@ -28,8 +28,8 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Request.CloseInactiveRequestsId;
-    public string ProcessName => Setup.Process.Request.CloseInactiveRequestsName;
+    public Int16 ProcessId => Setup.Process.Requests.CloseInactiveRequestsId;
+    public string ProcessName => Setup.Process.Requests.CloseInactiveRequestsName;
     public string RequestUri
     {
         get

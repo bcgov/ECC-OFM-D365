@@ -290,6 +290,8 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
                                   <attribute name="ofm_costs_year_facility_costs" />
                                   <attribute name="ofm_costs_yearly_operating_costs" />
                                   <attribute name="ofm_funding_number_base" />
+                                  <attribute name="statecode" />
+                                  <attribute name="statuscode" />
                                 </link-entity>
                                 <link-entity name="ofm_rate_schedule" from="ofm_rate_scheduleid" to="ofm_rate_schedule" alias="RateSchedule">
                                   <attribute name="ofm_rate_scheduleid" />

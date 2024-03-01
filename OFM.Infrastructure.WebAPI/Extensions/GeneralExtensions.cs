@@ -1,4 +1,5 @@
 ﻿using OFM.Infrastructure.WebAPI.Models.Fundings;
+using System.ComponentModel.DataAnnotations;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -14,6 +15,17 @@ public static class GeneralExtensions
 
         //return check1.Item1 && check2.Item1;
 
-        return decisionCheck.Item1;
+        // Validating the fundingResult model
+        ICollection<ValidationResult> results = new List<ValidationResult>();
+
+        if (!Validator.TryValidateObject(fundingResult.FundingAmounts!, new ValidationContext(fundingResult.FundingAmounts!), results, validateAllProperties: true))
+        {
+            foreach (ValidationResult result in results)
+            {
+                _ = fundingResult.Errors.Append(result.ErrorMessage);
+            }
+        }
+
+        return decisionCheck.Item1 && !fundingResult.Errors.Any();
     }
 }
