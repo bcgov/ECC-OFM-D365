@@ -229,13 +229,13 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         var localData = await GetData();
 
-        var serializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
+        var deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
 
         #region  Step 1: Create the email notifications as Completed - Pending Send
 
         JsonArray recipientsList = [];
 
-        serializedData?.ForEach(contact =>
+        deserializedData?.ForEach(contact =>
         {
             recipientsList.Add($"contacts({contact.contactid})");
         });
@@ -267,7 +267,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         }
 
         List<HttpRequestMessage> sendCreateEmailRequests = [];
-        serializedData?.ForEach(contact =>
+        deserializedData?.ForEach(contact =>
         {
             sendCreateEmailRequests.Add(new CreateRequest("emails",
                 new JsonObject(){
@@ -308,7 +308,8 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         await MarkEmailsAsComppleted(appUserService, d365WebApiService, processParams);
 
         #endregion
-        var result = ProcessResult.Success(ProcessId, serializedData!.Count);
+
+        var result = ProcessResult.Success(ProcessId, deserializedData!.Count);
 
         var endTime = _timeProvider.GetTimestamp();
 
@@ -362,10 +363,10 @@ public class P205SendNotificationProvider : ID365ProcessProvider
     {
         var localDataStep2 = await GetDataToUpdate();
 
-        var serializedDataStep2 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep2.Data.ToString());
+        var deserializedDataStep2 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep2.Data.ToString());
 
         var updateEmailRequests = new List<HttpRequestMessage>() { };
-        serializedDataStep2.ForEach(email =>
+        deserializedDataStep2.ForEach(email =>
         {
             var emailToUpdate = new JsonObject {
                 { "ofm_sent_on", DateTime.UtcNow },
