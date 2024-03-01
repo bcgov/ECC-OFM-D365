@@ -22,7 +22,6 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
     private string[] _activeCommunicationTypes = [];
-    private string[] _communicationTypesForUnreadReminders = [];
     private string _requestUri = string.Empty;
 
     public P200EmailReminderProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
@@ -84,10 +83,6 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                   </entity>
                                 </fetch>
                                 """;
-
-                //var requestUri = $"""
-                //                  emails?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                //                  """;
 
                 var requestUri = $"""                                
                                 emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,_regardingobjectid_value,ofm_sent_on,ofm_expiry_time
@@ -171,11 +166,21 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         #region Step 1: Create the email reminders as Completed-Pending Send
 
         JsonArray recipientsList = new() { };
-
+        var emailaddressList = _notificationSettings.Recipients.Split(';').ToList();
+        string? contactId;
+        // foreach contact check if the email address is in the list of emails provided on config if yes then carry on else replace the email with one of those email addresses 
         uniqueContacts.ForEach(contact =>
         {
-            var contactId = contact.ElementAt(0).email_activity_parties?.First()._partyid_value?.Replace("\\u0027", "'");
-            recipientsList.Add($"contacts({contactId})");
+            if (emailaddressList.Any(x => x.Equals(contact.Key.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
+            {
+                contactId = contact.ElementAt(0).email_activity_parties?.First()._partyid_value?.Replace("\\u0027", "'");
+                recipientsList.Add($"contacts({contactId})");
+            }
+            else
+            {
+                contactId = _notificationSettings.DefaultContactId;
+                recipientsList.Add($"contacts({contactId})");
+            }
         });
 
         var contentBody = new JsonObject {
@@ -207,10 +212,6 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
         #endregion
 
-        #region  Step 2 (ToDo): Send the emails
-        //Via GC Notify or Exchange Online
-        #endregion
-
         var endTime = _timeProvider.GetTimestamp();
 
         var result = ProcessResult.Success(ProcessId, uniqueContacts.Count);
@@ -232,14 +233,11 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             var secondReminderInDays = _notificationSettings.UnreadEmailOptions.SecondReminderInDays;
             var thirdReminderInDays = _notificationSettings.UnreadEmailOptions.ThirdReminderInDays;
 
-            if (_communicationTypesForUnreadReminders.Contains(email._ofm_communication_type_value))
-            {
-                if (todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(firstReminderInDays)) ||
-                    todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(secondReminderInDays)) ||
-                    todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(thirdReminderInDays)))
+            if (todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(firstReminderInDays)) ||
+                todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(secondReminderInDays)) ||
+                todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(thirdReminderInDays)))
 
-                    return true;
-            }
+                return true;
         }
 
         return false;
@@ -304,10 +302,6 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                             .Select(comm_type => string.Concat("'", comm_type?["ofm_communication_typeid"], "'"))
                                             .ToArray<string>();
 
-            _communicationTypesForUnreadReminders = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.ActionRequired.ToString() ||
-                                                                                          type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.DebtLetter.ToString() ||
-                                                                                          type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.FundingAgreement.ToString())
-                                                                    .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
         }
     }
 
