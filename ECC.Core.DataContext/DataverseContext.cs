@@ -283,28 +283,6 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question_business_rule_ques"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question_business_rule_ques> ofm_question_business_rule_quesSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.ofm_question_business_rule_ques>();
-			}
-		}
-		
-		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question_option"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question_option> ofm_question_optionSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.ofm_question_option>();
-			}
-		}
-		
-		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question_response"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question_response> ofm_question_responseSet

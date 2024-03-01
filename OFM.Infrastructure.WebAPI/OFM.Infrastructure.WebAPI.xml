@@ -518,16 +518,6 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_question_business_rule"/> entities.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_question_business_rule_quesSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_question_business_rule_ques"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_question_optionSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_question_option"/> entities.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_question_responseSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_question_response"/> entities.
@@ -7157,11 +7147,6 @@
             1:N ofm_question_header
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_question.ofm_question_question_option">
-            <summary>
-            1:N ofm_question_question_option
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_question.ofm_question_question_response">
             <summary>
             1:N ofm_question_question_response
@@ -7354,153 +7339,6 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_question_business_rule.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_question_business_rule_ques.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_question_business_rule_ques entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_question_business_rule_ques.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_business_rule_ques.ofm_question_business_rule_ques1">
-            <summary>
-            N:N ofm_question_business_rule_ques
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_question_business_rule_ques.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_question_option.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_question_option entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_question_option.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.ofm_name">
-            <summary>
-            The name of the custom entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.ofm_question">
-            <summary>
-            Unique identifier for Question associated with Question Option.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.ofm_question_optionid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.statecode">
-            <summary>
-            Status of the Question Option
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.statuscode">
-            <summary>
-            Reason for the status of the Question Option
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.ofm_question_question_option">
-            <summary>
-            N:1 ofm_question_question_option
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_option.team_ofm_question_option">
-            <summary>
-            N:1 team_ofm_question_option
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_question_option.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -9260,11 +9098,6 @@
         <member name="P:ECC.Core.DataContext.Team.team_ofm_question_business_rule">
             <summary>
             1:N team_ofm_question_business_rule
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_question_option">
-            <summary>
-            1:N team_ofm_question_option
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_question_response">
@@ -12668,16 +12501,6 @@
         <member name="T:ECC.Core.DataContext.ofm_question_business_rule_StatusCode">
             <summary>
             Reason for the status of the Question Business Rule
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_question_option_statecode">
-            <summary>
-            Status of the Question Option
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_question_option_StatusCode">
-            <summary>
-            Reason for the status of the Question Option
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_question_response_statecode">

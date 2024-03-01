@@ -13237,38 +13237,6 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
-	/// Status of the Question Option
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_question_option_statecode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 1,
-	}
-	
-	/// <summary>
-	/// Reason for the status of the Question Option
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_question_option_StatusCode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 2,
-	}
-	
-	/// <summary>
 	/// Status of the Question Response
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]

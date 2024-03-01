@@ -25,8 +25,8 @@ public class FundingCalculator : IFundingCalculator
     private readonly Funding _funding;
     private readonly decimal MAX_ANNUAL_OPEN_HOURS = 2510; //Todo: Load from rate schedule - Note: 50.2 weeks a year for 5 days a week with 10 hours per day (2510 = 50.2 * 5 * 10)
     private readonly decimal MIN_CARE_HOURS_PER_FTE_RATIO = 0.5m; //Todo: Load from rate schedule
-    private const decimal EHT_UPPER_THRESHHOLD = 1_500_000m;
-    private const decimal EHT_LOWER_THRESHHOLD = 500_000m;
+    private const decimal EHT_UPPER_THRESHHOLD = 1_500_000m; //Todo: Load from rate schedule
+    private const decimal EHT_LOWER_THRESHHOLD = 500_000m; //Todo: Load from rate schedule
     private RateSchedule? _rateSchedule;
     private FundingResult? _fundingResult;
     private List<NonHRStepAction> _noneHRStepActions = [];
@@ -257,13 +257,7 @@ public class FundingCalculator : IFundingCalculator
             return await Task.FromResult(false);
         }
 
-        //_ = await _fundingRepository.SaveFundingAmounts(_fundingResult);
-
-        // Generate the PDF Funding Agreement & Save it to the funding record
-
-        // Send Funding Agreement Notifications to the provider
-
-        // Other tasks
+        _ = await _fundingRepository.SaveFundingAmounts(_fundingResult);
 
         return await Task.FromResult(true);
     }
