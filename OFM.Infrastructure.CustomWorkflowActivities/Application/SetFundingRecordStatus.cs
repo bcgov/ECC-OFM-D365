@@ -41,8 +41,8 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                     var fetchData = new
                     {
                         ofm_application = recordId.ToString(),
-                        statecode = $"{ofm_funding_rate_statecode.Active}",
-                        statuscode = $"{ofm_funding_StatusCode.Draft}"
+                        statecode = $"{(int)ofm_funding_rate_statecode.Active}",
+                        statuscode = $"{(int)ofm_funding_StatusCode.Draft}"
                     };
                     var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
 									<fetch>
