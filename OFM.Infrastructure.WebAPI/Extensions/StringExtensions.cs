@@ -25,32 +25,3 @@ public static class StringExtensions
         return Regex.Replace(text, CRLF, "");
     }
 }
-public record TempApplication { };
-
-public interface IHaveItems<T>
-{
-    List<T> Items { get; set; }
-}
-
-public record ApplicationResponse : IHaveItems<TempApplication>
-{
-    public List<TempApplication> Items { get; set; } = new();
-}
-public record LicenceResponse : IHaveItems<TempLicence>
-{
-    public List<TempLicence> Items { get; set; } = new();
-}
-
-public class TempLicence
-{
-}
-
-//public record LicenceDetailResponse : IHaveItems<LicenceDetail>
-//{
-//    public List<LicenceDetail> Items { get; set; } = new();
-//}
-
-//public class LicenceDetail
-//{
-//}
-

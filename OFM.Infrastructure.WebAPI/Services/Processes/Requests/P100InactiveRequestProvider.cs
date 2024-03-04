@@ -63,7 +63,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
         }
     }
 
-    public async Task<ProcessData> GetData()
+    public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
 
@@ -104,7 +104,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        var localData = await GetData();
+        var localData = await GetDataAsync();
 
         if (localData.Data.AsArray().Count == 0)
         {

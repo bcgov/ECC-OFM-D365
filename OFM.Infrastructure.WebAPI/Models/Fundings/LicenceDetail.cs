@@ -40,7 +40,7 @@ public class LicenceDetail : ofm_licence_detail
 
     #region Funding Schedule Data
 
-    private readonly decimal MIN_CARE_HOURS_FTE_RATIO = 0.5m; // ToDo: Load from dataverse
+    private decimal MIN_CARE_HOURS_FTE_RATIO => _rateSchedule?.ofm_min_care_hours_per_fte_ratio ?? 0.5m;
     private IEnumerable<CCLRRatio> CCLRRatios => _rateSchedule?.ofm_rateschedule_cclr ?? [];
     private RateSchedule? _rateSchedule;
     public RateSchedule? RateSchedule { set { _rateSchedule = value; } }
@@ -73,9 +73,9 @@ public class LicenceDetail : ofm_licence_detail
     /// 
     public decimal AnnualAvailableHoursPerFTE => ExpectedAnnualFTEHours -
                                                     (ProfessionalDevelopmentHours +
-                                                    _rateSchedule!.ofm_vacation_hours_per_fte!.Value +
-                                                    _rateSchedule!.ofm_sick_hours_per_fte!.Value +
-                                                    _rateSchedule!.ofm_statutory_breaks!.Value); // Typically 1580
+                                                    _rateSchedule!.ofm_vacation_hours_per_fte ?? 0m +
+                                                    _rateSchedule!.ofm_sick_hours_per_fte ?? 0m +
+                                                    _rateSchedule!.ofm_statutory_breaks ?? 0m); // Typically 1580
 
     // NOTE: If a facility has duplicate care types/licence types with the same address (seasonal schedules), the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
     public decimal AnnualCareHoursFTERatio => Math.Max(AnnualStandardHours / AnnualAvailableHoursPerFTE, MIN_CARE_HOURS_FTE_RATIO);
@@ -85,7 +85,7 @@ public class LicenceDetail : ofm_licence_detail
 
     #region Parent Fees
 
-    private ecc_care_types TimeSchedule => ofm_care_type!.Value; // Full-Time or Part-Time
+    private ecc_care_types TimeSchedule => ofm_care_type ?? throw new NullReferenceException($"{nameof(LicenceDetail)}: ofm_care_type is empty. Value must be full-time or part-time."); // Full-Time or Part-Time
 
     private decimal ParentFeesRatePerDay => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_day_ft!.Value : _rateSchedule!.ofm_parent_fee_per_day_pt!.Value;
     private decimal ParentFeesRatePerMonth => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_month_ft!.Value : _rateSchedule!.ofm_parent_fee_per_month_pt!.Value;
@@ -283,7 +283,7 @@ public class LicenceDetail : ofm_licence_detail
 
     public decimal BenefitsCostPerYear => StaffingCost * (_rateSchedule!.ofm_average_benefit_load!.Value / 100); // The default is 18% of the Total Wages
     private decimal QualityEnhancementCost => (StaffingCost + BenefitsCostPerYear) * (_rateSchedule!.ofm_quality_enhancement_factor!.Value / 100); // The default is 0% currently
-    public decimal HRRenumeration => StaffingCost + BenefitsCostPerYear + QualityEnhancementCost;
+    public decimal HRRenumeration => StaffingCost + BenefitsCostPerYear + QualityEnhancementCost + ProfessionalDevelopmentExpenses + ProfessionalDevelopmentHours;
 
     #endregion
 
@@ -312,7 +312,6 @@ public class LicenceDetail : ofm_licence_detail
     public decimal ProfessionalDues => _rateSchedule!.ofm_standard_dues_per_fte!.Value * TotalAdjustedFTEs;
 
     #endregion
-
 }
 
 public enum WageType

@@ -1,53 +1,58 @@
-﻿using OFM.Infrastructure.WebAPI.Extensions;
+﻿using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System.Text.Json.Nodes;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
-public enum FundingDecision
+
+[Flags]
+public enum CalculatorDecision
 {
-    AutoCalculated = 1,
-    ManuallyRecalculated,
-    InvalidData,
-    Aproved,
-    AutoApproved,
-    AutoTempApproved,
-    AutoFullApproved,
-    AutoRejected,
-    ToManualReview,
-    Rejected,
-    Unknown
+    Unknown = 0,
+    Auto = 1,
+    Manual = 2,
+    InvalidData = 3,
+    Error = 4,
+    Valid = Auto | Manual,
+    InValid = InvalidData | Error | Unknown
 }
 
-public class FundingResult
+public interface IFundingResult
 {
-    private FundingResult(string fundingNumber, FundingDecision decision, FundingAmounts? fundingAmounts, IEnumerable<JsonObject>? result, IEnumerable<string>? errors)
+    IEnumerable<LicenceDetail> ActionsLog { get; }
+    DateTime CompletedAt { get; }
+    CalculatorDecision Decision { get; }
+    IEnumerable<string> Errors { get; }
+    IFundingAmounts? FundingAmounts { get; }
+    string FundingNumber { get; }
+    IEnumerable<JsonObject> Result { get; }
+    string ResultMessage { get; }
+    JsonObject SimpleResult { get; }
+}
+
+public class FundingResult : IFundingResult
+{
+    private FundingResult(string fundingNumber, CalculatorDecision decision, IFundingAmounts? fundingAmounts, IEnumerable<LicenceDetail>? actionsLog, IEnumerable<string>? errors)
     {
         FundingNumber = fundingNumber;
         Decision = decision;
         FundingAmounts = fundingAmounts;
-        Result = result ?? Array.Empty<JsonObject>();
-        ResultMessage = (decision == FundingDecision.AutoCalculated) ? "Auto Calculated Funding Amounts." : "Not auto calculated or errors.";
-        Errors = errors ?? Array.Empty<string>();
+        ActionsLog = actionsLog ?? [] ;
+        ResultMessage = GeneralValidation.IsValidCalculation(decision) ? "Auto Calculated Funding Amounts." : "Calculation error(s). See the logs for more details.";
+        Errors = errors ?? [];
         CompletedAt = DateTime.Now;
     }
 
     public string FundingNumber { get; }
-    public FundingDecision Decision { get; }
-    public FundingAmounts? FundingAmounts{ get; }
+    public CalculatorDecision Decision { get; }
+    public IFundingAmounts? FundingAmounts { get; }
     public IEnumerable<JsonObject> Result { get; }
     public string ResultMessage { get; }
     public IEnumerable<string> Errors { get; }
     public DateTime CompletedAt { get; }
-    public IEnumerable<JsonObject> ActionsLog { get; }
+    public IEnumerable<LicenceDetail> ActionsLog { get; }
 
-    public static FundingResult AutoCalculated(string fundingNumber, FundingAmounts fundingAmounts, IEnumerable<JsonObject>? result) => new(fundingNumber, FundingDecision.AutoCalculated, fundingAmounts, result, null);
-    public static FundingResult ManuallyRecalculated(string fundingNumber, FundingAmounts fundingAmounts, IEnumerable<JsonObject>? result) => new(fundingNumber, FundingDecision.ManuallyRecalculated, fundingAmounts, result, null);
-    public static FundingResult InvalidData(string fundingNumber, IEnumerable<string>? errors) => new(fundingNumber, FundingDecision.InvalidData, null, null, errors);
-    public static FundingResult Approved(string fundingNumber, FundingAmounts fundingAmounts, IEnumerable<JsonObject>? result) => new(fundingNumber, FundingDecision.Aproved, fundingAmounts, result, null);
-    public static FundingResult AutoApproved(string fundingNumber, FundingAmounts fundingAmounts, IEnumerable<JsonObject>? result) => new(fundingNumber, FundingDecision.AutoApproved, fundingAmounts, result, null);
-    public static FundingResult Rejected(string fundingNumber, FundingAmounts fundingAmounts, IEnumerable<JsonObject>? result, IEnumerable<string>? errors) => new(fundingNumber, FundingDecision.Rejected, fundingAmounts, result, null);
-    public static FundingResult AutoRejected(string fundingNumber, FundingAmounts fundingAmounts, IEnumerable<JsonObject>? result, IEnumerable<string>? errors) => new(fundingNumber, FundingDecision.AutoRejected, fundingAmounts,result, null);
-
+    public static FundingResult Success(string fundingNumber, FundingAmounts fundingAmounts, IEnumerable<LicenceDetail>? actionsLog) => new(fundingNumber, CalculatorDecision.Auto, fundingAmounts, actionsLog, null);
+      public static FundingResult InvalidData(string fundingNumber, IEnumerable<string>? errors) => new(fundingNumber, CalculatorDecision.InvalidData, new EmptyFundingAmounts(), null, errors);
+   
     #region Output
 
     public JsonObject SimpleResult

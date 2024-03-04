@@ -16,8 +16,8 @@ public interface IFundingRepository
     Task<IEnumerable<RateSchedule>> LoadRateSchedulesAsync();
     Task<Funding> GetFundingByIdAsync(Guid id);
     Task<IEnumerable<SpaceAllocation>> GetSpacesAllocationByFundingIdAsync(Guid id);
-    Task<bool> SaveFundingAmounts(FundingResult fundingResult);
-    Task<bool> SaveDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation);
+    Task<bool> SaveFundingAmountsAsync(IFundingResult fundingResult);
+    Task<bool> SaveDefaultSpacesAllocationAsync(IEnumerable<ofm_space_allocation> spacesAllocation);
 }
 
 public class FundingRepository(ID365AppUserService appUserService, ID365WebApiService service, ID365DataService dataService, ILoggerFactory loggerFactory) : IFundingRepository
@@ -94,6 +94,9 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
                         <attribute name="ownerid" />
                         <attribute name="owningbusinessunit" />
                         <attribute name="statuscode" />
+                        <attribute name="statuscode" />
+                        <attribute name="ofm_min_care_hours_per_fte_ratio" />
+                        <attribute name="ofm_max_annual_open_hours" />         
                         <link-entity name="ofm_funding_rate" from="ofm_rate_schedule" to="ofm_rate_scheduleid" alias="FR">
                           <attribute name="ofm_caption" />
                           <attribute name="ofm_nonhr_funding_envelope" />
@@ -302,7 +305,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
                             """;
 
             var requestUri = $"""                                
-                             ofm_fundings?$select=_createdby_value,createdon,_modifiedby_value,modifiedon,_ofm_application_value,ofm_apply_duplicate_caretypes_condition,ofm_apply_room_split_condition,ofm_end_date,ofm_envelope_administrative,ofm_envelope_administrative_pf,ofm_envelope_administrative_proj,ofm_envelope_facility,ofm_envelope_facility_pf,ofm_envelope_facility_proj,ofm_envelope_grand_total,ofm_envelope_grand_total_pf,ofm_envelope_grand_total_proj,ofm_envelope_hr_benefits,ofm_envelope_hr_benefits_pf,ofm_envelope_hr_benefits_proj,ofm_envelope_hr_employerhealthtax,ofm_envelope_hr_employerhealthtax_pf,ofm_envelope_hr_employerhealthtax_proj,ofm_envelope_hr_prodevexpenses,ofm_envelope_hr_prodevexpenses_pf,ofm_envelope_hr_prodevexpenses_proj,ofm_envelope_hr_prodevhours,ofm_envelope_hr_prodevhours_pf,ofm_envelope_hr_prodevhours_proj,ofm_envelope_hr_total,ofm_envelope_hr_total_pf,ofm_envelope_hr_total_proj,ofm_envelope_hr_wages_paidtimeoff,ofm_envelope_hr_wages_paidtimeoff_pf,ofm_envelope_hr_wages_paidtimeoff_proj,ofm_envelope_operational,ofm_envelope_operational_pf,ofm_envelope_operational_proj,ofm_envelope_programming,ofm_envelope_programming_pf,ofm_envelope_programming_proj,_ofm_facility_value,ofm_funding_envelope,ofm_funding_number,ofm_fundingid,ofm_manual_intervention,ofm_new_allocation_date,_ofm_rate_schedule_value,ofm_start_date,ofm_version_number,_ownerid_value,_owningbusinessunit_value,statecode,statuscode&$expand=ofm_funding_spaceallocation($select=createdon,ofm_adjusted_allocation,ofm_caption,_ofm_cclr_ratio_value,ofm_default_allocation,_ofm_funding_value,ofm_order_number,_ownerid_value,_owningbusinessunit_value,statuscode;$expand=ofm_cclr_ratio($select=ofm_caption,ofm_fte_min_ece,ofm_fte_min_ecea,ofm_fte_min_ite,ofm_fte_min_ra,ofm_group_size,ofm_licence_group,ofm_licence_mapping,ofm_order_number,_ofm_rate_schedule_value,ofm_spaces_max,ofm_spaces_min,statuscode)),ofm_facility($select=accountid,accountnumber,name;$expand=ofm_facility_licence($select=createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_apply_room_split_condition,ofm_weeks_in_operation,_ownerid_value,statuscode))),ofm_application($select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_costs_applicable_fee,ofm_costs_facility_type,ofm_costs_furniture_equipment,ofm_costs_maintenance_repairs,ofm_costs_mortgage,ofm_costs_property_insurance,ofm_costs_property_municipal_tax,ofm_costs_rent_lease,ofm_costs_strata_fee,ofm_costs_supplies,ofm_costs_upkeep_labour_supplies,ofm_costs_utilities,ofm_costs_year_facility_costs,ofm_costs_yearly_operating_costs,ofm_funding_number_base),ofm_rate_schedule($select=ofm_rate_scheduleid,ofm_schedule_number)&$filter=(ofm_fundingid eq '{_fundingId!.Value}') and (ofm_facility/accountid ne null) and (ofm_rate_schedule/ofm_rate_scheduleid ne null)
+                             ofm_fundings?$select=_createdby_value,createdon,_modifiedby_value,modifiedon,_ofm_application_value,ofm_apply_duplicate_caretypes_condition,ofm_apply_room_split_condition,ofm_end_date,ofm_envelope_administrative,ofm_envelope_administrative_pf,ofm_envelope_administrative_proj,ofm_envelope_facility,ofm_envelope_facility_pf,ofm_envelope_facility_proj,ofm_envelope_grand_total,ofm_envelope_grand_total_pf,ofm_envelope_grand_total_proj,ofm_envelope_hr_benefits,ofm_envelope_hr_benefits_pf,ofm_envelope_hr_benefits_proj,ofm_envelope_hr_employerhealthtax,ofm_envelope_hr_employerhealthtax_pf,ofm_envelope_hr_employerhealthtax_proj,ofm_envelope_hr_prodevexpenses,ofm_envelope_hr_prodevexpenses_pf,ofm_envelope_hr_prodevexpenses_proj,ofm_envelope_hr_prodevhours,ofm_envelope_hr_prodevhours_pf,ofm_envelope_hr_prodevhours_proj,ofm_envelope_hr_total,ofm_envelope_hr_total_pf,ofm_envelope_hr_total_proj,ofm_envelope_hr_wages_paidtimeoff,ofm_envelope_hr_wages_paidtimeoff_pf,ofm_envelope_hr_wages_paidtimeoff_proj,ofm_envelope_operational,ofm_envelope_operational_pf,ofm_envelope_operational_proj,ofm_envelope_programming,ofm_envelope_programming_pf,ofm_envelope_programming_proj,_ofm_facility_value,ofm_funding_envelope,ofm_funding_number,ofm_fundingid,ofm_manual_intervention,ofm_new_allocation_date,_ofm_rate_schedule_value,ofm_start_date,ofm_version_number,_ownerid_value,_owningbusinessunit_value,statecode,statuscode&$expand=ofm_funding_spaceallocation($select=createdon,ofm_adjusted_allocation,ofm_caption,_ofm_cclr_ratio_value,ofm_default_allocation,_ofm_funding_value,ofm_order_number,_ownerid_value,_owningbusinessunit_value,statuscode;$expand=ofm_cclr_ratio($select=ofm_caption,ofm_fte_min_ece,ofm_fte_min_ecea,ofm_fte_min_ite,ofm_fte_min_ra,ofm_group_size,ofm_licence_group,ofm_licence_mapping,ofm_order_number,_ofm_rate_schedule_value,ofm_spaces_max,ofm_spaces_min,statuscode)),ofm_facility($select=accountid,accountnumber,name;$expand=ofm_facility_licence($select=createdon,ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_tdad_funding_agreement_number,_ownerid_value,statuscode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_spaces,ofm_licence_type,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_overnight_care,ofm_week_days,ofm_apply_room_split_condition,ofm_weeks_in_operation,_ownerid_value,statuscode))),ofm_application($select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_costs_applicable_fee,ofm_costs_facility_type,ofm_costs_furniture_equipment,ofm_costs_maintenance_repairs,ofm_costs_mortgage,ofm_costs_property_insurance,ofm_costs_property_municipal_tax,ofm_costs_rent_lease,ofm_costs_strata_fee,ofm_costs_supplies,ofm_costs_upkeep_labour_supplies,ofm_costs_utilities,ofm_costs_year_facility_costs,ofm_costs_yearly_operating_costs,ofm_funding_number_base,statecode,statuscode),ofm_rate_schedule($select=ofm_rate_scheduleid,ofm_schedule_number)&$filter=(ofm_fundingid eq '{_fundingId!.Value}') and (ofm_facility/accountid ne null) and (ofm_rate_schedule/ofm_rate_scheduleid ne null)
                              """;
 
             return requestUri;
@@ -422,13 +425,13 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
         return await Task.FromResult(deserializedData!);
     }
 
-    public async Task<bool> SaveFundingAmounts(FundingResult fundingResult)
+    public async Task<bool> SaveFundingAmountsAsync(IFundingResult fundingResult)
     {
-        FundingAmounts fm = fundingResult.FundingAmounts!;
+        IFundingAmounts fm = fundingResult.FundingAmounts!;
         var newfundingAmounts = new
         {
             //Projected Amounts
-            ofm_envelope_hr_total_proj = fm.HRTotal_Projected + fm.HRProfessionalDevelopmentHours_Projected + fm.HRProfessionalDevelopmentExpenses_Projected,
+            ofm_envelope_hr_total_proj = fm.HRTotal_Projected,
             ofm_envelope_hr_wages_paidtimeoff_proj = fm.HRWagesPaidTimeOff_Projected,
             ofm_envelope_hr_benefits_proj = fm.HRBenefits_Projected,
             ofm_envelope_hr_employerhealthtax_proj = fm.HREmployerHealthTax_Projected,
@@ -469,7 +472,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
             ofm_envelope_grand_total_pf = fm.GrandTotal_PF,
             ofm_envelope_grand_total = fm.GrandTotal,
 
-            ofm_calculated_on = fm.NewCalculationDate,
+            ofm_calculated_on = fm.CalculatedOn,
         };
 
         var statement = @$"ofm_fundings({_fundingId})";
@@ -485,7 +488,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
         return await Task.FromResult(true);
     }
 
-    public async Task<bool> SaveDefaultSpacesAllocation(IEnumerable<ofm_space_allocation> spacesAllocation)
+    public async Task<bool> SaveDefaultSpacesAllocationAsync(IEnumerable<ofm_space_allocation> spacesAllocation)
     {
         List<HttpRequestMessage> updateRequests = [];
         foreach (var space in spacesAllocation)

@@ -119,7 +119,7 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
         return await Task.FromResult(_data);
     }
 
-    public async Task<ProcessData> GetData()
+    public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P305SupplementaryFundingProvider));
 
@@ -164,7 +164,7 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
         #region Step 0: Pre-Calculation
 
         //fetch the supplemental data
-        var localData = await GetData();
+        var localData = await GetDataAsync();
         var deserializedData = localData.Data.Deserialize<List<SupplementaryApplication>>(Setup.s_writeOptionsForLogs);
 
         var supplementary = deserializedData?.FirstOrDefault();

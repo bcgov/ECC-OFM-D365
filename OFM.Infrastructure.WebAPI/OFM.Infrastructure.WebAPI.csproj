@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <Compile Remove="Models\Fundings\ValueObject.cs" />
-    <Compile Remove="Models\ProgressTracker.cs" />
+    <Compile Remove="Models\ProgressTrackers.cs" />
     <Compile Remove="Services\Processes\Fundings\ApplicationState.cs" />
     <Compile Remove="Services\Processes\Fundings\FundingRate.cs" />
     <Compile Remove="Services\Processes\Fundings\IFundingCommand.cs" />

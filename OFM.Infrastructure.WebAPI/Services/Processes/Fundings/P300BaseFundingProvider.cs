@@ -53,7 +53,7 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
         }
     }
 
-    public async Task<ProcessData> GetData()
+    public async Task<ProcessData> GetDataAsync()
     {
         _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P300BaseFundingProvider));
 
@@ -96,7 +96,8 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
         var calculator = new FundingCalculator(_fundingRepository, _funding, _rateSchedules, _logger);
         _ = await calculator.CalculateAsync();
         _ = await calculator.ProcessFundingResultAsync();
-      
+        await calculator.LogProgressAsync(_d365webapiservice!, _appUserService!, _logger!); // This line should always be at the end to avoid impact to the main calculator's funtionalities
+
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 }

@@ -7,6 +7,8 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Diagnostics;
+using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
@@ -23,8 +25,8 @@ public class FundingCalculator : IFundingCalculator
     private readonly IFundingRepository _fundingRepository;
     private readonly IEnumerable<RateSchedule> _rateSchedules;
     private readonly Funding _funding;
-    private readonly decimal MAX_ANNUAL_OPEN_HOURS = 2510; //Todo: Load from rate schedule - Note: 50.2 weeks a year for 5 days a week with 10 hours per day (2510 = 50.2 * 5 * 10)
-    private readonly decimal MIN_CARE_HOURS_PER_FTE_RATIO = 0.5m; //Todo: Load from rate schedule
+    private decimal? MAX_ANNUAL_OPEN_HOURS => _rateSchedule?.ofm_max_annual_open_hours ?? 2510; // Note: 50.2 weeks a year for 5 days a week with 10 hours per day (2510 = 50.2 * 5 * 10)
+    private decimal? MIN_CARE_HOURS_PER_FTE_RATIO => _rateSchedule?.ofm_min_care_hours_per_fte_ratio ?? 0.5m;
     private const decimal EHT_UPPER_THRESHHOLD = 1_500_000m; //Todo: Load from rate schedule
     private const decimal EHT_LOWER_THRESHHOLD = 500_000m; //Todo: Load from rate schedule
     private RateSchedule? _rateSchedule;
@@ -93,6 +95,8 @@ public class FundingCalculator : IFundingCalculator
     private bool ApplyDuplicateCareTypesCondition => _funding.ofm_apply_duplicate_caretypes_condition ?? false;
     private ecc_Ownership? OwnershipType => _funding.ofm_application!.ofm_summary_ownership;
     private decimal AnnualFacilityCurrentCost => _funding.ofm_application!.ofm_costs_year_facility_costs ?? 0m;
+    private decimal AnnualOperatingCurrentCost => _funding.ofm_application!.ofm_costs_yearly_operating_costs ?? 0m;
+    private ofm_facility_type FacilityType => _funding.ofm_application!.ofm_costs_facility_type!.Value;
 
     #region HR Costs & Rates
 
@@ -126,7 +130,7 @@ public class FundingCalculator : IFundingCalculator
 
     #region nonHR Costs & Rates
 
-    private decimal AdjustmentRateForNonHREnvelopes => MAX_ANNUAL_OPEN_HOURS / LicenceDetails.Max(cs => cs.AnnualStandardHours); // Todo: Logic is in review with the Ministry
+    private decimal AdjustmentRateForNonHREnvelopes => MAX_ANNUAL_OPEN_HOURS!.Value / LicenceDetails.Max(cs => cs.AnnualStandardHours); // Todo: Logic is in review with the Ministry
 
     private decimal NonHRProgrammingAmount
     {
@@ -170,8 +174,13 @@ public class FundingCalculator : IFundingCalculator
 
     private decimal AdjustedNonHRProgrammingAmount => NonHRProgrammingAmount; // Note: No adjustment is required for programming envelope.
     private decimal AdjustedNonHRAdministrativeAmount => NonHRAdministrativeAmount / AdjustmentRateForNonHREnvelopes; // Note: with adjustment rate
-    private decimal AdjustedNonHROperationalAmount => NonHROperationalAmount; // Todo:Complete the logic
-    private decimal AdjustedNonHRFacilityAmount => Math.Min(NonHRFacilityAmount, AnnualFacilityCurrentCost); // ToDo:Complete the logic
+    private decimal AdjustedNonHROperationalAmount => OwnershipType == ecc_Ownership.Homebased ?
+                                                        Math.Min(NonHROperationalAmount / AdjustmentRateForNonHREnvelopes, AnnualOperatingCurrentCost) :
+                                                        NonHROperationalAmount / AdjustmentRateForNonHREnvelopes;
+
+    private decimal AdjustedNonHRFacilityAmount => AnnualFacilityCurrentCost == 0 ? 0 : OwnershipType == ecc_Ownership.Private &&
+                                                     (FacilityType == ofm_facility_type.OwnedWithMortgage || FacilityType == ofm_facility_type.OwnedWithoutMortgage) ? 0 :
+                                                     Math.Min(NonHRFacilityAmount, AnnualFacilityCurrentCost);
 
     private decimal TotalNonHRCost => (AdjustedNonHRProgrammingAmount + AdjustedNonHRAdministrativeAmount + AdjustedNonHROperationalAmount + AdjustedNonHRFacilityAmount);
 
@@ -233,12 +242,10 @@ public class FundingCalculator : IFundingCalculator
                 GrandTotal_Projected = TotalProjectedFundingCost,
                 GrandTotal_PF = TotalParentFees,
 
-                //Calculation Date
-                NewCalculationDate = DateTime.UtcNow
+                CalculatedOn = DateTime.UtcNow
             };
 
-            _fundingResult = FundingResult.AutoCalculated(_funding.ofm_funding_number, fundingAmounts, null);
-
+            _fundingResult = FundingResult.Success(_funding.ofm_funding_number, fundingAmounts, LicenceDetails);
         }
         catch (ValidationException exp)
         {
@@ -252,19 +259,14 @@ public class FundingCalculator : IFundingCalculator
     {
         if (_fundingResult is null || !_fundingResult.IsValidFundingResult())
         {
-            _logger.LogError(CustomLogEvent.Process, "Failed to calculate funding amounts with the reason(s): {errors}", _fundingResult?.Errors);
+            _logger.LogError(CustomLogEvent.Process, "Failed to calculate funding amounts with the reason(s): {errors}", JsonValue.Create(_fundingResult?.Errors)!.ToString());
 
             return await Task.FromResult(false);
         }
 
-        _ = await _fundingRepository.SaveFundingAmounts(_fundingResult);
+        _ = await _fundingRepository.SaveFundingAmountsAsync(_fundingResult);
 
         return await Task.FromResult(true);
-    }
-
-    public async Task LogProgressAsync(ID365WebApiService d365webapiservice, ID365AppUserService appUserService, ILogger logger)
-    {
-        //ToDo 
     }
 
     /// <summary>
@@ -295,9 +297,14 @@ public class FundingCalculator : IFundingCalculator
             return await Task.FromResult(false);
         }
 
-        var result = await _fundingRepository.SaveDefaultSpacesAllocation(newSpaces);
+        var result = await _fundingRepository.SaveDefaultSpacesAllocationAsync(newSpaces);
 
         return await Task.FromResult(result);
+    }
+
+    public async Task LogProgressAsync(ID365WebApiService d365webapiservice, ID365AppUserService appUserService, ILogger logger)
+    {
+        //ToDo
     }
 
     #endregion
@@ -338,7 +345,7 @@ public class FundingCalculator : IFundingCalculator
     private void LogStepAction(FundingRate fundingRate, int allocatedSpaces, int totalSpace)
     {
         NonHRStepActions.Add(new NonHRStepAction(fundingRate.ofm_step.Value,
-                                            allocatedSpaces, Math.Round(fundingRate.ofm_rate.Value, 2, MidpointRounding.AwayFromZero), 
+                                            allocatedSpaces, Math.Round(fundingRate.ofm_rate.Value, 2, MidpointRounding.AwayFromZero),
                                             Math.Round((allocatedSpaces * fundingRate.ofm_rate).Value, 2, MidpointRounding.AwayFromZero),
                                             fundingRate.ofm_nonhr_funding_envelope.Value.ToString(),
                                             fundingRate.ofm_spaces_min.Value,

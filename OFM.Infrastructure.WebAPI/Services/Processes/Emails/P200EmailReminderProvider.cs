@@ -97,7 +97,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         }
     }
 
-    public async Task<ProcessData> GetData()
+    public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P200EmailReminderProvider));
 
@@ -144,7 +144,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        var localData = await GetData();
+        var localData = await GetDataAsync();
 
         var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365Email>>(localData.Data, Setup.s_writeOptionsForLogs);
 
@@ -166,21 +166,19 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         #region Step 1: Create the email reminders as Completed-Pending Send
 
         JsonArray recipientsList = new() { };
-        var emailaddressList = _notificationSettings.Recipients.Split(';').ToList();
         string? contactId;
-        // foreach contact check if the email address is in the list of emails provided on config if yes then carry on else replace the email with one of those email addresses 
+        // foreach contact, check if the email address is on the safe list configured on the appsettings, if yes then carry on, else replace the email with a default email address
         uniqueContacts.ForEach(contact =>
         {
-            if (emailaddressList.Any(x => x.Equals(contact.Key.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
-            {
-                contactId = contact.ElementAt(0).email_activity_parties?.First()._partyid_value?.Replace("\\u0027", "'");
-                recipientsList.Add($"contacts({contactId})");
+            contactId = contact.ElementAt(0).email_activity_parties?.First()._partyid_value?.Replace("\\u0027", "'");
+
+            if (_notificationSettings.EmailSafeList.Enable &&
+                !_notificationSettings.EmailSafeList.Recipients.Any(x => x.Equals(contact.Key.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
+            {                       
+                contactId = _notificationSettings.EmailSafeList.DefaultContactId;
             }
-            else
-            {
-                contactId = _notificationSettings.DefaultContactId;
-                recipientsList.Add($"contacts({contactId})");
-            }
+
+            recipientsList.Add($"contacts({contactId})");
         });
 
         var contentBody = new JsonObject {

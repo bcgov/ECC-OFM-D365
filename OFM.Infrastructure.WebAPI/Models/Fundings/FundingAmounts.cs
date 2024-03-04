@@ -3,7 +3,50 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
-public record FundingAmounts
+public interface IFundingAmounts
+{
+    DateTime CalculatedOn { get; set; }
+    decimal GrandTotal { get; }
+    decimal GrandTotal_PF { get; set; }
+    decimal GrandTotal_Projected { get; set; }
+    decimal HRBenefits { get; }
+    decimal HRBenefits_PF { get; set; }
+    decimal HRBenefits_Projected { get; set; }
+    decimal HREmployerHealthTax { get; }
+    decimal HREmployerHealthTax_PF { get; set; }
+    decimal HREmployerHealthTax_Projected { get; set; }
+    decimal HRProfessionalDevelopmentExpenses { get; }
+    decimal HRProfessionalDevelopmentExpenses_PF { get; set; }
+    decimal HRProfessionalDevelopmentExpenses_Projected { get; set; }
+    decimal HRProfessionalDevelopmentHours { get; }
+    decimal HRProfessionalDevelopmentHours_PF { get; set; }
+    decimal HRProfessionalDevelopmentHours_Projected { get; set; }
+    decimal HRTotal { get; }
+    decimal HRTotal_PF { get; }
+    decimal HRTotal_Projected { get; set; }
+    decimal HRWagesPaidTimeOff { get; }
+    decimal HRWagesPaidTimeOff_PF { get; set; }
+    decimal HRWagesPaidTimeOff_Projected { get; set; }
+    decimal NonHRAdmistrative { get; }
+    decimal NonHRAdmistrative_PF { get; set; }
+    decimal NonHRAdmistrative_Projected { get; set; }
+    decimal NonHRFacility { get; }
+    decimal NonHRFacility_PF { get; set; }
+    decimal NonHRFacility_Projected { get; set; }
+    decimal NonHROperational { get; }
+    decimal NonHROperational_PF { get; set; }
+    decimal NonHROperational_Projected { get; set; }
+    decimal NonHRProgramming { get; }
+    decimal NonHRProgramming_PF { get; set; }
+    decimal NonHRProgramming_Projected { get; set; }
+
+    bool Equals(FundingAmounts? other);
+    bool Equals(object? obj);
+    int GetHashCode();
+    string ToString();
+}
+
+public record FundingAmounts : IFundingAmounts
 {
     const double LOWER_LIMIT_AMOUNT = 0d;
     const double UPPER_LIMIT_AMOUNT = 100_000_000d;
@@ -88,5 +131,43 @@ public record FundingAmounts
     public decimal GrandTotal_PF { get; set; }
     public decimal GrandTotal => GrandTotal_Projected - GrandTotal_PF;
 
-    public DateTime NewCalculationDate { get;  set; }
+    public DateTime CalculatedOn { get; set; }
 }
+
+public record EmptyFundingAmounts : IFundingAmounts { 
+    public DateTime CalculatedOn { get; set; } 
+    public decimal GrandTotal { get; set; }
+    public decimal GrandTotal_PF { get; set; } 
+    public decimal GrandTotal_Projected { get; set; } 
+    public decimal HRBenefits { get; set; }
+    public decimal HRBenefits_PF { get; set; } 
+    public decimal HRBenefits_Projected { get; set; } 
+    public decimal HREmployerHealthTax { get; set; }
+    public decimal HREmployerHealthTax_PF { get; set; } 
+    public decimal HREmployerHealthTax_Projected { get; set; } 
+    public decimal HRProfessionalDevelopmentExpenses { get; set; }
+    public decimal HRProfessionalDevelopmentExpenses_PF { get; set; } 
+    public decimal HRProfessionalDevelopmentExpenses_Projected { get; set; } 
+    public decimal HRProfessionalDevelopmentHours { get; set; }
+    public decimal HRProfessionalDevelopmentHours_PF { get; set; } 
+    public decimal HRProfessionalDevelopmentHours_Projected { get; set; } 
+    public decimal HRTotal { get; set; }
+    public decimal HRTotal_PF { get; set; }
+    public decimal HRTotal_Projected { get; set; } 
+    public decimal HRWagesPaidTimeOff { get; set; }
+    public decimal HRWagesPaidTimeOff_PF { get; set; } 
+    public decimal HRWagesPaidTimeOff_Projected { get; set; } 
+    public decimal NonHRAdmistrative { get; set; }
+    public decimal NonHRAdmistrative_PF { get; set; } 
+    public decimal NonHRAdmistrative_Projected { get; set; }
+    public decimal NonHRFacility { get; set; }
+    public decimal NonHRFacility_PF { get; set; }
+    public decimal NonHRFacility_Projected { get; set; }
+    public decimal NonHROperational { get; set; }
+    public decimal NonHROperational_PF { get; set; } 
+    public decimal NonHROperational_Projected { get; set; } 
+    public decimal NonHRProgramming { get; set; }
+    public decimal NonHRProgramming_PF { get; set; } 
+    public decimal NonHRProgramming_Projected { get; set; }
+
+    public bool Equals(FundingAmounts? other) { throw new NotImplementedException(); } };

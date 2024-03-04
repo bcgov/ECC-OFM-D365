@@ -1,5 +1,4 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System.ComponentModel.DataAnnotations;
 
@@ -9,6 +8,40 @@ public interface IFundingValidator<T> where T : class
 {
     bool Validate(T funding);
     IFundingValidator<T> NextValidator(IFundingValidator<T> next);
+}
+
+public static class GeneralValidation {
+    public static bool HasValidApplicationStatus(ofm_application_StatusCode? applicationStatus) => applicationStatus switch
+                                                                                                  {
+                                                                                                      ofm_application_StatusCode.Submitted => true,
+                                                                                                      ofm_application_StatusCode.InReview => true,
+                                                                                                      ofm_application_StatusCode.Approved => true,
+                                                                                                      _ => false
+                                                                                                  };
+
+    public static bool IsValidCalculation(CalculatorDecision decision) =>
+                        decision switch
+                        {
+                            CalculatorDecision.Auto => true,
+                            CalculatorDecision.Manual => true,
+                            _ => false
+                        };
+
+    public static bool IsValidFundingResult(this FundingResult fundingResult)
+    {
+        // Validating the FundingAmounts model
+        ICollection<ValidationResult> results = new List<ValidationResult>();
+
+        if (!Validator.TryValidateObject(fundingResult.FundingAmounts!, new ValidationContext(fundingResult.FundingAmounts!), results, validateAllProperties: true))
+        {
+            foreach (ValidationResult result in results)
+            {
+                _ = fundingResult.Errors.Append(result.ErrorMessage);
+            }
+        }
+
+        return IsValidCalculation(fundingResult.Decision) && !fundingResult.Errors.Any();
+    }
 }
 
 public class MustHaveFundingNumberBaseRule : IFundingValidator<Funding>
@@ -41,8 +74,7 @@ public class MustHaveValidApplicationStatusRule : IFundingValidator<Funding>
 
     public bool Validate(Funding funding)
     {
-        var statusCheck  = (funding.ofm_application!.statuscode is not ofm_application_StatusCode.Submitted, ofm_application_StatusCode.InReview);
-        if (statusCheck.Item1)
+        if (!GeneralValidation.HasValidApplicationStatus(funding.ofm_application?.statuscode))
         {
             throw new ValidationException(
                 new ValidationResult("Main Application must be submitted", new List<string>() { "Application Status" }), null, null);

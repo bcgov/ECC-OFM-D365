@@ -35,7 +35,6 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
     {
         get
         {
-
             var requestUri = $"""
                           
                          """;
@@ -44,7 +43,7 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
         }
     }
 
-    public async Task<ProcessData> GetData()
+    public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P310CalculateDefaultAllocationProvider));
 
