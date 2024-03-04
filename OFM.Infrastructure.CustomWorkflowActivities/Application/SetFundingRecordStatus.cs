@@ -31,20 +31,20 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
             tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: Application - SetFundingRecordStatus", DateTime.Now.ToLongTimeString());
             try
             {
-                Entity applicationRcord = service.Retrieve("ofm_application", recordId, new ColumnSet("statuscode"));
+                ofm_application applicationRcord = (ofm_application)service.Retrieve(ofm_application.EntityLogicalName, recordId, new ColumnSet("statuscode"));
                 int statusReason = applicationRcord.GetAttributeValue<OptionSetValue>("statuscode").Value;
 
                 tracingService.Trace("Checking Application record StatusReason value:{0} ", statusReason);
-                if (applicationRcord != null && applicationRcord.Attributes.Count > 0 && statusReason == 6)        // 6 - approved (application)
+                if (applicationRcord != null && applicationRcord.Attributes.Count > 0 && statusReason == (int)ofm_application_StatusCode.Approved)
                 {
-					tracingService.Trace("\nThe Application Record - logical name: {0}, id:{1}", applicationRcord.LogicalName, applicationRcord.Id);
-					var fetchData = new
-					{
-						ofm_application = recordId.ToString(),
-						statecode = "0",                                                                           // 0 - Active (funding)
-                        statuscode = "3"                                                                           // 3 - Draft (funding)
+                    tracingService.Trace("\nThe Application Record - logical name: {0}, id:{1}", applicationRcord.LogicalName, applicationRcord.Id);
+                    var fetchData = new
+                    {
+                        ofm_application = recordId.ToString(),
+                        statecode = $"{(int)ofm_funding_statecode.Active}",
+                        statuscode = $"{(int)ofm_funding_StatusCode.Draft}"
                     };
-					var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                    var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
 									<fetch>
 									  <entity name=""ofm_funding"">
 										<attribute name=""ofm_application"" />
@@ -60,22 +60,24 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
 									  </entity>
 									</fetch>";
 
-					EntityCollection fundingRecords = service.RetrieveMultiple(new FetchExpression(fetchXml));
+                    EntityCollection fundingRecords = service.RetrieveMultiple(new FetchExpression(fetchXml));
 
-                    //Change Active Funding record status: Draft (3) --> FA Review (4)
+                    //Change Active Funding record status: Draft (1) --> FA Review (3)
                     if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null)
                     {
-						var id = fundingRecords[0].Id;
-						tracingService.Trace("\nActive funding record to be updated with FA Review status: " + id);
+                        var id = fundingRecords[0].Id;
+                        tracingService.Trace("\nActive funding record to be updated with FA Review status: " + id);
 
-                        Entity fundingRecordTable = new Entity("ofm_funding");
-						fundingRecordTable.Id = id;
-						fundingRecordTable["statuscode"] = new OptionSetValue(4);                                    // 4 - FA Review (funding)
-                        service.Update(fundingRecordTable);
+                        var entityToUpdate = new ofm_funding
+                        {
+                            Id = id,
+                            statuscode = ofm_funding_StatusCode.FAReview
+                        };
+                        service.Update(entityToUpdate);
 
-						tracingService.Trace("\nChange sucessfully active funding detail record status from Draft to FA review.");
-					}
-                    else 
+                        tracingService.Trace("\nChange sucessfully active funding detail record status from Draft to FA review.");
+                    }
+                    else
                     {
                         tracingService.Trace("\nNo active funding record found.");
                     }
@@ -84,7 +86,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                 {
                     tracingService.Trace("\nNo application record found.");
                 }
-            
+
                 tracingService.Trace("Workflow activity end.");
 
             }
