@@ -22,6 +22,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
     private string[] _activeCommunicationTypes = [];
+    private string[] _communicationTypesForUnreadReminders = [];
     private string _requestUri = string.Empty;
 
     public P200EmailReminderProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
@@ -230,12 +231,14 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             var firstReminderInDays = _notificationSettings.UnreadEmailOptions.FirstReminderInDays;
             var secondReminderInDays = _notificationSettings.UnreadEmailOptions.SecondReminderInDays;
             var thirdReminderInDays = _notificationSettings.UnreadEmailOptions.ThirdReminderInDays;
-
-            if (todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(firstReminderInDays)) ||
+            if (_communicationTypesForUnreadReminders.Contains(email._ofm_communication_type_value))
+            {
+                if (todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(firstReminderInDays)) ||
                 todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(secondReminderInDays)) ||
                 todayRange.WithinRange(email.ofm_sent_on.GetValueOrDefault().AddDays(thirdReminderInDays)))
 
-                return true;
+                    return true;
+            }
         }
 
         return false;
@@ -299,6 +302,10 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             _activeCommunicationTypes = d365Result.AsArray()
                                             .Select(comm_type => string.Concat("'", comm_type?["ofm_communication_typeid"], "'"))
                                             .ToArray<string>();
+            _communicationTypesForUnreadReminders = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.ActionRequired.ToString() ||
+                                                                                         type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.DebtLetter.ToString() ||
+                                                                                         type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.FundingAgreement.ToString())
+                                                                   .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
 
         }
     }
