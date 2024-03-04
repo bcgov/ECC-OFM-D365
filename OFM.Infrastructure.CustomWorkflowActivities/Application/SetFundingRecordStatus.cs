@@ -31,7 +31,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
             tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: Application - SetFundingRecordStatus", DateTime.Now.ToLongTimeString());
             try
             {
-                ofm_application applicationRcord = (ofm_application)service.Retrieve("ofm_application", recordId, new ColumnSet("statuscode"));
+                ofm_application applicationRcord = (ofm_application)service.Retrieve(ofm_application.EntityLogicalName, recordId, new ColumnSet("statuscode"));
                 int statusReason = applicationRcord.GetAttributeValue<OptionSetValue>("statuscode").Value;
 
                 tracingService.Trace("Checking Application record StatusReason value:{0} ", statusReason);
@@ -41,7 +41,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                     var fetchData = new
                     {
                         ofm_application = recordId.ToString(),
-                        statecode = $"{(int)ofm_funding_rate_statecode.Active}",
+                        statecode = $"{(int)ofm_funding_statecode.Active}",
                         statuscode = $"{(int)ofm_funding_StatusCode.Draft}"
                     };
                     var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
@@ -68,10 +68,12 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                         var id = fundingRecords[0].Id;
                         tracingService.Trace("\nActive funding record to be updated with FA Review status: " + id);
 
-                        ofm_funding fundingRecordTable = new ofm_funding();
-                        fundingRecordTable.Id = id;
-                        fundingRecordTable.statuscode = ofm_funding_StatusCode.FAReview;
-                        service.Update(fundingRecordTable);
+                        var entityToUpdate = new ofm_funding
+                        {
+                            Id = id,
+                            statuscode = ofm_funding_StatusCode.FAReview
+                        };
+                        service.Update(entityToUpdate);
 
                         tracingService.Trace("\nChange sucessfully active funding detail record status from Draft to FA review.");
                     }
