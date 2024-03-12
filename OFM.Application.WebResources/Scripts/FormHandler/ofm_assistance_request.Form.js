@@ -24,12 +24,12 @@ OFM.AssistanceRequest.Form = {
             case 6: //bulkedit
                 break;
         }
-        OFM.AssistanceRequest.Form.verifyRequestFacilityGrid(executionContext);
+        this.verifyRequestFacilityGrid(executionContext);
     },
 
     //A function called on save
     onSave: function (executionContext) {
-
+        this.unableToCloseRequest(executionContext);
     },
 
     getTypeOfForm: function () {
@@ -37,7 +37,7 @@ OFM.AssistanceRequest.Form = {
     },
 
     verifyRequestFacilityGrid: function (executionContext) {
-        debugger;
+        //debugger;
         var formContext = executionContext.getFormContext();
         var grid = formContext.getControl("Subgrid_new_1");
 
@@ -58,5 +58,90 @@ OFM.AssistanceRequest.Form = {
                 }
             );
         });
+    },
+
+    showHideChecklistSection: function (executionContext) {
+        //debugger;
+        var formContext = executionContext.getFormContext();
+        var subTypes = formContext.getAttribute("ofm_subcategory").getValue();
+
+        if (subTypes != null) {
+            var updatedArray = this.returnChecklistSectionArray(subTypes);
+            for (var element in updatedArray) {
+                var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
+                section.setVisible(updatedArray[element]);
+                if (!updatedArray[element]) {
+                    var controls = section.controls.get();
+                    var controlsLength = controls.length;
+                    for (var i = 0; i < controlsLength; i++) {
+                        var controlName = controls[i].getName();
+                        formContext.getControl(controlName).clearNotification(controlName);
+                    }
+                }
+            }
+        }
+    },
+
+    returnChecklistSectionArray: function (subTypes) {
+        //debugger;
+        const sectionArray = { section_6: false, section_7: false, section_8: false };
+        var subType = JSON.parse(subTypes);
+        for (var i = 0; i < subType.length; i++) {
+            if (subType[i]._name == "Organization Details" || subType[i].name == "Organization Details") {
+                sectionArray.section_6 = true;
+            }
+            else if (subType[i]._name == "Facility Details" || subType[i].name == "Facility Details") {
+                sectionArray.section_7 = true;
+            }
+            else if (subType[i]._name == "Add/change a licence" || subType[i].name == "Add/change a licence") {
+                sectionArray.section_8 = true;
+            }
+        }
+        return sectionArray;
+    },
+
+    unableToCloseRequest: function (executionContext) {
+        //debugger;
+        var formContext = executionContext.getFormContext();
+        var statusReason = formContext.getAttribute("statuscode").getValue();
+        this.restrictCloseRequest(formContext, statusReason);
+    },
+
+    restrictCloseRequest: function (formContext, statusReason) {
+        //debugger;
+        var flag = true;
+        if (statusReason == 4 || statusReason == 0) {
+            var subTypes = formContext.getAttribute("ofm_subcategory").getValue();
+            if (subTypes != null) {
+                var updatedArray = this.returnChecklistSectionArray(subTypes);
+                for (var element in updatedArray) {
+                    if (updatedArray[element]) {
+                        var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
+                        var controls = section.controls.get();
+                        var controlsLength = controls.length;
+
+                        for (var i = 0; i < controlsLength; i++) {
+                            var controlName = controls[i].getName();
+                            if (controls[i].getAttribute().getValue() === 1 || controls[i].getAttribute().getValue() === 3) {
+                                formContext.getControl(controlName).setNotification("Mark this as either Complete or N/A", controlName);
+                                if (flag)
+                                    flag = false;
+                            }
+                            else {
+                                formContext.getControl(controlName).clearNotification(controlName);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return flag;
+    },
+
+    clearFieldNotification: function (executionContext) {
+        //debugger;
+        var formContext = executionContext.getFormContext();
+        var controlName = executionContext.getEventSource().getName();
+        formContext.getControl(controlName).clearNotification(controlName);
     }
-};
+}
