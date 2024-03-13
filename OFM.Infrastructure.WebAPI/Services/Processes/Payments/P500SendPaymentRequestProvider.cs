@@ -1,11 +1,17 @@
-﻿using Microsoft.Extensions.Options;
+﻿using HandlebarsDotNet;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Interfaces;
+using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Extensions;
+using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 
@@ -26,7 +32,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         _BCRegistrySettings = ApiKeyBCRegistry.Value.BCRegistryApi;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process); ;
+        _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
 
@@ -38,29 +44,30 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         get
         {
             var fetchXml = $"""
-                    <fetch distinct="true" no-lock="true">
-                      <entity name="account">
-                        <attribute name="accountid" />
-                        <attribute name="ofm_business_number" />
-                        <attribute name="name" />
-                        <attribute name="modifiedon" />
-                        <attribute name="statecode" />
-                        <attribute name="statuscode" />
-                        <filter type="and">
-                          <condition attribute="accountid" operator="eq" value="{_processParams?.Organization?.organizationId}" />                  
+                    <fetch>
+                      <entity name="ofm_application">
+                        <attribute name="ofm_application_type" />
+                        <attribute name="ofm_applicationid" />
+                        <attribute name="ofm_contact" />
+                        <filter>
+                          <condition attribute="statuscode" operator="eq" value="5" />
                         </filter>
+                        <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid">
+                          <attribute name="ofm_envelope_grand_total" />
+                          <attribute name="ofm_fundingid" />
+                        </link-entity>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_applications?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
             return requestUri;
         }
     }
-
+   
     public async Task<ProcessData> GetData()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P500SendPaymentRequestProvider));
@@ -95,66 +102,122 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
         return await Task.FromResult(_data);
     }
+  
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
+      
 
         var startTime = _timeProvider.GetTimestamp();
+        string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}\n" +
+                              "{{feederNumber}}{{batchType}}{{transactionType}}{{supplierNumber}}{{supplierSiteNumber}}FY1920AE125552                                                        {{invoiceType}}{{invoiceDate}}{{payGroupLookup}}{{remittanceCode}}{{grossInvoiceAmount}}{{CAD}}{{invoiceDate}}Immediate                                         Top-up CALP 2019-20                                                 20191115AE20NOVFSK03                           N                                                                                                                                             \n" +
+                              "{{feederNumber}}{{batchType}}{{transactionType}}{{supplierNumber}}{{supplierSiteNumber}}FY1920AE125552                                    {{invoiceLineNumber}}0000000000009000.00D0191121118608776611304120000000000                Top-up CALP 2019-20                                    201911150000000.00000000000000.00                                                                                                                                                                   078766                                                                                                                                                                                               \n" +
+                              "{{feederNumber}}{{batchType}}{{transactionType}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{ControlCount}}{{controlAmount}}";
+        var template = Handlebars.Compile(source);
 
-        string? queryValue = (!String.IsNullOrEmpty(processParams?.Organization?.incorporationNumber)) ?
-             (_processParams?.Organization?.incorporationNumber)!.Trim() : (_processParams?.Organization?.legalName)!.Trim();
-
-        var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
-        var status = "active";
-        var queryString = $"?query=value:{queryValue}::identifier:::bn:::name:" +
-                          $"&categories=legalType:{legalType}::status:{status}";
-
-        var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
-
-        var client = new HttpClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, path);
-        request.Headers.Add("Account-Id", "1");
-        request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
-
-        var response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-
-        BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
-
-        if (searchResult is null || searchResult.searchResults.totalResults < 1)
+        var data = new
         {
-            // Todo: Add a new message for this scenario or try seach by name
-            _logger.LogError(CustomLogEvent.Process, "No results found.");
-            return ProcessResult.PartialSuccess(ProcessId, ["No records found."], 0, 0).SimpleProcessResult;
+            feederNumber = "f3540t",
+            batchType = "AP",
+            transactionType = "BH",
+            cGIBatchNumber = "000100111",
+            messageVersionNumber = "0001",
+            supplierNumber = "078766ABH",
+            supplierSiteNumber = "001",
+            // dynamic invoice number from OFM CRM.
+            invoiceNumber = "FY1920AE125552                                                        ",
+            invoiceType = "ST",
+            invoiceDate = "20240322", // this should be current date time
+            payGroupLookup = "GEN EFT N",
+            remittanceCode = "00  ", // for payment stub it is 00 always.
+            grossInvoiceAmount = "000000009000.00", // invoice amount come from OFM total base value.
+            currencyCode = "CAD",
+           // defaultEffectiveDate = invoiceDate, // default effectiveDate is same as invoiceDAte.
+            termsName = "Immediate",
+            description = "                                         Top-up CALP 2019-20                                                 ",
+           // invoiceReceivedDate = invoiceDate,
+            oracleBatchName = "AE20NOVFSK03                           ",
+            payAlone = "Y",
+            invoiceLineNumber = "0001",
+            lineAmount = "0000000000009000.00",
+            lineCode = "D",
+            distributionACK = "0191121118608776611304120000000000",
+            distributionSupplierNumber = "078766   ",
+            fiscalYear = "2025",
+            ControlCount = "000000000000002",
+            controlAmount = "000000009000.00"
+    };
+
+        var result = template(data);
+
+
+        // Save the result to a text file
+        File.WriteAllText("output.txt", result);
+
+        Console.WriteLine("Template converted and saved to output.txt");
+
+        string filePath = "example.txt";
+
+        // Specify the character indices
+        int startIndex = 5;
+        int endIndex = 10;
+
+        // Read the content of the file
+        string fileContent;
+        using (StreamReader reader = new StreamReader(filePath))
+        {
+            fileContent = reader.ReadToEnd();
         }
 
-        if (searchResult.searchResults.totalResults > 1)
+        // Extract characters based on indices
+        string parsedData = fileContent.Substring(startIndex, endIndex - startIndex + 1);
+
+        // Print the parsed data
+        Console.WriteLine(parsedData);
+        var localData = await GetData();
+
+       var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<PaymentApplication>>(localData.Data.ToString());
+
+        #region  Step 1: Create Payment Records for all approved applications.
+
+
+        List<HttpRequestMessage> sendCreatePaymentRequests = [];
+        serializedData?.ForEach(Application =>
         {
-            // ToDo: Process and filter the result further
-            _logger.LogError(CustomLogEvent.Process, "More than one records returned. Please resolve this issue to ensure uniqueness");
-            return ProcessResult.PartialSuccess(ProcessId, ["Multiple results returned."], 0, 0).SimpleProcessResult;
+            sendCreatePaymentRequests.Add(new CreateRequest("ofm_payments",
+                new JsonObject(){
+                       // {"ofm_facility",Application._ofm_facility_value },
+                        {"ofm_funding_amount", 6778}
+                      //  {"ofm_application", Application.ofm_applicationid }
+                }));
+        });
+
+        var sendPaymentBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreatePaymentRequests, new Guid(processParams.CallerObjectId.ToString()));
+
+        if (sendPaymentBatchResult.Errors.Any())
+        {
+            var sendCreatePaymentError = ProcessResult.Failure(ProcessId, sendPaymentBatchResult.Errors, sendPaymentBatchResult.TotalProcessed, sendPaymentBatchResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to create payment with an error: {error}", JsonValue.Create(sendCreatePaymentError)!.ToString());
+
+            return sendCreatePaymentError.SimpleProcessResult;
         }
 
-        var statement = $"accounts({_processParams?.Organization?.organizationId.ToString()})";
 
-        var payload = new JsonObject {
-                { "ofm_good_standing_status", searchResult.searchResults.results.First().goodStanding ? 1 : 0},
-                { "ofm_good_standing_validated_on", DateTime.UtcNow }
-        };
+        
 
-        var requestBody = JsonSerializer.Serialize(payload);
+            
 
-        var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, statement, requestBody);
+       
+        return sendPaymentBatchResult.SimpleBatchResult;
+        #endregion
 
-        if (!patchResponse.IsSuccessStatusCode)
-        {
-            var responseBody = await patchResponse.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to patch GoodStanding status on organization with the server error {responseBody}", responseBody.CleanLog());
-
-            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
-        }
-
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
+
+ 
+
+
+  
+
+    
 }

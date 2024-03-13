@@ -248,10 +248,23 @@ public class FundingRate : ofm_funding_rate
 {
     public new decimal? ofm_rate { get; set; }
 }
-
-
+public class PaymentApplication : ofm_application
+{
+    
+    public string? ofm_applicationid { get; set; }
+    public string? _ofm_facility_value { get; set; }
+    public new Funding? ofm_funding { get; set; }
+}
+public class Funding : ofm_funding
+{
+    public string? ofm_fundingid { get; set; }
+    public new decimal? ofm_envelope_grand_total { get; set; }
+}
 public class Application : ofm_application
 {
+    public string? ofm_applicationid { get; set; }
+    public string? _ofm_facility_value { get; set; }
+    public new Funding? ofm_funding { get; set; }
     public new decimal? ofm_costs_furniture_equipment { get; set; }
     public new decimal? ofm_costs_yearly_operating_costs { get; set; }
     public new decimal? ofm_costs_year_facility_costs { get; set; }
