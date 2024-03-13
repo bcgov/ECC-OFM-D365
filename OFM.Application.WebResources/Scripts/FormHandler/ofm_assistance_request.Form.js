@@ -16,6 +16,9 @@ OFM.AssistanceRequest.Form = {
 
             case 2: // update                           
                 this.getTypeOfForm();
+                this.verifyRequestFacilityGrid(executionContext);
+                this.showHideSubType(executionContext);
+                this.showHideChecklistSection(executionContext);
                 break;
             case 3: //readonly
                 break;
@@ -24,7 +27,6 @@ OFM.AssistanceRequest.Form = {
             case 6: //bulkedit
                 break;
         }
-        this.verifyRequestFacilityGrid(executionContext);
     },
 
     //A function called on save
@@ -60,23 +62,38 @@ OFM.AssistanceRequest.Form = {
         });
     },
 
+    showHideSubType: function (executionContext) {
+        //debugger;
+        var formContext = executionContext.getFormContext();
+        var requestCategory = formContext.getAttribute("ofm_request_category").getValue();
+        if (requestCategory != null) {
+            var requestCategoryName = requestCategory[0].name;
+            if (requestCategoryName == "Account Maintenance") {
+                formContext.getControl("ofm_subcategory").setVisible(true);
+            }
+            else {
+                formContext.getControl("ofm_subcategory").setVisible(false);
+                formContext.getAttribute("ofm_subcategory").setValue(null);
+                this.showHideChecklistSection(executionContext);
+            }
+        }
+    },
+
     showHideChecklistSection: function (executionContext) {
         //debugger;
         var formContext = executionContext.getFormContext();
         var subTypes = formContext.getAttribute("ofm_subcategory").getValue();
-
-        if (subTypes != null) {
-            var updatedArray = this.returnChecklistSectionArray(subTypes);
-            for (var element in updatedArray) {
-                var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
-                section.setVisible(updatedArray[element]);
-                if (!updatedArray[element]) {
-                    var controls = section.controls.get();
-                    var controlsLength = controls.length;
-                    for (var i = 0; i < controlsLength; i++) {
-                        var controlName = controls[i].getName();
-                        formContext.getControl(controlName).clearNotification(controlName);
-                    }
+        var updatedArray = this.returnChecklistSectionArray(subTypes);
+        for (var element in updatedArray) {
+            var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
+            section.setVisible(updatedArray[element]);
+            if (!updatedArray[element]) {
+                var controls = section.controls.get();
+                var controlsLength = controls.length;
+                for (var i = 0; i < controlsLength; i++) {
+                    var controlName = controls[i].getName();
+                    controls[i].getAttribute().setValue(1);
+                    formContext.getControl(controlName).clearNotification(controlName);
                 }
             }
         }
@@ -86,22 +103,23 @@ OFM.AssistanceRequest.Form = {
         //debugger;
         const sectionArray = { section_6: false, section_7: false, section_8: false };
         var subType = JSON.parse(subTypes);
-        for (var i = 0; i < subType.length; i++) {
-            if (subType[i]._name == "Organization Details" || subType[i].name == "Organization Details") {
-                sectionArray.section_6 = true;
-            }
-            else if (subType[i]._name == "Facility Details" || subType[i].name == "Facility Details") {
-                sectionArray.section_7 = true;
-            }
-            else if (subType[i]._name == "Add/change a licence" || subType[i].name == "Add/change a licence") {
-                sectionArray.section_8 = true;
+        if (subType != null) {
+            for (var i = 0; i < subType.length; i++) {
+                if (subType[i]._name == "Organization Details" || subType[i].name == "Organization Details") {
+                    sectionArray.section_6 = true;
+                }
+                else if (subType[i]._name == "Facility Details" || subType[i].name == "Facility Details") {
+                    sectionArray.section_7 = true;
+                }
+                else if (subType[i]._name == "Add/change a licence" || subType[i].name == "Add/change a licence") {
+                    sectionArray.section_8 = true;
+                }
             }
         }
         return sectionArray;
     },
 
     unableToCloseRequest: function (executionContext) {
-        //debugger;
         var formContext = executionContext.getFormContext();
         var statusReason = formContext.getAttribute("statuscode").getValue();
         this.restrictCloseRequest(formContext, statusReason);
@@ -112,24 +130,22 @@ OFM.AssistanceRequest.Form = {
         var flag = true;
         if (statusReason == 4 || statusReason == 0) {
             var subTypes = formContext.getAttribute("ofm_subcategory").getValue();
-            if (subTypes != null) {
-                var updatedArray = this.returnChecklistSectionArray(subTypes);
-                for (var element in updatedArray) {
-                    if (updatedArray[element]) {
-                        var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
-                        var controls = section.controls.get();
-                        var controlsLength = controls.length;
+            var updatedArray = this.returnChecklistSectionArray(subTypes);
+            for (var element in updatedArray) {
+                if (updatedArray[element]) {
+                    var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
+                    var controls = section.controls.get();
+                    var controlsLength = controls.length;
 
-                        for (var i = 0; i < controlsLength; i++) {
-                            var controlName = controls[i].getName();
-                            if (controls[i].getAttribute().getValue() === 1 || controls[i].getAttribute().getValue() === 3) {
-                                formContext.getControl(controlName).setNotification("Mark this as either Complete or N/A", controlName);
-                                if (flag)
-                                    flag = false;
-                            }
-                            else {
-                                formContext.getControl(controlName).clearNotification(controlName);
-                            }
+                    for (var i = 0; i < controlsLength; i++) {
+                        var controlName = controls[i].getName();
+                        if (controls[i].getAttribute().getValue() === 1 || controls[i].getAttribute().getValue() === 3) {
+                            formContext.getControl(controlName).setNotification("Mark this as either Complete or N/A", controlName);
+                            if (flag)
+                                flag = false;
+                        }
+                        else {
+                            formContext.getControl(controlName).clearNotification(controlName);
                         }
                     }
                 }
