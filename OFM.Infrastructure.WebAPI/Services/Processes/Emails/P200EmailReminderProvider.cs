@@ -202,7 +202,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                         }
                         },
                     { "Target", new JsonObject  {
-                         { "ofm_shownotificationonportal" , false},
+                         { "ofm_shownotificationportal" , false},
 
         {"email_activity_parties", new JsonArray(){
                                     new JsonObject
@@ -222,7 +222,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                 } } }, _d365AuthSettings));
         });
 
-        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendEmailRequests, new Guid(processParams.CallerObjectId.ToString()));
+        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendEmailRequests,_d365AuthSettings.CallerObjectId);
 
         if (sendEmailBatchResult.Errors.Any())
         {
