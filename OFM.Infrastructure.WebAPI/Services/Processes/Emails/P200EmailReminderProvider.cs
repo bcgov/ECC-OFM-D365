@@ -18,6 +18,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     private readonly NotificationSettings _notificationSettings;
     private readonly ID365AppUserService _appUserService;
     private readonly ID365WebApiService _d365webapiservice;
+    private readonly D365AuthSettings _d365AuthSettings;
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
@@ -25,11 +26,12 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     private string[] _communicationTypesForUnreadReminders = [];
     private string _requestUri = string.Empty;
 
-    public P200EmailReminderProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P200EmailReminderProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
+        _d365AuthSettings = d365AuthSettings.Value;
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
@@ -85,10 +87,17 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                 </fetch>
                                 """;
 
+                //var requestUri = $"""                                
+                //            emails?$select=subject,createdon,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,_regardingobjectid_value,ofm_sent_on,ofm_expiry_time
+                //            &$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))
+                //            &$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='ofm_expiry_time',PropertyValue=29) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=[{communicationTypesString}]))
+                //            """;
+
+
                 var requestUri = $"""                                
                                 emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,_regardingobjectid_value,ofm_sent_on,ofm_expiry_time
                                 &$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))
-                                &$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='ofm_expiry_time',PropertyValue=29) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=[{communicationTypesString}]))
+                                &$filter=(lastopenedtime eq null and torecipients ne null and (Microsoft.Dynamics.CRM.NextXDays(PropertyName='ofm_expiry_time',PropertyValue=29) or Microsoft.Dynamics.CRM.Today(PropertyName='createdon')) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=[{communicationTypesString}]))
                                 """;
 
                 _requestUri = requestUri.CleanCRLF();
@@ -166,8 +175,8 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
         #region Step 1: Create the email reminders as Completed-Pending Send
 
-        JsonArray recipientsList = new() { };
-        string? contactId;
+        List<string> recipientsList = new() { };
+        string? contactId = null;
         // foreach contact, check if the email address is on the safe list configured on the appsettings, if yes then carry on, else replace the email with a default email address
         uniqueContacts.ForEach(contact =>
         {
@@ -175,36 +184,52 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
             if (_notificationSettings.EmailSafeList.Enable &&
                 !_notificationSettings.EmailSafeList.Recipients.Any(x => x.Equals(contact.Key.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
-            {                       
+            {
                 contactId = _notificationSettings.EmailSafeList.DefaultContactId;
             }
 
             recipientsList.Add($"contacts({contactId})");
         });
-
-        var contentBody = new JsonObject {
-                { "TemplateId" , _notificationSettings.EmailTemplates.First(t=>t.TemplateNumber == 201).TemplateId}, //Action Required: A communication regarding OFM funding requires your attention.
-                { "Sender" , new JsonObject {
-                                        { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
-                                        { "systemuserid",_notificationSettings.DefaultSenderId}
-                                }
-                },
-                { "Recipients" , recipientsList },
-                { "Regarding" , new JsonObject {
-                                        { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
-                                        { "systemuserid",_notificationSettings.DefaultSenderId}
-                                }
-                } // Regarding is a required parameter.Temporarily set it to the PA service account, but this will not set the Regarding on the new records
-        };
-
-        HttpResponseMessage bulkEmailsResponse = await d365WebApiService.SendBulkEmailTemplateMessageAsync(appUserService.AZSystemAppUser, contentBody, null);
-
-        if (!bulkEmailsResponse.IsSuccessStatusCode)
+        List<HttpRequestMessage> sendEmailRequests = [];
+        recipientsList?.ForEach(contact =>
         {
-            var responseBody = await bulkEmailsResponse.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to create email reminder records with a server error: {error}", responseBody);
+            sendEmailRequests.Add(new SendEmailRequest(
+                new JsonObject(){
+                        { "TemplateId" , _notificationSettings.EmailTemplates.First(t=>t.TemplateNumber == 201).TemplateId}, //Action Required: A communication regarding OFM funding requires your attention.
+                        { "Regarding" , new JsonObject {
+                                                { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
+                                                { "systemuserid",_notificationSettings.DefaultSenderId}
+                                        }
+                        },
+                    { "Target", new JsonObject  {
+                         { "ofm_shownotificationonportal" , false},
 
-            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, localData.Data.AsArray().Count).SimpleProcessResult;
+        {"email_activity_parties", new JsonArray(){
+                                    new JsonObject
+                                    {
+                                        {"partyid_systemuser@odata.bind", $"/systemusers({_notificationSettings.DefaultSenderId})"},
+                                        { "participationtypemask", 1 } //From Email
+                                    },
+                                    new JsonObject
+                                    {
+                                        { "partyid_contact@odata.bind", $"/contacts({contactId})" },
+                                        { "participationtypemask",   2 } //To Email                             
+                                    }
+                                }},
+
+                        { "@odata.type", "Microsoft.Dynamics.CRM.email" }
+
+                } } }, _d365AuthSettings));
+        });
+
+        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendEmailRequests, new Guid(processParams.CallerObjectId.ToString()));
+
+        if (sendEmailBatchResult.Errors.Any())
+        {
+            var sendNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
+
+            return sendNotificationError.SimpleProcessResult;
         }
 
         _logger.LogInformation(CustomLogEvent.Process, "Total email reminders created {uniqueContacts}", uniqueContacts.Count);
