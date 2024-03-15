@@ -293,11 +293,9 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
         var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
 
-        goodStandingStatusYN = 1;  // test only
-
-
-        if (deserializedData.Count < 1)                                                                           
+        if (deserializedData.Count < 1)                  // no records found                                                              
         {
+            // Operation - Create new record
             var entitySetName = "ofm_standing_histories";                                                      // Case 1. create new record --> open (active)
             var payload = new JsonObject {
                                 { "ofm_good_standing_status", goodStandingStatusYN },                                 // 0 - No, 1 - Yes
@@ -313,7 +311,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
             var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
         }
 
-        if (deserializedData.Count >= 1)
+        if (deserializedData.Count >= 1)                // Records found
         {
             var standingHistoryId = deserializedData.First().ofm_standing_historyid;
             var goodStandingStatus_History = deserializedData.First().ofm_good_standing_status;
