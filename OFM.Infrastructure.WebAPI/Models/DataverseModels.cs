@@ -1,6 +1,10 @@
 ﻿using ECC.Core.DataContext;
+using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System;
+using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
@@ -203,7 +207,19 @@ public record D365Organization_Account
     public string? ofm_incorporation_number { get; set; }
     public string? ofm_business_number { get; set; }
     public int statecode { get; set; }
+}
 
+public record D365StandingHistory
+{
+    public string? ofm_standing_historyid { get; set; }
+    public string? _ofm_organization_value { get; set; }
+    public int? ofm_good_standing_status { get; set; }
+    public DateTime? ofm_start_date { get; set; }
+    public DateTime? ofm_end_date { get; set; }
+    public DateTime? ofm_validated_on { get; set; }
+    public decimal? ofm_duration { get; set; }
+    public int statecode { get; set; }
+    public int statuscode { get; set; }
 }
 
 public record FileMapping
