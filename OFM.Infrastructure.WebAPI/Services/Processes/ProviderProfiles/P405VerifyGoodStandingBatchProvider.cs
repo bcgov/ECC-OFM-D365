@@ -3,11 +3,9 @@ using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using System;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Xml.Linq;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 

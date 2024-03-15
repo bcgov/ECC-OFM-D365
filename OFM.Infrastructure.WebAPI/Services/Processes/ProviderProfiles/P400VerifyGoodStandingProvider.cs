@@ -1,17 +1,11 @@
-﻿using HandlebarsDotNet.Helpers.Enums;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Services;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using System;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 
