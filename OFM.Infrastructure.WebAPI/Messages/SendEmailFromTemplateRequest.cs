@@ -1,24 +1,20 @@
 ﻿using OFM.Infrastructure.WebAPI.Extensions;
+using OFM.Infrastructure.WebAPI.Models;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Messages;
 
-public class SendEmailRequest : HttpRequestMessage
+public class SendEmailFromTemplateRequest : HttpRequestMessage
 {
-    public SendEmailRequest(Guid id, JsonObject record)
+    public SendEmailFromTemplateRequest(JsonObject record, D365AuthSettings d365AuthSettings)
     {
-        var path = $"emails({id})/Microsoft.Dynamics.CRM.SendEmail";
-
+        var path = $"{d365AuthSettings.WebApiUrl}SendEmailFromTemplate";
         Method = HttpMethod.Post;
-
+        RequestUri = new Uri(path, UriKind.Absolute);
         Content = new StringContent(
                 content: record.ToJsonString(),
                 encoding: System.Text.Encoding.UTF8,
                 mediaType: "application/json");
-
-        RequestUri = new Uri(
-          uriString: Setup.PrepareUri(path),
-          uriKind: UriKind.Relative);
 
         if (Headers != null)
         {

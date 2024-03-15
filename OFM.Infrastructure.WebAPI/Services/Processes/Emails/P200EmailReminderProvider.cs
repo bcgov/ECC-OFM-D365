@@ -87,13 +87,6 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                 </fetch>
                                 """;
 
-                //var requestUri = $"""                                
-                //            emails?$select=subject,createdon,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,_regardingobjectid_value,ofm_sent_on,ofm_expiry_time
-                //            &$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))
-                //            &$filter=(lastopenedtime eq null and torecipients ne null and Microsoft.Dynamics.CRM.NextXDays(PropertyName='ofm_expiry_time',PropertyValue=29) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=[{communicationTypesString}]))
-                //            """;
-
-
                 var requestUri = $"""                                
                                 emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,_regardingobjectid_value,ofm_sent_on,ofm_expiry_time
                                 &$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))
@@ -190,10 +183,10 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
             recipientsList.Add($"contacts({contactId})");
         });
-        List<HttpRequestMessage> sendEmailRequests = [];
+        List<HttpRequestMessage> SendEmailFromTemplateRequest = [];
         recipientsList?.ForEach(contact =>
         {
-            sendEmailRequests.Add(new SendEmailRequest(
+            SendEmailFromTemplateRequest.Add(new SendEmailFromTemplateRequest(
                 new JsonObject(){
                         { "TemplateId" , _notificationSettings.EmailTemplates.First(t=>t.TemplateNumber == 201).TemplateId}, //Action Required: A communication regarding OFM funding requires your attention.
                         { "Regarding" , new JsonObject {
@@ -202,7 +195,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                         }
                         },
                     { "Target", new JsonObject  {
-                         { "ofm_shownotificationportal" , false},
+                         { "ofm_show_notification_on_portal" , false},
 
         {"email_activity_parties", new JsonArray(){
                                     new JsonObject
@@ -222,14 +215,14 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                 } } }, _d365AuthSettings));
         });
 
-        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendEmailRequests,_d365AuthSettings.CallerObjectId);
+        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, SendEmailFromTemplateRequest,null);
 
         if (sendEmailBatchResult.Errors.Any())
         {
-            var sendNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
-            _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
+            var sendReminderError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to send Reminder with an error: {error}", JsonValue.Create(sendReminderError)!.ToString());
 
-            return sendNotificationError.SimpleProcessResult;
+            return sendReminderError.SimpleProcessResult;
         }
 
         _logger.LogInformation(CustomLogEvent.Process, "Total email reminders created {uniqueContacts}", uniqueContacts.Count);
