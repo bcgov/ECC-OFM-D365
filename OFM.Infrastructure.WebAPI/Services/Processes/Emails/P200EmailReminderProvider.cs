@@ -205,7 +205,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                     },
                                     new JsonObject
                                     {
-                                        { "partyid_contact@odata.bind", $"/contacts({contactId})" },
+                                        { "partyid_contact@odata.bind", $"/contacts({contact})" },
                                         { "participationtypemask",   2 } //To Email                             
                                     }
                                 }},
