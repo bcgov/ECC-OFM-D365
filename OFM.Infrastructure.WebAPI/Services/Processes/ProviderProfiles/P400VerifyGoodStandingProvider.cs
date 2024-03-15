@@ -24,6 +24,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
+    private string _organizationId;
 
     public P400VerifyGoodStandingProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -63,7 +64,6 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         }
     }
 
-
     public string StandingHistoryRequestUri
     {
         get
@@ -83,7 +83,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                         <order attribute="ofm_start_date" descending="true" />
                         <filter type="and">
                           <condition attribute="statecode" operator="eq" value="0" />
-                          <condition attribute="ofm_organization" operator="eq" value="{_processParams?.Organization?.organizationId}" /> 
+                          <condition attribute="ofm_organization" operator="eq" value="{_organizationId}" /> 
                         </filter>  
                       </entity>
                     </fetch>
@@ -289,6 +289,8 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
     private async Task<JsonObject> CreateUpdateStandingHistory(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string organizationId, int goodStandingStatusYN)
     {
+        _organizationId = organizationId;
+
         var localData = await GetStandingHistoryDataAsync();
 
         var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
@@ -368,7 +370,6 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                 var requestBody2 = JsonSerializer.Serialize(payload2);
                 var CreateResponse2 = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
             }
-
         }
  
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
