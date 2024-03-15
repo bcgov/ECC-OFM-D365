@@ -334,6 +334,11 @@
             Defines the source generated JSON serialization contract metadata for a given type.
             </summary>
         </member>
+        <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.Guid">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
         <member name="P:OFM.Infrastructure.WebAPI.Models.D365AuthSettingsSerializationContext.Int16">
             <summary>
             Defines the source generated JSON serialization contract metadata for a given type.

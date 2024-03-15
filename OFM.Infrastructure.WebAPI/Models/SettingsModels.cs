@@ -87,6 +87,8 @@ public record D365AuthSettings
     public required string SearchVersion { get; set; }
     public required List<AZAppUser> AZAppUsers { get; set; }
     public required string HttpClientName { get; set; }
+    public required Guid CallerObjectId { get; set; }
+    
 }
 
 public record AZAppUser
