@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Services;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
@@ -19,6 +18,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
+    private string _organizationId;
 
     public P400VerifyGoodStandingProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -52,6 +52,39 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
             var requestUri = $"""
                          accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         """;
+
+            return requestUri;
+        }
+    }
+
+    public string StandingHistoryRequestUri
+    {
+        get
+        {
+            var fetchXml = $"""
+                    <fetch top="5" distinct="true" no-lock="true">
+                      <entity name="ofm_standing_history">
+                        <attribute name="ofm_standing_historyid" />
+                        <attribute name="ofm_organization" />
+                        <attribute name="ofm_good_standing_status" />
+                        <attribute name="ofm_start_date" />
+                        <attribute name="ofm_end_date" />
+                        <attribute name="ofm_validated_on" />
+                        <attribute name="ofm_duration" />
+                        <attribute name="statecode" />
+                        <attribute name="statuscode" />
+                        <order attribute="ofm_start_date" descending="true" />
+                        <filter type="and">
+                          <condition attribute="statecode" operator="eq" value="0" />
+                          <condition attribute="ofm_organization" operator="eq" value="{_organizationId}" /> 
+                        </filter>  
+                      </entity>
+                    </fetch>
+                    """;
+
+            var requestUri = $"""
+                         ofm_standing_histories?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
             return requestUri;
@@ -93,6 +126,37 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         return await Task.FromResult(_data);
     }
 
+    private async Task<ProcessData> GetStandingHistoryDataAsync()
+    {
+        _logger.LogDebug(CustomLogEvent.Process, "GetStandingHistoryDataAsync");
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, StandingHistoryRequestUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query Standing History records with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No Standing History records found with query {requestUri}", StandingHistoryRequestUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
+
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
@@ -105,12 +169,12 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
         deserializedData?.ForEach(async organization =>
         {
-            String organizationId = organization.accountid;
-            String legalName = organization.name;
-            String incorporationNumber = organization.ofm_incorporation_number;
-            String businessNumber = organization.ofm_business_number;
+            string organizationId = organization.accountid;
+            string legalName = organization.name;
+            string incorporationNumber = organization.ofm_incorporation_number;
+            string businessNumber = organization.ofm_business_number;
 
-            string? queryValue = (!String.IsNullOrEmpty(incorporationNumber)) ? incorporationNumber.Trim() : legalName.Trim();
+            string? queryValue = (!string.IsNullOrEmpty(incorporationNumber)) ? incorporationNumber.Trim() : legalName.Trim();
 
             var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
             var status = "active";
@@ -166,10 +230,15 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
             if (searchResult.searchResults.totalResults == 1)
             {
-                goodStandingStatus = searchResult.searchResults.results.First().goodStanding ? 1 : 2;         // 1 - Good, 2 - No Good, 3 - Error 
-                logCategory = 1;                                                                              // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
+                goodStandingStatus = searchResult.searchResults.results.First().goodStanding ? 1 : 2;                // 1 - Good, 2 - No Good, 3 - Error 
+                logCategory = 1;                                                                                     // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
                 subject = "One result returned";
                 await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
+ 
+                // Handling Standing History
+                var goodStandingStatusYN = searchResult.searchResults.results.First().goodStanding ? 1 : 0;          // 0 - No, 1 - Yes 
+                await CreateUpdateStandingHistory(_appUserService, _d365webapiservice, organizationId, goodStandingStatusYN);
+
                 // return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
 
@@ -178,7 +247,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 
-    private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, String organizationId, int goodStandingStatus, string subject, int category, string message, string externalService)
+    private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string organizationId, int goodStandingStatus, string subject, int category, string message, string externalService)
     {
         var statement = $"accounts({organizationId})";
         var payload = new JsonObject {
@@ -195,7 +264,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
             var responseBody = await patchResponse.Content.ReadAsStringAsync();
             _logger.LogError(CustomLogEvent.Process, "Failed to patch GoodStanding status on organization with the server error {responseBody}", responseBody.CleanLog());
 
-            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+            return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
         }
 
         var entitySetName = "ofm_integration_logs";
@@ -209,6 +278,94 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         var requestBody2 = JsonSerializer.Serialize(payload2);
         var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
 
+        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+    }
+
+    private async Task<JsonObject> CreateUpdateStandingHistory(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string organizationId, int goodStandingStatusYN)
+    {
+        _organizationId = organizationId;
+
+        var localData = await GetStandingHistoryDataAsync();
+
+        var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
+
+        if (deserializedData.Count < 1)                  // no records found                                                              
+        {
+            // Operation - Create new record
+            var entitySetName = "ofm_standing_histories";                                                      // Case 1. create new record --> open (active)
+            var payload = new JsonObject {
+                                { "ofm_good_standing_status", goodStandingStatusYN },                                 // 0 - No, 1 - Yes
+                                { "ofm_start_date", DateTime.UtcNow },
+                                //{ "ofm_end_date", endDate },
+                                //{ "ofm_duration", duration.Days },
+                                { "statecode", 0 },                                                                   // 0 - active, 1 - inactive
+                                { "statuscode", 1 },                                                                  // 1 - Open (active), 2 - Closed (inactive)
+                                //{ "ofm_validated_on", DateTime.UtcNow },
+                                { "ofm_organization@odata.bind", $"/accounts({organizationId})"}
+                            };
+            var requestBody = JsonSerializer.Serialize(payload);
+            var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
+        }
+
+        if (deserializedData.Count >= 1)                // Records found
+        {
+            var standingHistoryId = deserializedData.First().ofm_standing_historyid;
+            var goodStandingStatus_History = deserializedData.First().ofm_good_standing_status;
+            //var organizationId_History = deserializedData.First()._ofm_organization_value;
+
+            if (Equals(goodStandingStatus_History, goodStandingStatusYN))                                      // Case 2. open --> update validated_On
+            {
+                // Operation - update the existing record
+                var statement = $"ofm_standing_histories({standingHistoryId})";
+                var payload = new JsonObject {
+                                //{ "ofm_good_standing_status", 0 },                                                 
+                                //{ "ofm_start_date", startDate},
+                                //{ "ofm_end_date", endDate },
+                                //{ "ofm_duration", duration.Days },
+                                //{ "statecode", 1 },                                                                 
+                                //{ "statuscode", 2 },                                                                
+                                { "ofm_validated_on", DateTime.UtcNow}
+                            };
+                var requestBody = JsonSerializer.Serialize(payload);
+                var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, statement, requestBody);
+            }
+            else
+            {
+                DateTime startDate = (DateTime)deserializedData.First().ofm_start_date;
+                DateTime endDate = DateTime.UtcNow;
+                TimeSpan duration = endDate - startDate;
+
+                // Operation - update the existing record and then deactivate it
+                var statement = $"ofm_standing_histories({standingHistoryId})";                                // Case 3.1 update endDate/duration and deactivate previous record
+                var payload = new JsonObject {
+                                //{ "ofm_good_standing_status", 0 },                                                   
+                                //{ "ofm_start_date", startDate},
+                                { "ofm_end_date", endDate  },
+                                { "ofm_duration", duration.Days },
+                                { "statecode", 1 },                                                                    // 1 - inactive
+                                { "statuscode", 2 },                                                                   // 2 - Closed (inactive)
+                                { "ofm_validated_on", (DateTime?)null}
+                            };
+                var requestBody = JsonSerializer.Serialize(payload);
+                var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, statement, requestBody);
+
+                // Operation - Create new record
+                var entitySetName = "ofm_standing_histories";                                                  // Case 3.2 create new record --> open (active)
+                var payload2 = new JsonObject {
+                                { "ofm_good_standing_status", goodStandingStatusYN },
+                                { "ofm_start_date", endDate },
+                                //{ "ofm_end_date", endDate },
+                                //{ "ofm_duration", duration.Days },
+                                { "statecode", 0 },
+                                { "statuscode", 1 },
+                                //{ "ofm_validated_on", DateTime.UtcNow },
+                                { "ofm_organization@odata.bind", $"/accounts({organizationId})"}
+                            };
+                var requestBody2 = JsonSerializer.Serialize(payload2);
+                var CreateResponse2 = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
+            }
+        }
+ 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 }
