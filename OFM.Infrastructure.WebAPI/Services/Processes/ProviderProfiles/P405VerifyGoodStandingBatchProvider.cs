@@ -3,7 +3,6 @@ using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using System;
 using System.Net;
 using System.Text.Json;
@@ -70,6 +69,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
             return requestUri;
         }
     }
+
     public string StandingHistoryRequestUri
     {
         get
@@ -105,7 +105,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
 
     public async Task<ProcessData> GetDataAsync()
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P400VerifyGoodStandingProvider));
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P405VerifyGoodStandingBatchProvider));
 
         if (_data is null)
         {
