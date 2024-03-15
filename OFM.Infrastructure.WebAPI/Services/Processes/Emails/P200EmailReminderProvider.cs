@@ -181,7 +181,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                 contactId = _notificationSettings.EmailSafeList.DefaultContactId;
             }
 
-            recipientsList.Add($"contacts({contactId})");
+            recipientsList.Add(contactId);
         });
         List<HttpRequestMessage> SendEmailFromTemplateRequest = [];
         recipientsList?.ForEach(contact =>
