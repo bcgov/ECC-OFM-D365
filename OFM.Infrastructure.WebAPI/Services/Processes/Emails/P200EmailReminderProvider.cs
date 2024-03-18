@@ -5,6 +5,7 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -89,9 +90,15 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
                 var requestUri = $"""                                
                                 emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,_regardingobjectid_value,ofm_sent_on,ofm_expiry_time
-                                &$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2))
+                                &$expand=email_activity_parties($select=participationtypemask,addressused,_partyid_value;$filter=participationtypemask eq 2)
                                 &$filter=(lastopenedtime eq null and torecipients ne null and (Microsoft.Dynamics.CRM.NextXDays(PropertyName='ofm_expiry_time',PropertyValue=29) or Microsoft.Dynamics.CRM.Today(PropertyName='createdon')) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type',PropertyValues=[{communicationTypesString}]))
                                 """;
+
+                //                var requestUri = $"""
+                //emails?$select=subject,lastopenedtime,torecipients,_emailsender_value,sender,submittedby,statecode,statuscode,_ofm_communication_type_value,_regardingobjectid_value,ofm_sent_on,ofm_expiry_time
+                //&$expand=email_activity_parties($select=participationtypemask,_partyid_value;$filter=(participationtypemask eq 2);$expand=_partyid_value($select=emailaddress1))
+                //&$filter=(lastopenedtime eq null and torecipients ne null and(Microsoft.Dynamics.CRM.NextXDays(PropertyName = 'ofm_expiry_time', PropertyValue = 29) or Microsoft.Dynamics.CRM.Today(PropertyName = 'createdon')) and Microsoft.Dynamics.CRM.In(PropertyName='ofm_communication_type', PropertyValues=[{communicationTypesString}]))
+                //""";
 
                 _requestUri = requestUri.CleanCRLF();
             }
@@ -158,8 +165,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         var dueEmails = serializedData!.Where(e => e.IsCompleted && (IsNewAndUnread(e, todayRange) || IsUnreadReminderRequired(e, todayRange)));
 
         // Send only one email per contact
-        var uniqueContacts = dueEmails.GroupBy(e => e.torecipients).ToList();
-
+        var uniqueContacts = dueEmails.SelectMany(e => e.email_activity_parties.Select(ap => new { ap.addressused, ap._partyid_value })).Distinct().ToList();
         if (uniqueContacts.Count == 0)
         {
             _logger.LogInformation(CustomLogEvent.Process, "Send email reminders completed. No unique contacts found.");
@@ -173,18 +179,16 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         // foreach contact, check if the email address is on the safe list configured on the appsettings, if yes then carry on, else replace the email with a default email address
         uniqueContacts.ForEach(contact =>
         {
-            contactId = contact.ElementAt(0).email_activity_parties?.First()._partyid_value?.Replace("\\u0027", "'");
-
+            contactId = contact._partyid_value;
             if (_notificationSettings.EmailSafeList.Enable &&
-                !_notificationSettings.EmailSafeList.Recipients.Any(x => x.Equals(contact.Key.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
+                !_notificationSettings.EmailSafeList.Recipients.Any(x => x.Equals(contact.addressused?.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
             {
                 contactId = _notificationSettings.EmailSafeList.DefaultContactId;
             }
-
             recipientsList.Add(contactId);
         });
         List<HttpRequestMessage> SendEmailFromTemplateRequest = [];
-        recipientsList?.ForEach(contact =>
+        recipientsList?.ForEach(recepientcontact =>
         {
             SendEmailFromTemplateRequest.Add(new SendEmailFromTemplateRequest(
                 new JsonObject(){
@@ -205,7 +209,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                     },
                                     new JsonObject
                                     {
-                                        { "partyid_contact@odata.bind", $"/contacts({contact})" },
+                                        { "partyid_contact@odata.bind", $"/contacts({recepientcontact})" },
                                         { "participationtypemask",   2 } //To Email                             
                                     }
                                 }},

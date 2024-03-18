@@ -189,7 +189,7 @@ public record D365Email
     public DateTime? ofm_expiry_time { get; set; }
     public string? _regardingobjectid_value { get; set; }
 
-    public Email_Activity_Parties[]? email_activity_parties { get; set; }
+    public Email_Activity_Parties[] email_activity_parties { get; set; }
 
     public bool IsCompleted
     {
@@ -238,6 +238,7 @@ public record Email_Activity_Parties
     public string? _partyid_value { get; set; }
     public string? _activityid_value { get; set; }
     public string? activitypartyid { get; set; }
+    public string? addressused { get; set; }
 }
 
 #region External Parameters
