@@ -52,10 +52,6 @@ OFM.Application.Form = {
     licenceDetailsFromFacility: function (formContext) {
         var facilityId = formContext.getAttribute("ofm_facility").getValue() ? formContext.getAttribute("ofm_facility").getValue()[0].id : null;
         if (facilityId != null) {
-            var fetchxml = "    <filter type='and'>" +
-                "      <condition attribute='ofm_facility' operator='eq' value='" + facilityId.replace("{", "").replace("}", "") + "' />" +
-                "    </filter>";
-            this.addSubgridEventListener(formContext, fetchxml, "Subgrid_new_1");
             var conditionFetchXML = "";
             Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + ")").then(
                 function success(results) {
@@ -185,13 +181,11 @@ OFM.Application.Form = {
                 }
                 else {
                     formContext.ui.clearFormNotification("licence");
-                    //var filterCondition = "<filter type='and'><condition attribute='ofm_licence' operator='in'>";
                     for (var i = 0; i < results.entities.length; i++) {
                         var result = results.entities[i];
                         // Columns
                         var licenceId = result["ofm_licenceid"]; // Guid
                         var licenceName = result["ofm_licence"];
-                        //filterCondition += "< value uitype = 'ofm_licence' > {" + licenceId + "}</value >";
                         Xrm.WebApi.retrieveMultipleRecords("ofm_licence_detail", "?$filter=(statecode eq 0 and _ofm_licence_value eq " + licenceId + ")").then(
                             function success(results) {
                                 if (results.entities.length <= 0) {
@@ -247,14 +241,9 @@ OFM.Application.Form = {
         //debugger;
         var formContext = executionContext;
         var recordId = formContext.data.entity.getId();
-        var statusReason = formContext.getAttribute("statuscode").getValue();
-        var FundingBaseNum = formContext.getAttribute("ofm_funding_number_base").getValue();
-        var parameters = { EntityId: recordId };
         Xrm.WebApi.retrieveMultipleRecords("workflow", "?$select=workflowid&$filter=(name eq 'OFM - Application: Creating Funding Record' and statecode eq 1 and type eq 1)").then(
             function success(results) {
                 console.log(results);
-                //for (var i = 0; i < results.entities.length; i++) {
-                //    var result = results.entities[i];
                     // Columns
                 var workflowid = results.entities[0]["workflowid"]; // Guid
                 //}
