@@ -83,7 +83,7 @@ OFM.AssistanceRequest.Form = {
         //debugger;
         var formContext = executionContext.getFormContext();
         var subTypes = formContext.getAttribute("ofm_subcategory").getValue();
-        var updatedArray = this.returnChecklistSectionArray(subTypes);
+        var updatedArray = this.returnChecklistSectionArray(formContext, subTypes);
         for (var element in updatedArray) {
             var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
             section.setVisible(updatedArray[element]);
@@ -99,23 +99,28 @@ OFM.AssistanceRequest.Form = {
         }
     },
 
-    returnChecklistSectionArray: function (subTypes) {
+    returnChecklistSectionArray: function (formContext, subTypes) {
         //debugger;
         const sectionArray = { section_6: false, section_7: false, section_8: false };
         var subType = JSON.parse(subTypes);
         if (subType != null) {
-            for (var i = 0; i < subType.length; i++) {
-                if (subType[i]._name == "Organization Details" || subType[i].name == "Organization Details") {
-                    sectionArray.section_6 = true;
-                }
-                else if (subType[i]._name == "Facility Details" || subType[i].name == "Facility Details") {
-                    sectionArray.section_7 = true;
-                }
-                else if (subType[i]._name == "Add/change a licence" || subType[i].name == "Add/change a licence") {
-                    sectionArray.section_8 = true;
+            if (subType.length > 0) {
+                for (var i = 0; i < subType.length; i++) {
+                    if (subType[i]._name == "Organization Details" || subType[i].name == "Organization Details") {
+                        sectionArray.section_6 = true;
+                    }
+                    else if (subType[i]._name == "Facility Details" || subType[i].name == "Facility Details") {
+                        sectionArray.section_7 = true;
+                    }
+                    else if (subType[i]._name == "Add/change a licence" || subType[i].name == "Add/change a licence") {
+                        sectionArray.section_8 = true;
+                    }
                 }
             }
+            else
+                formContext.getAttribute("ofm_subcategory").setValue(null);
         }
+
         return sectionArray;
     },
 
@@ -130,7 +135,7 @@ OFM.AssistanceRequest.Form = {
         var flag = true;
         if (statusReason == 4 || statusReason == 0) {
             var subTypes = formContext.getAttribute("ofm_subcategory").getValue();
-            var updatedArray = this.returnChecklistSectionArray(subTypes);
+            var updatedArray = this.returnChecklistSectionArray(formContext, subTypes);
             for (var element in updatedArray) {
                 if (updatedArray[element]) {
                     var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
@@ -158,6 +163,20 @@ OFM.AssistanceRequest.Form = {
         //debugger;
         var formContext = executionContext.getFormContext();
         var controlName = executionContext.getEventSource().getName();
-        formContext.getControl(controlName).clearNotification(controlName);
+        if (controlName == "statuscode") {
+            var updatedArray = this.returnChecklistSectionArray(formContext, null);
+            for (var element in updatedArray) {
+                var section = formContext.ui.tabs.get("tab_overview").sections.get(element);
+                var controls = section.controls.get();
+                var controlsLength = controls.length;
+
+                for (var i = 0; i < controlsLength; i++) {
+                    var controlName = controls[i].getName();
+                    formContext.getControl(controlName).clearNotification(controlName);
+                }
+            }
+        }
+        else
+            formContext.getControl(controlName).clearNotification(controlName);
     }
 }
