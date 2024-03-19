@@ -144,10 +144,45 @@ public record BCCASApi
     public required string KeyName { get; set; }
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
+    public required APInboxParam APInboxParam { get; set; }
+}
+public record APInboxParam
+{
+  public string feederNumber { get; set; }
+    public string   headertransactionType { get; set; }
+    public string  trailertransactionType { get; set; }
+    public string  linetransactionType { get; set; }
+    public string batchType { get; set; }
+      public string delimiter { get; set; } 
+      public string transactionType { get; set; } 
+       public string cGIBatchNumber { get; set; } 
+      public string messageVersionNumber { get; set; } 
+       public string supplierNumber { get; set; } 
+       public string supplierSiteNumber { get; set; }     
+       public string invoiceNumber { get; set; } 
+       public string invoiceType { get; set; }
+       public string payGroupLookup { get; set; } 
+       public string remittanceCode { get; set; } 
+       public string grossInvoiceAmount { get; set; } 
+       public string CAD { get; set; } 
+        public string termsName { get; set; } 
+        public string description { get; set; } 
+               public string oracleBatchName { get; set; } 
+       public string payflag { get; set; } 
+      public string invoiceLineNumber { get; set; } 
+       public string committmentLine { get; set; }
+       public string lineAmount { get; set; }
+        public string lineCode { get; set; }
+       public string distributionACK { get; set; }   
+       public string distributionSupplierNumber { get; set; } 
+      public string fiscalYear { get; set; }
+       public string controlCount { get; set; } 
+       public string controlAmount { get; set; }  
+      public string unitPrice { get; set; } 
+    public string quantity { get; set; }
 }
 
-
-[JsonSourceGenerationOptions(
+    [JsonSourceGenerationOptions(
     WriteIndented = true,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]

@@ -54,6 +54,7 @@ services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
 services.AddScoped<ID365ProcessProvider, P405VerifyGoodStandingBatchProvider>();
 services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
 
+
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
 
