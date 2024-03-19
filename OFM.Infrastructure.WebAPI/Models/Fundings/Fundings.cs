@@ -135,7 +135,6 @@ public class FacilityLicence : ofm_licence
 public class SupplementaryApplication : ofm_allowance
 {
     public new decimal? ofm_funding_amount { get; set; }
-    public new decimal? ofm_transport_estimated_monthly_km { get; set; }
     public new decimal? ofm_transport_monthly_lease { get; set; }
     public new decimal? ofm_transport_odometer { get; set; }
     public new SupplementarySchedule? ofm_supplementary_schedule { get; set; }

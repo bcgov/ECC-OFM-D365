@@ -12219,7 +12219,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_supplementary_schedule = "ofm_supplementary_schedule";
 			public const string ofm_supplementary_scheduleName = "ofm_supplementary_schedulename";
 			public const string ofm_supplementaryschedule_allowance = "ofm_supplementaryschedule_allowance";
-			public const string ofm_transport_estimated_monthly_km = "ofm_transport_estimated_monthly_km";
+			public const string ofm_transport_estimated_yearly_km = "ofm_transport_estimated_yearly_km";
 			public const string ofm_transport_monthly_lease = "ofm_transport_monthly_lease";
 			public const string ofm_transport_monthly_lease_base = "ofm_transport_monthly_lease_base";
 			public const string ofm_transport_odometer = "ofm_transport_odometer";
@@ -12700,18 +12700,18 @@ namespace ECC.Core.DataContext
 		/// <summary>
 		/// Estimated Monthly KM
 		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_estimated_monthly_km")]
-		public System.Nullable<int> ofm_transport_estimated_monthly_km
-		{
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_estimated_yearly_km")]
+		public System.Nullable<int> ofm_transport_estimated_yearly_km
+        {
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetAttributeValue<System.Nullable<int>>("ofm_transport_estimated_monthly_km");
+				return this.GetAttributeValue<System.Nullable<int>>("ofm_transport_estimated_yearly_km");
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetAttributeValue("ofm_transport_estimated_monthly_km", value);
+				this.SetAttributeValue("ofm_transport_estimated_yearly_km", value);
 			}
 		}
 		

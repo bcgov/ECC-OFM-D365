@@ -3703,7 +3703,7 @@
             The associated Supplementary Schedule on the allowance record
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_transport_estimated_monthly_km">
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_transport_estimated_yearly_km">
             <summary>
             Estimated Monthly KM
             </summary>
@@ -3721,6 +3721,11 @@
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_transport_odometer">
             <summary>
             Odometer
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_transport_vehicle_vin">
+            <summary>
+            VIN
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.overriddencreatedon">
@@ -4009,11 +4014,6 @@
             Value of the Yearly operating costs in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_application.ofm_declaration">
-            <summary>
-            I certify that all of the information provided is true and complete to the best of my knowledge
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_expense_authority">
             <summary>
             The associated expense authority on the application
@@ -4091,7 +4091,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_summary_declaration">
             <summary>
-            Application Declaration
+            I certify that all of the information provided is true and complete to the best of my knowledge.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_summary_ministry_last_updated">
@@ -4194,11 +4194,6 @@
             1:N ofm_integrationlog_application
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_application.ofm_payment_application_ofm_application">
-            <summary>
-            1:N ofm_payment_application_ofm_application
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_request_application">
             <summary>
             1:N ofm_request_application
@@ -4288,6 +4283,111 @@
         <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_assistance_requestid">
             <summary>
             Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_fac_address_correctness">
+            <summary>
+            Confirm correctness of the address (Facility)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_fac_alert_pcm">
+            <summary>
+            Alert PCM that mod is completed (Facility)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_fac_check_new_licence">
+            <summary>
+            Confirm if new licence is required
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_fac_create_mod_agreement">
+            <summary>
+            Modification agreement(s)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_fac_send_changes_to_cfs">
+            <summary>
+            Send changes to CFS (Facility)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_licence_alert_pcm">
+            <summary>
+            Alert PCM that mod is completed (Licence)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_licence_check_facility_costs">
+            <summary>
+            Determine any changes to operating or facility costs
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_licence_check_health_authority">
+            <summary>
+            Check if license is valid (Health Authority)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_licence_mod_agreement">
+            <summary>
+            Modification agreement (Licence)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_licence_obtain_new">
+            <summary>
+            Obtain new licence
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_licence_recalculate_funding">
+            <summary>
+            Run new details through calculator
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_licence_send_changes_to_cfs">
+            <summary>
+            Send changes to CFS (Licence)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_licence_update_service_delivery">
+            <summary>
+            Update Service Delivery Table
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_org_address_correctness">
+            <summary>
+            Confirm correctness of the address
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_org_alert_pcm">
+            <summary>
+            System to alert PCM that mod is completed
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_org_check_facility_addresses">
+            <summary>
+            Check if facility(ies) addresses also need to be updated
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_org_check_facility_name">
+            <summary>
+            Check if facility(ies) addresses also need to be updated
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_org_confirm_good_standing">
+            <summary>
+            Confirm in Good Standing
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_org_create_mod_agreement">
+            <summary>
+            Create Modification agreement (provider signs then ministry signs)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_org_name_change_certificate">
+            <summary>
+            Validate - Obtain Name Change Certificate (BC Registry)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_org_send_changes_to_cfs">
+            <summary>
+            Send changes to CFS
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_regardingid">
@@ -5859,11 +5959,6 @@
             1:N ofm_licencedetail_funding
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_payment_funding_ofm_funding">
-            <summary>
-            1:N ofm_payment_funding_ofm_funding
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_application_funding">
             <summary>
             N:1 ofm_application_funding
@@ -6840,11 +6935,6 @@
             1:N ofm_integrationlog_payment
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_application_ofm_application">
-            <summary>
-            N:1 ofm_payment_application_ofm_application
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_expense_authority_contact">
             <summary>
             N:1 ofm_payment_expense_authority_contact
@@ -6853,11 +6943,6 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_facility_account">
             <summary>
             N:1 ofm_payment_facility_account
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_funding_ofm_funding">
-            <summary>
-            N:1 ofm_payment_funding_ofm_funding
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.team_ofm_payment">
@@ -7137,6 +7222,11 @@
             Version Number
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_question.ofm_child_question_business_rule">
+            <summary>
+            1:N ofm_child_question_business_rule
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_question.ofm_false_child_question_business_rule">
             <summary>
             1:N ofm_false_child_question_business_rule
@@ -7238,6 +7328,11 @@
             Unique identifier of the delegate user who modified the record.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_child_question">
+            <summary>
+            Unique identifier for Question associated with Question Business Rule.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_false_child_question">
             <summary>
             Unique identifier for Question associated with Question Business Rule.
@@ -7321,6 +7416,11 @@
         <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_question_business_rule_ques">
             <summary>
             N:N ofm_question_business_rule_ques
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_child_question_business_rule">
+            <summary>
+            N:1 ofm_child_question_business_rule
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_false_child_question_business_rule">
@@ -10518,6 +10618,11 @@
             Provider Types
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ecc_request_subcategory_response">
+            <summary>
+            Request Subcategory Responses
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ecc_support_needs_expenses">
             <summary>
             Support Needs Expenses
@@ -12486,6 +12591,11 @@
         <member name="T:ECC.Core.DataContext.ofm_payment_StatusCode">
             <summary>
             Reason for the status of the Payment
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_program_type">
+            <summary>
+            Program Type
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_progress_tracker_statecode">
