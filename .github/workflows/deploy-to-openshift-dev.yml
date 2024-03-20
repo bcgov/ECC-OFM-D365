@@ -21,23 +21,23 @@ env:
   DOCKER_ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca/docker-remote
   ARTIFACTORY_REPO: artifacts.developer.gov.bc.ca
 
-  APP_NAME: 'ofm'
-  REPO_NAME: 'ecc-ofm-d365'
+  APP_NAME: "ofm"
+  REPO_NAME: "ecc-ofm-d365"
   BRANCH: ${{ github.ref_name }}
-  IMAGE_NAME: 'ecc-ofm-d365api'
-  APP_NAME_BACKEND: 'd365api'
+  IMAGE_NAME: "ecc-ofm-d365api"
+  APP_NAME_BACKEND: "d365api"
   # We have multiple environments in each openshift namespace dev, test in DEV and uat, efx in TEST. This setting will help name the deployment config and routes for each.
-  APP_ENVIRONMENT: 'dev'
+  APP_ENVIRONMENT: "dev"
 
   NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}
-  TAG: 'latest'
+  TAG: "latest"
 
-  MIN_REPLICAS: '1'
-  MAX_REPLICAS: '1'
-  MIN_CPU: '50m'
-  MAX_CPU: '100m'
-  MIN_MEM: '200Mi'
-  MAX_MEM: '250Mi'
+  MIN_REPLICAS: "1"
+  MAX_REPLICAS: "2"
+  MIN_CPU: "50m"
+  MAX_CPU: "100m"
+  MIN_MEM: "200Mi"
+  MAX_MEM: "250Mi"
   # SITE_URL should have no scheme or port. It will be prepended with https://
   HOST_ROUTE: ${{ secrets.SITE_URL }}
 
@@ -112,7 +112,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.IMAGE_NAME }}
-          tags: 'latest'
+          tags: "latest"
 
           # If you don't have a Dockerfile/Containerfile, refer to https://github.com/redhat-actions/buildah-build#scratch-build-inputs
           # Or, perform a source-to-image build using https://github.com/redhat-actions/s2i-build
@@ -171,4 +171,4 @@ jobs:
       - name: ZAP Scan
         uses: zaproxy/action-full-scan@v0.8.0
         with:
-          target: 'https://${{ env.HOST_ROUTE }}'
+          target: "https://${{ env.HOST_ROUTE }}"
