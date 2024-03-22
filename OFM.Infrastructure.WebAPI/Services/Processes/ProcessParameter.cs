@@ -1,7 +1,26 @@
-﻿using System.Diagnostics;
+﻿using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes;
+
+public class Location
+{
+    [property: JsonProperty("@odata.type")]
+    public string ODataType => "Microsoft.Dynamics.CRM.expando";
+
+    // Gets or sets the latitude of the Location.
+    public double? Latitude { get; set; }
+
+    [JsonProperty("Latitude@odata.type")]
+    public static string LatitudeType => "Double";
+
+    // Gets or sets the longitude of the Location.
+    public double? Longitude { get; set; }
+
+    [JsonProperty("Longitude@odata.type")]
+    public static string LongitudeType => "Double";
+}
 
 public record ProcessParameter
 {
@@ -14,6 +33,10 @@ public record ProcessParameter
     public Guid? CallerObjectId { get; set; }
     [property: JsonPropertyName("notification")]
     public EmailParameter? Notification { get; set; }
+    [property: JsonPropertyName("organization")]
+    public OrganizationParameter? Organization { get; set; }
+    [property: JsonPropertyName("funding")]
+    public FundingParameter? Funding { get; set; }
 
     public record EmailParameter
     {
@@ -37,5 +60,29 @@ public record ProcessParameter
 
         [property: JsonPropertyName("emailBody")]
         public string? EmailBody { get; set; }
+    }
+
+    public record OrganizationParameter
+    {
+        [property: JsonPropertyName("organizationId")]
+        public Guid? organizationId { get; set; }
+
+        [property: JsonPropertyName("legalName")]
+        public string? legalName { get; set; }
+
+        [property: JsonPropertyName("incorporationNumber")]
+        public string? incorporationNumber { get; set; }
+    }
+
+    public record FundingParameter
+    {
+        //[property: JsonPropertyName("facilityId")]
+        //public string? FacilityId { get; set; }
+
+        [property: JsonPropertyName("fundingId")]
+        public string? FundingId { get; set; }
+
+        [property: JsonPropertyName("supplementaryId")]
+        public string? SupplementaryId { get; set; }
     }
 }

@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest>
-  <control namespace="ECC.PCF" constructor="FundingEnvelopeControl" version="0.0.3" display-name-key="FundingEnvelope" description-key="FundingEnvelope description" control-type="virtual" >
+  <control namespace="ECC.PCF" constructor="FundingEnvelopeControl" version="0.0.12" display-name-key="FundingEnvelope" description-key="FundingEnvelope description" control-type="virtual">
     <!--external-service-usage node declares whether this 3rd party PCF control is using external service or not, if yes, this control will be considered as premium and please also add the external domain it is using.
     If it is not using any external service, please set the enabled="false" and DO NOT add any domain below. The "enabled" will be false by default.
     Example1:
@@ -18,7 +18,7 @@
       -->
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
-    <property name="field0" display-name-key="field0_key" description-key="Bind to a target field on a MDA form." of-type="SingleLine.Text" usage="bound" required="true" />
+    <property name="field0" display-name-key="field0_key" description-key="Binding field on the target MDA form." of-type="SingleLine.Text" usage="bound" required="true" />
     <property name="field1" display-name-key="field1_key" description-key="Wages_Paid Time Off" of-type="Currency" usage="bound" required="true" default-value="0" />
     <property name="field2" display-name-key="field2_key" description-key="Wages_Paid Time Off (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
     <property name="field3" display-name-key="field3_key" description-key="Wages_Paid Time Off (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
@@ -58,11 +58,10 @@
       <property name="sampleProperty" display-name-key="Property_Display_Key" description-key="Property_Desc_Key" of-type-group="numbers" usage="bound" required="true" />
     -->
     <resources>
-      <code path="index.ts" order="1"/>
+      <code path="index.ts" order="1" />
       <platform-library name="React" version="16.8.6" />
       <platform-library name="Fluent" version="8.29.0" />
       <css path="css/FundingEnvelope.css" order="1" />
-      
       <!-- UNCOMMENT TO ADD MORE RESOURCES
       <resx path="strings/FundingEnvelope.1033.resx" version="1.0.0" />
       -->

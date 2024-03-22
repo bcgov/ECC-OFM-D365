@@ -41,17 +41,6 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.BusinessUnit"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.BusinessUnit> BusinessUnitSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.BusinessUnit>();
-			}
-		}
-		
-		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.Contact"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.Contact> ContactSet
@@ -70,6 +59,17 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.Email>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_allowance"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_allowance> ofm_allowanceSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_allowance>();
 			}
 		}
 		
@@ -195,6 +195,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_integration_log"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_integration_log> ofm_integration_logSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_integration_log>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_licence"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_licence> ofm_licenceSet
@@ -213,6 +224,72 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.ofm_licence_detail>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_month"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_month> ofm_monthSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_month>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_payment"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_payment> ofm_paymentSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_payment>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_progress_tracker"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_progress_tracker> ofm_progress_trackerSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_progress_tracker>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question> ofm_questionSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_question>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question_business_rule"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question_business_rule> ofm_question_business_ruleSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_question_business_rule>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question_response"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question_response> ofm_question_responseSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_question_response>();
 			}
 		}
 		
@@ -239,13 +316,68 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.SystemUser"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_section"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.SystemUser> SystemUserSet
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_section> ofm_sectionSet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.SystemUser>();
+				return this.CreateQuery<ECC.Core.DataContext.ofm_section>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_space_allocation"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_space_allocation> ofm_space_allocationSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_space_allocation>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_supplementary_schedule"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_supplementary_schedule> ofm_supplementary_scheduleSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_supplementary_schedule>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_survey"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_survey> ofm_surveySet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_survey>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_survey_response"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_survey_response> ofm_survey_responseSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_survey_response>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_system_configuration"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_system_configuration> ofm_system_configurationSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_system_configuration>();
 			}
 		}
 		

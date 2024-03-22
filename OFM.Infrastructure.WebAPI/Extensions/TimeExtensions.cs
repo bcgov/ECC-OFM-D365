@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Threading;
+﻿using System.Runtime.InteropServices;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -50,7 +48,8 @@ public class Range<T> : IRange<T> where T : IComparable<T>
 }
 
 public static class TimeExtensions {
-   public static string GetIanaTimeZoneId(TimeZoneInfo tzi)
+
+    public static string GetIanaTimeZoneId(TimeZoneInfo tzi)
     {
         if (tzi.HasIanaId)
             return tzi.Id;  // no conversion necessary
@@ -59,5 +58,23 @@ public static class TimeExtensions {
             return ianaId;  // use the converted ID
 
         throw new TimeZoneNotFoundException($"No IANA time zone found for {tzi.Id}.");
+    }
+
+    public static DateTime GetCurrentPSTdateTime() {
+
+    TimeZoneInfo timeZone = TimeZoneInfo.Local;
+        bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        if (isWindows)
+        {
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+        }
+        else
+        {
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver");
+        }
+
+        DateTime pacificTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+
+        return pacificTime;
     }
 }

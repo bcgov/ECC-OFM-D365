@@ -43,7 +43,7 @@ public class ApiKeyMiddleware
         var isAllowAnonymous = endpoint?.Metadata.Any(x => x.GetType() == typeof(AllowAnonymousAttribute));
         if (isAllowAnonymous == true)
         {
-            _logger.LogWarning(CustomLogEvent.API, "Anonymous user detected.");
+            //_logger.LogWarning(CustomLogEvent.API, "Anonymous user detected.");
             await _next(context);
             return;
         }

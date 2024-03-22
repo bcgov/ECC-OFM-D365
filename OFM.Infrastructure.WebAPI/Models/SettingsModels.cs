@@ -29,6 +29,14 @@ public record NotificationSettings
     public required string DefaultSenderId { get; set; }
     public required EmailTemplate[] EmailTemplates { get; set; }
     public required CommunicationTypes CommunicationTypes { get; set; }
+    public required SafeList EmailSafeList { get; set; }
+
+    public record SafeList
+    {
+        public required bool Enable { get; set; }
+        public required string[] Recipients { get; set; }
+        public required string DefaultContactId { get; set; }
+    }
 }
 
 public record UnreadEmailOptions
@@ -61,6 +69,7 @@ public record ProcessSettings
     public required string ClosingReason { get; set; }
 }
 
+
 public record D365AuthSettings
 {
     /// <summary>
@@ -78,6 +87,8 @@ public record D365AuthSettings
     public required string SearchVersion { get; set; }
     public required List<AZAppUser> AZAppUsers { get; set; }
     public required string HttpClientName { get; set; }
+    public required Guid CallerObjectId { get; set; }
+    
 }
 
 public record AZAppUser
@@ -120,6 +131,31 @@ public record ApiKey
     public required string ClientName { get; set; }
     public required string Value { get; set; }
 }
+public record ExternalServices
+{
+    public required BCRegistrySettings BCRegistryApi { get; set; }
+    public required BCCASApi BCCASApi { get; set; }
+}
+
+public record BCRegistrySettings
+{
+    public bool Enable { get; set; }
+    public required string BusinessSearchUrl { get; set; }
+    public required string RegistrySearchUrl { get; set; }
+    public required string KeyName { get; set; }
+    public required string KeyValue { get; set; }
+    public int MinsToCache { get; set; }
+}
+
+public record BCCASApi
+{
+    public bool Enable { get; set; }
+    public required string Url { get; set; }
+    public required string KeyName { get; set; }
+    public required string KeyValue { get; set; }
+    public int MinsToCache { get; set; }
+}
+
 
 [JsonSourceGenerationOptions(
     WriteIndented = true,

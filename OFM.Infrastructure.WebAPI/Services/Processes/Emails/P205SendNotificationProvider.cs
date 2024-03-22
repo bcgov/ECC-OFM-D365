@@ -18,6 +18,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
+    private string[] _communicationTypesForEmailSentToUserMailBox = [];
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
 
@@ -30,8 +31,8 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Email.SendNotificationsId;
-    public string ProcessName => Setup.Process.Email.SendNotificationsName;
+    public Int16 ProcessId => Setup.Process.Emails.SendNotificationsId;
+    public string ProcessName => Setup.Process.Emails.SendNotificationsName;
     public string RequestUri
     {
         get
@@ -151,7 +152,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         }
     }
 
-    public async Task<ProcessData> GetData()
+    public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P205SendNotificationProvider));
 
@@ -226,15 +227,15 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        var localData = await GetData();
+        var localData = await GetDataAsync();
 
-        var serializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
+        var deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
 
         #region  Step 1: Create the email notifications as Completed - Pending Send
 
         JsonArray recipientsList = [];
 
-        serializedData?.ForEach(contact =>
+        deserializedData?.ForEach(contact =>
         {
             recipientsList.Add($"contacts({contact.contactid})");
         });
@@ -266,7 +267,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         }
 
         List<HttpRequestMessage> sendCreateEmailRequests = [];
-        serializedData?.ForEach(contact =>
+        deserializedData?.ForEach(contact =>
         {
             sendCreateEmailRequests.Add(new CreateRequest("emails",
                 new JsonObject(){
@@ -308,13 +309,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         #endregion
 
-        #region Step 3: Send the notifications
-
-        // Emails are created with "Completed - Pending Send" status. Step 3 is needed to send emails via GC-Notify or Exchange Online
-
-        #endregion
-
-        var result = ProcessResult.Success(ProcessId, serializedData!.Count);
+        var result = ProcessResult.Success(ProcessId, deserializedData!.Count);
 
         var endTime = _timeProvider.GetTimestamp();
 
@@ -368,10 +363,10 @@ public class P205SendNotificationProvider : ID365ProcessProvider
     {
         var localDataStep2 = await GetDataToUpdate();
 
-        var serializedDataStep2 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep2.Data.ToString());
+        var deserializedDataStep2 = JsonSerializer.Deserialize<List<D365Email>>(localDataStep2.Data.ToString());
 
         var updateEmailRequests = new List<HttpRequestMessage>() { };
-        serializedDataStep2.ForEach(email =>
+        deserializedDataStep2.ForEach(email =>
         {
             var emailToUpdate = new JsonObject {
                 { "ofm_sent_on", DateTime.UtcNow },
@@ -379,7 +374,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                 { "statecode", 1 }     // 1 = Completed
              };
 
-            updateEmailRequests.Add(new UpdateRequest(new EntityReference("emails", new Guid(email.activityid)), emailToUpdate));
+            updateEmailRequests.Add(new D365UpdateRequest(new EntityReference("emails", new Guid(email.activityid)), emailToUpdate));
         });
 
         var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);
@@ -393,6 +388,5 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         return step2BatchResult.SimpleBatchResult;
     }
-
     #endregion
 }

@@ -19,19 +19,46 @@ public static class Setup
 
     public static class Process
     {
-        public static class Request
+        public static class Requests
         {
             public const Int16 CloseInactiveRequestsId = 100;
             public const string CloseInactiveRequestsName = "Cancel inactive requests";
         }
 
-        public static class Email
+        public static class Emails
         {
             public const Int16 SendEmailRemindersId = 200;
             public const string SendEmailRemindersName = "Send nightly email reminders";
 
             public const Int16 SendNotificationsId = 205;
             public const string SendNotificationsName = "Send bulk emails on-demand";
+        }
+
+        public static class Fundings
+        {
+            public const Int16 CalculateBaseFundingId = 300;
+            public const string CalculateBaseFundingName = "Calculate the envelope funding amounts";
+
+            public const Int16 CalculateSupplementaryFundingId = 305;
+            public const string CalculateSupplementaryFundingName = "Calculate the supplementary funding amounts";
+
+            public const Int16 CalculateDefaultSpacesAllocationId = 310;
+            public const string CalculateDefaultSpacesAllocationName = "Calculate the default spaces allocation in the room split scenario";
+        }
+
+        public static class ProviderProfiles
+        {
+            public const Int16 VerifyGoodStandingId = 400;
+            public const string VerifyGoodStandingName = "Verify Good Standing Status for Organization";
+
+            public const Int16 VerifyGoodStandingBatchId = 405;
+            public const string VerifyGoodStandingBatchName = "Verify Good Standing Status for Organizations in batch";
+        }
+
+        public static class Payments
+        {
+            public const Int16 SendPaymentRequestId = 500;
+            public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";
         }
     }
 
@@ -90,9 +117,9 @@ public static class Setup
 
         if (requertUrl.ToLowerInvariant().Contains("/api/data/v"))
         {
-            requertUrl = requertUrl.Substring(requertUrl.IndexOf("/api/data/v"));
-            requertUrl = requertUrl.Substring(requertUrl.IndexOf('v'));
-            requertUrl = requertUrl.Substring(requertUrl.IndexOf('/'));
+            requertUrl = requertUrl[requertUrl.IndexOf("/api/data/v")..];
+            requertUrl = requertUrl[requertUrl.IndexOf('v')..];
+            requertUrl = requertUrl[requertUrl.IndexOf('/')..];
         }
 
         return requertUrl;

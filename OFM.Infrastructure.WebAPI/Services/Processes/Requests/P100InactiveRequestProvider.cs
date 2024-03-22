@@ -28,8 +28,8 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Request.CloseInactiveRequestsId;
-    public string ProcessName => Setup.Process.Request.CloseInactiveRequestsName;
+    public Int16 ProcessId => Setup.Process.Requests.CloseInactiveRequestsId;
+    public string ProcessName => Setup.Process.Requests.CloseInactiveRequestsName;
     public string RequestUri
     {
         get
@@ -63,7 +63,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
         }
     }
 
-    public async Task<ProcessData> GetData()
+    public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P100InactiveRequestProvider));
 
@@ -104,7 +104,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        var localData = await GetData();
+        var localData = await GetDataAsync();
 
         if (localData.Data.AsArray().Count == 0)
         {
@@ -125,7 +125,7 @@ public class P100InactiveRequestProvider : ID365ProcessProvider
                 ["ofm_closing_reason"] = _processSettings.ClosingReason
             };
 
-            requests.Add(new UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
+            requests.Add(new D365UpdateRequest(new EntityReference("ofm_assistance_requests", new Guid(requestId)), body));
         }
 
         var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);

@@ -59,14 +59,14 @@ public static class OperationsHandlers
 
             int pagerTake = (pageSize > 0 && pageSize <= appSettings.Value.MaxPageSize) ? pageSize : appSettings.Value.MaxPageSize;
 
-            logger.LogDebug(CustomLogEvent.Operation, "Quering data with the statement {statement} and pageSize {pagerTake}", statement, pagerTake);
+            //logger.LogDebug(CustomLogEvent.Operation, "Quering data with the statement {statement} and pageSize {pagerTake}", statement, pagerTake);
 
             var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, statement, formatted: true, pagerTake);
 
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<JsonObject>();
-                logger.LogInformation(CustomLogEvent.Operation, "Queried data successfully with the statement {statement}", statement);
+                //logger.LogInformation(CustomLogEvent.Operation, "Queried data successfully with the statement {statement}", statement);
 
                 return TypedResults.Ok(result);
             }
@@ -108,7 +108,7 @@ public static class OperationsHandlers
                 statement = $"{statement}?{filters}";
             }
 
-            logger.LogDebug(CustomLogEvent.Operation, "Creating record(s) with the statement {statement}", statement);
+            //logger.LogDebug(CustomLogEvent.Operation, "Creating record(s) with the statement {statement}", statement);
 
             HttpResponseMessage response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
 
@@ -128,7 +128,7 @@ public static class OperationsHandlers
                 result.Remove("@odata.etag");
             }
 
-            logger.LogInformation(CustomLogEvent.Operation, "Created record(s) successfully with the result {result}", result);
+            //logger.LogInformation(CustomLogEvent.Operation, "Created record(s) successfully with the result {result}", result);
 
             return TypedResults.Ok(result);
         }
@@ -154,7 +154,7 @@ public static class OperationsHandlers
         var logger = loggerFactory.CreateLogger(LogCategory.Operation);
         using (logger.BeginScope("ScopeOperations:PATCH"))
         {
-            logger.LogDebug(CustomLogEvent.Operation, "Updating the record(s) with query {statement}", statement);
+            //logger.LogDebug(CustomLogEvent.Operation, "Updating the record(s) with query {statement}", statement);
 
             HttpResponseMessage response = await d365WebApiService.SendPatchRequestAsync(appUserService.AZPortalAppUser, statement, jsonBody.ToString());
 
@@ -166,7 +166,7 @@ public static class OperationsHandlers
                 return TypedResults.Problem($"Failed to Update a record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
             }
 
-            logger.LogDebug(CustomLogEvent.Operation, "Updated the record(s) successfully with query {statement}", statement);
+            //logger.LogDebug(CustomLogEvent.Operation, "Updated the record(s) successfully with query {statement}", statement);
 
             return TypedResults.NoContent();
         }
