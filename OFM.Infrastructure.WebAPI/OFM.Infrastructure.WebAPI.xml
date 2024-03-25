@@ -4094,6 +4094,11 @@
             I certify that all of the information provided is true and complete to the best of my knowledge.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_room_split_indicator">
+            <summary>
+            Room Split Indicator
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_summary_ministry_last_updated">
             <summary>
             Last updated by ministry
