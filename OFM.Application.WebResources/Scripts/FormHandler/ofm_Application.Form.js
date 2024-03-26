@@ -41,7 +41,6 @@ OFM.Application.Form = {
         }
     },
 
-
     //A function called on save
     onSave: function (executionContext) {
         //debugger;
@@ -155,6 +154,7 @@ OFM.Application.Form = {
         }
 
     },
+
     // function to filter the licence details grid based on record selected in licence grid
     addSubgridEventListener: function (formContext, filterFetchXML, subgridName) {
         var gridContext = formContext.getControl(subgridName);
@@ -244,7 +244,7 @@ OFM.Application.Form = {
         Xrm.WebApi.retrieveMultipleRecords("workflow", "?$select=workflowid&$filter=(name eq 'OFM - Application: Creating Funding Record' and statecode eq 1 and type eq 1)").then(
             function success(results) {
                 console.log(results);
-                    // Columns
+                // Columns
                 var workflowid = results.entities[0]["workflowid"]; // Guid
                 //}
                 var executeWorkflowRequest = {
@@ -320,5 +320,16 @@ OFM.Application.Form = {
             formContext.getAttribute("ofm_expense_authority").setValue(null);
         }
         // perform operations on record retrieval
+    },
+
+    //Last Updated on and Last Updated by on verification checklist
+    updateVerificationInfo: function (executionContext, lastUpdatedOnField, LastUpdatedByField) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var currentDate = new Date();
+        var userSettings = Xrm.Utility.getGlobalContext().userSettings;
+        var username = userSettings.userName;
+        formContext.getAttribute(lastUpdatedOnField) != null ? formContext.getAttribute(lastUpdatedOnField).setValue(currentDate) : null;
+        formContext.getAttribute(LastUpdatedByField) != null ? formContext.getAttribute(LastUpdatedByField).setValue(username) : null;
     },
 }
