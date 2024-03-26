@@ -490,7 +490,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                                  { "subject", _BCRegistrySettings.TaskActivity.subject + organization.name },
                                  {"regardingobjectid_account@odata.bind", "/accounts("+organization.accountid+")"},
                                  { "description",_BCRegistrySettings.TaskActivity.description },
-                                 {"ofm_process_responsible", "405" }
+                                 {"ofm_process_responsible", _BCRegistrySettings.batchtaskprocess }
                                   };
                 // create task
                 var requestBody = JsonSerializer.Serialize(assistanceReq);

@@ -456,7 +456,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                                  { "subject", _BCRegistrySettings.TaskActivity.subject + organization.name },
                                  {"regardingobjectid_account@odata.bind", "/accounts("+organization.accountid+")"},
                                  { "description",_BCRegistrySettings.TaskActivity.description },
-                                 {"ofm_process_responsible", "400" }
+                                 {"ofm_process_responsible",_BCRegistrySettings.singletaskprocess }
                                   };
             // create assistance request
             var requestBody = JsonSerializer.Serialize(assistanceReq);
