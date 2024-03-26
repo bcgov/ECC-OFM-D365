@@ -6,8 +6,6 @@
 export interface IInputs {
     BusinessIdentifier:ComponentFramework.PropertyTypes.StringProperty;
     BannerMessage: ComponentFramework.PropertyTypes.StringProperty;
-    BannerStatus: ComponentFramework.PropertyTypes.TwoOptionsProperty;
-
 }
 export interface IOutputs {
     sampleProperty?: string;

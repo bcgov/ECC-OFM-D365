@@ -5,7 +5,6 @@ import {
 
 export interface IBannerProps {
   bannerMessage: string | null;
-  bannerStatus: boolean | undefined;
   context: any
 }
 
@@ -23,7 +22,7 @@ const WarningMessageBar = (props: IBannerProps) => (
 export const MessageBarForBanner: React.FunctionComponent<IBannerProps> = (props) => {
   return (
     <div style={{width: "100%"}}>
-        {props.bannerStatus && <WarningMessageBar {...props} />}
+        <WarningMessageBar {...props} />
     </div>
   );
 };

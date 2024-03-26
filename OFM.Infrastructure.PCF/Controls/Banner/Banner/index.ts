@@ -35,7 +35,6 @@ export class Banner implements ComponentFramework.ReactControl<IInputs, IOutputs
             
         const props: IBannerProps = { 
             bannerMessage: context.parameters.BannerMessage.raw!, 
-            bannerStatus: context.parameters.BannerStatus.raw!,
             context: context
         };
 
