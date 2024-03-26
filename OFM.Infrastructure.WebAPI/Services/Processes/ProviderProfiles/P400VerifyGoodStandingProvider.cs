@@ -74,6 +74,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                         <attribute name="ofm_duration" />
                         <attribute name="statecode" />
                         <attribute name="statuscode" />
+                        <attribute name="ofm_no_counter" />
                         <order attribute="ofm_start_date" descending="true" />
                         <filter type="and">
                           <condition attribute="statecode" operator="eq" value="0" />
@@ -377,10 +378,14 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         {
             var standingHistoryId = deserializedData.First().ofm_standing_historyid;
             var goodStandingStatus_History = deserializedData.First().ofm_good_standing_status;
+            var counter = deserializedData.First().ofm_no_counter;
+            DateTime startDate = (DateTime)deserializedData.First().ofm_start_date;
             //var organizationId_History = deserializedData.First()._ofm_organization_value;
 
             if (Equals(goodStandingStatus_History, goodStandingStatusYN))                                      // Case 2. open --> update validated_On
             {
+                DateTime validatedon = DateTime.Now;
+                TimeSpan noduration = validatedon - startDate.Date;
                 // Operation - update the existing record
                 var statement = $"ofm_standing_histories({standingHistoryId})";
                 var payload = new JsonObject {
@@ -392,12 +397,13 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                                 //{ "statuscode", 2 },                                                                
                                 { "ofm_validated_on", DateTime.UtcNow}
                             };
+                if (goodStandingStatusYN == 0) { payload.Add("ofm_no_counter", noduration.Days.ToString()); }
                 var requestBody = JsonSerializer.Serialize(payload);
                 var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, statement, requestBody);
             }
             else
             {
-                DateTime startDate = (DateTime)deserializedData.First().ofm_start_date;
+                //DateTime startDate = (DateTime)deserializedData.First().ofm_start_date;
                 DateTime endDate = DateTime.UtcNow;
                 TimeSpan duration = endDate - startDate;
 
