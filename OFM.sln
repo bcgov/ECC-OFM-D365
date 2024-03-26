@@ -44,7 +44,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OFM.Infrastructure.Plugins"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "OFM.Infrastructure.PCF", "OFM.Infrastructure.PCF\", "{BCFED66B-8958-4F43-B089-18D97D6AF058}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8.1"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.8"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_4420"
 		Debug.AspNetCompiler.PhysicalPath = "OFM.Infrastructure.PCF\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_4420\"

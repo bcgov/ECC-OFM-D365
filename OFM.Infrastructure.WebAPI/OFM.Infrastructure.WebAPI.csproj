@@ -48,7 +48,7 @@
   
   <ItemGroup>
     <PackageReference Include="Handlebars.Net" Version="2.1.4" />
-    <PackageReference Include="Handlebars.Net.Helpers.Core" Version="2.4.1.4" />
+    <PackageReference Include="Handlebars.Net.Helpers.Core" Version="2.4.1.5" />
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2" />
