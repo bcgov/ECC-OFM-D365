@@ -112,6 +112,7 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ECC.Core.DataContext\ECC.Core.DataContext.projitems*{2bf26de8-f149-487d-bb32-afc45c19f88d}*SharedItemsImports = 5
 		ECC.Core.DataContext\ECC.Core.DataContext.projitems*{a6cfe6d2-7ece-4470-92de-2bbf72897488}*SharedItemsImports = 5
+		ECC.Core.DataContext\ECC.Core.DataContext.projitems*{ca311625-78d9-4473-b452-a07ace4800c0}*SharedItemsImports = 5
 		ECC.Core.DataContext\ECC.Core.DataContext.projitems*{f2ebb8b7-10b2-449d-9218-e10d23c3611c}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
