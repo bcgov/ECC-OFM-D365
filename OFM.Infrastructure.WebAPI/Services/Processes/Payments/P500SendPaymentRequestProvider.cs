@@ -15,6 +15,16 @@ using System.Xml.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Transactions;
+using Newtonsoft.Json.Linq;
+using Microsoft.Crm.Sdk.Messages;
+using System;
+using System.Linq;
+using System.Reflection.Metadata;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text;
+using System.Collections;
+using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
+
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 
@@ -46,24 +56,18 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         get
         {
             var fetchXml = $"""
-                    <fetch>
-                      <entity name="ofm_application">
-                        <attribute name="ofm_application_type" />
-                        <attribute name="ofm_applicationid" />
-                        <attribute name="ofm_contact" />
-                        <filter>
-                          <condition attribute="statuscode" operator="eq" value="5" />
-                        </filter>
-                        <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid">
-                          <attribute name="ofm_envelope_grand_total" />
-                          <attribute name="ofm_fundingid" />
-                        </link-entity>
+                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" count="1">
+                      <entity name="ofm_payment_file_exchange">
+                        <attribute name="ofm_payment_file_exchangeid" />
+                        <attribute name="ofm_name" />
+                        <attribute name="ofm_batch_number" />
+                         <order attribute="ofm_batch_number" descending="true" />
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_applications?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_payment_file_exchanges?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
             return requestUri;
@@ -108,7 +112,11 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        _processParams = processParams;
+        _processParams = processParams;      
+      
+        List<APInboxParam> transactions = new List<APInboxParam>();
+        List<List<APInboxParam>> transactionlist = new List<List<APInboxParam>>();
+        List<JsonObject> paymentdocumentsResult = new() { };
         int supplierlength = 9;
         int invoicelength = 50;
         int polength = 20;
@@ -121,164 +129,172 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         int distributionsupplierlength = 30;
         int flowolength = 110;       
         string sspace = null;
-        int transactionCount = 250;
-        string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}{{delimiter}}\n"+ "{{#each transaction}}{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
+        int transactionCount = 5;
+        string cGIBatchNumber ;
+
+        var startTime = _timeProvider.GetTimestamp();
+
+        var localData = await GetData();
+
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
+
+        if (serializedData != null && serializedData[0].ofm_batch_number != null)
+        {
+            cGIBatchNumber = (Convert.ToInt32(serializedData[0].ofm_batch_number) + 1).ToString("D9");
+
+        }
+        else
+        {
+            cGIBatchNumber = _BCCASApi.APInboxParam.cGIBatchNumber;
+
+        }
+
+        #region Step 1: Handlebars format to generate Inbox data
+        string source = "{{#each transaction}}{{this.feederNumber}}{{this.batchType}}{{this.transactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.messageVersionNumber}}{{this.delimiter}}\n" + "{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
                        "{{this.feederNumber}}{{this.batchType}}{{this.linetransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.invoiceLineNumber}}{{this.committmentLine}}{{this.lineAmount}}{{this.lineCode}}{{this.distributionACK}}{{this.lineDescription}}{{this.invoiceDate}}{{this.quantity}}{{this.unitPrice}}{{this.space}}{{this.distributionSupplierNumber}}{{this.flow}}{{this.delimiter}}\n" +
                        "{{this.feederNumber}}{{this.batchType}}{{this.trailertransactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.controlCount}}{{this.controlAmount}}{{this.delimiter}}\n{{/each}}";
 
-        #region commentedcode
-        //string subdata = "{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{this.{oraclebatch}}{{this.SIN}}{{this.payflag}}{{this.delimiter}}\n" +
-        //    "{{this.feederNumber}}{{this.batchType}}{{this.linetransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.invoiceLineNumber}}{{this.committmentLine}}{{this.lineAmount}}{{this.lineCode}}{{this.distributionACK}}{{this.description}}{{this.goodsDate}}{{this.invoiceDate}}{{this.quantity}}{{this.unitPrice}}{{this.space}}{{this.distributionSupplierNumber}}{{this.flow}}{{this.delimiter}}\n" +
-        //    "{{this.feederNumber}}{{this.batchType}}{{this.trailertransactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{ths.ControlCount}}{{this.controlAmount}}{{this.delimiter}}";
-        //string partialSource = "{{transaction}}";
-        ////string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}{{delimiter}}\n" +
-        //                      "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{supplierNumber}}{{supplierSiteNumber}}FY1920AE125552                                                        {{invoiceType}}{{invoiceDate}}{{payGroupLookup}}{{remittanceCode}}{{grossInvoiceAmount}}{{CAD}}{{invoiceDate}}Immediate                                         Top-up CALP 2019-20                                                 20191115AE20NOVFSK03                           N                                                                                                                                             \n" +
-        //                      "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{supplierNumber}}{{supplierSiteNumber}}FY1920AE125552                                    {{invoiceLineNumber}}0000000000009000.00D0191121118608776611304120000000000                Top-up CALP 2019-20                                    201911150000000.00000000000000.00                                                                                                                                                                   078766                                                                                                                                                                                               \n" +
-        //                      "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{ControlCount}}{{controlAmount}}{{delimiter}}";
-
-        //string[] subsource = subdata.Split("}}");
-        //foreach (string s in subsource.Distinct())
-        //{
-        //    string partialSourceVar = s.Replace("{{", "");
-        //    if (!string.IsNullOrEmpty(partialSourceVar))
-        //        Handlebars.RegisterTemplate(partialSourceVar, partialSource);
-
-        //}
-        // Handlebars.RegisterTemplate("feederNumber", partialSource);
-        // Handlebars.RegisterTemplate("batchType", partialSource);
-        #endregion
 
         var template = Handlebars.Compile(source);
-       
-        var data = new
+     
+
+        for (int i = 0; i < 8; i++)
+        {
+           
+           transactions.Add( new APInboxParam
             {
+                payflag = _BCCASApi.APInboxParam.payflag,
+                fiscalYear = _BCCASApi.APInboxParam.fiscalYear,
                 feederNumber = _BCCASApi.APInboxParam.feederNumber,
+                headertransactionType = _BCCASApi.APInboxParam.headertransactionType,
+                linetransactionType = _BCCASApi.APInboxParam.linetransactionType,
                 batchType = _BCCASApi.APInboxParam.batchType,
                 delimiter = _BCCASApi.APInboxParam.delimiter,
                 transactionType = _BCCASApi.APInboxParam.transactionType,
-                cGIBatchNumber = _BCCASApi.APInboxParam.cGIBatchNumber,
+                cGIBatchNumber = cGIBatchNumber,
                 messageVersionNumber = _BCCASApi.APInboxParam.messageVersionNumber,
-                fiscalYear = _BCCASApi.APInboxParam.fiscalYear,
-                transaction = new[] {
-           new {
-            feederNumber = _BCCASApi.APInboxParam.feederNumber,
-            headertransactionType=_BCCASApi.APInboxParam.headertransactionType,
-            linetransactionType= _BCCASApi.APInboxParam.linetransactionType,
-            trailertransactionType= _BCCASApi.APInboxParam.trailertransactionType,
-            batchType = _BCCASApi.APInboxParam.batchType,
-            delimiter = _BCCASApi.APInboxParam.delimiter,
-            transactionType = _BCCASApi.APInboxParam.transactionType,
-            cGIBatchNumber = _BCCASApi.APInboxParam.cGIBatchNumber,
-            messageVersionNumber = _BCCASApi.APInboxParam.messageVersionNumber,
-            supplierNumber = _BCCASApi.APInboxParam.supplierNumber.PadRight(supplierlength).Substring(0, supplierlength),       // "078766ABH",
-            supplierSiteNumber = _BCCASApi.APInboxParam.supplierSiteNumber,
-            invoiceNumber = _BCCASApi.APInboxParam.invoiceNumber.PadRight(invoicelength).Substring(0, invoicelength),
-            PONumber = sspace == null ? new string(' ', polength) : source.PadRight(polength).Substring(0, polength),
-            invoiceType = _BCCASApi.APInboxParam.invoiceType,
-            invoiceDate = DateTime.UtcNow.ToString("yyyyMMdd"),
-            payGroupLookup = _BCCASApi.APInboxParam.payGroupLookup,
-            remittanceCode = _BCCASApi.APInboxParam.remittanceCode.PadRight(remitcodelength).Substring(0, remitcodelength), // for payment stub it is 00 always.
-            grossInvoiceAmount = _BCCASApi.APInboxParam.grossInvoiceAmount, // invoice amount come from OFM total base value.
-            CAD = _BCCASApi.APInboxParam.CAD,
-            termsName = _BCCASApi.APInboxParam.termsName.PadRight(termslength).Substring(0,termslength),
-            description = _BCCASApi.APInboxParam.description.PadRight(descriptionlength).Substring(0, descriptionlength),
-            goodsDate= sspace == null ? new string(' ', 8) : source.PadRight(8).Substring(0, 8),
-            oracleBatchName = _BCCASApi.APInboxParam.oracleBatchName.PadRight(oracleinvlength).Substring(0,oracleinvlength),
-           SIN= sspace == null ? new string(' ', 9) : source.PadRight(8).Substring(0, 9),
-            payflag = _BCCASApi.APInboxParam.payflag,
-            quantity=_BCCASApi.APInboxParam.quantity,
-            flow= sspace == null ? new string(' ', flowolength) : source.PadRight(flowolength).Substring(0, flowolength),
-            invoiceLineNumber = _BCCASApi.APInboxParam.invoiceLineNumber,
-            committmentLine = _BCCASApi.APInboxParam.committmentLine,
-            lineAmount = _BCCASApi.APInboxParam.lineAmount,
-            lineCode = _BCCASApi.APInboxParam.lineCode,
-            distributionACK = _BCCASApi.APInboxParam.distributionACK.PadRight(distributionAcklength).Substring(0, distributionAcklength),
-            lineDescription = _BCCASApi.APInboxParam.description.PadRight(linedescriptionlength).Substring(0, linedescriptionlength),
-            distributionSupplierNumber = _BCCASApi.APInboxParam.distributionSupplierNumber.PadRight(distributionsupplierlength).Substring(0,distributionsupplierlength),
-            fiscalYear = _BCCASApi.APInboxParam.fiscalYear,
-            controlCount = _BCCASApi.APInboxParam.controlCount,
-            controlAmount = _BCCASApi.APInboxParam.controlAmount,
-            unitPrice= _BCCASApi.APInboxParam.unitPrice,
-            space= sspace == null ? new string(' ', 163) : source.PadRight(163).Substring(0, 163)
-           }
+                supplierNumber = _BCCASApi.APInboxParam.supplierNumber.PadRight(supplierlength).Substring(0, supplierlength),       // "078766ABH",
+                supplierSiteNumber = _BCCASApi.APInboxParam.supplierSiteNumber,
+                invoiceNumber = _BCCASApi.APInboxParam.invoiceNumber.PadRight(invoicelength).Substring(0, invoicelength),
+                PONumber = sspace == null ? new string(' ', polength) : source.PadRight(polength).Substring(0, polength),
+                invoiceType = _BCCASApi.APInboxParam.invoiceType,
+                invoiceDate = DateTime.UtcNow.ToString("yyyyMMdd"),
+                payGroupLookup = _BCCASApi.APInboxParam.payGroupLookup,
+                remittanceCode = _BCCASApi.APInboxParam.remittanceCode.PadRight(remitcodelength).Substring(0, remitcodelength), // for payment stub it is 00 always.
+                grossInvoiceAmount = _BCCASApi.APInboxParam.grossInvoiceAmount, // invoice amount come from OFM total base value.
+                CAD = _BCCASApi.APInboxParam.CAD,
+                termsName = _BCCASApi.APInboxParam.termsName.PadRight(termslength).Substring(0, termslength),
+                description = _BCCASApi.APInboxParam.description.PadRight(descriptionlength).Substring(0, descriptionlength),
+                goodsDate = sspace == null ? new string(' ', 8) : source.PadRight(8).Substring(0, 8),
+                oracleBatchName = _BCCASApi.APInboxParam.oracleBatchName.PadRight(oracleinvlength).Substring(0, oracleinvlength),
+                SIN = sspace == null ? new string(' ', 9) : source.PadRight(8).Substring(0, 9),
+                quantity = _BCCASApi.APInboxParam.quantity,
+                flow = sspace == null ? new string(' ', flowolength) : source.PadRight(flowolength).Substring(0, flowolength),
+                invoiceLineNumber = _BCCASApi.APInboxParam.invoiceLineNumber,
+                committmentLine = _BCCASApi.APInboxParam.committmentLine,
+                lineAmount = _BCCASApi.APInboxParam.lineAmount,
+                lineCode = _BCCASApi.APInboxParam.lineCode,
+                distributionACK = _BCCASApi.APInboxParam.distributionACK.PadRight(distributionAcklength).Substring(0, distributionAcklength),
+                lineDescription = _BCCASApi.APInboxParam.description.PadRight(linedescriptionlength).Substring(0, linedescriptionlength),
+                distributionSupplierNumber = _BCCASApi.APInboxParam.distributionSupplierNumber.PadRight(distributionsupplierlength).Substring(0, distributionsupplierlength),
+                space = sspace == null ? new string(' ', 163) : source.PadRight(163).Substring(0, 163),
+                controlCount = _BCCASApi.APInboxParam.controlCount,
+                controlAmount = _BCCASApi.APInboxParam.controlAmount,
+                unitPrice = _BCCASApi.APInboxParam.unitPrice,
+                trailertransactionType = _BCCASApi.APInboxParam.trailertransactionType,
+            });
+            cGIBatchNumber= ((Convert.ToInt32(cGIBatchNumber))+1).ToString("D9");
+        }
 
-         }
+        // break transaction list into multiple list if it contains more than 250 transaction
+       transactionlist= transactions
+        .Select((x, i) => new { Index = i, Value = x })
+        .GroupBy(x => x.Index / transactionCount)
+        .Select(x => x.Select(v => v.Value).ToList())
+        .ToList();
+        #endregion
 
+        #region Step 2: Generate and process inbox file in CRM
+        // for each set of transaction create and upload inbox file in payment file exchange
+        foreach (List<APInboxParam> list in transactionlist)
+        {
+            var data = new
+            {
+                transaction = list
             };
-
             var result = template(data);
 
+            var filename = ("INBOX.F" + _BCCASApi.APInboxParam.feederNumber + "."+DateTime.UtcNow.ToString("yyyyMMddHHMMss"));
 
 
+            #region  Step 3: Create Payment Records for all approved applications.
+
+            var requestBody = new JsonObject()
+            {
+                ["ofm_input_file_name"] = filename,
+                ["ofm_name"] = filename + "-" + DateTime.UtcNow,
+                ["ofm_batch_number"] = cGIBatchNumber,
+            };
+
+            var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "ofm_payment_file_exchanges", requestBody.ToString());
 
 
-            // Save the result to a text file
-            File.WriteAllText("output.txt", result);
-        
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to create payment file exchange record with  the server error {responseBody}", responseBody.CleanLog());
 
-        Console.WriteLine("Template converted and saved to output.txt");
+              
+                //log the error
+                return await Task.FromResult<JsonObject>(new JsonObject() { });
+            }
 
-        string filePath = "example.txt";
+            var paymentRecord = await response.Content.ReadFromJsonAsync<JsonObject>();
 
-        // Specify the character indices
-        int startIndex = 5;
-        int endIndex = 10;
+            if (paymentRecord is not null && paymentRecord.ContainsKey("ofm_payment_file_exchangeid"))
+            {
+                paymentdocumentsResult.Add(paymentRecord);
+              
+                    if (filename.Length > 0)
+                    {
+                        // Attach the file to the new document record
+                        HttpResponseMessage response1 = await _d365webapiservice.SendDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(paymentRecord["ofm_payment_file_exchangeid"].ToString()), Encoding.ASCII.GetBytes(result), filename);
 
-        // Read the content of the file
-        string fileContent;
-        using (StreamReader reader = new StreamReader(filePath))
-        {
-            fileContent = reader.ReadToEnd();
+                        if (!response1.IsSuccessStatusCode)
+                        {
+                        var responseBody = await response1.Content.ReadAsStringAsync();
+                        _logger.LogError(CustomLogEvent.Process, "Failed to upload file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
+
+
+                        //log the error
+                        return await Task.FromResult<JsonObject>(new JsonObject() { });
+
+                        }
+                   
+                    }
+            }
+            #endregion
+
         }
-
-        // Extract characters based on indices
-        string parsedData = fileContent.Substring(startIndex, endIndex - startIndex + 1);
-
-        // Print the parsed data
-        Console.WriteLine(parsedData);
-        var localData = await GetData();
-
-       var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<PaymentApplication>>(localData.Data.ToString());
-
-        #region  Step 1: Create Payment Records for all approved applications.
-
-
-        List<HttpRequestMessage> sendCreatePaymentRequests = [];
-        serializedData?.ForEach(Application =>
-        {
-            sendCreatePaymentRequests.Add(new CreateRequest("ofm_payments",
-                new JsonObject(){
-                       // {"ofm_facility",Application._ofm_facility_value },
-                        {"ofm_funding_amount", 6778}
-                      //  {"ofm_application", Application.ofm_applicationid }
-                }));
-        });
-
-        var sendPaymentBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreatePaymentRequests, new Guid(processParams.CallerObjectId.ToString()));
-
-        if (sendPaymentBatchResult.Errors.Any())
-        {
-            var sendCreatePaymentError = ProcessResult.Failure(ProcessId, sendPaymentBatchResult.Errors, sendPaymentBatchResult.TotalProcessed, sendPaymentBatchResult.TotalRecords);
-            _logger.LogError(CustomLogEvent.Process, "Failed to create payment with an error: {error}", JsonValue.Create(sendCreatePaymentError)!.ToString());
-
-            return sendCreatePaymentError.SimpleProcessResult;
-        }
-
-
-        
-
-            
-
-       
-        return sendPaymentBatchResult.SimpleBatchResult;
         #endregion
+
+        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
     }
 
- 
+  
+}
+
+
+
+
+     
+
+    
 
 
   
 
     
-}
+
+

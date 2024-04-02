@@ -212,6 +212,13 @@ public record Email_Activity_Parties
     public string? activitypartyid { get; set; }
 }
 
+
+
+public record Payment_File_Exchange
+{
+    public string ofm_batch_number { get; set; }
+   
+}
 #region Funding
 
 

@@ -145,11 +145,14 @@ public record BCCASApi
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
     public required APInboxParam APInboxParam { get; set; }
+    
 }
-public record APInboxParam
+
+
+    public record APInboxParam
 {
-  public string feederNumber { get; set; }
-    public string   headertransactionType { get; set; }
+     public string feederNumber { get; set; }
+     public string   headertransactionType { get; set; }
     public string  trailertransactionType { get; set; }
     public string  linetransactionType { get; set; }
     public string batchType { get; set; }
@@ -167,19 +170,29 @@ public record APInboxParam
        public string CAD { get; set; } 
         public string termsName { get; set; } 
         public string description { get; set; } 
-               public string oracleBatchName { get; set; } 
-       public string payflag { get; set; } 
+         public string oracleBatchName { get; set; } 
+       public string? payflag { get; set; } 
       public string invoiceLineNumber { get; set; } 
        public string committmentLine { get; set; }
        public string lineAmount { get; set; }
         public string lineCode { get; set; }
        public string distributionACK { get; set; }   
-       public string distributionSupplierNumber { get; set; } 
-      public string fiscalYear { get; set; }
+       public string distributionSupplierNumber { get; set; }
+    public string invoiceDate { get; set; }
+       public string SIN { get; set; }
+    public string flow { get; set; }
+    public string space { get; set; }
+    public string goodsDate { get; set; }
+
+
+    public string lineDescription{ get; set; }
+
+    public string fiscalYear { get; set; }
        public string controlCount { get; set; } 
        public string controlAmount { get; set; }  
       public string unitPrice { get; set; } 
     public string quantity { get; set; }
+    public string PONumber { get; set; }
 }
 
     [JsonSourceGenerationOptions(
