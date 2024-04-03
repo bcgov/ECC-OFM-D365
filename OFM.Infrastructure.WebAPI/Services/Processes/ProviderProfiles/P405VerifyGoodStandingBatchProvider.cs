@@ -53,6 +53,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                           <condition attribute="statecode" operator="eq" value="0" />
                           <condition attribute="parentaccountid" operator="null" />
                           <condition attribute="ccof_accounttype" operator="eq" value="100000000" />
+                         <condition attribute="accountid" operator="eq" value="01e6052a-f96d-ee11-8179-000d3a09d132" /> 
                           <condition entityname="bu" attribute="name" operator="eq" value="OFM" />
                           <condition entityname="application" attribute="ofm_applicationid" operator="not-null" />
                         </filter>
@@ -111,7 +112,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         get
         {
             var fetchXml = $"""
-                    <fetch top="5" distinct="true" no-lock="true">
+                    <fetch distinct="true" no-lock="true">
                       <entity name="ofm_standing_history">
                         <attribute name="ofm_standing_historyid" />
                         <attribute name="ofm_organization" />
@@ -127,8 +128,18 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                         <filter type="and">
                           <condition attribute="statecode" operator="eq" value="0" />
                           <condition attribute="ofm_organization" operator="eq" value="{_organizationId}" />  
-                         <condition attribute="ofm_no_counter" operator="eq" value="{_BCRegistrySettings.NoDuration}" /> 
+                         <condition attribute="ofm_no_counter" operator="ge" value="{_BCRegistrySettings.NoDuration}" /> 
                            </filter>  
+                       <link-entity name="account" from="accountid" to="ofm_organization" link-type="inner" alias="dx">
+                      <link-entity name="task" from="regardingobjectid" to="accountid" link-type="inner" alias="dy">
+                        <filter type="and">
+                          <filter type="or">
+                            <condition attribute="ofm_process_responsible" operator="eq" value="{_BCRegistrySettings.batchtaskprocess}" />
+                            <condition attribute="ofm_process_responsible" operator="eq" value="{_BCRegistrySettings.singletaskprocess}" />
+                          </filter>
+                        </filter>
+                      </link-entity>
+                    </link-entity>
                       </entity>
                     </fetch>
                     """;
@@ -468,6 +479,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
     }
 
 
+    // Create task if org is in not good standing for more than 90 days
     private async Task<JsonObject> CreateTask(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization)
     {
        // _organizationId = organizationId;
@@ -477,14 +489,9 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
 
        
-        if (deserializedData.Count >= 1)                // Records found
+        if (deserializedData.Count <= 0)                // Records found
         {
-            var standingHistoryId = deserializedData.First().ofm_standing_historyid;
-            var goodStandingStatus_History = deserializedData.First().ofm_good_standing_status;
-            var counter = deserializedData.First().ofm_no_counter;
-            //var organizationId_History = deserializedData.First()._ofm_organization_value;
-
-                 // Operation - Create new record
+                // Operation - Create new record
                 var entitySetName = "tasks";                                                  // Case 3.2 create new record --> open (active)
                 var assistanceReq = new JsonObject {
                                  { "subject", _BCRegistrySettings.TaskActivity.subject + organization.name },
