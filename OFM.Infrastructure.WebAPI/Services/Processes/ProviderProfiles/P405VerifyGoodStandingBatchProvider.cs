@@ -38,8 +38,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
     public string RequestUri
     {
         get
-        {//01e6052a-f96d-ee11-8179-000d3a09d132
-            //  <fetch top="2" distinct="true" no-lock="true" >
+        {
             var fetchXml = $"""
                     <fetch distinct="true" no-lock="true" >
                       <entity name="account" >
@@ -53,7 +52,6 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                           <condition attribute="statecode" operator="eq" value="0" />
                           <condition attribute="parentaccountid" operator="null" />
                           <condition attribute="ccof_accounttype" operator="eq" value="100000000" />
-                         <condition attribute="accountid" operator="eq" value="01e6052a-f96d-ee11-8179-000d3a09d132" /> 
                           <condition entityname="bu" attribute="name" operator="eq" value="OFM" />
                           <condition entityname="application" attribute="ofm_applicationid" operator="not-null" />
                         </filter>

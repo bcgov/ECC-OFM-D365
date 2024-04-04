@@ -63,7 +63,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         get
         {
             var fetchXml = $"""
-                    <fetch top="5" distinct="true" no-lock="true">
+                    <fetch distinct="true" no-lock="true">
                       <entity name="ofm_standing_history">
                         <attribute name="ofm_standing_historyid" />
                         <attribute name="ofm_organization" />
