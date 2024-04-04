@@ -78,7 +78,7 @@ namespace OFM.Infrastructure.Plugins.Supplementary
                         UpdateRequest updateRequest = new UpdateRequest { Target = entity };
                         crmContext.Execute(updateRequest);
                     }
-
+                  
                     localPluginContext.Trace("Completed with no errors.");
                 }
             }
