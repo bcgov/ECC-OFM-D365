@@ -13149,7 +13149,8 @@ namespace ECC.Core.DataContext
 			public const string ofm_organizationName = "ofm_organizationname";
 			public const string ofm_provider_type = "ofm_provider_type";
 			public const string ofm_request_application = "ofm_request_application";
-			public const string ofm_secondary_contact = "ofm_secondary_contact";
+            public const string ofm_room_split_indicator = "ofm_room_split_indicator";
+            public const string ofm_secondary_contact = "ofm_secondary_contact";
 			public const string ofm_secondary_contact_application = "ofm_secondary_contact_application";
 			public const string ofm_secondary_contactName = "ofm_secondary_contactname";
 			public const string ofm_staff_ec_educator_assistant_ft = "ofm_staff_ec_educator_assistant_ft";
@@ -14136,11 +14137,29 @@ namespace ECC.Core.DataContext
 				this.SetAttributeValue("ofm_summary_declaration", value);
 			}
 		}
-		
-		/// <summary>
-		/// Last updated by ministry
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_summary_ministry_last_updated")]
+
+        /// <summary>
+        /// Room Split Indicator
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_room_split_indicator")]
+        public System.Nullable<bool> ofm_room_split_indicator
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<bool>>("ofm_room_split_indicator");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_room_split_indicator", value);
+            }
+        }
+
+        /// <summary>
+        /// Last updated by ministry
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_summary_ministry_last_updated")]
 		public System.Nullable<System.DateTime> ofm_summary_ministry_last_updated
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]

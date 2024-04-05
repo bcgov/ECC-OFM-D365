@@ -21,6 +21,7 @@ OFM.Application.Form = {
                 this.filterPrimaryContactLookup(executionContext);
                 this.filterExpenseAuthorityLookup(executionContext);
                 this.UpdateOrganizationdetails(executionContext);
+                this.showBanner(executionContext);
                 break;
 
             case 2: // update 
@@ -28,6 +29,7 @@ OFM.Application.Form = {
                 this.filterPrimaryContactLookup(executionContext);
                 this.filterExpenseAuthorityLookup(executionContext);
                 this.licenceCheck(executionContext);
+                this.showBanner(executionContext);
                 break;
 
             case 3: //readonly
@@ -52,7 +54,7 @@ OFM.Application.Form = {
         var facilityId = formContext.getAttribute("ofm_facility").getValue() ? formContext.getAttribute("ofm_facility").getValue()[0].id : null;
         if (facilityId != null) {
             var conditionFetchXML = "";
-            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + " and statecode eq 0)").then(
+            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + ")").then(
                 function success(results) {
                     console.log(results);
                     for (var i = 0; i < results.entities.length; i++) {
@@ -323,13 +325,23 @@ OFM.Application.Form = {
     },
 
     //Last Updated on and Last Updated by on verification checklist
-    updateVerificationInfo: function (executionContext, lastUpdatedOnField, lastUpdatedByField) {
+    updateVerificationInfo: function (executionContext, lastUpdatedOnField, LastUpdatedByField) {
         debugger;
         var formContext = executionContext.getFormContext();
         var currentDate = new Date();
         var userSettings = Xrm.Utility.getGlobalContext().userSettings;
         var username = userSettings.userName;
         formContext.getAttribute(lastUpdatedOnField) != null ? formContext.getAttribute(lastUpdatedOnField).setValue(currentDate) : null;
-        formContext.getAttribute(lastUpdatedByField) != null ? formContext.getAttribute(lastUpdatedByField).setValue(username) : null;
+        formContext.getAttribute(LastUpdatedByField) != null ? formContext.getAttribute(LastUpdatedByField).setValue(username) : null;
     },
+
+    showBanner: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var roomSplitIndicator = formContext.getAttribute("ofm_room_split_indicator").getValue();
+        var pcmIndicator = formContext.getAttribute("ofm_pcm_indicator").getValue();
+        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_5").setVisible(roomSplitIndicator || pcmIndicator);
+        formContext.getControl("ofm_room_split_banner").setVisible(roomSplitIndicator);
+        formContext.getControl("ofm_pcm_banner").setVisible(pcmIndicator);
+    }
 }
