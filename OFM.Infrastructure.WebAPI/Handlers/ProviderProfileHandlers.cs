@@ -24,7 +24,7 @@ public static class ProviderProfilesHandlers
     /// <param name="appUserService"></param>
     /// <param name="timeProvider"></param>
     /// <param name="loggerFactory"></param>
-    /// <param name="userName" example="ofmqa05"></param>
+    /// <param name="userName" example="BCeIDTest"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
     public static async Task<Results<BadRequest<string>, NotFound<string>, UnauthorizedHttpResult, ProblemHttpResult, Ok<ProviderProfile>>> GetProfileAsync(
@@ -38,7 +38,7 @@ public static class ProviderProfilesHandlers
         var logger = loggerFactory.CreateLogger(LogCategory.ProviderProfile);
         using (logger.BeginScope("ScopeProvider: {userId}", userId))
         {
-            logger.LogDebug(CustomLogEvents.ProviderProfile, "Getting provider profile in D365 for userName:{userName}/userId:{userId}", userName, userId);
+            //logger.LogDebug(CustomLogEvent.ProviderProfile, "Getting provider profile in D365 for userName:{userName}/userId:{userId}", userName, userId);
 
             if (string.IsNullOrEmpty(userName)) return TypedResults.BadRequest("The userName is required.");
 
@@ -55,7 +55,6 @@ public static class ProviderProfilesHandlers
                         <attribute name="ccof_username" />
                         <attribute name="contactid" />
                         <attribute name="emailaddress1" />
-                        <attribute name="ofm_is_primary_contact" />
                         <attribute name="telephone1" />
                         <filter type="or">
                           <condition attribute="ccof_userid" operator="eq" value="" />
@@ -103,10 +102,10 @@ public static class ProviderProfilesHandlers
                     """;
 
             var requestUri = $"""
-                         contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ccof_userid,ccof_username,contactid,emailaddress1,ofm_is_primary_contact,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name);$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode;$filter=(statuscode eq 1))&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1)
+                         contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ccof_userid,ccof_username,contactid,emailaddress1,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name);$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode;$filter=(statuscode eq 1))&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1)
                          """;
 
-            logger.LogDebug(CustomLogEvents.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
+            //logger.LogDebug(CustomLogEvent.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
 
             var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
 
@@ -124,7 +123,7 @@ public static class ProviderProfilesHandlers
 
                 using (logger.BeginScope($"ScopeProvider: {userId}"))
                 {
-                    logger.LogWarning(CustomLogEvents.ProviderProfile, "API Failure: Failed to retrieve profile for {userName}. Response message: {response}. TraceId: {traceId}. " +
+                    logger.LogWarning(CustomLogEvent.ProviderProfile, "API Failure: Failed to retrieve profile for {userName}. Response message: {response}. TraceId: {traceId}. " +
                         "Finished in {timer.ElapsedMilliseconds} miliseconds.", userId, response, traceId, timeProvider.GetElapsedTime(startTime, endTime).TotalMilliseconds);
                 }
 
@@ -134,16 +133,16 @@ public static class ProviderProfilesHandlers
 
             }
 
-            var jsonDom = await response.Content.ReadFromJsonAsync<JsonObject>();
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
 
             #region Validation
 
             JsonNode d365Result = string.Empty;
-            if (jsonDom?.TryGetPropertyValue("value", out var currentValue) == true)
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    logger.LogDebug(CustomLogEvents.ProviderProfile, "User not found.");
+                    logger.LogDebug(CustomLogEvent.ProviderProfile, "User not found.");
 
                     return TypedResults.NotFound($"User not found.");
                 }
@@ -156,7 +155,7 @@ public static class ProviderProfilesHandlers
                 serializedProfile!.First().ofm_facility_business_bceid is null ||
                 serializedProfile!.First().ofm_facility_business_bceid!.Length == 0)
             {
-                logger.LogDebug(CustomLogEvents.ProviderProfile, "Organization or facility permissions not found.");
+                logger.LogDebug(CustomLogEvent.ProviderProfile, "Organization or facility permissions not found.");
                 return TypedResults.Unauthorized();
             }
 
@@ -177,8 +176,8 @@ public static class ProviderProfilesHandlers
                 }
             }
 
-            logger.LogDebug(CustomLogEvents.ProviderProfile, "Return provider profile {portalProfile}", portalProfile);
-            logger.LogInformation(CustomLogEvents.ProviderProfile, "Querying provider profile finished in {totalElapsedTime} miliseconds", timeProvider.GetElapsedTime(startTime, endTime).TotalMilliseconds);
+            //logger.LogDebug(CustomLogEvent.ProviderProfile, "Return provider profile {portalProfile}", portalProfile);
+            logger.LogInformation(CustomLogEvent.ProviderProfile, "Querying provider profile finished in {totalElapsedTime} miliseconds", timeProvider.GetElapsedTime(startTime, endTime).TotalMilliseconds);
 
             return TypedResults.Ok(portalProfile);
         }

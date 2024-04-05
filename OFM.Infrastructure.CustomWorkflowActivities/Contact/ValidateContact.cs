@@ -8,7 +8,13 @@ using System.Activities;
 namespace OFM.Infrastructure.CustomWorkflowActivities.Contact
 {
     public sealed class ValidateContact : CodeActivity
-    {     
+    {
+        [Output("Valid")]
+        public OutArgument<bool> valid { get; set; }
+
+        [Output("Validate Message")]
+        public OutArgument<string> message { get; set; }
+
         protected override void Execute(CodeActivityContext executionContext)
         {
             ITracingService tracingService = executionContext.GetExtension<ITracingService>();
@@ -38,10 +44,5 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Contact
             this.message.Set(executionContext, "a message.");
         }
 
-        [Output("Valid")]
-        public OutArgument<bool> valid { get; set; }
-
-        [Output("Validate Message")]
-        public OutArgument<string> message { get; set; }
     }
 }

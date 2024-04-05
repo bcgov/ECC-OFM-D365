@@ -52,79 +52,332 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Assistance_Request"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.Email"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Assistance_Request> OfM_Assistance_RequestSet
+		public System.Linq.IQueryable<ECC.Core.DataContext.Email> EmailSet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.OfM_Assistance_Request>();
+				return this.CreateQuery<ECC.Core.DataContext.Email>();
 			}
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_BcEId_Facility"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_allowance"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_BcEId_Facility> OfM_BcEId_FacilitySet
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_allowance> ofm_allowanceSet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.OfM_BcEId_Facility>();
+				return this.CreateQuery<ECC.Core.DataContext.ofm_allowance>();
 			}
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Conversation"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_application"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Conversation> OfM_ConversationSet
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_application> ofm_applicationSet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.OfM_Conversation>();
+				return this.CreateQuery<ECC.Core.DataContext.ofm_application>();
 			}
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Facility_Request"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_assistance_request"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Facility_Request> OfM_Facility_RequestSet
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_assistance_request> ofm_assistance_requestSet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.OfM_Facility_Request>();
+				return this.CreateQuery<ECC.Core.DataContext.ofm_assistance_request>();
 			}
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.OfM_Request_Category"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_bceid_facility"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.OfM_Request_Category> OfM_Request_CategorySet
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_bceid_facility> ofm_bceid_facilitySet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.OfM_Request_Category>();
+				return this.CreateQuery<ECC.Core.DataContext.ofm_bceid_facility>();
 			}
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.SystemUser"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_cclr_ratio"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.SystemUser> SystemUserSet
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_cclr_ratio> ofm_cclr_ratioSet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.SystemUser>();
+				return this.CreateQuery<ECC.Core.DataContext.ofm_cclr_ratio>();
 			}
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.Task"/> entities.
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_communication_type"/> entities.
 		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.Task> TaskSet
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_communication_type> ofm_communication_typeSet
 		{
 			get
 			{
-				return this.CreateQuery<ECC.Core.DataContext.Task>();
+				return this.CreateQuery<ECC.Core.DataContext.ofm_communication_type>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_conversation"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_conversation> ofm_conversationSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_conversation>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_document"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_document> ofm_documentSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_document>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_facility_request"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_facility_request> ofm_facility_requestSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_facility_request>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_fiscal_year"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_fiscal_year> ofm_fiscal_yearSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_fiscal_year>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_funding"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_funding> ofm_fundingSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_funding>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_funding_rate"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_funding_rate> ofm_funding_rateSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_funding_rate>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_integration_log"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_integration_log> ofm_integration_logSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_integration_log>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_licence"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_licence> ofm_licenceSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_licence>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_licence_detail"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_licence_detail> ofm_licence_detailSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_licence_detail>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_month"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_month> ofm_monthSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_month>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_payment"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_payment> ofm_paymentSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_payment>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_progress_tracker"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_progress_tracker> ofm_progress_trackerSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_progress_tracker>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question> ofm_questionSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_question>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question_business_rule"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question_business_rule> ofm_question_business_ruleSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_question_business_rule>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_question_response"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_question_response> ofm_question_responseSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_question_response>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_rate_schedule"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_rate_schedule> ofm_rate_scheduleSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_rate_schedule>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_request_category"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_request_category> ofm_request_categorySet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_request_category>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_section"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_section> ofm_sectionSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_section>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_space_allocation"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_space_allocation> ofm_space_allocationSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_space_allocation>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_supplementary_schedule"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_supplementary_schedule> ofm_supplementary_scheduleSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_supplementary_schedule>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_survey"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_survey> ofm_surveySet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_survey>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_survey_response"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_survey_response> ofm_survey_responseSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_survey_response>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_system_configuration"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_system_configuration> ofm_system_configurationSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_system_configuration>();
 			}
 		}
 		
@@ -137,6 +390,111 @@ namespace ECC.Core.DataContext
 			{
 				return this.CreateQuery<ECC.Core.DataContext.Team>();
 			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.TimeZoneDefinition"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.TimeZoneDefinition> TimeZoneDefinitionSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.TimeZoneDefinition>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.UserSettings"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.UserSettings> UserSettingsSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.UserSettings>();
+			}
+		}
+	}
+	
+	/// <summary>
+	/// Attribute to handle storing the OptionSet's Metadata.
+	/// </summary>
+	[System.AttributeUsageAttribute(System.AttributeTargets.Field)]
+	public sealed class OptionSetMetadataAttribute : System.Attribute
+	{
+		
+		/// <summary>
+		/// Color of the OptionSetValue.
+		/// </summary>
+		public string Color { get; set; }
+		
+		/// <summary>
+		/// Description of the OptionSetValue.
+		/// </summary>
+		public string Description { get; set; }
+		
+		/// <summary>
+		/// Display order index of the OptionSetValue.
+		/// </summary>
+		public int DisplayIndex { get; set; }
+		
+		/// <summary>
+		/// External value of the OptionSetValue.
+		/// </summary>
+		public string ExternalValue { get; set; }
+		
+		/// <summary>
+		/// Name of the OptionSetValue.
+		/// </summary>
+		public string Name { get; set; }
+		
+		/// <summary>
+		/// Initializes a new instance of the <see cref="OptionSetMetadataAttribute"/> class.
+		/// </summary>
+		/// <param name="name">Name of the value.</param>
+		/// <param name="displayIndex">Display order index of the value.</param>
+		/// <param name="color">Color of the value.</param>
+		/// <param name="description">Description of the value.</param>
+		/// <param name="externalValue">External value of the value.</param>
+		public OptionSetMetadataAttribute(string name, int displayIndex, string color = null, string description = null, string externalValue = null)
+		{
+			this.Color = color;
+			this.Description = description;
+			this.ExternalValue = externalValue;
+			this.DisplayIndex = displayIndex;
+			this.Name = name;
+		}
+	}
+	
+	/// <summary>
+	/// Extension class to handle retrieving of OptionSetMetadataAttribute.
+	/// </summary>
+	public static class OptionSetExtension
+	{
+		
+		/// <summary>
+		/// Returns the OptionSetMetadataAttribute for the given enum value
+		/// </summary>
+		/// <typeparam name="T">OptionSet Enum Type</typeparam>
+		/// <param name="value">Enum Value with OptionSetMetadataAttribute</param>
+		public static OptionSetMetadataAttribute GetMetadata<T>(this T value)
+			where T :  struct, System.IConvertible
+		{
+			System.Type enumType = typeof(T);
+			if (!enumType.IsEnum)
+			{
+				throw new System.ArgumentException("T must be an enum!");
+			}
+			System.Reflection.MemberInfo[] members = enumType.GetMember(value.ToString());
+			for (int i = 0; (i < members.Length); i++
+			)
+			{
+				System.Attribute attribute = System.Reflection.CustomAttributeExtensions.GetCustomAttribute(members[i], typeof(OptionSetMetadataAttribute));
+				if (attribute != null)
+				{
+					return ((OptionSetMetadataAttribute)(attribute));
+				}
+			}
+			throw new System.ArgumentException("T must be an enum adorned with an OptionSetMetadataAttribute!");
 		}
 	}
 }

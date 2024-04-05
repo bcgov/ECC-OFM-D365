@@ -78,4 +78,11 @@ public class DistributedCache<T> : IDistributedCache<T> where T : class
             throw;
         }
     }
+
+    public T? Get(string key)
+    {
+        var cachedResult = _distributedCache.GetString(CacheKey(key));
+
+        return cachedResult == null ? default : DeserialiseFromString(cachedResult);
+    }
 }

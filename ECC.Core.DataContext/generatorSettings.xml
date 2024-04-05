@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Config xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <AudibleCompletionNotification>true</AudibleCompletionNotification>
+  <AudibleCompletionNotification>false</AudibleCompletionNotification>
   <CodeCustomizationService>DLaB.ModelBuilderExtensions.CustomizeCodeDomService,DLaB.ModelBuilderExtensions</CodeCustomizationService>
   <CodeGenerationService>DLaB.ModelBuilderExtensions.CodeGenerationService,DLaB.ModelBuilderExtensions</CodeGenerationService>
   <CodeWriterFilterService>DLaB.ModelBuilderExtensions.CodeWriterFilterService,DLaB.ModelBuilderExtensions</CodeWriterFilterService>
@@ -12,14 +12,14 @@
     <ActionsToSkip />
     <AddDebuggerNonUserCode>true</AddDebuggerNonUserCode>
     <AddNewFilesToProject>true</AddNewFilesToProject>
-    <AddOptionSetMetadataAttribute>false</AddOptionSetMetadataAttribute>
+    <AddOptionSetMetadataAttribute>true</AddOptionSetMetadataAttribute>
     <BuilderSettingsJsonRelativePath>builderSettings.json</BuilderSettingsJsonRelativePath>
-    <CamelCaseClassNames>true</CamelCaseClassNames>
+    <CamelCaseClassNames>false</CamelCaseClassNames>
     <CamelCaseCustomWords />
-    <CamelCaseMemberNames>true</CamelCaseMemberNames>
+    <CamelCaseMemberNames>false</CamelCaseMemberNames>
     <CamelCaseNamesDictionaryRelativePath>DLaB.EarlyBoundGeneratorV2\DLaB.Dictionary.txt</CamelCaseNamesDictionaryRelativePath>
     <CleanupCrmSvcUtilLocalOptionSets>false</CleanupCrmSvcUtilLocalOptionSets>
-    <CreateOneFilePerAction>true</CreateOneFilePerAction>
+    <CreateOneFilePerAction>false</CreateOneFilePerAction>
     <CreateOneFilePerEntity>false</CreateOneFilePerEntity>
     <CreateOneFilePerOptionSet>false</CreateOneFilePerOptionSet>
     <DeleteFilesFromOutputFolders>false</DeleteFilesFromOutputFolders>
@@ -107,6 +107,7 @@ bot|
 bot_botcomponent|
 bot_environmentvariabledefinition|
 botcomponent|
+botcomponent_aipluginoperation|
 botcomponent_botcomponent|
 botcomponent_connectionreference|
 botcomponent_environmentvariabledefinition|
@@ -189,6 +190,7 @@ ccof_childcare_category|
 ccof_configuration|
 ccof_email_reminder|
 ccof_facility_licenses|
+ccof_facility_region|
 ccof_fee_benchmark|
 ccof_fee_benchmark_sda|
 ccof_fee_region|
@@ -234,6 +236,9 @@ competitoraddress|
 competitorproduct|
 competitorsalesliterature|
 complexcontrol|
+componentversion|
+componentversiondatasource|
+componentversionnrddatasource|
 connection|
 connectioninstance|
 connectionreference|
@@ -252,7 +257,8 @@ contracttemplate|
 conversationtranscript|
 convertrule|
 convertruleitem|
-crc7e_newtable|
+copilotexamplequestion|
+crc7e_table|
 credential|
 customapi|
 customapirequestparameter|
@@ -270,10 +276,12 @@ datalakeworkspacepermission|
 dataperformance|
 dataprocessingconfiguration|
 delegatedauthorization|
+deleteditemreference|
 delveactionhub|
 dependency|
 dependencyfeature|
 dependencynode|
+deploymentorchestration|
 desktopflowbinary|
 desktopflowmodule|
 discount|
@@ -296,7 +304,6 @@ dynamicpropertyassociation|
 dynamicpropertyinstance|
 dynamicpropertyoptionsetitem|
 elasticfileattachment|
-email|
 emailhash|
 emailsearch|
 emailserverprofile|
@@ -323,6 +330,7 @@ entityrelationship|
 environmentvariabledefinition|
 environmentvariablevalue|
 equipment|
+eventexpanderbreadcrumb|
 exchangesyncidmapping|
 expanderevent|
 expiredprocess|
@@ -330,6 +338,7 @@ exportedexcel|
 exportsolutionupload|
 externalparty|
 externalpartyitem|
+extn_componentautomailer|
 fax|
 featurecontrolsetting|
 feedback|
@@ -338,6 +347,7 @@ fieldsecurityprofile|
 fileattachment|
 filtertemplate|
 fixedmonthlyfiscalcalendar|
+flowcapacityassignment|
 flowevent|
 flowmachine|
 flowmachinegroup|
@@ -424,6 +434,7 @@ msdyn_actioncardactionstat|
 msdyn_actioncardregarding|
 msdyn_actioncardrolesetting|
 msdyn_actioncardstataggregation|
+msdyn_activeicdextension|
 msdyn_activityanalysiscleanupstate|
 msdyn_activityanalysisconfig|
 msdyn_actual|
@@ -502,6 +513,7 @@ msdyn_authenticationsettings|
 msdyn_authsettingsentry|
 msdyn_autocapturerule|
 msdyn_autocapturesettings|
+msdyn_bgjobledger|
 msdyn_bookableresourceassociation|
 msdyn_bookableresourcebookingquicknote|
 msdyn_bookableresourcecapacityprofile|
@@ -578,9 +590,15 @@ msdyn_conversationsentiment|
 msdyn_conversationsignal|
 msdyn_conversationsubject|
 msdyn_conversationsuggestionrequestpayload|
+msdyn_conversationsummaryinteraction|
+msdyn_conversationsummarysetting|
 msdyn_conversationsummarysuggestion|
 msdyn_conversationsystemtag|
 msdyn_conversationtag|
+msdyn_conversationtopic|
+msdyn_conversationtopic_conversation|
+msdyn_conversationtopicsetting|
+msdyn_conversationtopicsummary|
 msdyn_copilotagentpreference|
 msdyn_copilotinteraction|
 msdyn_copilotinteractiondata|
@@ -609,11 +627,16 @@ msdyn_dataanalyticsreport_fs|
 msdyn_dataanalyticsreport_fspredictrs|
 msdyn_dataanalyticsreport_fspredictwhd|
 msdyn_dataanalyticsreport_ksinsights|
+msdyn_dataanalyticsreport_oc|
+msdyn_dataanalyticsreport_oc_rt|
+msdyn_dataanalyticsreport_ocvoice|
+msdyn_dataanalyticsreport_sareporting|
 msdyn_dataanalyticsreport_sutreporting|
 msdyn_dataanalyticsworkspace|
 msdyn_databaseversion|
 msdyn_dataflow|
 msdyn_dataflow_datalakefolder|
+msdyn_dataflowconnectionreference|
 msdyn_dataflowrefreshhistory|
 msdyn_dataflowtemplate|
 msdyn_datahygienesettinginfo|
@@ -631,6 +654,8 @@ msdyn_digitalsellingcompletedtask|
 msdyn_distributedlock|
 msdyn_dmsrequest|
 msdyn_dmsrequeststatus|
+msdyn_dmssyncrequest|
+msdyn_dmssyncstatus|
 msdyn_duplicatedetectionpluginrun|
 msdyn_duplicateleadmapping|
 msdyn_effortpredictionresult|
@@ -643,6 +668,7 @@ msdyn_entitylinkchatconfiguration|
 msdyn_entityrankingrule|
 msdyn_entityrefreshhistory|
 msdyn_entityroutingconfiguration|
+msdyn_entityworkstreammap|
 msdyn_extendedusersetting|
 msdyn_favoriteknowledgearticle|
 msdyn_federatedarticle|
@@ -674,6 +700,7 @@ msdyn_geofencingsettings|
 msdyn_geolocationsettings|
 msdyn_geolocationtracking|
 msdyn_helppage|
+msdyn_icdextension|
 msdyn_icebreakersconfig|
 msdyn_iermlmodel|
 msdyn_iermltraining|
@@ -697,6 +724,7 @@ msdyn_inspectioninstance|
 msdyn_inspectionresponse|
 msdyn_insurance|
 msdyn_integratedsearchprovider|
+msdyn_intent|
 msdyn_inventoryadjustment|
 msdyn_inventoryadjustmentproduct|
 msdyn_inventoryjournal|
@@ -718,6 +746,7 @@ msdyn_iotprovider|
 msdyn_iotproviderinstance|
 msdyn_iotsettings|
 msdyn_iottocaseprocess|
+msdyn_jobsstate|
 msdyn_kalanguagesetting|
 msdyn_kbattachment|
 msdyn_kbenrichment|
@@ -891,6 +920,7 @@ msdyn_predictionmodelstatus|
 msdyn_predictionscheduledoperation|
 msdyn_predictivemodelscore|
 msdyn_predictivescore|
+msdyn_predictivescoringsyncstatus|
 msdyn_predictworkhourdurationsetting|
 msdyn_preferredagent|
 msdyn_preferredagentcustomeridentity|
@@ -937,6 +967,7 @@ msdyn_recomputetracker|
 msdyn_recording|
 msdyn_recurrence|
 msdyn_recurringsalesaction|
+msdyn_recurringsalesactionv2|
 msdyn_relationshipanalyticsmetadata|
 msdyn_relationshipinsightsunifiedconfig|
 msdyn_reportbookmark|
@@ -1223,6 +1254,7 @@ multientitysearch|
 multientitysearchentities|
 multiselectattributeoptionvalues|
 navigationsetting|
+new_bankaccount|
 newprocess|
 nlsqregistration|
 notification|
@@ -1326,6 +1358,7 @@ recordcountsnapshot|
 recordfilter|
 recurrencerule|
 recurringappointmentmaster|
+recyclebinconfig|
 relationship|
 relationshipattribute|
 relationshiprole|
@@ -1404,6 +1437,7 @@ sharedlinksetting|
 sharedobject|
 sharedobjectsforread|
 sharedworkspace|
+sharedworkspaceaccesstoken|
 sharedworkspacepool|
 sharepointdata|
 sharepointdocument|
@@ -1457,6 +1491,7 @@ syncattributemappingprofile|
 syncerror|
 systemapplicationmetadata|
 systemform|
+systemuser|
 systemuserauthorizationchangetracker|
 systemuserbusinessunitentitymap|
 systemuserlicenses|
@@ -1465,6 +1500,7 @@ systemuserprincipals|
 systemuserprofiles|
 systemuserroles|
 systemusersyncmappingprofiles|
+task|
 tdsmetadata|
 teammembership|
 teammobileofflineprofilemembership|
@@ -1477,7 +1513,6 @@ territory|
 textanalyticsentitymapping|
 theme|
 timestampdatemapping|
-timezonedefinition|
 timezonelocalizedname|
 timezonerule|
 topic|
@@ -1507,7 +1542,6 @@ userquery|
 userqueryvisualization|
 userrating|
 usersearchfacet|
-usersettings|
 virtualentitymetadata|
 virtualresourcegroupresource|
 webresource|
@@ -1523,34 +1557,58 @@ workflowwaitsubscription|
 workqueue|
 workqueueitem</EntitiesToSkip>
     <EntitiesWhitelist>account|
-activityparty|
-activitypointer|
 businessunit|
 contact|
 email|
+ofm_allowance|
+ofm_application|
 ofm_assistance_request|
 ofm_bceid_facility|
+ofm_cclr_ratio|
+ofm_communication_type|
 ofm_conversation|
+ofm_document|
 ofm_facility_request|
+ofm_fiscal_year|
+ofm_funding|
+ofm_funding_rate|
+ofm_integration_log|
+ofm_licence|
+ofm_licence_detail|
+ofm_month|
+ofm_payment|
+ofm_progress_tracker|
+ofm_question|
+ofm_question_business_rule|
+ofm_question_response|
+ofm_rate_schedule|
 ofm_request_category|
+ofm_section|
+ofm_space_allocation|
+ofm_supplementary_schedule|
+ofm_survey|
+ofm_survey_response|
+ofm_system_configuration|
 systemuser|
-task|
 team|
-transactioncurrency</EntitiesWhitelist>
-    <EntityAttributeSpecifiedNames />
+timezonedefinition|
+usersettings</EntitiesWhitelist>
+    <EntityAttributeSpecifiedNames>ofm_application:ofm_Application|
+ofm_licence:ofm_Licence|
+ofm_licence_detail:ofm_Licence_Detail</EntityAttributeSpecifiedNames>
     <EntityPrefixesToSkip />
     <EntityPrefixesWhitelist />
-    <GenerateActionAttributeNameConsts>true</GenerateActionAttributeNameConsts>
+    <GenerateActionAttributeNameConsts>false</GenerateActionAttributeNameConsts>
     <GenerateAttributeNameConsts>true</GenerateAttributeNameConsts>
     <GenerateAnonymousTypeConstructor>true</GenerateAnonymousTypeConstructor>
     <GenerateConstructorsSansLogicalName>true</GenerateConstructorsSansLogicalName>
     <GenerateEntityRelationships>true</GenerateEntityRelationships>
-    <GenerateEntityTypeCode>false</GenerateEntityTypeCode>
+    <GenerateEntityTypeCode>true</GenerateEntityTypeCode>
     <GenerateEnumProperties>true</GenerateEnumProperties>
     <GenerateGeneratedCodeAttribute>false</GenerateGeneratedCodeAttribute>
     <GenerateGlobalOptionSets>true</GenerateGlobalOptionSets>
     <GenerateINotifyPattern>false</GenerateINotifyPattern>
-    <GenerateOptionSetMetadataAttribute>false</GenerateOptionSetMetadataAttribute>
+    <GenerateOptionSetMetadataAttribute>true</GenerateOptionSetMetadataAttribute>
     <GenerateTypesAsInternal>false</GenerateTypesAsInternal>
     <GroupLocalOptionSetsByEntity>false</GroupLocalOptionSetsByEntity>
     <GroupMessageRequestWithResponse>true</GroupMessageRequestWithResponse>
@@ -1609,13 +1667,13 @@ VoiceMail</TokenCapitalizationOverrides>
     <UseCrmSvcUtilStateEnumNamingConvention>false</UseCrmSvcUtilStateEnumNamingConvention>
     <UseDisplayNameForBpfName>true</UseDisplayNameForBpfName>
     <UseEnumForStateCodes>false</UseEnumForStateCodes>
-    <UseLogicalNames>false</UseLogicalNames>
+    <UseLogicalNames>true</UseLogicalNames>
     <UseTfsToCheckoutFiles>false</UseTfsToCheckoutFiles>
     <WaitForAttachedDebugger>false</WaitForAttachedDebugger>
   </ExtensionConfig>
-  <GenerateMessages>true</GenerateMessages>
+  <GenerateMessages>false</GenerateMessages>
   <IncludeCommandLine>false</IncludeCommandLine>
-  <MessageTypesFolder>Messages</MessageTypesFolder>
+  <MessageTypesFolder>Messages\Messages.cs</MessageTypesFolder>
   <MetadataProviderService>DLaB.ModelBuilderExtensions.MetadataProviderService,DLaB.ModelBuilderExtensions</MetadataProviderService>
   <MetadataQueryProviderService>DLaB.ModelBuilderExtensions.MetadataQueryProviderService,DLaB.ModelBuilderExtensions</MetadataQueryProviderService>
   <NamingService>DLaB.ModelBuilderExtensions.NamingService,DLaB.ModelBuilderExtensions</NamingService>

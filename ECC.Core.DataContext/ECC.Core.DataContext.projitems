@@ -12,7 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)DataverseContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Entities\Entities.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EntityOptionSetEnum.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Messages\Msdyn_CreateTrainEffortModelConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OptionSets\OptionSets.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -5,12 +5,19 @@ using OFM.Infrastructure.WebAPI.Caching;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
+using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Documents;
+using OFM.Infrastructure.WebAPI.Services.Processes;
+using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
+using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
+using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
+using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
+using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
+//builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
 
 var services = builder.Services;
 
@@ -30,13 +37,34 @@ services.AddDistributedMemoryCache();
 services.TryAddSingleton(typeof(IDistributedCache<>), typeof(DistributedCache<>));
 services.TryAddSingleton(TimeProvider.System);
 
-services.TryAddSingleton<ID365TokenService, D365TokenService>();
-services.TryAddSingleton<ID365AppUserService, D365AppUserService>();
-services.TryAddSingleton<ID365WebApiService, D365WebAPIService>();
-services.TryAddSingleton<ID365AuthenticationService, D365AuthServiceMSAL>();
-services.TryAddSingleton<ID365DocumentProvider, DocumentProvider>();
-services.TryAddSingleton<ID365DocumentProvider, ApplicationDocumentProvider>();
-services.TryAddSingleton<ID365DocumentService, D365DocumentService>();
+services.AddScoped<ID365TokenService, D365TokenService>();
+services.AddScoped<ID365AppUserService, D365AppUserService>();
+services.AddScoped<ID365WebApiService, D365WebAPIService>();
+services.AddScoped<ID365AuthenticationService, D365AuthServiceMSAL>();
+services.AddScoped<ID365DataService, D365DataService>();
+
+services.AddScoped<ID365DocumentProvider, DocumentProvider>();
+services.AddScoped<ID365DocumentProvider, ApplicationDocumentProvider>();
+services.AddScoped<ID365DocumentService, D365DocumentService>();
+
+services.AddScoped<ID365ScheduledProcessService, ProcessService>();
+services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
+services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
+services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
+services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
+services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>();
+services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
+services.AddScoped<ID365ProcessProvider, P405VerifyGoodStandingBatchProvider>();
+services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
+
+services.AddScoped<D365Email>();
+services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
+
+services.AddScoped<ID365BatchService, D365BatchService>();
+services.AddScoped<ID365BatchProvider, BatchProvider>();
+services.AddScoped<ID365BatchProvider, ContactEditProvider>();
+services.AddScoped<IFundingRepository, FundingRepository>();
 
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
@@ -47,6 +75,10 @@ services.AddHealthChecks();
 services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));
 services.Configure<AuthenticationSettings>(builder.Configuration.GetSection(nameof(AuthenticationSettings)));
 services.Configure<D365AuthSettings>(builder.Configuration.GetSection(nameof(D365AuthSettings)));
+services.Configure<DocumentSettings>(builder.Configuration.GetSection(nameof(DocumentSettings)));
+services.Configure<NotificationSettings>(builder.Configuration.GetSection(nameof(NotificationSettings)));
+services.Configure<ProcessSettings>(builder.Configuration.GetSection(nameof(ProcessSettings)));
+services.Configure<ExternalServices>(builder.Configuration.GetSection(nameof(ExternalServices)));
 //======== <<<
 
 // Wait 30 seconds for graceful shutdown.
@@ -77,6 +109,7 @@ if (app.Configuration.GetValue<bool>("Features:Batch:Enable"))
 if (app.Configuration.GetValue<bool>("Features:Search:Enable"))
     app.RegisterSearchesEndpoints();
 
+app.RegisterBatchProcessesEndpoints();
 app.RegisterProviderProfileEndpoints();
 app.RegisterOperationsEndpoints();
 
@@ -84,11 +117,11 @@ app.RegisterOperationsEndpoints();
 
 app.MapGet("/api/health", (ILogger<string> logger) =>
 {
-    logger.LogInformation("Health checked on {currentTime}(PST)", DateTime.Now);
+    //logger.LogInformation("Health checked on {currentTime}", DateTime.Now);
 
     return TypedResults.Ok("I am healthy!");
 
-}).WithTags("Environment").Produces(200).ProducesProblem(404).AllowAnonymous();
+}).WithTags("Portal Environment").Produces(200).ProducesProblem(404).AllowAnonymous();
 
 app.MapHealthChecks("/api/health");
 
