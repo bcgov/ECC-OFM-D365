@@ -145,9 +145,20 @@ public record BCRegistrySettings
     public required string KeyName { get; set; }
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
+    public int NoDuration { get; set; }
+    public string batchtaskprocess { get; set; }
+    public string singletaskprocess { get; set; }
+    public required TaskActivity TaskActivity { get; set; }
+
+}
+public record TaskActivity
+{
+    public required string subject { get; set; }
+    public required string description { get; set; }
+    
 }
 
-public record BCCASApi
+    public record BCCASApi
 {
     public bool Enable { get; set; }
     public required string Url { get; set; }

@@ -207,6 +207,7 @@ public record D365Organization_Account
     public string? ofm_incorporation_number { get; set; }
     public string? ofm_business_number { get; set; }
     public int statecode { get; set; }
+
 }
 
 public record D365StandingHistory
@@ -218,6 +219,7 @@ public record D365StandingHistory
     public DateTime? ofm_end_date { get; set; }
     public DateTime? ofm_validated_on { get; set; }
     public decimal? ofm_duration { get; set; }
+    public int? ofm_no_counter { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
 }
