@@ -27,6 +27,7 @@ public record D365Facility
     public int ccof_accounttype { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
+    public int? ofm_program { get; set; }
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
 
@@ -97,7 +98,8 @@ public class ProviderProfile
                         accountnumber = facility.accountnumber,
                         name = facility.name,
                         statecode = facility.statecode,
-                        statuscode = facility.statuscode
+                        statuscode = facility.statuscode,
+                        ofm_program=facility.ofm_program,
                     },
                     ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
                     statecode = firstContact.ofm_facility_business_bceid[i].statecode,
@@ -161,6 +163,7 @@ public record ofm_Facility
     public int statecode { get; set; }
     public int statuscode { get; set; }
     public string? name { get; set; }
+    public int? ofm_program { get; set; }
 }
 
 #endregion
