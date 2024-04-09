@@ -87,8 +87,8 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
 
                     var allowanceType = (int)entity.GetAttributeValue<OptionSetValue>("ofm_allowance_type").Value;
                     var applicationId = entity.GetAttributeValue<EntityReference>("ofm_application").Id;
-                    var statecode = 0; //ECC.Core.DataContext.ofm_allowance_statecode.Active
-                    var statuscode = 6; //ECC.Core.DataContext.ofm_allowance_StatusCode.Approved
+                    var statecode = (int) ofm_allowance_statecode.Active;
+                    var statuscode = (int) ofm_allowance_StatusCode.Approved;
 
                     tracingService.Trace("{0}{1}", "allowanceType: ", allowanceType);
                     tracingService.Trace("{0}{1}", "applicationId: ", applicationId);
