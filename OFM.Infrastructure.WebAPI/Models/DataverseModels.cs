@@ -83,13 +83,14 @@ public class ProviderProfile
             statecode = firstContact.parentcustomerid_account.statecode,
             statuscode = firstContact.parentcustomerid_account.statuscode
         };
+       
+            role = new PortalRole
+            {
+                ofm_portal_roleid = firstContact.ofm_portal_role_id?.ofm_portal_roleid,
+                ofm_portal_role_number = firstContact.ofm_portal_role_id?.ofm_portal_role_number
 
-        role = new PortalRole
-        {
-            ofm_portal_roleid = firstContact.ofm_portal_role_id.ofm_portal_roleid,
-            ofm_portal_role_number = firstContact.ofm_portal_role_id.ofm_portal_role_number
-
-        };
+            };
+        
         for (int i = 0; i < firstContact.ofm_facility_business_bceid!.Count(); i++)
         {
             if (firstContact.ofm_facility_business_bceid![i] is not null &&
