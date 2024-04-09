@@ -123,6 +123,8 @@ public class Application : ofm_application
     public new decimal? ofm_costs_property_insurance { get; set; }
     public new decimal? ofm_costs_supplies { get; set; }
     public new decimal? ofm_costs_strata_fee { get; set; }
+    public new Guid? _ofm_contact_value { get; set; }
+    public new Guid? _ofm_expense_authority_value { get; set; }
 
     public new D365Facility? ofm_facility { get; set; }
 }
