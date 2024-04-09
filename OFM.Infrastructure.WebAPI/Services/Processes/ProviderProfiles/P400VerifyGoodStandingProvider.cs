@@ -19,6 +19,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
     private string _organizationId;
+    private string _ofm_standing_historyid;
 
     public P400VerifyGoodStandingProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -63,7 +64,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         get
         {
             var fetchXml = $"""
-                    <fetch top="5" distinct="true" no-lock="true">
+                    <fetch distinct="true" no-lock="true">
                       <entity name="ofm_standing_history">
                         <attribute name="ofm_standing_historyid" />
                         <attribute name="ofm_organization" />
@@ -97,7 +98,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         get
         {
             var fetchXml = $"""
-                    <fetch top="5" distinct="true" no-lock="true">
+                    <fetch distinct="true" no-lock="true">
                       <entity name="ofm_standing_history">
                         <attribute name="ofm_standing_historyid" />
                         <attribute name="ofm_organization" />
@@ -112,9 +113,18 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                         <order attribute="ofm_start_date" descending="true" />
                         <filter type="and">
                           <condition attribute="statecode" operator="eq" value="0" />
-                          <condition attribute="ofm_organization" operator="eq" value="{_organizationId}" />  
-                         <condition attribute="ofm_no_counter" operator="eq" value="{_BCRegistrySettings.NoDuration}" /> 
-                           </filter>  
+                           <condition attribute="ofm_standing_historyid" operator="eq" value="{_ofm_standing_historyid}" />  
+                          </filter> 
+                          <link-entity name="account" from="accountid" to="ofm_organization" link-type="inner" alias="dx">
+                      <link-entity name="task" from="regardingobjectid" to="accountid" link-type="inner" alias="dy">
+                        <filter type="and">
+                          <filter type="or">
+                            <condition attribute="ofm_process_responsible" operator="eq" value="{_BCRegistrySettings.batchtaskprocess}" />
+                            <condition attribute="ofm_process_responsible" operator="eq" value="{_BCRegistrySettings.singletaskprocess}" />
+                          </filter>
+                        </filter>
+                      </link-entity>
+                    </link-entity>
                       </entity>
                     </fetch>
                     """;
@@ -304,8 +314,8 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
  
                 // Handling Standing History
                 var goodStandingStatusYN = searchResult.searchResults.results.First().goodStanding ? 1 : 0;          // 0 - No, 1 - Yes 
-                await CreateUpdateStandingHistory(_appUserService, _d365webapiservice, organizationId, goodStandingStatusYN);
-                await CreateTask(_appUserService, _d365webapiservice, organization);
+                await CreateUpdateStandingHistory(_appUserService, _d365webapiservice, organization, goodStandingStatusYN);
+              
                 // return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
 
@@ -348,9 +358,9 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 
-    private async Task<JsonObject> CreateUpdateStandingHistory(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string organizationId, int goodStandingStatusYN)
+    private async Task<JsonObject> CreateUpdateStandingHistory(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization, int goodStandingStatusYN)
     {
-        _organizationId = organizationId;
+        _organizationId = organization.accountid;
 
         var localData = await GetStandingHistoryDataAsync();
 
@@ -368,7 +378,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                                 { "statecode", 0 },                                                                   // 0 - active, 1 - inactive
                                 { "statuscode", 1 },                                                                  // 1 - Open (active), 2 - Closed (inactive)
                                 //{ "ofm_validated_on", DateTime.UtcNow },
-                                { "ofm_organization@odata.bind", $"/accounts({organizationId})"}
+                                { "ofm_organization@odata.bind", $"/accounts({organization.accountid})"}
                             };
             var requestBody = JsonSerializer.Serialize(payload);
             var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
@@ -400,6 +410,10 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                 if (goodStandingStatusYN == 0) { payload.Add("ofm_no_counter", noduration.Days.ToString()); }
                 var requestBody = JsonSerializer.Serialize(payload);
                 var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, statement, requestBody);
+                if (goodStandingStatusYN == 0 && noduration.Days >= _BCRegistrySettings.NoDuration)
+                {   //Handling task creation if rcord is in not good standing fro 90 days
+                    await CreateTask(_appUserService, _d365webapiservice, organization, standingHistoryId);
+                }
             }
             else
             {
@@ -431,7 +445,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                                 { "statecode", 0 },
                                 { "statuscode", 1 },
                                 //{ "ofm_validated_on", DateTime.UtcNow },
-                                { "ofm_organization@odata.bind", $"/accounts({organizationId})"}
+                                { "ofm_organization@odata.bind", $"/accounts({organization.accountid})"}
                             };
                 var requestBody2 = JsonSerializer.Serialize(payload2);
                 var CreateResponse2 = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
@@ -440,22 +454,20 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
  
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
-    private async Task<JsonObject> CreateTask(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization)
+
+    // Create task if org is in not good standing for more than 90 days
+    private async Task<JsonObject> CreateTask(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization,string ofm_standing_historyid)
     {
         // _organizationId = organizationId;
-
+        _ofm_standing_historyid = ofm_standing_historyid;
         var localData = await GetRecordToTaskDataAsync();
 
         var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
 
 
-        if (deserializedData.Count >= 1)                // Records found
+        if (deserializedData.Count <= 0)                // Records found
         {
-            var standingHistoryId = deserializedData.First().ofm_standing_historyid;
-            var goodStandingStatus_History = deserializedData.First().ofm_good_standing_status;
-            var counter = deserializedData.First().ofm_no_counter;
-            //var organizationId_History = deserializedData.First()._ofm_organization_value;
-
+           
             // Operation - Create new record
             var entitySetName = "tasks";                                                  // Case 3.2 create new record --> open (active)
             var assistanceReq = new JsonObject {

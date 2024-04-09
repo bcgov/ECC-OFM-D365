@@ -366,14 +366,14 @@ OFM.Application.Form = {
     },
 
     //Last Updated on and Last Updated by on verification checklist
-    updateVerificationInfo: function (executionContext, lastUpdatedOnField, lastUpdatedByField) {
+    updateVerificationInfo: function (executionContext, lastUpdatedOnField, LastUpdatedByField) {
         debugger;
         var formContext = executionContext.getFormContext();
         var currentDate = new Date();
         var userSettings = Xrm.Utility.getGlobalContext().userSettings;
         var username = userSettings.userName;
         formContext.getAttribute(lastUpdatedOnField) != null ? formContext.getAttribute(lastUpdatedOnField).setValue(currentDate) : null;
-        formContext.getAttribute(lastUpdatedByField) != null ? formContext.getAttribute(lastUpdatedByField).setValue(username) : null;
+        formContext.getAttribute(LastUpdatedByField) != null ? formContext.getAttribute(LastUpdatedByField).setValue(username) : null;
     },
 
     showBanner: function (executionContext) {

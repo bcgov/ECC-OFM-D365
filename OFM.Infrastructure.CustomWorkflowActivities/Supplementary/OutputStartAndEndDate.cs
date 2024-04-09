@@ -47,14 +47,15 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
             try
             {
                 RetrieveRequest request = new RetrieveRequest();
-                request.ColumnSet = new ColumnSet(new string[] { "ofm_submittedon", "ofm_allowance_type", "ofm_application" });
+                request.ColumnSet = new ColumnSet(new string[] { "ofm_submittedon", "ofm_allowance_type", "ofm_application", "ofm_renewal_term" });
                 request.Target = new EntityReference(recordId.LogicalName, recordId.Id);
 
                 Entity entity = ((RetrieveResponse)service.Execute(request)).Entity;
 
-                if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm_submittedon"))
+                if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm_submittedon") && entity.Attributes.Contains("ofm_renewal_term"))
                 {
                     var dateSubmittedOn = entity.GetAttributeValue<DateTime>("ofm_submittedon");
+                    var renewalTerm = entity.GetAttributeValue<int>("ofm_renewal_term");
 
                     RetrieveRequest timeZoneCode = new RetrieveRequest();
                     timeZoneCode.ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode });
@@ -84,21 +85,18 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     var finalStartDate = new DateTime();
                     var finalEndDate = new DateTime();
 
-                    //var finalStartDate = convertedSubmittedOn;
-                    //var finalEndDate = convertedSubmittedOn;
-
                     var allowanceType = (int)entity.GetAttributeValue<OptionSetValue>("ofm_allowance_type").Value;
                     var applicationId = entity.GetAttributeValue<EntityReference>("ofm_application").Id;
-                    var statecode = 0; //Active
-                    var statuscode = 6; //Approved
+                    var statecode = (int) ofm_allowance_statecode.Active;
+                    var statuscode = (int) ofm_allowance_StatusCode.Approved;
 
                     tracingService.Trace("{0}{1}", "allowanceType: ", allowanceType);
                     tracingService.Trace("{0}{1}", "applicationId: ", applicationId);
 
-                    //fetch related approved supplementary with application id
+                    //fetch related previous approved supplementary with application id
                     var supplementaryQuery = new QueryExpression("ofm_allowance")
                     {
-                        
+
                         ColumnSet = new ColumnSet(true),
                         Criteria =
                         {
@@ -117,7 +115,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     // Instantiate QueryExpression query
                     var fundingQuery = new QueryExpression("ofm_funding")
                     {
-                        
+
                         ColumnSet = new ColumnSet(true),
                         Criteria =
                         {
@@ -148,7 +146,11 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     tracingService.Trace("{0}{1}", "Funding firstAnniversary Date: ", firstAnniversary);
                     tracingService.Trace("{0}{1}", "Funding secondAnniversary Date: ", secondAnniversary);
 
-                    //there is an active supplementary funding of the same type for the previous year
+                    var oneMonthAfterSubmission = convertedSubmittedOn.AddMonths(2);
+                    oneMonthAfterSubmission = new DateTime(oneMonthAfterSubmission.Year, oneMonthAfterSubmission.Month, 1, 0, 0, 0);
+
+                    //Start Date Rules:
+                    //1. there is approved supplementary funding of the same type for the previous year
                     if (supplementaryResult.Entities.Count > 0 && supplementaryResult[0] != null)
                     {
                         var previousSupplementary = supplementaryResult.Entities.OrderByDescending(t => t.GetAttributeValue<DateTime>("ofm_end_date")).FirstOrDefault();
@@ -161,8 +163,6 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                         tracingService.Trace("{0}{1}", "Previous Funding End Date: ", convertPreviouseEndDate);
 
                         //apply either the one month after submission date or one day after previous end date, which ever is later.
-                        var oneMonthAfterSubmission = convertedSubmittedOn.AddMonths(2);
-                        oneMonthAfterSubmission = new DateTime(oneMonthAfterSubmission.Year, oneMonthAfterSubmission.Month, 1, 0, 0, 0);
                         var oneDayAfterPreviousEndDate = convertPreviouseEndDate.AddDays(1);
                         oneDayAfterPreviousEndDate = new DateTime(oneDayAfterPreviousEndDate.Year, oneDayAfterPreviousEndDate.Month, oneDayAfterPreviousEndDate.Day, 0, 0, 0);
 
@@ -180,31 +180,55 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     }
                     else
                     {
-                        //start date follows the one-month rule
+                        //2. If there is no approved supplementary funding,
+                        // term 1: start date follows the one-month rule
+                        // term 2 and 3: apply either the one month after submission date or one day after previous term anniversary date, which ever is later.
                         //(apply Feb 2 start is April 1)
                         //(apply Jan 31 start is Mar 1)
-                        finalStartDate = convertedSubmittedOn.AddMonths(2);
-                        finalStartDate = new DateTime(finalStartDate.Year, finalStartDate.Month, 1, 0, 0, 0);
 
+                        if (renewalTerm == 1)
+                        {
+                            finalStartDate = convertedSubmittedOn.AddMonths(2);
+                            finalStartDate = new DateTime(finalStartDate.Year, finalStartDate.Month, 1, 0, 0, 0);
+                        }else if(renewalTerm == 2)
+                        {
+                            finalStartDate = firstAnniversary.AddDays(1);
+                            finalStartDate = new  DateTime(finalStartDate.Year, finalStartDate.Month, finalStartDate.Day, 0, 0, 0);
+
+                            if (oneMonthAfterSubmission > finalStartDate)
+                            {
+                                finalStartDate = oneMonthAfterSubmission;
+                            }
+                        }
+                        else if (renewalTerm == 3)
+                        {
+                            finalStartDate = secondAnniversary.AddDays(1);
+                            finalStartDate = new DateTime(finalStartDate.Year, finalStartDate.Month, finalStartDate.Day, 0, 0, 0);
+
+                            if (oneMonthAfterSubmission > finalStartDate)
+                            {
+                                finalStartDate = oneMonthAfterSubmission;
+                            }
+                        }
                     }
 
-                    //the end date will be the anniversary date one year later
+                    //End Date Rules:
+                    //Get the terms number from portal, the end date will be the term anniversary date
                     intermediateDate = firstAnniversary.AddYears(-1);
-                    if (finalStartDate <= firstAnniversary && finalStartDate >= intermediateDate)
+                    if (finalStartDate <= firstAnniversary && finalStartDate >= intermediateDate && renewalTerm == 1)
                     {
                         finalEndDate = firstAnniversary;
                     }
                     intermediateDate = secondAnniversary.AddYears(-1);
-                    if (finalStartDate <= secondAnniversary && finalStartDate >= intermediateDate)
+                    if (finalStartDate <= secondAnniversary && finalStartDate >= intermediateDate && renewalTerm == 2)
                     {
                         finalEndDate = secondAnniversary;
                     }
                     intermediateDate = convertedEndDate.AddYears(-1);
-                    if (finalStartDate <= convertedEndDate && finalStartDate >= convertedEndDate.AddYears(-1))
+                    if (finalStartDate <= convertedEndDate && finalStartDate >= convertedEndDate.AddYears(-1) && renewalTerm == 3)
                     {
                         finalEndDate = convertedEndDate;
                     }
-
 
                     startDate.Set(executionContext, finalStartDate);
                     endDate.Set(executionContext, finalEndDate);
