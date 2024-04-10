@@ -5,6 +5,7 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
@@ -20,6 +21,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     private readonly ID365AppUserService _appUserService;
     private readonly ID365WebApiService _d365webapiservice;
     private readonly D365AuthSettings _d365AuthSettings;
+    private readonly IEmailRepository _emailRepository;
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
@@ -27,12 +29,13 @@ public class P200EmailReminderProvider : ID365ProcessProvider
     private string[] _communicationTypesForUnreadReminders = [];
     private string _requestUri = string.Empty;
 
-    public P200EmailReminderProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P200EmailReminderProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, IOptionsSnapshot<D365AuthSettings> d365AuthSettings, IEmailRepository emailRepository, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
         _d365AuthSettings = d365AuthSettings.Value;
+        _emailRepository = emailRepository;
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
@@ -147,8 +150,14 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        await SetupCommunicationTypes();
-
+        IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
+        _activeCommunicationTypes = _communicationType.ToArray()
+                                            .Select(comm_type => string.Concat("'", comm_type.ofm_communication_typeid, "'"))
+                                            .ToArray<string>();
+        _communicationTypesForUnreadReminders = _communicationType.ToArray().Where(type => type.ofm_communication_type_number == _notificationSettings.CommunicationTypes.ActionRequired ||
+                                                                                         type.ofm_communication_type_number == _notificationSettings.CommunicationTypes.DebtLetter ||
+                                                                                        type.ofm_communication_type_number == _notificationSettings.CommunicationTypes.FundingAgreement)
+                                                                   .Select(type => type.ofm_communication_typeid!.ToString())!.ToArray<string>();
         if (!_activeCommunicationTypes.Any())
             throw new Exception("Communication Types are missing.");
 

@@ -18,21 +18,23 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
     private readonly ID365AppUserService _appUserService;
     private readonly ID365WebApiService _d365webapiservice;
     private readonly IFundingRepository _fundingRepository;
+    private readonly IEmailRepository _emailRepository;
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
     private string[] _communicationTypesForEmailSentToUserMailBox = [];
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
-    private string[] _fundingAgreementCommunicationType = [];
-    private string[] _informationCommunicationType = [];
+    private string? _fundingAgreementCommunicationType;
+    private string? _informationCommunicationType;
 
-    public P210CreateFundingNotificationProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IFundingRepository fundingRepository)
+    public P210CreateFundingNotificationProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IFundingRepository fundingRepository,IEmailRepository emailRepository)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
         _fundingRepository = fundingRepository;
+        _emailRepository = emailRepository;
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
@@ -105,7 +107,12 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        await SetupCommunicationTypes();
+        IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
+      _fundingAgreementCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number  == _notificationSettings.CommunicationTypes.FundingAgreement)
+                                                                   .Select(s => s.ofm_communication_typeid).FirstOrDefault();
+       
+        _informationCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.Information)
+                                                                   .Select(s => s.ofm_communication_typeid).FirstOrDefault();
         _processParams = processParams;
         Funding? _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         var expenseOfficer = _funding.ofm_application!._ofm_expense_authority_value;
@@ -132,7 +139,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
             emaildescription = emaildescription?.Replace("{HYPERLINK_FATAB}", $"<a href=\"{hyperlinkFATab}\">Funding Overview</a>");
 
-            await CreateAndUpdateEmail(subject, emaildescription, expenseOfficer, _funding, appUserService, d365WebApiService, _processParams);
+            await CreateAndUpdateEmail(subject, emaildescription, expenseOfficer, _fundingAgreementCommunicationType, appUserService, d365WebApiService, _processParams);
 
             if (expenseOfficer != primaryContact)
             {
@@ -141,7 +148,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
                 emaildescription = templateobj?.Select(sh => sh.safehtml).FirstOrDefault();
                 emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
 
-                await CreateAndUpdateEmail(subject, emaildescription, primaryContact, _funding, appUserService, d365WebApiService, _processParams);
+                await CreateAndUpdateEmail(subject, emaildescription, primaryContact, _informationCommunicationType, appUserService, d365WebApiService, _processParams);
             }
         }
 
@@ -152,7 +159,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
 
     #region Create and Update Email
 
-    private async Task<JsonObject> CreateAndUpdateEmail(string subject, string emailDescription, Guid? toRecipient, Funding funding, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    private async Task<JsonObject> CreateAndUpdateEmail(string subject, string emailDescription, Guid? toRecipient, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         var requestBody = new JsonObject(){
                             {"subject",subject },
@@ -169,7 +176,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
                                     { "participationtypemask",   2 } //To Email                             
                                 }
                             }},
-                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_fundingAgreementCommunicationType[0]})"}
+                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({communicationType})"}
                         };
 
         var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, EntityNameSet, requestBody.ToString());
@@ -210,53 +217,53 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
     #endregion
 
     #region Private methods
-    private async Task SetupCommunicationTypes()
-    {
-        var fetchXml = """
-                            <fetch distinct="true" no-lock="true">
-                              <entity name="ofm_communication_type">
-                                <attribute name="ofm_communication_typeid" />
-                                <attribute name="ofm_communication_type_number" />
-                                <attribute name="ofm_name" />
-                                <attribute name="statecode" />
-                                <attribute name="statuscode" />
-                                <filter>
-                                  <condition attribute="statecode" operator="eq" value="0" />
-                                </filter>
-                              </entity>
-                            </fetch>
-                """;
+    //private async Task SetupCommunicationTypes()
+    //{
+    //    var fetchXml = """
+    //                        <fetch distinct="true" no-lock="true">
+    //                          <entity name="ofm_communication_type">
+    //                            <attribute name="ofm_communication_typeid" />
+    //                            <attribute name="ofm_communication_type_number" />
+    //                            <attribute name="ofm_name" />
+    //                            <attribute name="statecode" />
+    //                            <attribute name="statuscode" />
+    //                            <filter>
+    //                              <condition attribute="statecode" operator="eq" value="0" />
+    //                            </filter>
+    //                          </entity>
+    //                        </fetch>
+    //            """;
 
-        var requestUri = $"""
-                              ofm_communication_types?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                              """;
+    //    var requestUri = $"""
+    //                          ofm_communication_types?fetchXml={WebUtility.UrlEncode(fetchXml)}
+    //                          """;
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri);
+    //    var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to query the communcation types with a server error {responseBody}", responseBody.CleanLog());
-        }
+    //    if (!response.IsSuccessStatusCode)
+    //    {
+    //        var responseBody = await response.Content.ReadAsStringAsync();
+    //        _logger.LogError(CustomLogEvent.Process, "Failed to query the communcation types with a server error {responseBody}", responseBody.CleanLog());
+    //    }
 
-        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+    //    var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
 
-        JsonNode d365Result = string.Empty;
-        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-        {
-            if (currentValue?.AsArray().Count == 0)
-            {
-                _logger.LogInformation(CustomLogEvent.Process, "No communcation types found with query {requestUri}", requestUri);
-            }
-            d365Result = currentValue!;
-        }
+    //    JsonNode d365Result = string.Empty;
+    //    if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+    //    {
+    //        if (currentValue?.AsArray().Count == 0)
+    //        {
+    //            _logger.LogInformation(CustomLogEvent.Process, "No communcation types found with query {requestUri}", requestUri);
+    //        }
+    //        d365Result = currentValue!;
+    //    }
 
-        _fundingAgreementCommunicationType = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.FundingAgreement.ToString())
-                                                                   .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
+    //    _fundingAgreementCommunicationType = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.FundingAgreement.ToString())
+    //                                                               .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
 
-        _informationCommunicationType = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.Information.ToString())
-                                                                   .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
+    //    _informationCommunicationType = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.Information.ToString())
+    //                                                               .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
 
-    }
+    //}
     #endregion
 }

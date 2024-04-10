@@ -244,6 +244,12 @@ public record Email_Activity_Parties
     public string? addressused { get; set; }
 }
 
+public record D365CommunicationType
+{
+    public string? ofm_communication_typeid { get; set; }
+    public Int16? ofm_communication_type_number { get; set; }
+}
+
 #region External Parameters
 
 #endregion

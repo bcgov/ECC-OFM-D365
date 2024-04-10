@@ -66,6 +66,7 @@ services.AddScoped<ID365BatchService, D365BatchService>();
 services.AddScoped<ID365BatchProvider, BatchProvider>();
 services.AddScoped<ID365BatchProvider, ContactEditProvider>();
 services.AddScoped<IFundingRepository, FundingRepository>();
+services.AddScoped<IEmailRepository, EmailRepository>();
 
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
