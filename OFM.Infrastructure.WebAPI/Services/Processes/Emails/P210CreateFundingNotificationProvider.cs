@@ -1,18 +1,13 @@
-﻿using ECC.Core.DataContext;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Services;
+﻿using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System.Net;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 
@@ -108,7 +103,6 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
         return await Task.FromResult(new ProcessData(d365Result));
     }
 
-
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         await SetupCommunicationTypes();
@@ -130,7 +124,6 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
 
         if (serializedDataTemplate?.Count > 0)
         {
-
             var templateobj = serializedDataTemplate.Where(t => t.templateid == _notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateId);
             string? subject = templateobj?.Select(s => s.title).FirstOrDefault();
             string? emaildescription = templateobj?.Select(sh => sh.safehtml).FirstOrDefault();
@@ -158,6 +151,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
     }
 
     #region Create and Update Email
+
     private async Task<JsonObject> CreateAndUpdateEmail(string subject, string emailDescription, Guid? toRecipient, Funding funding, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         var requestBody = new JsonObject(){
@@ -212,6 +206,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
+   
     #endregion
 
     #region Private methods
