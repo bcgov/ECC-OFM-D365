@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 //Create Namespace Object 
 var OFM = OFM || {};
@@ -28,6 +28,7 @@ OFM.Account.OrgFacility.Form = {
                 formContext.getControl("ccof_accounttype").setDisabled(true);    // readonly
                 this.setRequiredFieldsOrgFacility(executionContext);
                 this.setVisibilityMailingAddress(executionContext);
+                this.filterfacilityPrimaryContactLookup(executionContext);
                 this.filterPrimaryContactLookup(executionContext);
                 formContext.getAttribute("address1_stateorprovince").addOnChange(this.setRequiredFieldsOrgFacility);
                 var formLabel = formContext.ui.formSelector.getCurrentItem().getLabel();	    // get current form's label
@@ -54,6 +55,7 @@ OFM.Account.OrgFacility.Form = {
 
     //A function called on save
     onSave: function (executionContext) {
+        filterfacilityPrimaryContactLookup(executionContext);
 
     },
 
@@ -70,6 +72,7 @@ OFM.Account.OrgFacility.Form = {
         }
         else {
             lblForm = "Facility Information - OFM";
+
         }
 
         // Current form's label
@@ -110,12 +113,18 @@ OFM.Account.OrgFacility.Form = {
         if (formLabel == "Organization Information - OFM") {
             formContext.getAttribute("ccof_accounttype").setValue(100000000);           // AccountType = Organization (100000000) 
             formContext.getControl("ccof_accounttype").setDisabled(true);               // readonly
-            formContext.getAttribute("parentaccountid").setValue(null);                 // set NULL when AccounType = Organization	
+            formContext.getAttribute("parentaccountid").setValue(null);
+            // set NULL when AccounType = Organization
+            formContext.getAttribute("name").setRequiredLevel("required");
+              formContext.getAttribute("ofm_business_type").setRequiredLevel("required");
+
         }
 
         if (formLabel == "Facility Information - OFM") {
             formContext.getAttribute("ccof_accounttype").setValue(100000001);           // AccountType = Facility (100000001) 
-            formContext.getControl("ccof_accounttype").setDisabled(true);               // readonly
+            formContext.getControl("ccof_accounttype").setDisabled(true);
+            formContext.getControl("ofm_primarycontact").setDisabled(true);
+            // readonly
             formContext.getAttribute("parentaccountid").setRequiredLevel("required");   // required field			
         }
     },
@@ -215,6 +224,9 @@ OFM.Account.OrgFacility.Form = {
             if (formContext.ui.getFormType() != 1)                                        // 1 = Create/QuickCreate
             {
                 formContext.getAttribute("primarycontactid").setRequiredLevel("required");
+                formContext.getAttribute("name").setRequiredLevel("required");
+                 formContext.getAttribute("ofm_business_type").setRequiredLevel("required");
+
             }
         }
     },
@@ -314,6 +326,44 @@ OFM.Account.OrgFacility.Form = {
         for (var i in attributes) {
             attributes[i].setSubmitMode("never");
         }
+    },
+    //A function called to filter active contacts associated to organization (lookup on Organization form)
+    filterfacilityPrimaryContactLookup: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var formLabel = formContext.ui.formSelector.getCurrentItem().getLabel();	    // get current form's label
+        // get current form's label
+
+        if (formLabel == "Facility Information - OFM") {
+            var currentRecordId = formContext.data.entity.getId().replace("{", "").replace("}", "");
+            var viewId = "{00000000-0000-0000-0000-000000000089}";
+            var entity = "contact";
+            var ViewDisplayName = "Facility Contacts";
+            var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
+                "<entity name='contact'>" +
+                "<attribute name='fullname' />" +
+                "<attribute name='ccof_username' />" +
+                "<attribute name='parentcustomerid' />" +
+                "<attribute name='emailaddress1' />" +
+                "<attribute name='contactid' />" +
+                "<order attribute='fullname' descending='false' />" +
+                "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
+                "<filter type='and'>" +
+                "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + currentRecordId + "'/>" +
+                "</filter></link-entity></entity></fetch>";
+
+
+            var layout = "<grid name='resultset' jump='fullname' select='1' icon='1' preview='1'>" +
+                "<row name = 'result' id = 'contactid' >" +
+                "<cell name='fullname' width='300' />" +
+                "<cell name='ccof_username' width='125' />" +
+                "<cell name='emailaddress1' width='150' />" +
+                "<cell name='parentcustomerid' width='150' />" +
+                "</row></grid>";
+
+            formContext.getControl("ofm_primarycontact").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
+        }
+        // perform operations on record retrieval
     },
 
     navigateToAppropriateForm: function (formContext, formLabel) {

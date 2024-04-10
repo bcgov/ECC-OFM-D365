@@ -5,6 +5,7 @@ OFM.Intake = OFM.Intake || {};
 OFM.Intake.Form = OFM.Intake.Form || {};
 
 OFM.Intake.Form = {
+    //Hide or show dynamic query section based on Intake type
     HideShowCategoryandFacilitiesSection: function (executionContext) {
        
         var formContext = executionContext.getFormContext();
@@ -22,7 +23,7 @@ OFM.Intake.Form = {
                 //  alert("Successfully Saved!");
             },
             function () {
-                alert("Failed while saving!");
+               // alert("Failed while saving!");
             });
 
         // if intake type is close ended
@@ -57,6 +58,7 @@ OFM.Intake.Form = {
 
         }
     },
+    // Trigger on click of Associate facilities button on Intake form.
     RunOnSelectedIntake: function (primaryControl) {
 
         var formContext = primaryControl;
@@ -88,5 +90,28 @@ OFM.Intake.Form = {
                 console.log(Error);
             }
         );
-    }
+    },
+    //validate start date and end date on Intake form.
+    ValidateStartDateAndEndDate: function (executionContext) {
+
+        var formContext = executionContext.getFormContext();
+        
+        var startDate = formContext.getAttribute("ofm_start_date").getValue();
+        var endDate = formContext.getAttribute("ofm_end_date").getValue();
+
+            // Check if both start date and end date are provided
+            if (startDate != null && endDate != null) {
+                // Compare start date and end date
+                if (startDate >= endDate) {
+                    // End date is before start date, show an error message
+                    formContext.ui.setFormNotification("End date cannot be before start date.", "ERROR", "enddate");
+                    // Clear end date field
+                    formContext.getAttribute("ofm_end_date").setValue(null);
+                } else {
+                    // Remove any existing error message
+                    formContext.ui.clearFormNotification("enddate");
+                }
+            }
+        }
+    
 };

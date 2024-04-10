@@ -27,6 +27,7 @@ public record D365Facility
     public int ccof_accounttype { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
+    public int? ofm_program { get; set; }
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
 
@@ -50,6 +51,7 @@ public class ProviderProfile
     public string? ofm_first_name { get; set; }
     public string? ofm_last_name { get; set; }
     public D365Organization? organization { get; set; }
+    public PortalRole? role { get; set; }
     public int? ofm_portal_role { get; set; }
     public IList<FacilityPermission>? facility_permission { get; set; }
 
@@ -81,7 +83,14 @@ public class ProviderProfile
             statecode = firstContact.parentcustomerid_account.statecode,
             statuscode = firstContact.parentcustomerid_account.statuscode
         };
+       
+            role = new PortalRole
+            {
+                ofm_portal_roleid = firstContact.ofm_portal_role_id?.ofm_portal_roleid,
+                ofm_portal_role_number = firstContact.ofm_portal_role_id?.ofm_portal_role_number
 
+            };
+        
         for (int i = 0; i < firstContact.ofm_facility_business_bceid!.Count(); i++)
         {
             if (firstContact.ofm_facility_business_bceid![i] is not null &&
@@ -97,7 +106,8 @@ public class ProviderProfile
                         accountnumber = facility.accountnumber,
                         name = facility.name,
                         statecode = facility.statecode,
-                        statuscode = facility.statuscode
+                        statuscode = facility.statuscode,
+                        ofm_program=facility.ofm_program,
                     },
                     ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
                     statecode = firstContact.ofm_facility_business_bceid[i].statecode,
@@ -127,9 +137,14 @@ public record D365Contact
     public string? telephone1 { get; set; }
     public ofm_Facility_Business_Bceid[]? ofm_facility_business_bceid { get; set; }
     public Parentcustomerid_Account? parentcustomerid_account { get; set; }
+    public PortalRole? ofm_portal_role_id { get; set; }
 }
 
-
+public record PortalRole
+{
+    public Guid? ofm_portal_roleid{ get; set; }
+    public string? ofm_portal_role_number { get; set; }
+}
 
 public record Parentcustomerid_Account
 {
@@ -161,6 +176,7 @@ public record ofm_Facility
     public int statecode { get; set; }
     public int statuscode { get; set; }
     public string? name { get; set; }
+    public int? ofm_program { get; set; }
 }
 
 #endregion
