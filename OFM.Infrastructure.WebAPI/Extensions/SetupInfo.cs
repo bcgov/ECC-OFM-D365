@@ -33,8 +33,8 @@ public static class Setup
             public const Int16 SendNotificationsId = 205;
             public const string SendNotificationsName = "Send bulk emails on-demand";
 
-            public const Int16 CreateNotificationsId = 210;
-            public const string CreateNotificationsName = "Create emails on Status change of Funding Detail record to FASignaturePending";
+            public const Int16 SendFundingNotificationsId = 210;
+            public const string SendFundingNotificationsName = "Create emails on Status change of Funding record to FASignaturePending when a Ministry EA approves the funding";
         }
 
         public static class Fundings
