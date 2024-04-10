@@ -37,6 +37,10 @@ OFM.Account.OrgFacility.Form = {
                 break;
 
             case 3: //readonly
+                this.getTypeOfForm(executionContext);
+                formContext.getControl("ccof_accounttype").setDisabled(true);
+                this.setRequiredFieldsOrgFacility(executionContext);
+                this.setVisibilityMailingAddress(executionContext); 
                 break;
 
             case 4: //disable
