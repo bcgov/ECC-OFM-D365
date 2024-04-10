@@ -287,59 +287,5 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         return false;
     }
 
-    private async Task SetupCommunicationTypes()
-    {
-        if (!_activeCommunicationTypes.Any())
-        {
-            var fetchXml = """
-                            <fetch distinct="true" no-lock="true">
-                              <entity name="ofm_communication_type">
-                                <attribute name="ofm_communication_typeid" />
-                                <attribute name="ofm_communication_type_number" />
-                                <attribute name="ofm_name" />
-                                <attribute name="statecode" />
-                                <attribute name="statuscode" />
-                                <filter>
-                                  <condition attribute="statecode" operator="eq" value="0" />
-                                </filter>
-                              </entity>
-                            </fetch>
-                """;
-
-            var requestUri = $"""
-                              ofm_communication_types?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                              """;
-
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query the communcation types with a server error {responseBody}", responseBody.CleanLog());
-            }
-
-            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-            JsonNode d365Result = string.Empty;
-            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-            {
-                if (currentValue?.AsArray().Count == 0)
-                {
-                    _logger.LogInformation(CustomLogEvent.Process, "No communcation types found with query {requestUri}", requestUri);
-                }
-                d365Result = currentValue!;
-            }
-
-            _activeCommunicationTypes = d365Result.AsArray()
-                                            .Select(comm_type => string.Concat("'", comm_type?["ofm_communication_typeid"], "'"))
-                                            .ToArray<string>();
-            _communicationTypesForUnreadReminders = d365Result.AsArray().Where(type => type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.ActionRequired.ToString() ||
-                                                                                         type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.DebtLetter.ToString() ||
-                                                                                         type?["ofm_communication_type_number"]?.ToString() == _notificationSettings.CommunicationTypes.FundingAgreement.ToString())
-                                                                   .Select(type => type?["ofm_communication_typeid"]!.ToString())!.ToArray<string>();
-
-        }
-    }
-
     #endregion
 }
