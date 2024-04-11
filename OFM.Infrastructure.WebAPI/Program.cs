@@ -51,6 +51,7 @@ services.AddScoped<ID365ScheduledProcessService, ProcessService>();
 services.AddScoped<ID365ProcessProvider, P100InactiveRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P200EmailReminderProvider>();
 services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P210CreateFundingNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>();
@@ -65,6 +66,7 @@ services.AddScoped<ID365BatchService, D365BatchService>();
 services.AddScoped<ID365BatchProvider, BatchProvider>();
 services.AddScoped<ID365BatchProvider, ContactEditProvider>();
 services.AddScoped<IFundingRepository, FundingRepository>();
+services.AddScoped<IEmailRepository, EmailRepository>();
 
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();

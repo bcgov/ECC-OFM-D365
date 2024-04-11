@@ -187,6 +187,7 @@ public record D365Template
     public string? safehtml { get; set; }
     public string? body { get; set; }
     public string? templateid { get; set; }
+    public string? templatecode { get; set; }
 }
 
 public record D365Email
@@ -257,6 +258,12 @@ public record Email_Activity_Parties
     public string? _activityid_value { get; set; }
     public string? activitypartyid { get; set; }
     public string? addressused { get; set; }
+}
+
+public record D365CommunicationType
+{
+    public string? ofm_communication_typeid { get; set; }
+    public Int16? ofm_communication_type_number { get; set; }
 }
 
 #region External Parameters

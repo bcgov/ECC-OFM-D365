@@ -30,6 +30,9 @@ public record NotificationSettings
     public required EmailTemplate[] EmailTemplates { get; set; }
     public required CommunicationTypes CommunicationTypes { get; set; }
     public required SafeList EmailSafeList { get; set; }
+    public required string fundingUrl { get; set; }
+    public required string fundingTabUrl { get; set; }
+
 
     public record SafeList
     {
