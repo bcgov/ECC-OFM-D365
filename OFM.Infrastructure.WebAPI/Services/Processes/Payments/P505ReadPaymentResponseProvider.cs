@@ -24,11 +24,14 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
 using System.Collections;
 using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
+using System.Net.Http.Json;
+using Microsoft.VisualBasic.FileIO;
 
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 
-public class P500SendPaymentRequestProvider : ID365ProcessProvider
+public class P505ReadPaymentResponseProvider
+    : ID365ProcessProvider
 {
 
     private readonly BCCASApi _BCCASApi;
@@ -39,7 +42,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
 
-    public P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> bccasApiSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P505ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> bccasApiSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _BCCASApi = bccasApiSettings.Value.BCCASApi;
         _appUserService = appUserService;
@@ -48,20 +51,23 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Payment.SendPaymentRequestId;
-    public string ProcessName => Setup.Process.Payment.SendPaymentRequestName;
+    public Int16 ProcessId => Setup.Process.Payment.GetPaymentResponseId;
+    public string ProcessName => Setup.Process.Payment.GetPaymentResponseName;
 
     public string RequestUri
     {
         get
         {
             var fetchXml = $"""
-                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" count="1">
+                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                       <entity name="ofm_payment_file_exchange">
                         <attribute name="ofm_payment_file_exchangeid" />
                         <attribute name="ofm_name" />
-                        <attribute name="ofm_batch_number" />
-                         <order attribute="ofm_batch_number" descending="true" />
+                        <attribute name="createdon" />
+                        <order attribute="ofm_name" descending="false" />
+                        <filter type="and">
+                          <condition attribute="ofm_payment_file_exchangeid" operator="eq" value="9dea6f53-1af1-ee11-a1fe-000d3a0a18e7" />
+                        </filter>
                       </entity>
                     </fetch>
                     """;
@@ -73,10 +79,10 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             return requestUri;
         }
     }
-   
+
     public async Task<ProcessData> GetData()
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P500SendPaymentRequestProvider));
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P505ReadPaymentResponseProvider));
 
         if (_data is null)
         {
@@ -118,7 +124,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
-        var d = DateTime.Now;
+
         List<APInboxParam> transactions = new List<APInboxParam>();
         List<List<APInboxParam>> transactionlist = new List<List<APInboxParam>>();
         List<JsonObject> paymentdocumentsResult = new() { };
@@ -130,30 +136,72 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         int oracleinvlength = 30;
         int distributionAcklength = 50;
         int descriptionlength = 60;
-        int linedescriptionlength = 55;       
+        int linedescriptionlength = 55;
         int distributionsupplierlength = 30;
-        int flowolength = 110;       
+        int flowolength = 110;
         string sspace = null;
         int transactionCount = 5;
-        string cGIBatchNumber ;
+        string cGIBatchNumber;
         string _fiscalyear = ToFinancialYear(DateTime.UtcNow);
 
         var startTime = _timeProvider.GetTimestamp();
 
         var localData = await GetData();
-
         var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
 
-        if (serializedData != null && serializedData[0].ofm_batch_number != null)
+        HttpResponseMessage response1 = await _d365webapiservice.GetDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(serializedData[0].ofm_payment_file_exchangeid));
+            if (!response1.IsSuccessStatusCode)
+            {
+                var responseBody = await response1.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to upload file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
+                 return await Task.FromResult<JsonObject>(new JsonObject() { });
+
+            }
+            byte[] file1 = response1.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+            File.WriteAllBytes("output.txt", file1);
+        int l = 0;List<string> parsedata = new List<string>();
+        string datajson = System.Text.Encoding.UTF8.GetString(file1);
+
+        //foreach (string line in File.ReadLines(@"output.txt"))
+        //{
+        //    if (line.Length("episode") & line.Contains("2006"))
+        //    {
+        //        Console.WriteLine(line);
+        //    }
+        //}
+        try
         {
-            cGIBatchNumber = (Convert.ToInt32(serializedData[0].ofm_batch_number) + 1).ToString("D9");
+            StreamReader reader = File.OpenText("output.txt"); string line;
+            while ((line = (string)reader.ReadLine()) != null)
+            {
+               string[] items = line.Split('\t');
+                string test = items[0];
+                TextReader sr = new StringReader(test);
+                TextFieldParser parser = new TextFieldParser(sr);
+                parser.TextFieldType = FieldType.FixedWidth;
+                if (l == 0 * 1) parser.SetFieldWidths(28);
+                else if (l == 1 * 1) parser.SetFieldWidths(11, 150, 3);//, 428, 150, 3, 538, 150, 58, 150, 3);
+                else if (l == 2) parser.SetFieldWidths();
+                while (!parser.EndOfData)
+                {
+                    //Processing row
+                    string[] fields = parser.ReadFields();
+                    parsedata.AddRange(fields);
+
+                    
+                }
+
+                parser.Close();
+                l++;
+
+            }
 
         }
-        else
+        catch (Exception ex)
         {
-            cGIBatchNumber = _BCCASApi.APInboxParam.cGIBatchNumber;
-
         }
+
+        var context = JsonConvert.SerializeObject(datajson);
 
         #region Step 1: Handlebars format to generate Inbox data
         string source = "{{#each transaction}}{{this.feederNumber}}{{this.batchType}}{{this.transactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.messageVersionNumber}}{{this.delimiter}}\n" + "{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
@@ -162,12 +210,12 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
 
         var template = Handlebars.Compile(source);
-     
+
 
         for (int i = 0; i < 1; i++)
         {
-           
-           transactions.Add( new APInboxParam
+
+            transactions.Add(new APInboxParam
             {
                 payflag = _BCCASApi.APInboxParam.payflag,
                 fiscalYear = _fiscalyear,
@@ -177,7 +225,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                 batchType = _BCCASApi.APInboxParam.batchType,
                 delimiter = _BCCASApi.APInboxParam.delimiter,
                 transactionType = _BCCASApi.APInboxParam.transactionType,
-                cGIBatchNumber = cGIBatchNumber,
+               // cGIBatchNumber = cGIBatchNumber,
                 messageVersionNumber = _BCCASApi.APInboxParam.messageVersionNumber,
                 supplierNumber = _BCCASApi.APInboxParam.supplierNumber.PadRight(supplierlength).Substring(0, supplierlength),       // "078766ABH",
                 supplierSiteNumber = _BCCASApi.APInboxParam.supplierSiteNumber,
@@ -209,15 +257,15 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                 unitPrice = _BCCASApi.APInboxParam.unitPrice,
                 trailertransactionType = _BCCASApi.APInboxParam.trailertransactionType,
             });
-            cGIBatchNumber= ((Convert.ToInt32(cGIBatchNumber))+1).ToString("D9");
+          //  cGIBatchNumber = ((Convert.ToInt32(cGIBatchNumber)) + 1).ToString("D9");
         }
 
         // break transaction list into multiple list if it contains more than 250 transaction
-       transactionlist= transactions
-        .Select((x, i) => new { Index = i, Value = x })
-        .GroupBy(x => x.Index / transactionCount)
-        .Select(x => x.Select(v => v.Value).ToList())
-        .ToList();
+        transactionlist = transactions
+         .Select((x, i) => new { Index = i, Value = x })
+         .GroupBy(x => x.Index / transactionCount)
+         .Select(x => x.Select(v => v.Value).ToList())
+         .ToList();
         #endregion
 
         #region Step 2: Generate and process inbox file in CRM
@@ -230,57 +278,10 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             };
             var result = template(data);
 
-            var filename = ("INBOX.F" + _BCCASApi.APInboxParam.feederNumber + "."+DateTime.Now.ToString("yyyyMMddHHMMss"));
+            var filename = ("INBOX.F" + _BCCASApi.APInboxParam.feederNumber + "." + DateTime.UtcNow.ToString("yyyyMMddHHMMss"));
 
 
-            #region  Step 3: Create Payment Records for all approved applications.
-
-            var requestBody = new JsonObject()
-            {
-                ["ofm_input_file_name"] = filename,
-                ["ofm_name"] = filename + "-" + DateTime.Now.ToString("yyyyMMddHHmmss"),
-                ["ofm_batch_number"] = cGIBatchNumber,
-            };
-
-            var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "ofm_payment_file_exchanges", requestBody.ToString());
-
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to create payment file exchange record with  the server error {responseBody}", responseBody.CleanLog());
-
-              
-                //log the error
-                return await Task.FromResult<JsonObject>(new JsonObject() { });
-            }
-
-            var paymentRecord = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-            if (paymentRecord is not null && paymentRecord.ContainsKey("ofm_payment_file_exchangeid"))
-            {
-                paymentdocumentsResult.Add(paymentRecord);
-              
-                    if (filename.Length > 0)
-                    {
-                        // Attach the file to the new document record
-                        HttpResponseMessage response1 = await _d365webapiservice.SendDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(paymentRecord["ofm_payment_file_exchangeid"].ToString()), Encoding.ASCII.GetBytes(result), filename);
-
-                        if (!response1.IsSuccessStatusCode)
-                        {
-                        var responseBody = await response1.Content.ReadAsStringAsync();
-                        _logger.LogError(CustomLogEvent.Process, "Failed to upload file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
-
-
-                        //log the error
-                        return await Task.FromResult<JsonObject>(new JsonObject() { });
-
-                        }
-                   
-                    }
-            }
-            #endregion
-
+          
         }
         #endregion
 
@@ -288,19 +289,19 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
     }
 
-  
+
 }
 
 
 
 
-     
-
-    
 
 
-  
 
-    
+
+
+
+
+
 
 

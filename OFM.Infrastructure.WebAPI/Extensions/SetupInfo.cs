@@ -53,6 +53,8 @@ public static class Setup
         {
             public const Int16 SendPaymentRequestId = 500;
             public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";
+            public const Int16 GetPaymentResponseId = 505;
+            public const string GetPaymentResponseName = "Get Payment Feedback and Invoices to BC Pay";
         }
     }
 
