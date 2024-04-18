@@ -61,10 +61,11 @@ OFM.Application.Form = {
             var date = submittedOnDate.toISOString();
         }
         else
-            var date = formContext.getAttribute("createdon").getValue().toISOString();
+            var date = formContext.getAttribute("createdon").getValue() != null ?
+                formContext.getAttribute("createdon").getValue() != null.toISOString() : new Date();
         if (facilityId != null) {
             var conditionFetchXML = "";
-            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ((ofm_end_date eq null and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "')) or (Microsoft.Dynamics.CRM.OnOrAfter(PropertyName='ofm_end_date',PropertyValue='" + date + "') and Microsoft.Dynamics.CRM.OnOrAfter(PropertyName='ofm_start_date',PropertyValue='" + date + "'))))").then(
+            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ((ofm_end_date eq null and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "')) or (Microsoft.Dynamics.CRM.OnOrAfter(PropertyName='ofm_end_date',PropertyValue='" + date + "') and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "'))))").then(
                 function success(results) {
                     console.log(results);
                     if (results.entities.length > 0) {
@@ -95,7 +96,7 @@ OFM.Application.Form = {
                         "</filter>" +
                         "<filter type='and' >" +
                         "<condition attribute='ofm_end_date' operator='on-or-after' value='" + date + "' />" +
-                        "<condition attribute='ofm_start_date' operator='on-or-after' value='" + date + "' />" +
+                        "<condition attribute='ofm_start_date' operator='on-or-before' value='" + date + "' />" +
                         "</filter>" +
                         "</filter>" +
                         "</filter >" +
@@ -278,49 +279,6 @@ OFM.Application.Form = {
         else {
             Xrm.Page.getAttribute("ofm_organization").setValue(null);
         }
-    },
-
-    CreateFundingRecord: function (executionContext) {
-        //debugger;
-        var formContext = executionContext;
-        var recordId = formContext.data.entity.getId();
-        Xrm.WebApi.retrieveMultipleRecords("workflow", "?$select=workflowid&$filter=(name eq 'OFM - Application: Creating Funding Record' and statecode eq 1 and type eq 1)").then(
-            function success(results) {
-                console.log(results);
-                // Columns
-                var workflowid = results.entities[0]["workflowid"]; // Guid
-                //}
-                var executeWorkflowRequest = {
-                    entity: { entityType: "workflow", id: workflowid },
-                    EntityId: { guid: recordId },
-                    getMetadata: function () {
-                        return {
-                            boundParameter: "entity",
-                            parameterTypes: {
-                                entity: { typeName: "mscrm.workflow", structuralProperty: 5 },
-                                EntityId: { typeName: "Edm.Guid", structuralProperty: 1 }
-                            },
-                            operationType: 0, operationName: "ExecuteWorkflow"
-                        };
-                    }
-                };
-                Xrm.WebApi.execute(executeWorkflowRequest).then(
-                    function success(response) {
-                        if (response.ok) {
-                            return response.json();
-                            alert("create funding sucessfully!");
-                        }
-                    }
-                ).then(function (responseBody) {
-                    var result = responseBody;
-                    console.log(result);
-                }).catch(function (error) {
-                    console.log(error.message);
-                });
-            },
-            function (error) {
-                console.log(error.message);
-            });
     },
 
     filterExpenseAuthorityLookup: function (executionContext) {
