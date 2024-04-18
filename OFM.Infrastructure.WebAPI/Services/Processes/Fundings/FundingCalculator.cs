@@ -104,6 +104,7 @@ public class FundingCalculator : IFundingCalculator
     private decimal TotalProfessionalDevelopmentExpenses => LicenceDetails.Sum(cs => cs.ProfessionalDevelopmentExpenses);
     private decimal TotalBenefitsCostPerYear => LicenceDetails.Sum(cs => cs.BenefitsCostPerYear);
     private decimal TotalHRRenumeration => LicenceDetails.Sum(cs => cs.HRRenumeration);
+    private decimal TotalProfessionalDevelopmentHours => LicenceDetails.Sum(cs => cs.ProfessionalDevelopmentHours);
 
     /// <summary>
     ///  HR Envelopes: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at the calculator level to HR Total Renumeration Only ***
@@ -230,6 +231,7 @@ public class FundingCalculator : IFundingCalculator
                 HRBenefits_PF = TotalParentFees * (TotalBenefitsCostPerYear / TotalProjectedFundingCost),
                 HREmployerHealthTax_PF = TotalParentFees * (EmployerHealthTax / TotalProjectedFundingCost),
                 HRProfessionalDevelopmentExpenses_PF = TotalParentFees * (TotalProfessionalDevelopmentExpenses / TotalProjectedFundingCost),
+                HRProfessionalDevelopmentHours_PF = TotalParentFees * (TotalProfessionalDevelopmentHours / TotalProjectedFundingCost),
 
                 NonHRProgramming_PF = TotalParentFees * (AdjustedNonHRProgrammingAmount / TotalProjectedFundingCost),
                 NonHRAdmistrative_PF = TotalParentFees * (AdjustedNonHRAdministrativeAmount / TotalProjectedFundingCost),

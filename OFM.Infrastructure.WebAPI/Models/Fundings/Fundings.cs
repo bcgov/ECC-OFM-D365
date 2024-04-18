@@ -95,6 +95,7 @@ public class RateSchedule : ofm_rate_schedule
     public new decimal? ofm_pto_breaks { get; set; }
     public new decimal? ofm_quality_enhancement_factor { get; set; }
     public new decimal? ofm_sick_hours_per_fte { get; set; }
+    public new decimal? ofm_licensed_childcare_hours_per_fte { get; set; }
     public new decimal? ofm_statutory_breaks { get; set; }
     public new decimal? ofm_total_fte_hours_per_year { get; set; }
     public new decimal? ofm_vacation_hours_per_fte { get; set; }
