@@ -215,11 +215,11 @@ public class FundingCalculator : IFundingCalculator
             {
                 //Projected Amounts
                 HRTotal_Projected = LicenceDetails.Sum(cs => cs.HRRenumeration) + EmployerHealthTax,
-                HRWagesPaidTimeOff_Projected = LicenceDetails.Sum(cs => cs.StaffingCost),
-                HRBenefits_Projected = LicenceDetails.Sum(cs => cs.BenefitsCostPerYear),
+                HRWagesPaidTimeOff_Projected = TotalStaffingCost,
+                HRBenefits_Projected = TotalBenefitsCostPerYear,
                 HREmployerHealthTax_Projected = EmployerHealthTax,
-                HRProfessionalDevelopmentHours_Projected = LicenceDetails.Sum(cs => cs.ProfessionalDevelopmentHours),
-                HRProfessionalDevelopmentExpenses_Projected = LicenceDetails.Sum(cs => cs.ProfessionalDevelopmentExpenses),
+                HRProfessionalDevelopmentHours_Projected = TotalProfessionalDevelopmentHours,
+                HRProfessionalDevelopmentExpenses_Projected = TotalProfessionalDevelopmentExpenses,
 
                 NonHRProgramming_Projected = AdjustedNonHRProgrammingAmount,
                 NonHRAdmistrative_Projected = AdjustedNonHRAdministrativeAmount,
@@ -227,7 +227,7 @@ public class FundingCalculator : IFundingCalculator
                 NonHRFacility_Projected = AdjustedNonHRFacilityAmount,
 
                 //Parent Fees
-                HRWagesPaidTimeOff_PF = TotalParentFees * ((TotalHRRenumeration - TotalBenefitsCostPerYear - EmployerHealthTax - TotalProfessionalDevelopmentExpenses) / TotalProjectedFundingCost),
+                HRWagesPaidTimeOff_PF = TotalParentFees * (TotalStaffingCost / TotalProjectedFundingCost),
                 HRBenefits_PF = TotalParentFees * (TotalBenefitsCostPerYear / TotalProjectedFundingCost),
                 HREmployerHealthTax_PF = TotalParentFees * (EmployerHealthTax / TotalProjectedFundingCost),
                 HRProfessionalDevelopmentExpenses_PF = TotalParentFees * (TotalProfessionalDevelopmentExpenses / TotalProjectedFundingCost),
