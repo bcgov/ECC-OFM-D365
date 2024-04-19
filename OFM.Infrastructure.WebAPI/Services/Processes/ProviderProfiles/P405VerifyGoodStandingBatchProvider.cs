@@ -4,6 +4,7 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System.Diagnostics.Metrics;
 using System.Net;
 using System.Text.Json;
@@ -22,20 +23,26 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
     private ProcessParameter? _processParams;
     private string _organizationId;
     private string _ofm_standing_historyid;
+    private readonly NotificationSettings _NotificationSettings;
+    private readonly IEmailRepository _emailRepository;
+    private string? _GScommunicationType;
 
-    public P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider,IEmailRepository emailRepository)
     {
 
         _BCRegistrySettings = ApiKeyBCRegistry.Value.BCRegistryApi;
+        _NotificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
+        _emailRepository = emailRepository;
     }
 
     public Int16 ProcessId => Setup.Process.ProviderProfiles.VerifyGoodStandingBatchId;
     public string ProcessName => Setup.Process.ProviderProfiles.VerifyGoodStandingBatchName;
 
+    #region fetchxml queries
     public string RequestUri
     {
         get
@@ -92,7 +99,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                         <order attribute="ofm_start_date" descending="true" />
                         <filter type="and">
                           <condition attribute="statecode" operator="eq" value="0" />
-                          <condition attribute="ofm_organization" operator="eq" value="{_organizationId}" /> 
+                          <condition attribute="ofm_organization" operator="eq" value="{_organizationId}" />                     
                         </filter>  
                       </entity>
                     </fetch>
@@ -150,7 +157,36 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         }
     }
 
-   
+    public string RecordstoSendNotificationUri
+    {
+        get
+        {
+            var fetchXml = $"""
+                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+                      <entity name="account">
+                        <attribute name="name" />
+                         <attribute name="telephone1" />
+                        <attribute name="accountid" />
+                        <attribute name="ofm_primarycontact" />
+                        <order attribute="name" descending="false" />
+                        <filter type="and">
+                          <condition attribute="parentaccountid" operator="eq" uitype="account" value="{_organizationId}" />
+                        </filter>
+                      </entity>
+                    </fetch>
+                    """;
+
+            var requestUri = $"""
+                         accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         """;
+
+            return requestUri;
+        }
+    }
+
+    #endregion
+
+    #region Get data from fetchxml Uri
     public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P405VerifyGoodStandingBatchProvider));
@@ -217,11 +253,11 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         return await Task.FromResult(new ProcessData(d365Result));
     }
 
-    private async Task<ProcessData> GetRecordToTaskDataAsync()
+    private async Task<ProcessData> GetRecordsDataAsync(string query)
     {
         _logger.LogDebug(CustomLogEvent.Process, "GetRecordToAReqDataAsync");
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RecordstoCreateTaskUri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, query);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -238,9 +274,8 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         {
             if (currentValue?.AsArray().Count == 0)
             {
-                _logger.LogInformation(CustomLogEvent.Process, "No Standing History records found with query {requestUri}", StandingHistoryRequestUri.CleanLog());
+                _logger.LogInformation(CustomLogEvent.Process, "No  records found with query {requestUri}", query.CleanLog());
             }
-            d365Result = currentValue!;
             d365Result = currentValue!;
         }
 
@@ -248,8 +283,8 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
 
         return await Task.FromResult(new ProcessData(d365Result));
     }
+    #endregion
 
-   
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
@@ -332,7 +367,8 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                  var goodStandingStatusYN = searchResult.searchResults.results.First().goodStanding ? 1 : 0;          // 0 - No, 1 - Yes 
                  await CreateUpdateStandingHistory(_appUserService, _d365webapiservice, organization, goodStandingStatusYN);
 
-                
+                 if (goodStandingStatusYN == 0) { await SendNotification(_appUserService, _d365webapiservice, organization); };
+
 
                  // return ProcessResult.Completed(ProcessId).SimpleProcessResult;
              }
@@ -381,7 +417,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
 
     private async Task<JsonObject> CreateUpdateStandingHistory(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization, int goodStandingStatusYN)
     {
-        _organizationId = organization.accountid; 
+        _organizationId = organization.accountid;
         var localData = await GetStandingHistoryDataAsync();
 
         var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
@@ -485,7 +521,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
     {
         // _organizationId = organizationId;
         _ofm_standing_historyid = ofm_standing_historyid;
-         var localData = await GetRecordToTaskDataAsync();
+        var localData = await GetRecordsDataAsync(RecordstoCreateTaskUri);
 
         var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
 
@@ -509,5 +545,34 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 
- 
+    //Send Notification if Record is not in good standing
+    private async Task<JsonObject> SendNotification(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization)
+    {
+        // _organizationId = organizationId;
+
+        var localData = await GetRecordsDataAsync(RecordstoSendNotificationUri);
+        IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
+        _GScommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _NotificationSettings.CommunicationTypes.ActionRequired)
+                                                                     .Select(s => s.ofm_communication_typeid).FirstOrDefault();
+
+
+        var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
+
+        var templateData = await _emailRepository.GetTemplateDataAsync(new Guid(_NotificationSettings.EmailTemplates.First(t => t.TemplateNumber == 400).TemplateId));
+        var serializedtemplateData = JsonSerializer.Deserialize<List<D365Template>>(templateData.Data.ToString());
+        string? subject = serializedtemplateData?.Select(s => s.title).FirstOrDefault();
+        string? emaildescription = serializedtemplateData?.Select(sh => sh.safehtml).FirstOrDefault();
+
+        List<Guid> recipientsList = new List<Guid>();
+        recipientsList.Add(new Guid($"{organization?._primarycontactid_value}"));
+
+        deserializedData?.Where(c => c._ofm_primarycontact_value != organization?._primarycontactid_value).ToList().ForEach(recipient =>
+        {
+            recipientsList.Add(new Guid($"{recipient?._ofm_primarycontact_value}"));
+        });
+        await _emailRepository!.CreateAndUpdateEmail(subject, emaildescription, recipientsList, new Guid(_NotificationSettings.DefaultSenderId), _GScommunicationType, appUserService, d365WebApiService, 400);
+        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+    }
+
+
 }

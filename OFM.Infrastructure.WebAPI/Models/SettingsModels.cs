@@ -152,7 +152,7 @@ public record BCRegistrySettings
     public string batchtaskprocess { get; set; }
     public string singletaskprocess { get; set; }
     public required TaskActivity TaskActivity { get; set; }
-
+   
 }
 public record TaskActivity
 {

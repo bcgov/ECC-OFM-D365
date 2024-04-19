@@ -185,9 +185,10 @@ public record D365Template
 {
     public string? title { get; set; }
     public string? safehtml { get; set; }
-    public string? body { get; set; }
+     public string? body { get; set; }
     public string? templateid { get; set; }
     public string? templatecode { get; set; }
+    
 }
 
 public record D365Email
@@ -224,6 +225,9 @@ public record D365Organization_Account
     public string? ofm_incorporation_number { get; set; }
     public string? ofm_business_number { get; set; }
     public int statecode { get; set; }
+    public Guid _primarycontactid_value { get; set; }
+    public Guid _ofm_primarycontact_value { get; set; }
+
 
 }
 
