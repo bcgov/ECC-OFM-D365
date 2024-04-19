@@ -277,14 +277,15 @@ public class LicenceDetail : ofm_licence_detail
     }
     private decimal SupervisorCostDiffPerYear => RequiredSupervisors * SupervisorRateDifference * (AnnualStandardHours * Spaces / Spaces);
     private decimal WageGridMarkup => 1 + _rateSchedule!.ofm_wage_grid_markup!.Value; // Plus 1 so that it does not zero out the related calculation
-    public decimal StaffingCost => (TotalAdjustedFTEsCostPerHour * ExpectedAnnualFTEHours * WageGridMarkup) + SupervisorCostDiffPerYear; // Including Supervisor Differentials
+    private decimal TotalCostPerYear=>(TotalAdjustedFTEsCostPerHour* ExpectedAnnualFTEHours * WageGridMarkup) + SupervisorCostDiffPerYear;
+    public decimal StaffingCost => TotalCostPerYear - TotalPD_Wages; // Including Supervisor Differentials
     private decimal TotalCostPerFTEPerYear => StaffingCost / TotalAdjustedFTEs;
 
     #endregion
 
     #region  HR: Step 06 - Apply Benefits
 
-    public decimal BenefitsCostPerYear => StaffingCost * (_rateSchedule!.ofm_average_benefit_load!.Value / 100); // The default is 18% of the Total Wages
+    public decimal BenefitsCostPerYear => (TotalCostPerYear * (_rateSchedule!.ofm_average_benefit_load!.Value / 100)) - TotalPD_Benefits; // The default is 18% of the Total Wages
     private decimal QualityEnhancementCost => (StaffingCost + BenefitsCostPerYear) * (_rateSchedule!.ofm_quality_enhancement_factor!.Value / 100); // The default is 0% currently
     public decimal HRRenumeration => StaffingCost + BenefitsCostPerYear + QualityEnhancementCost + ProfessionalDevelopmentExpenses + ProfessionalDevelopmentHours;
 
