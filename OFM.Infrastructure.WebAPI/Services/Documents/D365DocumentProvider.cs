@@ -32,6 +32,7 @@ public class DocumentProvider : ID365DocumentProvider
             ["ofm_extension"] = document.ofm_extension,
             ["ofm_file_size"] = document.ofm_file_size,
             ["ofm_description"] = document.ofm_description,
+            ["ofm_category"] = document.ofm_category,
             [$"ofm_regardingid_{(document.entity_name_set).TrimEnd('s')}@odata.bind"] = $"/{document.entity_name_set}({document.regardingid})",
         };
 
