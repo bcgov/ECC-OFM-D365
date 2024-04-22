@@ -17,7 +17,7 @@ public interface IEmailRepository
 {
     Task<IEnumerable<D365CommunicationType>> LoadCommunicationTypeAsync();
     Task<JsonObject> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId);
-    Task<ProcessData> GetTemplateDataAsync(Guid templateId);
+    Task<ProcessData> GetTemplateDataAsync(int templateNumber);
 
 }
 
@@ -27,7 +27,8 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     private readonly ID365DataService _dataService = dataService;
     private readonly ID365AppUserService _appUserService = appUserService;
     private readonly ID365WebApiService _d365webapiservice = service;
-    private Guid? _fundingId, _templateId;
+    private Guid? _fundingId;
+    private int _templateNumber;
 
     #region Pre-Defined Queries
 
@@ -74,7 +75,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                     <attribute name="body" />
                     <order attribute="title" descending="false" />
                     <filter type="or">
-                      <condition attribute="templateid" operator="eq"  uitype="template" value="{_templateId}" />
+                      <condition attribute="ccof_templateid" operator="eq"  uitype="template" value="{_templateNumber}" />
                           </filter>
                   </entity>
                 </fetch>
@@ -89,9 +90,9 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     }
     #endregion
 
-    public async Task<ProcessData> GetTemplateDataAsync(Guid templateId)
+    public async Task<ProcessData> GetTemplateDataAsync(int templateNumber)
     {
-        _templateId = templateId;
+        _templateNumber = templateNumber;
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
 
         var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TemplatetoRetrieveUri);

@@ -42,67 +42,11 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
     public Int16 ProcessId => Setup.Process.Emails.SendFundingNotificationsId;
     public string ProcessName => Setup.Process.Emails.SendFundingNotificationsName;
 
-    private string TemplatetoRetrieveUri
-    {
-        get
-        {
-            // Note: FetchXMl limit is 5000 records per request
-            var fetchXml = $"""
-                <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
-                  <entity name="template">
-                    <attribute name="title" />
-                    <attribute name="templatetypecode" />
-                    <attribute name="safehtml" />
-                    <attribute name="languagecode" />
-                    <attribute name="templateid" />
-                    <attribute name="subject" />
-                    <attribute name="description" />
-                    <attribute name="body" />
-                    <order attribute="title" descending="false" />
-                    <filter type="or">
-                      <condition attribute="templateid" operator="eq"  uitype="template" value="{_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateId}" />
-                      <condition attribute="templateid" operator="eq"  uitype="template" value="{_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 215).TemplateId}" />
-                    </filter>
-                  </entity>
-                </fetch>
-                """;
-
-            var requestUri = $"""
-                            templates?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                            """;
-
-            return requestUri.CleanCRLF();
-        }
-    }
+   
     public async Task<ProcessData> GetDataAsync()
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
-
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TemplatetoRetrieveUri);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Template to update with the server error {responseBody}", responseBody.CleanLog());
-
-            return await Task.FromResult(new ProcessData(string.Empty));
-        }
-
-        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-        JsonNode d365Result = string.Empty;
-        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-        {
-            if (currentValue?.AsArray().Count == 0)
-            {
-                _logger.LogInformation(CustomLogEvent.Process, "No template found with query {requestUri}", TemplatetoRetrieveUri.CleanLog());
-            }
-            d365Result = currentValue!;
-        }
-
-        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
-
-        return await Task.FromResult(new ProcessData(d365Result));
+             
+        return await Task.FromResult(new ProcessData(""));
     }
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
@@ -123,96 +67,44 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
         #region Create the funding email notifications 
 
         // Get template details to create emails.
-        var localDataTemplate = await GetDataAsync();
+        //var localDataTemplate = await GetDataAsync();
+        var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateNumber);
 
         var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
         var hyperlink = _notificationSettings.fundingUrl + _funding.Id;
         var hyperlinkFATab = _notificationSettings.fundingTabUrl;
 
-        if (serializedDataTemplate?.Count > 0)
-        {
-            var templateobj = serializedDataTemplate.Where(t => t.templateid == _notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateId);
-            string? subject = templateobj?.Select(s => s.title).FirstOrDefault();
-            string? emaildescription = templateobj?.Select(sh => sh.safehtml).FirstOrDefault();
+            var templateobj = serializedDataTemplate?.FirstOrDefault();
+            string? subject = templateobj?.title;
+            string? emaildescription = templateobj?.safehtml;
             emaildescription = emaildescription?.Replace("{FA_NUMBER}", _funding.ofm_funding_number);
             emaildescription = emaildescription?.Replace("{FACILITY_NAME}", _funding.ofm_facility?.name);
             emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
             emaildescription = emaildescription?.Replace("{HYPERLINK_FATAB}", $"<a href=\"{hyperlinkFATab}\">Funding Overview</a>");
-
-            await CreateAndUpdateEmail(subject, emaildescription, expenseOfficer, _fundingAgreementCommunicationType, appUserService, d365WebApiService, _processParams);
+           List<Guid> recipientsList = new List<Guid>();
+           recipientsList.Add((Guid)expenseOfficer);
+           await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _fundingAgreementCommunicationType, appUserService, d365WebApiService, 210);
 
             if (expenseOfficer != primaryContact)
             {
-                templateobj = serializedDataTemplate.Where(t => t.templateid == _notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 215).TemplateId);
-                subject = templateobj?.Select(s => s.title).FirstOrDefault();
-                emaildescription = templateobj?.Select(sh => sh.safehtml).FirstOrDefault();
-                emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
 
-                await CreateAndUpdateEmail(subject, emaildescription, primaryContact, _informationCommunicationType, appUserService, d365WebApiService, _processParams);
+            localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 215).TemplateNumber);
+            serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
+            templateobj = serializedDataTemplate?.FirstOrDefault();
+            subject = templateobj?.title;
+            emaildescription = templateobj?.safehtml;
+            emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
+            recipientsList.Clear();
+            recipientsList.Add((Guid)primaryContact);
+            await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
             }
-        }
-
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
         #endregion
     }
 
-    #region Create and Update Email
 
-    private async Task<JsonObject> CreateAndUpdateEmail(string subject, string emailDescription, Guid? toRecipient, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
-    {
-        var requestBody = new JsonObject(){
-                            {"subject",subject },
-                            {"description",emailDescription },
-                            {"email_activity_parties", new JsonArray(){
-                                new JsonObject
-                                {
-                                    { "partyid_systemuser@odata.bind", $"/systemusers({_processParams.Notification?.SenderId})"},
-                                    { "participationtypemask", 1 } //From Email
-                                },
-                                new JsonObject
-                                {
-                                    { "partyid_contact@odata.bind", $"/contacts({toRecipient})" },
-                                    { "participationtypemask",   2 } //To Email                             
-                                }
-                            }},
-                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({communicationType})"}
-                        };
 
-        var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, EntityNameSet, requestBody.ToString());
 
-        if (!response.IsSuccessStatusCode)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            //log the error
-            return await Task.FromResult<JsonObject>(new JsonObject() { });
-        }
-
-        var newEmail = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-        var newEmailId = newEmail?["activityid"];
-
-        var email = $"emails({newEmailId})";
-
-        var payload = new JsonObject {
-                        { "ofm_sent_on", DateTime.UtcNow },
-                        { "statuscode", 6 },   // 6 = Pending Send 
-                        { "statecode", 1 }};
-
-        var requestBody1 = JsonSerializer.Serialize(payload);
-
-        var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, email, requestBody1);
-
-        if (!patchResponse.IsSuccessStatusCode)
-        {
-            var responseBody = await patchResponse.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
-
-            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
-        }
-
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-    }
-   
-    #endregion
+    
 }

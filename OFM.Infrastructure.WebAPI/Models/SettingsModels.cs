@@ -62,8 +62,7 @@ public record CommunicationTypes
 public class EmailTemplate
 {
     public int TemplateNumber { get; set; }
-    public string TemplateId { get; set; }
-    public string Description { get; set; }
+   
 }
 
 public record ProcessSettings

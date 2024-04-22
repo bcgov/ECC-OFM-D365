@@ -197,11 +197,14 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             recipientsList.Add(contactId);
         });
         List<HttpRequestMessage> SendEmailFromTemplateRequest = [];
+        var templateData1 = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 201).TemplateNumber);
+        var serializedtemplateData = JsonConvert.DeserializeObject<List<D365Template>>(templateData1.Data.ToString());
+        
         recipientsList?.ForEach(recepientcontact =>
         {
             SendEmailFromTemplateRequest.Add(new SendEmailFromTemplateRequest(
                 new JsonObject(){
-                        { "TemplateId" , _notificationSettings.EmailTemplates.First(t=>t.TemplateNumber == 201).TemplateId}, //Action Required: A communication regarding OFM funding requires your attention.
+                        { "TemplateId" , serializedtemplateData?.First().templateid}, //Action Required: A communication regarding OFM funding requires your attention.
                         { "Regarding" , new JsonObject {
                                                 { "@odata.type" , "Microsoft.Dynamics.CRM.systemuser"},
                                                 { "systemuserid",_notificationSettings.DefaultSenderId}

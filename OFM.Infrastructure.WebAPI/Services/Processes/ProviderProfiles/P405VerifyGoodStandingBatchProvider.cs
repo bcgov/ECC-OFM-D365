@@ -558,7 +558,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
 
         var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
 
-        var templateData = await _emailRepository.GetTemplateDataAsync(new Guid(_NotificationSettings.EmailTemplates.First(t => t.TemplateNumber == 400).TemplateId));
+        var templateData = await _emailRepository.GetTemplateDataAsync(_NotificationSettings.EmailTemplates.First(t => t.TemplateNumber == 400).TemplateNumber);
         var serializedtemplateData = JsonSerializer.Deserialize<List<D365Template>>(templateData.Data.ToString());
         string? subject = serializedtemplateData?.Select(s => s.title).FirstOrDefault();
         string? emaildescription = serializedtemplateData?.Select(sh => sh.safehtml).FirstOrDefault();
