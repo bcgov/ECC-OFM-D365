@@ -112,6 +112,38 @@ OFM.Intake.Form = {
                     formContext.ui.clearFormNotification("enddate");
                 }
             }
-        }
-    
+        },
+    // Trigger on click of Add Existing Facility button on Intake Facilities subgrid.
+    RunOnSelectedIntaketoAddExistingfacility: function (primaryControl) {
+
+        var formContext = primaryControl;
+        var recordId = formContext.data.entity.getId().replace(/[{}]/g, "");
+        // Adding existing facilities to the list.
+        var pageInput = {
+            pageType: "custom",
+            name: "ofm_addexistingfacilityforintakefacilitiesgrid_71be6",
+            entityName: "ofm_intake",
+            recordId: recordId,
+        };
+
+        var navigationOptions = {
+            target: 2,
+            position: 1,
+            width: 800,
+            height: 850,
+            title: "Adding Existing Facility"
+        };
+        Xrm.Navigation.navigateTo(pageInput, navigationOptions).then(
+            function () {
+                // Called when the dialog closes
+                formContext.data.refresh();
+
+                console.log("Success");
+            }
+        ).catch(
+            function (error) {
+                console.log(Error);
+            }
+        );
+    },
 };
