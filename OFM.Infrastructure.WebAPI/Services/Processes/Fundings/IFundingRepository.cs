@@ -463,6 +463,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
             ofm_envelope_hr_wages_paidtimeoff = fm.HRWagesPaidTimeOff,
             ofm_envelope_hr_benefits = fm.HRBenefits,
             ofm_envelope_hr_employerhealthtax = fm.HREmployerHealthTax,
+            ofm_envelope_hr_prodevhours=fm.HRProfessionalDevelopmentHours,
             ofm_envelope_hr_prodevexpenses = fm.HRProfessionalDevelopmentExpenses,
 
             ofm_envelope_programming = fm.NonHRProgramming,
