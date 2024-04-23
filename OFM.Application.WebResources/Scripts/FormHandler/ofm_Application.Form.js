@@ -363,5 +363,16 @@ OFM.Application.Form = {
         }
         else
             formContext.getControl("header_statuscode").setDisabled(false);
+    },
+    hideVerificationTab: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var roleId = "ff3b00a4-0f8d-4519-8169-b3dc715992f4";
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        if (userRoles.getLength() > 1) { }
+
+        else if (userRoles.get()[0].id == roleId) {
+            formContext.ui.tabs.get("tab_9").setVisible(false);
+        }
     }
 }
