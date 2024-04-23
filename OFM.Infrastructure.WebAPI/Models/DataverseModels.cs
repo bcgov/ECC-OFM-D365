@@ -224,6 +224,7 @@ public record D365Organization_Account
     public string? name { get; set; }
     public string? ofm_incorporation_number { get; set; }
     public string? ofm_business_number { get; set; }
+    public bool? ofm_bypass_bc_registry_good_standing { get; set; }  
     public int statecode { get; set; }
     public Guid _primarycontactid_value { get; set; }
     public Guid _ofm_primarycontact_value { get; set; }

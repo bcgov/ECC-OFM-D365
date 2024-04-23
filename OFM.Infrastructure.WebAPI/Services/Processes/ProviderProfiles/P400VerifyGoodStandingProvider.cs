@@ -52,8 +52,9 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                         <attribute name="name" />
                         <attribute name="ofm_incorporation_number" />
                         <attribute name="ofm_business_number" />
+                        <attribute name="ofm_bypass_bc_registry_good_standing" />
+                        <attribute name="primarycontactid"/>
                         <attribute name="statecode" />
-                         <attribute name="primarycontactid"/>
                         <filter type="and">
                           <condition attribute="accountid" operator="eq" value="{_processParams?.Organization?.organizationId}" />                  
                         </filter>
@@ -318,7 +319,8 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
         var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
 
-        deserializedData?.ForEach(async organization  =>
+
+        deserializedData?.Where(c => c.ofm_bypass_bc_registry_good_standing == false).ToList().ForEach(async organization =>
         {
             string organizationId = organization.accountid;
             string legalName = organization.name;

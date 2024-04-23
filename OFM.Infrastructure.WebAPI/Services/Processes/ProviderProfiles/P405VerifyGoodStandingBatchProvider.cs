@@ -53,8 +53,9 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                         <attribute name="accountid" />
                         <attribute name="name" />
                         <attribute name="ofm_incorporation_number" />
-                         <attribute name="primarycontactid" />
                         <attribute name="ofm_business_number" />
+                        <attribute name="ofm_bypass_bc_registry_good_standing" />
+                        <attribute name="primarycontactid"/>
                         <attribute name="statecode" />
                         <filter type="and" >
                           <condition attribute="statecode" operator="eq" value="0"/>
@@ -84,7 +85,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         get
         {
             var fetchXml = $"""
-                    <fetch top="5" distinct="true" no-lock="true">
+                    <fetch distinct="true" no-lock="true">
                       <entity name="ofm_standing_history">
                         <attribute name="ofm_standing_historyid" />
                         <attribute name="ofm_organization" />
@@ -295,8 +296,8 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
            
         var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
 
-        deserializedData?.ForEach(async organization =>
-         {
+        deserializedData?.Where(c => c.ofm_bypass_bc_registry_good_standing == false).ToList().ForEach(async organization =>
+        {
              string organizationId = organization.accountid;
              string legalName = organization.name;
              string incorporationNumber = organization.ofm_incorporation_number;
