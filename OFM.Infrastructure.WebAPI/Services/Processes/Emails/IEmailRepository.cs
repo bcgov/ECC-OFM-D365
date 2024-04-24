@@ -170,7 +170,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
 
             var payload = new JsonObject {
                         { "ofm_sent_on", DateTime.UtcNow },
-                        { "statuscode", 6 },   // 6 = Pending Send
+                        { "statuscode", 2 },   // 6 = Pending Send ,2=Completed
                         { "statecode", 1 }};
 
             var requestBody1 = JsonSerializer.Serialize(payload);
