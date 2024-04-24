@@ -216,7 +216,7 @@ OFM.Application.Form = {
                     "<cell name='parentcustomerid' width='150' />" +
                     "</row></grid>";
     
-                formContext.getControl("ofm_contact").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
+                formContext.getControl("ofm_createdby").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
     
             }
             else {
