@@ -18,7 +18,6 @@ public interface IEmailRepository
     Task<IEnumerable<D365CommunicationType>> LoadCommunicationTypeAsync();
     Task<JsonObject> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId);
     Task<ProcessData> GetTemplateDataAsync(int templateNumber);
-
 }
 
 public class EmailRepository(ID365AppUserService appUserService, ID365WebApiService service, ID365DataService dataService, ILoggerFactory loggerFactory) : IEmailRepository
@@ -61,8 +60,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     private string TemplatetoRetrieveUri
     {
         get
-        {
-            // Note: FetchXMl limit is 5000 records per request
+        {          
             var fetchXml = $"""
                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                   <entity name="template">
@@ -160,31 +158,31 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                //log the error
-              //  return await Task.FromResult<JsonObject>(new JsonObject() { });
+                _logger.LogError(CustomLogEvent.Process, "Failed to create the record with the server error {responseBody}", responseBody.CleanLog());
+                
+                return await Task.FromResult<JsonObject>(new JsonObject() { });
             }
 
             var newEmail = await response.Content.ReadFromJsonAsync<JsonObject>();
-
             var newEmailId = newEmail?["activityid"];
 
-            var email = $"emails({newEmailId})";
+            var emailStatement = $"emails({newEmailId})";
 
             var payload = new JsonObject {
                         { "ofm_sent_on", DateTime.UtcNow },
-                        { "statuscode", 6 },   // 6 = Pending Send 
+                        { "statuscode", 6 },   // 6 = Pending Send
                         { "statecode", 1 }};
 
             var requestBody1 = JsonSerializer.Serialize(payload);
 
-            var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, email, requestBody1);
+            var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, emailStatement, requestBody1);
 
             if (!patchResponse.IsSuccessStatusCode)
             {
                 var responseBody = await patchResponse.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
 
-               // return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+               return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
             }
         });
 
@@ -192,6 +190,4 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     }
 
     #endregion
-
-
 }

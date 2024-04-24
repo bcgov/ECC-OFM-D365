@@ -67,7 +67,6 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
         #region Create the funding email notifications 
 
         // Get template details to create emails.
-        //var localDataTemplate = await GetDataAsync();
         var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateNumber);
 
         var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());

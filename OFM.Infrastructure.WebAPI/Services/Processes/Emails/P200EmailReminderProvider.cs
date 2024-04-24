@@ -197,10 +197,10 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             recipientsList.Add(contactId);
         });
         List<HttpRequestMessage> SendEmailFromTemplateRequest = [];
-        var templateData1 = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 201).TemplateNumber);
-        var serializedtemplateData = JsonConvert.DeserializeObject<List<D365Template>>(templateData1.Data.ToString());
+        var templateData = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 201).TemplateNumber);
+        var serializedtemplateData = JsonConvert.DeserializeObject<List<D365Template>>(templateData.Data.ToString());
         
-        recipientsList?.ForEach(recepientcontact =>
+        recipientsList?.ForEach(recipientContact =>
         {
             SendEmailFromTemplateRequest.Add(new SendEmailFromTemplateRequest(
                 new JsonObject(){
@@ -212,7 +212,6 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                         },
                     { "Target", new JsonObject  {
                          { "ofm_show_notification_on_portal" , false},
-
         {"email_activity_parties", new JsonArray(){
                                     new JsonObject
                                     {
@@ -221,7 +220,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                     },
                                     new JsonObject
                                     {
-                                        { "partyid_contact@odata.bind", $"/contacts({recepientcontact})" },
+                                        { "partyid_contact@odata.bind", $"/contacts({recipientContact})" },
                                         { "participationtypemask",   2 } //To Email                             
                                     }
                                 }},

@@ -391,8 +391,9 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                 // Handling Standing History
                 var goodStandingStatusYN = searchResult.searchResults.results.First().goodStanding ? 1 : 0;          // 0 - No, 1 - Yes 
                 await CreateUpdateStandingHistory(_appUserService, _d365webapiservice, organization, goodStandingStatusYN);
-                if (goodStandingStatusYN == 0) { await SendNotification(_appUserService, _d365webapiservice, organization); };
-                // return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                if (goodStandingStatusYN == 0) { 
+                    await SendNotification(_appUserService, _d365webapiservice, organization);
+                };
             }
 
         });
