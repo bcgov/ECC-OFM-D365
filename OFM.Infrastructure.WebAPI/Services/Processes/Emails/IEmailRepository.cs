@@ -159,8 +159,8 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Failed to create the record with the server error {responseBody}", responseBody.CleanLog());
-                
-                return await Task.FromResult<JsonObject>(new JsonObject() { });
+
+                //return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
             }
 
             var newEmail = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -182,7 +182,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 var responseBody = await patchResponse.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
 
-               return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                //return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
             }
         });
 
