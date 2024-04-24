@@ -254,6 +254,7 @@ public record FileMapping
     public required decimal ofm_file_size { get; set; }
     public required string entity_name_set { get; set; }
     public required string regardingid { get; set; }
+    public required string ofm_category { get; set; }
 }
 
 public record Email_Activity_Parties
