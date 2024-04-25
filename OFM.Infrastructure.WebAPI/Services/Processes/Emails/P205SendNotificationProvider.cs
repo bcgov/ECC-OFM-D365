@@ -370,7 +370,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         {
             var emailToUpdate = new JsonObject {
                 { "ofm_sent_on", DateTime.UtcNow },
-                { "statuscode", 6 },   // 6 = Pending Send 
+                { "statuscode", 2 },   // 2 = Completed
                 { "statecode", 1 }     // 1 = Completed
              };
 

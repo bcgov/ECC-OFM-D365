@@ -17,6 +17,7 @@ OFM.Funding.Form = {
             case 2: // update      
                 this.ShowHideBasedOnRoomSplit(executionContext);
                 this.lockfieldsPCM(executionContext);
+                this.enableAgreementPDF(executionContext);
                 break;
             case 3: //readonly
                 break;
@@ -99,5 +100,27 @@ OFM.Funding.Form = {
 
         }
 
+    },
+    enableAgreementPDF: function (executionContext) {
+        debugger;
+        Xrm.WebApi.retrieveMultipleRecords('environmentvariablevalue', "?$select=value&$expand=EnvironmentVariableDefinitionId&$filter=(EnvironmentVariableDefinitionId/schemaname eq 'ofm_OFMFundingAgreementEnablePDFDelete')").then(
+            function success(result) {
+                debugger;
+                var roles = result.entities[0].value;
+                var rolesArray = roles.split(';');
+                var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+
+                for (var i = 0; i < userRoles.getLength(); i++) {
+                    for (var j = 0; j < rolesArray.length; j++)
+                        if (userRoles.get()[i].name == rolesArray[j]) {
+                            executionContext.getFormContext().getControl("ofm_agreement_file").setDisabled(false);
+                        }
+                }
+                //TODO: Add code here to process the Environment Variable value
+            },
+            function (error) {
+                Xrm.Navigation.openErrorDialog({ details: error.message, message: 'A problem occurred while retrieving an Environment Variable value. Please contact support.' });
+            }
+        )
     }
 }

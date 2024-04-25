@@ -31,10 +31,12 @@ OFM.Application.Form = {
                 this.licenceCheck(executionContext);
                 this.showBanner(executionContext);
                 this.lockStatusReason(executionContext);
+                this.hideVerificationTab(executionContext);
                 break;
 
             case 3: //readonly
                 this.showBanner(executionContext);
+                this.hideVerificationTab(executionContext);
                 break;
 
             case 4: //disable
@@ -363,5 +365,15 @@ OFM.Application.Form = {
         }
         else
             formContext.getControl("header_statuscode").setDisabled(false);
+    },
+    hideVerificationTab: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        if (userRoles.getLength() > 1) { }
+
+        else if (userRoles.get()[0].name == "OFM - Read Only") {
+            formContext.ui.tabs.get("tab_9").setVisible(false);
+        }
     }
 }
