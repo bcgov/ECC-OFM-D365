@@ -80,13 +80,12 @@ OFM.Funding.Form = {
         });
     },
     lockfieldsPCM: function (executionContext) {
-        debugger;
-        var roleId = "f3ce434d-ba1b-4538-b8b3-b7a8cc4547ec"; //PCM Access Role
+        debugger; //PCM Access Role
         let formContext = executionContext.getFormContext();
         var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
         if (userRoles.getLength() > 1) { }
 
-        else if (userRoles.get()[0].id == roleId) {
+        else if (userRoles.get()[0].name == "OFM - PCM") {
             formContext.data.entity.attributes.forEach(function (attribute, index) {
                 let control = formContext.getControl(attribute.getName());
                 if (control) {
