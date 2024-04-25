@@ -16,6 +16,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 public interface IEmailRepository
 {
     Task<IEnumerable<D365CommunicationType>> LoadCommunicationTypeAsync();
+    Task<JsonObject> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId);
+    Task<ProcessData> GetTemplateDataAsync(int templateNumber);
 }
 
 public class EmailRepository(ID365AppUserService appUserService, ID365WebApiService service, ID365DataService dataService, ILoggerFactory loggerFactory) : IEmailRepository
@@ -25,6 +27,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     private readonly ID365AppUserService _appUserService = appUserService;
     private readonly ID365WebApiService _d365webapiservice = service;
     private Guid? _fundingId;
+    private int _templateNumber;
 
     #region Pre-Defined Queries
 
@@ -53,15 +56,138 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             return requestUri;
         }
     }
+
+    private string TemplatetoRetrieveUri
+    {
+        get
+        {          
+            var fetchXml = $"""
+                <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+                  <entity name="template">
+                    <attribute name="title" />
+                    <attribute name="templatetypecode" />
+                    <attribute name="safehtml" />
+                    <attribute name="languagecode" />
+                    <attribute name="templateid" />
+                    <attribute name="description" />
+                    <attribute name="body" />
+                    <order attribute="title" descending="false" />
+                    <filter type="or">
+                      <condition attribute="ccof_templateid" operator="eq"  uitype="template" value="{_templateNumber}" />
+                          </filter>
+                  </entity>
+                </fetch>
+                """;
+
+            var requestUri = $"""
+                            templates?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """;
+
+            return requestUri.CleanCRLF();
+        }
+    }
     #endregion
+
+    public async Task<ProcessData> GetTemplateDataAsync(int templateNumber)
+    {
+        _templateNumber = templateNumber;
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TemplatetoRetrieveUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query Emmail Template to update with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No template found with query {requestUri}", TemplatetoRetrieveUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
 
     public async Task<IEnumerable<D365CommunicationType>> LoadCommunicationTypeAsync()
     {
         var localdata = await _dataService.FetchDataAsync(CommunicationTypeRequestUri, "CommunicationTypes");
         var deserializedData = localdata.Data.Deserialize<List<D365CommunicationType>>(Setup.s_writeOptionsForLogs);
 
-        return await Task.FromResult(deserializedData!); ;
+        return await Task.FromResult(deserializedData!);
     }
 
-   
+
+    #region Create and Update Email
+
+    public async Task<JsonObject> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId)
+    {
+        toRecipient.ForEach(async recipient => 
+        {  
+            var requestBody = new JsonObject(){
+                            {"subject",subject },
+                            {"description",emailDescription },
+                            {"email_activity_parties", new JsonArray(){
+                                new JsonObject
+                                {
+                                    { "partyid_systemuser@odata.bind", $"/systemusers({senderId})"},
+                                    { "participationtypemask", 1 } //From Email
+                                },
+                                new JsonObject
+                                {
+                                    { "partyid_contact@odata.bind", $"/contacts({recipient})" },
+                                    { "participationtypemask",   2 } //To Email                             
+                                }
+                            }},
+                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({communicationType})"}
+                        };
+
+            var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "emails", requestBody.ToString());
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to create the record with the server error {responseBody}", responseBody.CleanLog());
+
+                //return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+            }
+
+            var newEmail = await response.Content.ReadFromJsonAsync<JsonObject>();
+            var newEmailId = newEmail?["activityid"];
+
+            var emailStatement = $"emails({newEmailId})";
+
+            var payload = new JsonObject {
+                        { "ofm_sent_on", DateTime.UtcNow },
+                        { "statuscode", 2 },   // 6 = Pending Send ,2=Completed
+                        { "statecode", 1 }};
+
+            var requestBody1 = JsonSerializer.Serialize(payload);
+
+            var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, emailStatement, requestBody1);
+
+            if (!patchResponse.IsSuccessStatusCode)
+            {
+                var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+
+                //return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+            }
+        });
+
+        return ProcessResult.Completed(processId).SimpleProcessResult;
+    }
+
+    #endregion
 }

@@ -411,3 +411,6 @@ FodyWeavers.xsd
 /OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Other/Customizations.xml
 /OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/ControlManifest.xml.data.xml
 /OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/ControlManifest.xml
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_Banner.Banner
+/OFM.Infrastructure.WebAPI/appsettings.DEV.json
+/OFM.Infrastructure.WebAPI/appsettings.UAT.json

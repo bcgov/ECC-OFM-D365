@@ -40,7 +40,7 @@ public class LicenceDetail : ofm_licence_detail
 
     #region Funding Schedule Data
 
-    private decimal MIN_CARE_HOURS_FTE_RATIO => _rateSchedule?.ofm_min_care_hours_per_fte_ratio ?? 0.5m;
+    private decimal MIN_CARE_HOURS_FTE_RATIO => _rateSchedule?.ofm_min_care_hours_per_fte_ratio ?? 0m;
     private IEnumerable<CCLRRatio> CCLRRatios => _rateSchedule?.ofm_rateschedule_cclr ?? [];
     private RateSchedule? _rateSchedule;
     public RateSchedule? RateSchedule { set { _rateSchedule = value; } }
@@ -61,7 +61,7 @@ public class LicenceDetail : ofm_licence_detail
 
     private DateTime TimeFrom => base.GetAttributeValue<DateTime>(Fields.ofm_operation_hours_from);
     private DateTime TimeTo => base.GetAttributeValue<DateTime>(Fields.ofm_operation_hours_to);
-    private decimal HoursPerDay => (TimeTo - TimeFrom).Hours; // Todo: consider Minutes ? Also to review if the dates are valid to be used for the calculation.
+    private decimal HoursPerDay => (decimal)(TimeTo - TimeFrom).TotalHours; // Todo: consider Minutes ? Also to review if the dates are valid to be used for the calculation.
     public new string? ofm_week_days { get; set; } // Override and convert the default type from enum to string
     private int DaysPerWeek => ofm_week_days?.Split(",").Length ?? 0;
     private decimal WeeksPerYear => base.GetAttributeValue<int>(Fields.ofm_weeks_in_operation);
@@ -72,9 +72,12 @@ public class LicenceDetail : ofm_licence_detail
     /// </summary>
     /// 
     public decimal AnnualAvailableHoursPerFTE => ExpectedAnnualFTEHours -
-                                                    (ProfessionalDevelopmentHours +
-                                                    _rateSchedule!.ofm_vacation_hours_per_fte ?? 0m +
-                                                    _rateSchedule!.ofm_sick_hours_per_fte ?? 0m +
+                                                    (_rateSchedule!.ofm_licensed_childcare_hours_per_fte! +
+                                                    _rateSchedule!.ofm_elf_hours_per_fte!.Value +
+                                                    _rateSchedule!.ofm_inclusion_hours_per_fte!.Value +
+                                                    _rateSchedule!.ofm_cultural_hours_per_fte!.Value +
+                                                    _rateSchedule!.ofm_vacation_hours_per_fte +
+                                                    _rateSchedule!.ofm_sick_hours_per_fte +
                                                     _rateSchedule!.ofm_statutory_breaks ?? 0m); // Typically 1580
 
     // NOTE: If a facility has duplicate care types/licence types with the same address (seasonal schedules), the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
@@ -231,11 +234,11 @@ public class LicenceDetail : ofm_licence_detail
 
     #region HR: Step 03 - Adjust Staffing Required by Hrs of Child Care
 
-    private decimal AdjustedITE => RawITE * AnnualCareHoursFTERatio;
-    private decimal AdjustedECE => RawECE * AnnualCareHoursFTERatio;
-    private decimal AdjustedECEA => RawECEA * AnnualCareHoursFTERatio;
-    private decimal AdjustedRA => RawRA * AnnualCareHoursFTERatio;
-    private decimal TotalAdjustedFTEs => TotalRawFTEs * AnnualCareHoursFTERatio;
+    private decimal AdjustedITE => RawITE > 0 ? Math.Max((RawITE * AnnualCareHoursFTERatio), 0.5m) : 0;
+    private decimal AdjustedECE => RawECE > 0 ? Math.Max((RawECE * AnnualCareHoursFTERatio), 0.5m) : 0;
+    private decimal AdjustedECEA => RawECEA > 0 ? Math.Max((RawECEA * AnnualCareHoursFTERatio), 0.5m) : 0;
+    private decimal AdjustedRA => RawRA > 0 ? Math.Max((RawRA * AnnualCareHoursFTERatio), 0.5m) : 0;
+    private decimal TotalAdjustedFTEs => AdjustedITE + AdjustedECE + AdjustedECEA + AdjustedRA;
 
     #endregion
 
@@ -274,14 +277,15 @@ public class LicenceDetail : ofm_licence_detail
     }
     private decimal SupervisorCostDiffPerYear => RequiredSupervisors * SupervisorRateDifference * (AnnualStandardHours * Spaces / Spaces);
     private decimal WageGridMarkup => 1 + _rateSchedule!.ofm_wage_grid_markup!.Value; // Plus 1 so that it does not zero out the related calculation
-    public decimal StaffingCost => (TotalAdjustedFTEsCostPerHour * ExpectedAnnualFTEHours * WageGridMarkup) + SupervisorCostDiffPerYear; // Including Supervisor Differentials
+    private decimal TotalCostPerYear=>(TotalAdjustedFTEsCostPerHour* ExpectedAnnualFTEHours * WageGridMarkup) + SupervisorCostDiffPerYear;
+    public decimal StaffingCost => TotalCostPerYear - TotalPD_Wages; // Including Supervisor Differentials
     private decimal TotalCostPerFTEPerYear => StaffingCost / TotalAdjustedFTEs;
 
     #endregion
 
     #region  HR: Step 06 - Apply Benefits
 
-    public decimal BenefitsCostPerYear => StaffingCost * (_rateSchedule!.ofm_average_benefit_load!.Value / 100); // The default is 18% of the Total Wages
+    public decimal BenefitsCostPerYear => (TotalCostPerYear * (_rateSchedule!.ofm_average_benefit_load!.Value / 100)) - TotalPD_Benefits; // The default is 18% of the Total Wages
     private decimal QualityEnhancementCost => (StaffingCost + BenefitsCostPerYear) * (_rateSchedule!.ofm_quality_enhancement_factor!.Value / 100); // The default is 0% currently
     public decimal HRRenumeration => StaffingCost + BenefitsCostPerYear + QualityEnhancementCost + ProfessionalDevelopmentExpenses + ProfessionalDevelopmentHours;
 
@@ -300,8 +304,10 @@ public class LicenceDetail : ofm_licence_detail
     #endregion
 
     #region  HR: Step 10 - Add Professional Development Expenses and Professional Dues
-
-    public decimal ProfessionalDevelopmentHours => _rateSchedule!.ofm_professional_development_hours!.Value; // ToDo: The Ministry will provide a new logic to be implemented
+    private decimal TotalPD_Wages => (_rateSchedule!.ofm_licensed_childcare_hours_per_fte ?? 0m + _rateSchedule!.ofm_elf_hours_per_fte!.Value
+        + _rateSchedule!.ofm_inclusion_hours_per_fte!.Value + _rateSchedule!.ofm_cultural_hours_per_fte!.Value) * WageGridMarkup * TotalAdjustedFTEsCostPerHour;
+    private decimal TotalPD_Benefits => TotalPD_Wages * (_rateSchedule!.ofm_average_benefit_load!.Value / 100);
+    public decimal ProfessionalDevelopmentHours => TotalPD_Wages + TotalPD_Benefits;
 
     public decimal ProfessionalDevelopmentExpenses => (_rateSchedule.ofm_licenced_childcare_cap_per_fte_per_year.Value +
                                                                _rateSchedule.ofm_elf_educational_programming_cap_fte_year.Value +

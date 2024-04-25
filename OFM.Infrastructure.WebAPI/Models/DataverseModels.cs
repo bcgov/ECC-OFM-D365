@@ -185,9 +185,10 @@ public record D365Template
 {
     public string? title { get; set; }
     public string? safehtml { get; set; }
-    public string? body { get; set; }
+     public string? body { get; set; }
     public string? templateid { get; set; }
     public string? templatecode { get; set; }
+    
 }
 
 public record D365Email
@@ -223,7 +224,11 @@ public record D365Organization_Account
     public string? name { get; set; }
     public string? ofm_incorporation_number { get; set; }
     public string? ofm_business_number { get; set; }
+    public bool? ofm_bypass_bc_registry_good_standing { get; set; }  
     public int statecode { get; set; }
+    public Guid _primarycontactid_value { get; set; }
+    public Guid _ofm_primarycontact_value { get; set; }
+
 
 }
 
@@ -249,6 +254,7 @@ public record FileMapping
     public required decimal ofm_file_size { get; set; }
     public required string entity_name_set { get; set; }
     public required string regardingid { get; set; }
+    public required string ofm_category { get; set; }
 }
 
 public record Email_Activity_Parties
