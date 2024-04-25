@@ -16,6 +16,7 @@ OFM.Funding.Form = {
 
             case 2: // update      
                 this.ShowHideBasedOnRoomSplit(executionContext);
+                this.lockfieldsPCM(executionContext);
                 this.enableAgreementPDF(executionContext);
                 break;
             case 3: //readonly
@@ -78,6 +79,27 @@ OFM.Funding.Form = {
                 });
             }
         });
+    },
+    lockfieldsPCM: function (executionContext) {
+        debugger; //PCM Access Role
+        let formContext = executionContext.getFormContext();
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        if (userRoles.getLength() > 1) { }
+
+        else if (userRoles.get()[0].name == "OFM - PCM") {
+            formContext.data.entity.attributes.forEach(function (attribute, index) {
+                let control = formContext.getControl(attribute.getName());
+                if (control) {
+                    control.setDisabled(true);
+                }
+                executionContext.getFormContext().getControl("ofm_start_date").setDisabled(false);
+                executionContext.getFormContext().getControl("ofm_end_date").setDisabled(false);
+                executionContext.getFormContext().getControl("statuscode").setDisabled(false);
+
+            });
+
+        }
+
     },
     enableAgreementPDF: function (executionContext) {
         debugger;
