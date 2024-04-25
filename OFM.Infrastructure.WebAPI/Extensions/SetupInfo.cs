@@ -35,6 +35,18 @@ public static class Setup
 
             public const Int16 SendFundingNotificationsId = 210;
             public const string SendFundingNotificationsName = "Create emails on Status change of Funding record to FASignaturePending when a Ministry EA approves the funding";
+
+            public const Int16 SendEmailReminderForSupplementaryFundingRenewalId = 215;
+            public const string SendEmailReminderForSupplementaryFundingRenewalName = "Send email reminders to contacts of facility on supplementary application";
+
+        }
+        public static class Reminders
+        {
+            public const Int16 CreateEmailRemindersId = 220;
+            public const string CreateEmailRemindersName = "Create Email Reminders for Application";
+
+            
+
         }
 
         public static class Fundings

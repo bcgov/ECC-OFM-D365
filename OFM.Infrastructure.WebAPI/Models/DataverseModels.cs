@@ -179,6 +179,30 @@ public record ofm_Facility
     public int? ofm_program { get; set; }
 }
 
+public record ofm_application
+{
+    public required string ofm_applicationid { get; set; }
+}
+public record ofm_allowance
+{
+    public required string ofm_allowanceid { get; set; }
+    public string? ofm_transport_vehicle_vin { get; set; }
+    public int statuscode { get; set; }
+    public int ofm_allowance_type { get; set; }
+    public DateTime ofm_start_date { get; set; }
+    public DateTime ofm_end_date { get; set; }
+    public int ofm_renewal_term { get; set; }
+    
+}
+public record ofm_reminders
+{
+    public required string ofm_reminderid { get; set; }
+    public int ofm_template_number { get; set; }
+    public int statuscode { get; set; }
+    public int ofm_year_number { get; set; }
+   
+    public DateTime ofm_due_date { get; set; }
+}
 #endregion
 
 public record D365Template
