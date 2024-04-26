@@ -26,6 +26,13 @@ using System.Collections;
 using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 using System.Net.Http.Json;
 using Microsoft.VisualBasic.FileIO;
+using FixedWidthParserWriter;
+using static System.Net.WebRequestMethods;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Xrm.Sdk;
+using File = System.IO.File;
+
+
 
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
@@ -124,25 +131,74 @@ public class P505ReadPaymentResponseProvider
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
+        #region commented SFTP connection code
+       // string Host = "Trooper.cas.gov.bc.ca";
+       // int Port = 22;
+       //// string RemoteFileName = ;
+       // //string LocalDestinationFilename =;
+       // string Username ="f3540t";
+       // //string keyFilePath = @"id_ecdsa_TROOPER_f3540t_Private.ppk";
+       // var keyFilePath =@"id_ecdsa_TROOPER_f3540t_Private";
+       // var stream = new FileStream(keyFilePath, FileMode.Open, FileAccess.Read);
 
-        List<APInboxParam> transactions = new List<APInboxParam>();
-        List<List<APInboxParam>> transactionlist = new List<List<APInboxParam>>();
-        List<JsonObject> paymentdocumentsResult = new() { };
-        int supplierlength = 9;
-        int invoicelength = 50;
-        int polength = 20;
-        int remitcodelength = 4;
-        int termslength = 50;
-        int oracleinvlength = 30;
-        int distributionAcklength = 50;
-        int descriptionlength = 60;
-        int linedescriptionlength = 55;
-        int distributionsupplierlength = 30;
-        int flowolength = 110;
-        string sspace = null;
-        int transactionCount = 5;
-        string cGIBatchNumber;
-        string _fiscalyear = ToFinancialYear(DateTime.UtcNow);
+       // string password = "9c:5f:59:d3:32:d8:c0:f6:ea:e8:40:3a:2f:d5:63:32";
+       // var methods = new List<AuthenticationMethod>();
+       // try
+       // {
+       //     var keyFiles =new PrivateKeyFile(keyFilePath) ;
+       //     methods.Add(new PrivateKeyAuthenticationMethod(Username, keyFiles));
+
+       //     var info= new Renci.SshNet.ConnectionInfo(Host, 22, "f3540t", new PrivateKeyAuthenticationMethod(Username, keyFiles));
+       //     // var info = new ConnectionInfo(host, port, username,
+       //     //new NoneAuthenticationMethod(username));
+       //     using (var sftp = new SftpClient(info))
+       //     {
+       //         sftp.Connect();
+       //     }
+       //         SessionOptions sessionOptions = new SessionOptions
+       //     {
+       //         Protocol = Protocol.Sftp,
+       //         PortNumber=Port,
+       //         HostName = Host,
+       //         UserName = Username,
+       //         SshHostKeyFingerprint = password,
+       //         SshPrivateKey= "PuTTY-User-Key-File-3: ecdsa-sha2-nistp521\r\nEncryption: none\r\nComment: imported-openssh-key\r\nPublic-Lines: 4\r\nAAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGr/v9HZZZU\r\nnvX9MjUYf2j7IxAwfbKID4iFhTbO89iRp9cTxyx/wq2DyuShqSccYBS5uxbmdxwe\r\nNXMB3TZYyGz/sAAwis0XVAxwdmz2nKhJVTsP5zhnojrdOlq2VFNo0ODDpKSXRm66\r\nQZ5OaSuOCSPqzWlDb92XMWtP62rXfpas39Iu4A==\r\nPrivate-Lines: 2\r\nAAAAQgHktrOk4EGOSeb1wNSimH0RKTe4qB9Edjk2HVinnX5F7oX3V7/BzInR5mIa\r\n9ygoExnx5haGaeNSyeT7FoIjC4/OPg==\r\nPrivate-MAC: 72833a8891e184b4d0274b979a3d69adfe4d3709429490d47cc0067406c56716\r\n",
+       //      //   SshPrivateKeyPath =keyFilePath,
+       //     };
+
+       //     using (WinSCP.Session session = new WinSCP.Session())
+       //     {
+       //         session.Open(sessionOptions);
+       //         const string remotePath = "/path";
+       //         // Retrieve a list of files in a remote directory
+       //         RemoteDirectoryInfo directory = session.ListDirectory(remotePath);
+
+       //         // Iterate the list
+       //         foreach (RemoteFileInfo fileInfo in directory.Files)
+       //         {
+       //             var date = DateTime.Today.AddDays(-4);
+       //             if (!fileInfo.IsDirectory && fileInfo.Name.StartsWith("FEEDBACK.F3540."+date, StringComparison.OrdinalIgnoreCase))
+       //             {
+       //                 string tempPath = Path.GetTempFileName();
+
+       //                 // Download the file to a temporary folder
+       //                 var sourcePath = RemotePath.EscapeFileMask(remotePath + "/" + fileInfo.Name);
+       //                 session.GetFiles(sourcePath, tempPath).Check();
+       //                 // Read the contents
+       //                 string[] lines =File.ReadAllLines(tempPath);
+                        
+       //               File.Delete(tempPath);
+       //             }
+       //         }
+       //           session.Close();
+
+       //         // Your code
+       //     }
+
+       // }
+       // catch (Exception ex)
+       // { }
+        #endregion
 
         var startTime = _timeProvider.GetTimestamp();
 
@@ -158,132 +214,18 @@ public class P505ReadPaymentResponseProvider
 
             }
             byte[] file1 = response1.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
-            File.WriteAllBytes("output.txt", file1);
-        int l = 0;List<string> parsedata = new List<string>();
-        string datajson = System.Text.Encoding.UTF8.GetString(file1);
+        List<string> listfeedback = System.Text.Encoding.UTF8.GetString(file1).Split("APBG").ToList();
+        listfeedback.RemoveAll(item => string.IsNullOrWhiteSpace(item));
+        //feedbackParam invoice = new FixedWidthFileProvider<feedbackParam>().Parse(listfeedback);
 
-        //foreach (string line in File.ReadLines(@"output.txt"))
-        //{
-        //    if (line.Length("episode") & line.Contains("2006"))
-        //    {
-        //        Console.WriteLine(line);
-        //    }
-        //}
-        try
+        foreach (string data in listfeedback)
         {
-            StreamReader reader = File.OpenText("output.txt"); string line;
-            while ((line = (string)reader.ReadLine()) != null)
-            {
-               string[] items = line.Split('\t');
-                string test = items[0];
-                TextReader sr = new StringReader(test);
-                TextFieldParser parser = new TextFieldParser(sr);
-                parser.TextFieldType = FieldType.FixedWidth;
-                if (l == 0 * 1) parser.SetFieldWidths(28);
-                else if (l == 1 * 1) parser.SetFieldWidths(11, 150, 3);//, 428, 150, 3, 538, 150, 58, 150, 3);
-                else if (l == 2) parser.SetFieldWidths();
-                while (!parser.EndOfData)
-                {
-                    //Processing row
-                    string[] fields = parser.ReadFields();
-                    parsedata.AddRange(fields);
-
-                    
-                }
-
-                parser.Close();
-                l++;
-
-            }
-
+            List<string> feedback = data.Split("\n").ToList();
+            feedbackParam invoice1 = new FixedWidthFileProvider<feedbackParam>().Parse(feedback);
         }
-        catch (Exception ex)
-        {
-        }
-
-        var context = JsonConvert.SerializeObject(datajson);
-
-        #region Step 1: Handlebars format to generate Inbox data
-        string source = "{{#each transaction}}{{this.feederNumber}}{{this.batchType}}{{this.transactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.messageVersionNumber}}{{this.delimiter}}\n" + "{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
-                       "{{this.feederNumber}}{{this.batchType}}{{this.linetransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.invoiceLineNumber}}{{this.committmentLine}}{{this.lineAmount}}{{this.lineCode}}{{this.distributionACK}}{{this.lineDescription}}{{this.invoiceDate}}{{this.quantity}}{{this.unitPrice}}{{this.space}}{{this.distributionSupplierNumber}}{{this.flow}}{{this.delimiter}}\n" +
-                       "{{this.feederNumber}}{{this.batchType}}{{this.trailertransactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.controlCount}}{{this.controlAmount}}{{this.delimiter}}\n{{/each}}";
-
-
-        var template = Handlebars.Compile(source);
-
-
-        for (int i = 0; i < 1; i++)
-        {
-
-            transactions.Add(new APInboxParam
-            {
-                payflag = _BCCASApi.APInboxParam.payflag,
-                fiscalYear = _fiscalyear,
-                feederNumber = _BCCASApi.APInboxParam.feederNumber,
-                headertransactionType = _BCCASApi.APInboxParam.headertransactionType,
-                linetransactionType = _BCCASApi.APInboxParam.linetransactionType,
-                batchType = _BCCASApi.APInboxParam.batchType,
-                delimiter = _BCCASApi.APInboxParam.delimiter,
-                transactionType = _BCCASApi.APInboxParam.transactionType,
-               // cGIBatchNumber = cGIBatchNumber,
-                messageVersionNumber = _BCCASApi.APInboxParam.messageVersionNumber,
-                supplierNumber = _BCCASApi.APInboxParam.supplierNumber.PadRight(supplierlength).Substring(0, supplierlength),       // "078766ABH",
-                supplierSiteNumber = _BCCASApi.APInboxParam.supplierSiteNumber,
-                invoiceNumber = _BCCASApi.APInboxParam.invoiceNumber.PadRight(invoicelength).Substring(0, invoicelength),
-                PONumber = sspace == null ? new string(' ', polength) : source.PadRight(polength).Substring(0, polength),
-                invoiceType = _BCCASApi.APInboxParam.invoiceType,
-                invoiceDate = DateTime.UtcNow.ToString("yyyyMMdd"),
-                payGroupLookup = _BCCASApi.APInboxParam.payGroupLookup,
-                remittanceCode = _BCCASApi.APInboxParam.remittanceCode.PadRight(remitcodelength).Substring(0, remitcodelength), // for payment stub it is 00 always.
-                grossInvoiceAmount = _BCCASApi.APInboxParam.grossInvoiceAmount, // invoice amount come from OFM total base value.
-                CAD = _BCCASApi.APInboxParam.CAD,
-                termsName = _BCCASApi.APInboxParam.termsName.PadRight(termslength).Substring(0, termslength),
-                description = _BCCASApi.APInboxParam.description.PadRight(descriptionlength).Substring(0, descriptionlength),
-                goodsDate = sspace == null ? new string(' ', 8) : source.PadRight(8).Substring(0, 8),
-                oracleBatchName = _BCCASApi.APInboxParam.oracleBatchName.PadRight(oracleinvlength).Substring(0, oracleinvlength),
-                SIN = sspace == null ? new string(' ', 9) : source.PadRight(8).Substring(0, 9),
-                quantity = _BCCASApi.APInboxParam.quantity,
-                flow = sspace == null ? new string(' ', flowolength) : source.PadRight(flowolength).Substring(0, flowolength),
-                invoiceLineNumber = _BCCASApi.APInboxParam.invoiceLineNumber,
-                committmentLine = _BCCASApi.APInboxParam.committmentLine,
-                lineAmount = _BCCASApi.APInboxParam.lineAmount,
-                lineCode = _BCCASApi.APInboxParam.lineCode,
-                distributionACK = _BCCASApi.APInboxParam.distributionACK.PadRight(distributionAcklength).Substring(0, distributionAcklength),
-                lineDescription = _BCCASApi.APInboxParam.description.PadRight(linedescriptionlength).Substring(0, linedescriptionlength),
-                distributionSupplierNumber = _BCCASApi.APInboxParam.distributionSupplierNumber.PadRight(distributionsupplierlength).Substring(0, distributionsupplierlength),
-                space = sspace == null ? new string(' ', 163) : source.PadRight(163).Substring(0, 163),
-                controlCount = _BCCASApi.APInboxParam.controlCount,
-                controlAmount = _BCCASApi.APInboxParam.controlAmount,
-                unitPrice = _BCCASApi.APInboxParam.unitPrice,
-                trailertransactionType = _BCCASApi.APInboxParam.trailertransactionType,
-            });
-          //  cGIBatchNumber = ((Convert.ToInt32(cGIBatchNumber)) + 1).ToString("D9");
-        }
-
-        // break transaction list into multiple list if it contains more than 250 transaction
-        transactionlist = transactions
-         .Select((x, i) => new { Index = i, Value = x })
-         .GroupBy(x => x.Index / transactionCount)
-         .Select(x => x.Select(v => v.Value).ToList())
-         .ToList();
-        #endregion
-
-        #region Step 2: Generate and process inbox file in CRM
-        // for each set of transaction create and upload inbox file in payment file exchange
-        foreach (List<APInboxParam> list in transactionlist)
-        {
-            var data = new
-            {
-                transaction = list
-            };
-            var result = template(data);
-
-            var filename = ("INBOX.F" + _BCCASApi.APInboxParam.feederNumber + "." + DateTime.UtcNow.ToString("yyyyMMddHHMMss"));
-
-
-          
-        }
-        #endregion
+        
+       
+         
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 

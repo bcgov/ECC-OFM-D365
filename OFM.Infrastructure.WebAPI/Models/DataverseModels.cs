@@ -217,6 +217,7 @@ public record Email_Activity_Parties
 public record Payment_File_Exchange
 {
     public string ofm_batch_number { get; set; }
+    public string ofm_oracle_batch_name { get; set; }
     public string ofm_payment_file_exchangeid { get; set; }
     
 

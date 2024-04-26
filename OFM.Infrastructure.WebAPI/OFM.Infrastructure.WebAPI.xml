@@ -212,6 +212,11 @@
             <param name="preventDuplicateRecord">Whether to throw an error when a duplicate record is detected.</param>
             <param name="partitionId">The partition key to use.</param>
         </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Messages.DownloadFileRequest">
+            <summary>
+            Contains the data to update file column
+            </summary>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Messages.EntityReference.#ctor(System.String,System.Nullable{System.Guid})">
             <summary>
             Creates an EntityReference with EntitySetName and Guid Id
