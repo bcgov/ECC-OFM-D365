@@ -171,10 +171,10 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         for (int orgitem = 0; orgitem < 2; orgitem++)
         {
             double amount = 0.00;
-            List<InvoiceLines> testinvoiceLines = new List<InvoiceLines>();
+            List<InvoiceLines> invoiceLines = new List<InvoiceLines>();
             for (int facitem=0;facitem<3;facitem++)
             {  amount = amount + 6000.00;//line amount should come from funding
-                testinvoiceLines.Add(new InvoiceLines
+                invoiceLines.Add(new InvoiceLines
                 {
                     feederNumber = _BCCASApi.feederNumber,// Static value:3540
                     batchType = _BCCASApi.batchType,//Static  value :AP
@@ -223,7 +223,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
                 description = string.Concat("TEST AP FEEDER NUM 3540 INV 01", supplier[orgitem]).PadRight(header.FieldLength("description")),// can be used to pass extra info
                 flow = "Org Info".PadRight(header.FieldLength("flow")),// can be used to pass extra info
-                invoiceLines=testinvoiceLines
+                invoiceLines=invoiceLines
               
             });
             _controlAmount = _controlAmount + amount;
