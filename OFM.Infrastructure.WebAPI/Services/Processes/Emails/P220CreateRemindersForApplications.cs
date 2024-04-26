@@ -23,10 +23,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
         private ProcessParameter? _processParams;
         private string _requestUri = string.Empty;
         public short ProcessId => Setup.Process.Reminders.CreateEmailRemindersId;
-
         public string ProcessName => Setup.Process.Reminders.CreateEmailRemindersName;
 
-        //To retrieve application of any newly submitted supplementary applications.
+        //To retrieve application of any newly submitted supplementary application.
         private string RetrieveApplications
         {
             get
@@ -131,9 +130,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 
             var localData = await GetApplicationDataAsync();
 
-            var deserializedData = JsonSerializer.Deserialize<List<ofm_application>>(localData.Data.ToString());
+            var deserializedData = JsonSerializer.Deserialize<List<ofm_applications>>(localData.Data.ToString());
 
-            #region  Step 1: Retrieve supplementary information for each application
+          //  #region  Step 1: Retrieve first supplementary information for each application to calcualate due date and term number.
 
             JsonArray applications = [];
 
@@ -142,10 +141,14 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 applications.Add($"ofm_applications({ofm_application.ofm_applicationid})");
             });
 
-            int allowancetype;
+
             DateTime enddate;
             string vinnumber = string.Empty;
             string allowanceid = string.Empty;
+            DateTime sixtydaysduedate;
+            DateTime thirtydaysduedate;
+            DateTime eighteendaysduedate;
+
             List<HttpRequestMessage> sendCreateEmailRequests = [];
             if (applications is not null) // Get template details to send bulk emails.
             {
@@ -165,7 +168,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     <attribute name="ofm_allowance_type" />
                     <order attribute="ofm_allowance_number" descending="false" />
                     <filter type="and">
-                      <condition attribute="ofm_application" operator="eq"  value="{{{applications[0]}}" />
+                      <condition attribute="ofm_application" operator="eq"  value="{{{application}}" />
                       <condition attribute="ofm_submittedon" operator="today" />
                     </filter>
                   </entity>
@@ -177,31 +180,47 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                             """;
                     var localDataTemplate = await GetSupplementaryAppDataAsync(requestUri);
 
-                    var serializedDataTemplate = JsonSerializer.Deserialize<List<ofm_allowance>>(localDataTemplate.Data.ToString());
+                    var serializedDataTemplate = JsonSerializer.Deserialize<List<ofm_allowances>>(localDataTemplate.Data.ToString());
 
                     if (serializedDataTemplate.Count > 0)
                     {
                         var supplementaryObj = serializedDataTemplate.FirstOrDefault();
                         enddate = supplementaryObj.ofm_end_date;
-                        allowancetype = supplementaryObj.ofm_allowance_type;
-
-
-                        #region Step 2: Calculate Due date for one application.
-
-
-
-
-                        #region  Step 3: Create reminders for application 30 days, 18 days & 60 days for 1st & 2nd Term.
+                        if (supplementaryObj.ofm_transport_vehicle_vin != null)
+                        {
+                            vinnumber = supplementaryObj.ofm_transport_vehicle_vin;
+                        }
+                       // #endregion
+                       // #region Step 2: Calculate Due date for email reminder.
+                        sixtydaysduedate = enddate.AddDays(-60);
+                        thirtydaysduedate = enddate.AddDays(-30);
+                        eighteendaysduedate = enddate.AddDays(-18);
+                      //  #endregion
+                      //  #region  Step 3: Create reminders for application 30 days, 18 days & 60 days for 1st & 2nd Term.
 
                         deserializedData?.ForEach(ofm_allowance =>
                         {
                             sendCreateEmailRequests.Add(new CreateRequest("ofm_reminders",
                                 new JsonObject(){
                         {"ofm_renewal_term",supplementaryObj.ofm_renewal_term },
-                        {"ofm_due_date",supplementaryObj.ofm_end_date.ToString("yyyy-MM-dd") },
-
+                        {"ofm_due_date", sixtydaysduedate},
+                        {"ofm_transport_vehicle_vin",vinnumber },
                         { "ofm_template_number", 220 },
                                 }));
+                            sendCreateEmailRequests.Add(new CreateRequest("ofm_reminders",
+                              new JsonObject(){
+                        {"ofm_renewal_term",supplementaryObj.ofm_renewal_term },
+                        {"ofm_due_date", thirtydaysduedate},
+                         {"ofm_transport_vehicle_vin",vinnumber },
+                        { "ofm_template_number", 220 },
+                              }));
+                            sendCreateEmailRequests.Add(new CreateRequest("ofm_reminders",
+                              new JsonObject(){
+                        {"ofm_renewal_term",supplementaryObj.ofm_renewal_term },
+                        {"ofm_due_date", eighteendaysduedate},
+                        {"ofm_transport_vehicle_vin",vinnumber },
+                        { "ofm_template_number", 220 },
+                              }));
                         });
                     }
                 }
@@ -209,13 +228,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 
                 if (sendEmailBatchResult.Errors.Any())
                 {
-                    var sendNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
-                    _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
+                    var createReminderNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
+                    _logger.LogError(CustomLogEvent.Process, "Failed to create reminders with an error: {error}", JsonValue.Create(createReminderNotificationError)!.ToString());
 
-                    return sendNotificationError.SimpleProcessResult;
+                    return createReminderNotificationError.SimpleProcessResult;
                 }
             }
-            #endregion
+           // #endregion
 
             var result = ProcessResult.Success(ProcessId, deserializedData!.Count);
 
@@ -228,10 +247,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             };
             string json = JsonSerializer.Serialize(result, serializeOptions);
 
-            //_logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToString().CleanLog());
-            _logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
+
+            _logger.LogInformation(CustomLogEvent.Process, "Create Reminders for applicaton in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
 
             return result.SimpleProcessResult;
+           // #region  Step 4: Retrieve Email Reminders and Deactivate email reminders.
+
         }
 
         Task<ProcessData> ID365ProcessProvider.GetDataAsync()
@@ -240,4 +261,4 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
         }
     }
 }
-#endregion
+//#endregion

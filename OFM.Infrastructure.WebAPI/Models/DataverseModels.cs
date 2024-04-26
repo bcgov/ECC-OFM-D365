@@ -179,11 +179,11 @@ public record ofm_Facility
     public int? ofm_program { get; set; }
 }
 
-public record ofm_application
+public record ofm_applications
 {
     public required string ofm_applicationid { get; set; }
 }
-public record ofm_allowance
+public record ofm_allowances
 {
     public required string ofm_allowanceid { get; set; }
     public string? ofm_transport_vehicle_vin { get; set; }
@@ -192,7 +192,7 @@ public record ofm_allowance
     public DateTime ofm_start_date { get; set; }
     public DateTime ofm_end_date { get; set; }
     public int ofm_renewal_term { get; set; }
-    
+
 }
 public record ofm_reminders
 {
