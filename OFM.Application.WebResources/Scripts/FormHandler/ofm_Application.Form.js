@@ -230,16 +230,16 @@ OFM.Application.Form = {
         //     // perform operations on record retrieval
         // },
         filterCreatedBySPLookup: function (executionContext) {
-            //debugger;
+            debugger;
             var formContext = executionContext.getFormContext();
-            var createdby = formContext.getAttribute("ofm_createdby").getValue();
-            var createdbyid;
-            if (createdby != null) {
-                createdbyid = createdby[0].id;
-        
-                var viewId = "{00000000-0000-0000-0000-000000000090}";
+            var facility = formContext.getAttribute("ofm_facility").getValue();
+            var facilityid;
+            if (facility != null) {
+                facilityid = facility[0].id;
+    
+                var viewId = "{00000000-0000-0000-0000-000000000091}";
                 var entity = "contact";
-                var ViewDisplayName = "createdby Contacts";
+                var ViewDisplayName = "Facility Createdby Contacts";
                 var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
                     "<entity name='contact'>" +
                     "<attribute name='fullname' />" +
@@ -248,12 +248,12 @@ OFM.Application.Form = {
                     "<attribute name='emailaddress1' />" +
                     "<attribute name='contactid' />" +
                     "<order attribute='fullname' descending='false' />" +
-                    "<link-entity name='ofm_bceid_facility' from='facilityid' to='parentcustomerid' link-type='inner' alias='an'>" +
+                    "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
                     "<filter type='and'>" +
-                    "<condition attribute='createdby' operator='eq' value='" + createdbyid + "'/>" +
-                    "<condition attribute='ofm_portal_access' operator='eq' value='1' />" +
+                    "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + facilityid + "'/>" +
+                    "<condition attribute='ofm_is_expense_authority' operator='eq' value='1' />" +
                     "</filter></link-entity></entity></fetch>";
-        
+    
                 var layout = "<grid name='resultset' jump='fullname' select='1' icon='1' preview='1'>" +
                     "<row name = 'result' id = 'contactid' >" +
                     "<cell name='fullname' width='300' />" +
@@ -261,11 +261,12 @@ OFM.Application.Form = {
                     "<cell name='emailaddress1' width='150' />" +
                     "<cell name='parentcustomerid' width='150' />" +
                     "</row></grid>";
-        
+    
                 formContext.getControl("ofm_createdby").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
+    
             }
             else {
-                formContext.getAttribute("ofm_contact").setValue(null);
+                formContext.getAttribute("ofm_createdby").setValue(null);
             }
             // perform operations on record retrieval
         },
