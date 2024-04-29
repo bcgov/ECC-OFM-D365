@@ -48,7 +48,7 @@ public class ApiKeyMiddleware
             return;
         }
 
-        _logger.LogError(CustomLogEvent.API, "Attempted Key: [x-ofm-apikey:{extractedApiKey}]", extractedApiKey);
+        _logger.LogError(CustomLogEvent.API, "Attempted Key: [x-ofm-apikey:{extractedApiKey}]", string.IsNullOrEmpty(extractedApiKey) ? "NA" : extractedApiKey);
 
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
         await context.Response.WriteAsync(options.Value.Schemes.ApiKeyScheme.ApiKeyErrorMesssage);
