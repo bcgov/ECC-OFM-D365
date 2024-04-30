@@ -12241,7 +12241,8 @@ namespace ECC.Core.DataContext
 			public const string transactioncurrencyidName = "transactioncurrencyidname";
 			public const string utcconversiontimezonecode = "utcconversiontimezonecode";
 			public const string versionnumber = "versionnumber";
-		}
+            public const string ofm_renewal_term = "ofm_renewal_term";
+        }
 		
 		[System.Diagnostics.DebuggerNonUserCode()]
 		public ofm_allowance(System.Guid id) : 
@@ -12714,11 +12715,29 @@ namespace ECC.Core.DataContext
 				this.SetAttributeValue("ofm_transport_estimated_yearly_km", value);
 			}
 		}
-		
-		/// <summary>
-		/// Monthly Lease
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_monthly_lease")]
+
+        /// <summary>
+        /// FA Year
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_renewal_term")]
+        public System.Nullable<int> ofm_renewal_term
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<int>>("ofm_renewal_term");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_renewal_term", value);
+            }
+        }
+
+        /// <summary>
+        /// Monthly Lease
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_monthly_lease")]
 		public Microsoft.Xrm.Sdk.Money ofm_transport_monthly_lease
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]

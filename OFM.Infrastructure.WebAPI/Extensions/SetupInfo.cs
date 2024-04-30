@@ -45,7 +45,8 @@ public static class Setup
             public const Int16 CreateEmailRemindersId = 220;
             public const string CreateEmailRemindersName = "Create Email Reminders for Application";
 
-            
+            public const Int16 SendSupplementaryReminderEmailId = 215;
+            public const string SendSupplementaryReminderEmailName = "Send Supplementary Reminder Email";
 
         }
 

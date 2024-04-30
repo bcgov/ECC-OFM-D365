@@ -3708,6 +3708,11 @@
             Estimated Monthly KM
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_renewal_term">
+            <summary>
+            FA Year
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_transport_monthly_lease">
             <summary>
             Monthly Lease

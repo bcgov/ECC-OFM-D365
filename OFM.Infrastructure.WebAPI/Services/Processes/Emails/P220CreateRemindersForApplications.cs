@@ -11,96 +11,62 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 {
-    public class P220CreateRemindersForApplications : ID365ProcessProvider
+    public class P220CreateRemindersForApplications(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
     {
-        private readonly NotificationSettings _notificationSettings;
-        private readonly ID365AppUserService _appUserService;
-        private readonly ID365WebApiService _d365webapiservice;
-        private readonly ILogger _logger;
-        private readonly TimeProvider _timeProvider;
-        private ProcessData? _data;
-        private string[] _communicationTypesForEmailSentToUserMailBox = [];
+        private readonly ID365AppUserService _appUserService = appUserService;
+        private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
+        private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+        private readonly TimeProvider _timeProvider = timeProvider;
         private ProcessParameter? _processParams;
-        private string _requestUri = string.Empty;
         public short ProcessId => Setup.Process.Reminders.CreateEmailRemindersId;
         public string ProcessName => Setup.Process.Reminders.CreateEmailRemindersName;
 
         //To retrieve application of any newly submitted supplementary application.
-        private string RetrieveApplications
+        private string RetrieveSupplementaryApplications
         {
             get
             {
                 // Note: FetchXMl limit is 5000 records per request
-                var fetchXml = $$"""
+                //Ignore the supplementary applications for term 3 -> FA is expiring
+
+                var fetchXml = $"""
                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
-                  <entity name="ofm_application">
-                    <attribute name="ofm_applicationid" />
+                  <entity name="ofm_allowance">
+                    <attribute name="createdon" />
+                    <attribute name="ofm_allowance_number" />
+                    <attribute name="ofm_allowance_type" />
+                    <attribute name="ofm_allowanceid" />
+                    <attribute name="ofm_end_date" />
+                    <attribute name="ofm_renewal_term" />
+                    <attribute name="ofm_start_date" />
+                    <attribute name="ofm_transport_vehicle_vin" />
                     <attribute name="ofm_application" />
-                    <order attribute="ofm_application" descending="false" />
-                    <link-entity name="ofm_allowance" from="ofm_application" to="ofm_applicationid" link-type="inner" alias="ac">
-                      <filter type="and">
-                        <condition attribute="ofm_submittedon" operator="today" />
-                      </filter>
-                    </link-entity>
-                    <link-entity name="ofm_reminder" from="ofm_application" to="ofm_applicationid" link-type="outer" alias="ad" />
-                    <filter type="and">
-                      <condition entityname="ad" attribute="ofm_application" operator="null" />
+                    <filter>
+                      <condition attribute="ofm_submittedon" operator="today" />
+                      <condition attribute="ofm_renewal_term" operator="ne" value="3" />
                     </filter>
                   </entity>
                 </fetch>
                 """;
 
                 var requestUri = $"""
-                            ofm_applications?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                            """;
-
+                                ofm_allowances?$select=createdon,ofm_allowance_number,ofm_allowance_type,ofm_allowanceid,ofm_end_date,ofm_renewal_term,ofm_start_date,ofm_transport_vehicle_vin,_ofm_application_value&$filter=(Microsoft.Dynamics.CRM.Today(PropertyName='ofm_submittedon') and ofm_renewal_term ne 3)
+                                """;
                 return requestUri.CleanCRLF();
             }
         }
-  
 
-        public async Task<ProcessData> GetApplicationDataAsync()
+
+        public async Task<ProcessData> GetDataAsync()
         {
-            _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
-
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveApplications, isProcess: true);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query applications to update with the server error {responseBody}", responseBody.CleanLog());
-
-                return await Task.FromResult(new ProcessData(string.Empty));
-            }
-
-            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-            JsonNode d365Result = string.Empty;
-            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-            {
-                if (currentValue?.AsArray().Count == 0)
-                {
-                    _logger.LogInformation(CustomLogEvent.Process, "No applications found with query {requestUri}", RetrieveApplications.CleanLog());
-                }
-                d365Result = currentValue!;
-            }
-
-            _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
-
-            return await Task.FromResult(new ProcessData(d365Result));
-        }
-
-
-        public async Task<ProcessData> GetSupplementaryAppDataAsync( string RetrieveSupplementaryApplications)
-        {
-            _logger.LogDebug(CustomLogEvent.Process, "Calling GetDataToUpdate");
+            _logger.LogDebug(CustomLogEvent.Process, "Calling GetSupplementaryApplicationDataAsync");
 
             var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveSupplementaryApplications, isProcess: true);
 
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query pending emails to update with the server error {responseBody}", responseBody.CleanLog());
+                _logger.LogError(CustomLogEvent.Process, "Failed to query supplementary applications to update with the server error {responseBody}", responseBody.CleanLog());
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -112,7 +78,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No pending emails on the contact list found with query {requestUri}", RetrieveSupplementaryApplications.CleanLog());
+                    _logger.LogInformation(CustomLogEvent.Process, "No supplementary applications found with query {requestUri}", RetrieveSupplementaryApplications.CleanLog());
                 }
                 d365Result = currentValue!;
             }
@@ -121,6 +87,38 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 
             return await Task.FromResult(new ProcessData(d365Result));
         }
+
+        public async Task<ProcessData> GetReminderDataAsync(string reminderXml)
+        {
+            _logger.LogDebug(CustomLogEvent.Process, "Calling GetReminderDataAsync");
+
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, reminderXml, isProcess: true);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query supplementary applications to update with the server error {responseBody}", responseBody.CleanLog());
+
+                return await Task.FromResult(new ProcessData(string.Empty));
+            }
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+            {
+                if (currentValue?.AsArray().Count == 0)
+                {
+                    _logger.LogInformation(CustomLogEvent.Process, "No supplementary applications found with query {requestUri}", RetrieveSupplementaryApplications.CleanLog());
+                }
+                d365Result = currentValue!;
+            }
+
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+            return await Task.FromResult(new ProcessData(d365Result));
+        }
+
 
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
@@ -128,117 +126,94 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 
             var startTime = _timeProvider.GetTimestamp();
 
-            var localData = await GetApplicationDataAsync();
+            #region step 1: get supplementary applications created on today
+            var supplementaryData = await GetDataAsync();
 
-            var deserializedData = JsonSerializer.Deserialize<List<ofm_applications>>(localData.Data.ToString());
+            var deserializedData = JsonSerializer.Deserialize<List<Supplementary>>(supplementaryData.Data, Setup.s_writeOptionsForLogs);
 
-          //  #region  Step 1: Retrieve first supplementary information for each application to calcualate due date and term number.
-
-            JsonArray applications = [];
-
-            deserializedData?.ForEach(ofm_application =>
+            if (deserializedData.Count > 0)
             {
-                applications.Add($"ofm_applications({ofm_application.ofm_applicationid})");
-            });
-
-
-            DateTime enddate;
-            string vinnumber = string.Empty;
-            string allowanceid = string.Empty;
-            DateTime sixtydaysduedate;
-            DateTime thirtydaysduedate;
-            DateTime eighteendaysduedate;
-
-            List<HttpRequestMessage> sendCreateEmailRequests = [];
-            if (applications is not null) // Get template details to send bulk emails.
-            {
-                foreach (var application in applications)
+                foreach (var supplememtary in deserializedData)
                 {
-                    var fetchXml = $$"""
-                <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
-                  <entity name="ofm_allowance">
-                    <attribute name="ofm_allowanceid" />
-                    <attribute name="ofm_allowance_number" />
-                    <attribute name="createdon" />
-                    <attribute name="ofm_transport_vehicle_vin" />
-                    <attribute name="ofm_start_date" />
-                    <attribute name="ofm_renewal_term" />
-                    <attribute name="ofm_end_date" />
-                    <attribute name="ofm_application" />
-                    <attribute name="ofm_allowance_type" />
-                    <order attribute="ofm_allowance_number" descending="false" />
-                    <filter type="and">
-                      <condition attribute="ofm_application" operator="eq"  value="{{{application}}" />
-                      <condition attribute="ofm_submittedon" operator="today" />
-                    </filter>
-                  </entity>
-                </fetch>
-                """;
+                    //check if reminders for the term is created or not
+                    var fetchXml = $"""
+                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
+                      <entity name="ofm_reminder">
+                        <filter>
+                          <condition attribute="ofm_application" operator="eq" value="{supplememtary._ofm_application_value}" />
+                          <condition attribute="ofm_year_number" operator="eq" value="{supplememtary.ofm_renewal_term}" />
+                        </filter>
+                      </entity>
+                    </fetch>
+                    """;
 
                     var requestUri = $"""
-                            ofm_allowances?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            ofm_reminders?$filter=(_ofm_application_value eq '{supplememtary._ofm_application_value}' and ofm_year_number eq {supplememtary.ofm_renewal_term})
                             """;
-                    var localDataTemplate = await GetSupplementaryAppDataAsync(requestUri);
 
-                    var serializedDataTemplate = JsonSerializer.Deserialize<List<ofm_allowances>>(localDataTemplate.Data.ToString());
+                    var reminderData = await GetReminderDataAsync(requestUri.CleanCRLF());
+                    var deserializedReminderData = JsonSerializer.Deserialize<List<ofm_reminders>>(reminderData.Data, Setup.s_writeOptionsForLogs);
 
-                    if (serializedDataTemplate.Count > 0)
+                    //if there is a reminder created for the term -> skip
+                    if (deserializedReminderData.Count > 0)
                     {
-                        var supplementaryObj = serializedDataTemplate.FirstOrDefault();
-                        enddate = supplementaryObj.ofm_end_date;
-                        if (supplementaryObj.ofm_transport_vehicle_vin != null)
-                        {
-                            vinnumber = supplementaryObj.ofm_transport_vehicle_vin;
-                        }
-                       // #endregion
-                       // #region Step 2: Calculate Due date for email reminder.
-                        sixtydaysduedate = enddate.AddDays(-60);
-                        thirtydaysduedate = enddate.AddDays(-30);
-                        eighteendaysduedate = enddate.AddDays(-18);
-                      //  #endregion
-                      //  #region  Step 3: Create reminders for application 30 days, 18 days & 60 days for 1st & 2nd Term.
-
-                        deserializedData?.ForEach(ofm_allowance =>
-                        {
-                            sendCreateEmailRequests.Add(new CreateRequest("ofm_reminders",
-                                new JsonObject(){
-                        {"ofm_renewal_term",supplementaryObj.ofm_renewal_term },
-                        {"ofm_due_date", sixtydaysduedate},
-                        {"ofm_transport_vehicle_vin",vinnumber },
-                        { "ofm_template_number", 220 },
-                                }));
-                            sendCreateEmailRequests.Add(new CreateRequest("ofm_reminders",
-                              new JsonObject(){
-                        {"ofm_renewal_term",supplementaryObj.ofm_renewal_term },
-                        {"ofm_due_date", thirtydaysduedate},
-                         {"ofm_transport_vehicle_vin",vinnumber },
-                        { "ofm_template_number", 220 },
-                              }));
-                            sendCreateEmailRequests.Add(new CreateRequest("ofm_reminders",
-                              new JsonObject(){
-                        {"ofm_renewal_term",supplementaryObj.ofm_renewal_term },
-                        {"ofm_due_date", eighteendaysduedate},
-                        {"ofm_transport_vehicle_vin",vinnumber },
-                        { "ofm_template_number", 220 },
-                              }));
-                        });
+                        continue;
                     }
-                }
-                var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreateEmailRequests, new Guid(processParams.CallerObjectId.ToString()));
+                    else
+                    {
+                        //create the reminder for the year -> 3 reminders for each year
 
-                if (sendEmailBatchResult.Errors.Any())
-                {
-                    var createReminderNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
-                    _logger.LogError(CustomLogEvent.Process, "Failed to create reminders with an error: {error}", JsonValue.Create(createReminderNotificationError)!.ToString());
+                        List<HttpRequestMessage> sendCreateReminderRequests = [];
 
-                    return createReminderNotificationError.SimpleProcessResult;
+                        DateTime enddate = (DateTime)supplememtary.ofm_end_date;
+                        //put day numbers to config file
+                        //check the current time and due date
+                        DateTime sixtydaysduedate = enddate.AddDays(-60);
+                        DateTime thirtydaysduedate = enddate.AddDays(-30);
+                        DateTime eighteendaysduedate = enddate.AddDays(-18);
+
+                        sendCreateReminderRequests.Add(new CreateRequest("ofm_reminders",
+                        new JsonObject(){
+                                            {"ofm_year_number",supplememtary.ofm_renewal_term },
+                                            {"ofm_application@odata.bind",  $"/ofm_applications({supplememtary._ofm_application_value})"},
+                                            {"ofm_due_date", sixtydaysduedate},
+                                            { "ofm_template_number", 220 }
+                        }));
+
+                        sendCreateReminderRequests.Add(new CreateRequest("ofm_reminders",
+                          new JsonObject(){
+                                            {"ofm_year_number",supplememtary.ofm_renewal_term },
+                                            {"ofm_application@odata.bind",  $"/ofm_applications({supplememtary._ofm_application_value})"},
+                                            {"ofm_due_date", thirtydaysduedate},
+                                            { "ofm_template_number", 220 }
+                          }));
+                        sendCreateReminderRequests.Add(new CreateRequest("ofm_reminders",
+                          new JsonObject(){
+                                            {"ofm_year_number",supplememtary.ofm_renewal_term },
+                                            {"ofm_application@odata.bind",  $"/ofm_applications({supplememtary._ofm_application_value})"},
+                                            {"ofm_due_date", eighteendaysduedate},
+                                            { "ofm_template_number", 220 }
+                          }));
+
+                        var sendReminderBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreateReminderRequests, null);
+
+                        if (sendReminderBatchResult.Errors.Any())
+                        {
+                            var createReminderNotificationError = ProcessResult.Failure(ProcessId, sendReminderBatchResult.Errors, sendReminderBatchResult.TotalProcessed, sendReminderBatchResult.TotalRecords);
+                            _logger.LogError(CustomLogEvent.Process, "Failed to create reminders with an error: {error}", JsonValue.Create(createReminderNotificationError)!.ToString());
+
+                            return createReminderNotificationError.SimpleProcessResult;
+                        }
+
+                        _logger.LogInformation(CustomLogEvent.Process, "email reminders created");
+
+                    }
+
+
                 }
             }
-           // #endregion
 
             var result = ProcessResult.Success(ProcessId, deserializedData!.Count);
-
-            var endTime = _timeProvider.GetTimestamp();
 
             var serializeOptions = new JsonSerializerOptions
             {
@@ -247,18 +222,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             };
             string json = JsonSerializer.Serialize(result, serializeOptions);
 
-
-            _logger.LogInformation(CustomLogEvent.Process, "Create Reminders for applicaton in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
+            var endTime = _timeProvider.GetTimestamp();
+            _logger.LogInformation(CustomLogEvent.Process, "Create email reminders process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
 
             return result.SimpleProcessResult;
-           // #region  Step 4: Retrieve Email Reminders and Deactivate email reminders.
+            #endregion
 
-        }
-
-        Task<ProcessData> ID365ProcessProvider.GetDataAsync()
-        {
-            throw new NotImplementedException();
         }
     }
 }
-//#endregion
