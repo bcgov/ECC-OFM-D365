@@ -86,6 +86,12 @@ public class LicenceDetail : ofm_licence_detail
 
     #endregion
 
+    #region Non-HR Adjusted FTE Spaces
+
+    public decimal AdjustedFTESpaces => (Spaces * AnnualStandardHours) / (decimal)_rateSchedule!.ofm_max_annual_open_hours!;
+
+    #endregion
+
     #region Parent Fees
 
     private ecc_care_types TimeSchedule => ofm_care_type ?? throw new NullReferenceException($"{nameof(LicenceDetail)}: ofm_care_type is empty. Value must be full-time or part-time."); // Full-Time or Part-Time
