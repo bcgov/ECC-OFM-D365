@@ -1,5 +1,8 @@
 ﻿using ECC.Core.DataContext;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Metadata;
 using System;
+using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
@@ -222,6 +225,36 @@ public record Payment_File_Exchange
     
 
 }
+
+public class Payment_Line :ofm_payment
+{
+    public string? ofm_paymentid { get; set; }
+    public decimal? ofm_amount { get; set; }
+    public decimal? ofm_amount_paid { get; set; }
+    public DateTime? ofm_effective_date { get; set; }
+    public string _ofm_fiscal_year_value { get; set; }
+    public string? _ofm_funding_value { get; set; }
+    public int? ofm_invoice_line_number { get; set; }
+    public DateTime? ofm_paid_date { get; set; }
+    public string? ofm_remittance_message { get; set; }
+    public string? ofm_invoice_number { get; set; }
+    public string? ofm_siteid { get; set; }
+    public string? ofm_supplierid { get; set; }
+    public int? ofm_payment_method { get; set; }
+    [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
+    public string? ofm_financial_year { get; set; }
+    [property: JsonPropertyName("ofm_funding.ofm_funding_number")]
+    public string? ofm_funding_number { get; set; }
+    [property: JsonPropertyName("ofm_facility.name")]
+    public string? accountname { get; set; }
+    [property: JsonPropertyName("ofm_facility.accountnumber")]
+    public string? accountnumber { get; set; }
+    // public ofm_fiscal_year ofm_fiscal_year { get { return new ofm_fiscal_year { Id= new Guid(_ofm_fiscal_year_value)}; }  }
+
+
+}
+
+
 #region Funding
 
 
@@ -312,6 +345,7 @@ public class Supplementary : ofm_allowance
     public new decimal? ofm_transport_odometer { get; set; }
     public SupplementarySchedule ofm_supplementary_schedule { get; set; }
     public string _ofm_application_value { get; set; }
+    //public bool ofm_transport_lease { get; set; }
 }
 
 public class SupplementarySchedule : ofm_supplementary_schedule

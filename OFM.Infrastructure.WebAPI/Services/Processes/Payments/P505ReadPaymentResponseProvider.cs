@@ -34,7 +34,6 @@ using File = System.IO.File;
 
 
 
-
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 
 public class P505ReadPaymentResponseProvider
@@ -202,33 +201,42 @@ public class P505ReadPaymentResponseProvider
 
         var startTime = _timeProvider.GetTimestamp();
 
-        var localData = await GetData();
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
+        //var localData = await GetData();
+        //var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
 
-        HttpResponseMessage response1 = await _d365webapiservice.GetDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(serializedData[0].ofm_payment_file_exchangeid));
-            if (!response1.IsSuccessStatusCode)
-            {
-                var responseBody = await response1.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to upload file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
-                 return await Task.FromResult<JsonObject>(new JsonObject() { });
+        //HttpResponseMessage response1 = await _d365webapiservice.GetDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(serializedData[0].ofm_payment_file_exchangeid));
+        //if (!response1.IsSuccessStatusCode)
+        //{
+        //    var responseBody = await response1.Content.ReadAsStringAsync();
+        //    _logger.LogError(CustomLogEvent.Process, "Failed to upload file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
+        //    return await Task.FromResult<JsonObject>(new JsonObject() { });
 
-            }
-            byte[] file1 = response1.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+        //}
+        //byte[] file1 = response1.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+
+        byte[] file1 = File.ReadAllBytes("output.txt");
         List<string> listfeedback = System.Text.Encoding.UTF8.GetString(file1).Split("APBG").ToList();
         listfeedback.RemoveAll(item => string.IsNullOrWhiteSpace(item));
-        //feedbackParam invoice = new FixedWidthFileProvider<feedbackParam>().Parse(listfeedback);
-
-        foreach (string data in listfeedback)
+        int counter = 0;
+        List<string> batchfeedback = listfeedback.Select(g => g.Replace("APBH", "APBH#APBH")).SelectMany(group => group.Split("APBH#")).ToList();
+        List<string> headerfeedback = listfeedback.Select(g => g.Replace("APIH", "APIH#APIH")).SelectMany(group => group.Split("APIH#")).ToList();
+         List<string> linefeedback;
+        List<feedbackHeader> headers = new List<feedbackHeader>();
+        foreach (string data in headerfeedback)
         {
-            List<string> feedback = data.Split("\n").ToList();
-            feedbackParam invoice1 = new FixedWidthFileProvider<feedbackParam>().Parse(feedback);
+            List<feedbackLine> lines = new List<feedbackLine>();
+            linefeedback = data.Split('\n').Where(g => g.StartsWith("APIL")).Select(g=>g).ToList();
+            foreach (string list1 in linefeedback)
+            {
+                feedbackLine line = new CustomFileProvider<feedbackLine>().Parse(new List<string> { list1 });
+                lines.Add(line);
+
+            }
+            feedbackHeader header = new CustomFileProvider<feedbackHeader>().Parse(new List<string> { data });
+            header.feedbackLine = lines;
+            headers.Add(header);
         }
-        
-       
-         
-
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-
+       return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 
 
