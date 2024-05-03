@@ -15,6 +15,7 @@
     <AddDebuggerNonUserCode>true</AddDebuggerNonUserCode>
     <AddNewFilesToProject>true</AddNewFilesToProject>
     <AddOptionSetMetadataAttribute>true</AddOptionSetMetadataAttribute>
+    <AdjustCasingForEnumOptions>false</AdjustCasingForEnumOptions>
     <BuilderSettingsJsonRelativePath>builderSettings.json</BuilderSettingsJsonRelativePath>
     <CamelCaseClassNames>false</CamelCaseClassNames>
     <CamelCaseCustomWords />
@@ -1562,6 +1563,20 @@ workqueueitem</EntitiesToSkip>
 businessunit|
 contact|
 email|
+msfp_alert|
+msfp_alertrule|
+msfp_emailtemplate|
+msfp_fileresponse|
+msfp_localizedemailtemplate|
+msfp_project|
+msfp_question|
+msfp_questionresponse|
+msfp_satisfactionmetric|
+msfp_survey|
+msfp_surveyinvite|
+msfp_surveyreminder|
+msfp_surveyresponse|
+msfp_unsubscribedrecipient|
 ofm_allowance|
 ofm_application|
 ofm_assistance_request|
@@ -1604,7 +1619,6 @@ ofm_supplementary_schedule|
 ofm_supplier_file_exchange|
 ofm_survey|
 ofm_survey_response|
-ofm_system_configuration|
 systemuser|
 team|
 timezonedefinition|
@@ -1701,5 +1715,5 @@ VoiceMail</TokenCapitalizationOverrides>
   <SuppressGeneratedCodeAttribute>true</SuppressGeneratedCodeAttribute>
   <SettingsVersion>2.2023.12.14</SettingsVersion>
   <UpdateBuilderSettingsJson>true</UpdateBuilderSettingsJson>
-  <Version>2.2023.12.14</Version>
+  <Version>2.2024.2.1</Version>
 </Config>

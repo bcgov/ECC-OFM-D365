@@ -389,7 +389,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         {
             var payToUpdate = new JsonObject {
                 { "ofm_paid_date", DateTime.UtcNow },
-                { "statuscode", Convert.ToInt16(ofm_payment_StatusCode.ACTIVEProcessingPayment) }
+                { "statuscode", Convert.ToInt16(ofm_payment_StatusCode.ProcessingPayment) }
 
              };
 

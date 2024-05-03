@@ -524,17 +524,6 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_system_configuration"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_system_configuration> ofm_system_configurationSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.ofm_system_configuration>();
-			}
-		}
-		
-		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.Team"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.Team> TeamSet
