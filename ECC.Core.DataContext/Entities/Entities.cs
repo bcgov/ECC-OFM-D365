@@ -128,7 +128,7 @@ namespace ECC.Core.DataContext
 			public const string contact_customer_accounts = "contact_customer_accounts";
 			public const string createdby = "createdby";
 			public const string createdbyexternalparty = "createdbyexternalparty";
-			public const string createdbyexternalpartyName = "createdbyexternalpartyname";
+			public const string createdbyexternalpartyname = "createdbyexternalpartyname";
 			public const string createdbyName = "createdbyname";
 			public const string createdon = "createdon";
 			public const string createdonbehalfby = "createdonbehalfby";
