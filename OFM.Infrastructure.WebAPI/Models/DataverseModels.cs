@@ -1,10 +1,6 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.Xrm.Sdk;
-using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
-using System;
-using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
+using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
@@ -266,12 +262,59 @@ public record Email_Activity_Parties
     public string? addressused { get; set; }
 }
 
+
+
+public record Payment_File_Exchange
+{
+    public string ofm_batch_number { get; set; }
+    public string ofm_oracle_batch_name { get; set; }
+    public string ofm_payment_file_exchangeid { get; set; }
+    
+
+}
+
+public class Payment_Line :ofm_payment
+{
+    public string? ofm_paymentid { get; set; }
+    public decimal? ofm_amount { get; set; }
+    public decimal? ofm_amount_paid { get; set; }
+    public DateTime? ofm_effective_date { get; set; }
+    public string _ofm_fiscal_year_value { get; set; }
+    public string? _ofm_funding_value { get; set; }
+    public int? ofm_invoice_line_number { get; set; }
+    public DateTime? ofm_paid_date { get; set; }
+    public string? ofm_remittance_message { get; set; }
+    public string? ofm_invoice_number { get; set; }
+    public string? ofm_siteid { get; set; }
+    public string? ofm_supplierid { get; set; }
+    public int? ofm_payment_method { get; set; }
+    [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
+    public string? ofm_financial_year { get; set; }
+    [property: JsonPropertyName("ofm_funding.ofm_funding_number")]
+    public string? ofm_funding_number { get; set; }
+    [property: JsonPropertyName("ofm_facility.name")]
+    public string? accountname { get; set; }
+    [property: JsonPropertyName("ofm_facility.accountnumber")]
+    public string? accountnumber { get; set; }
+    // public ofm_fiscal_year ofm_fiscal_year { get { return new ofm_fiscal_year { Id= new Guid(_ofm_fiscal_year_value)}; }  }
+
+
+}
+
 public record D365CommunicationType
 {
     public string? ofm_communication_typeid { get; set; }
     public Int16? ofm_communication_type_number { get; set; }
 }
 
-#region External Parameters
+#region Funding
+
+public class PaymentApplication : ofm_application
+{
+    
+    public string? ofm_applicationid { get; set; }
+    public string? _ofm_facility_value { get; set; }
+    public new Funding? ofm_funding { get; set; }
+}
 
 #endregion
