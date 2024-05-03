@@ -38,6 +38,7 @@ public class Funding : ofm_funding
     public new decimal? ofm_envelope_programming { get; set; }
     public new decimal? ofm_envelope_programming_pf { get; set; }
     public new decimal? ofm_envelope_programming_proj { get; set; }
+    public new Guid? _ofm_provider_approver_value { get; set; }
     public new SpaceAllocation[]? ofm_funding_spaceallocation { get; set; }
     public new Facility? ofm_facility { get; set; }
     public new Application? ofm_application { get; set; }

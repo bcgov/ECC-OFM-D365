@@ -66,6 +66,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                     <attribute name="title" />
                     <attribute name="templatetypecode" />
                     <attribute name="safehtml" />
+                    <attribute name="subjectsafehtml" />        
                     <attribute name="languagecode" />
                     <attribute name="templateid" />
                     <attribute name="description" />
