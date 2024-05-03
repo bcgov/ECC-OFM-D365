@@ -1,5 +1,6 @@
 ﻿using ECC.Core.DataContext;
-using System;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
+using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
@@ -382,7 +383,6 @@ public class LicenceDetail: ofm_licence_detail
     public new string ofm_week_days { get; set; }
 }
 
-
 public class Supplementary : ofm_allowance
 {
     public new decimal? ofm_funding_amount { get; set; }
@@ -408,7 +408,5 @@ public class SupplementarySchedule : ofm_supplementary_schedule
     public new decimal? ofm_transport_less_20_spaces_lease_cap_month { get; set; }
     public new decimal? ofm_transport_reimbursement_rate_per_km { get; set; }
 }
-
-#region External Parameters
 
 #endregion
