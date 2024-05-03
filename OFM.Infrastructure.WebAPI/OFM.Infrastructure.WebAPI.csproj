@@ -47,6 +47,7 @@
 
   
   <ItemGroup>
+    <PackageReference Include="FixedWidthParserWriter" Version="1.1.4" />
     <PackageReference Include="Handlebars.Net" Version="2.1.4" />
     <PackageReference Include="Handlebars.Net.Helpers.Core" Version="2.4.1.4" />
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />

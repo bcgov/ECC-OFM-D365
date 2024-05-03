@@ -393,7 +393,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
              };
 
-            updatePayRequests.Add(new UpdateRequest(new EntityReference(ofm_payment.EntitySchemaName, new Guid(pay.ofm_paymentid)), payToUpdate));
+            updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntitySchemaName, new Guid(pay.ofm_paymentid)), payToUpdate));
         });
 
         var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updatePayRequests, null);
@@ -462,5 +462,10 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
+    }
+
+    Task<ProcessData> ID365ProcessProvider.GetDataAsync()
+    {
+        throw new NotImplementedException();
     }
 }
