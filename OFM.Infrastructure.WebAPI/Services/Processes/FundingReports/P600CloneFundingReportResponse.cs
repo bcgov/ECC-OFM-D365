@@ -17,7 +17,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
-namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
+namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 
 public class P600CloneFundingReportResponse : ID365ProcessProvider
 {
@@ -142,10 +142,10 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
         var startTime = _timeProvider.GetTimestamp();
 
         var fundingReportData = await InitializeCloneRequest(_processParams.FundingReport.FundingReportId, "ofm_survey_response");
+        fundingReportData["ofm_current_version@odata.bind"] = $"/ofm_survey_responses({_processParams.FundingReport.FundingReportId})";
 
         //Create a new fundingReport
-
-        var sendNewFundingReportResponseRequestResult = await d365WebApiService.SendCreateRequestAsync(_appUserService.AZSystemAppUser, "ofm_survey_response", fundingReportData.ToString());
+        var sendNewFundingReportResponseRequestResult = await d365WebApiService.SendCreateRequestAsync(_appUserService.AZSystemAppUser, "ofm_survey_responses", fundingReportData.ToString());
 
         if (!sendNewFundingReportResponseRequestResult.IsSuccessStatusCode)
         {
@@ -162,39 +162,39 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
 
         var questionResponse = System.Text.Json.JsonSerializer.Deserialize<List<ofm_question_response>>(questionResponseData.Data, Setup.s_writeOptionsForLogs);
 
-        if(questionResponse.Count > 0)
+        if (questionResponse.Count > 0)
         {
-            var  
-            foreach(var question in questionResponse)
+            List<HttpRequestMessage> questionResponseRequestList = [];
+            foreach (var question in questionResponse)
             {
-                var questionData = await InitializeCloneRequest(question.Id.ToString(), "ofm_survey_response");
+                var questionData = await InitializeCloneRequest(question.Id.ToString(), "ofm_question_response");
+                //Update the funding Report lookup
                 questionData["ofm_survey_response@odata.bind"] = $"/ofm_survey_responses({newFundingReportResponseId})";
+                questionData["ofm_current_version@odata.bind"] = $"/ofm_question_responses({question.Id})";
 
                 //Create a new questionResponse
-                var newQuestionResponseRequest = new CreateRequest("ofm_question_response", questionData);
+                var newQuestionResponseRequest = new CreateRequest("ofm_question_responses", questionData);
+                questionResponseRequestList.Add(newQuestionResponseRequest);
 
-                //Update the funding Report lookup
             }
-        }
-        /*        
-            var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, SendEmailFromTemplateRequest,null);
+            var sendquestionResponseRequestBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, questionResponseRequestList, null);
 
-            if (sendEmailBatchResult.Errors.Any())
+            if (sendquestionResponseRequestBatchResult.Errors.Any())
             {
-                var sendReminderError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
-                _logger.LogError(CustomLogEvent.Process, "Failed to clone funding report response with an error: {error}", JsonValue.Create(sendReminderError)!.ToString());
+                var sendQuestionResponseError = ProcessResult.Failure(ProcessId, sendquestionResponseRequestBatchResult.Errors, sendquestionResponseRequestBatchResult.TotalProcessed, sendquestionResponseRequestBatchResult.TotalRecords);
+                _logger.LogError(CustomLogEvent.Process, "Failed to clone question response with an error: {error}", JsonValue.Create(sendQuestionResponseError)!.ToString());
 
-                return sendReminderError.SimpleProcessResult;
-         }*/
+                return sendQuestionResponseError.SimpleProcessResult;
+            }
+
+        }
 
         _logger.LogInformation(CustomLogEvent.Process, "A new copy of funding report response is created");
-
-        
 
         var endTime = _timeProvider.GetTimestamp();
 
         var result = ProcessResult.Success(ProcessId, 1);
-        _logger.LogInformation(CustomLogEvent.Process, "Send email reminders process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToString());
+        _logger.LogInformation(CustomLogEvent.Process, "Create funding report response process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToString());
         return result.SimpleProcessResult;
     }
 

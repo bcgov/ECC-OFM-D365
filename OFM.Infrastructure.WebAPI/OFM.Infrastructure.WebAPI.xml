@@ -9580,6 +9580,11 @@
             Version Number
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_question_response.Referencedofm_question_response_current_version">
+            <summary>
+            1:N ofm_question_response_current_version
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_header_question_response">
             <summary>
             N:1 ofm_header_question_response
@@ -9588,6 +9593,11 @@
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_question_question_response">
             <summary>
             N:1 ofm_question_question_response
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_question_response.Referencingofm_question_response_current_version">
+            <summary>
+            N:1 ofm_question_response_current_version
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_survey_response_question_response">
