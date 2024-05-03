@@ -258,6 +258,7 @@ conversationtranscript|
 convertrule|
 convertruleitem|
 copilotexamplequestion|
+crc7e_table|
 credential|
 customapi|
 customapirequestparameter|
@@ -418,7 +419,6 @@ managedidentity|
 managedproperty|
 marketingformdisplayattributes|
 maskingrule|
-mbs_pluginprofile|
 metadatadifference|
 metadataforarchival|
 metric|
@@ -1575,12 +1575,20 @@ ofm_funding_rate|
 ofm_integration_log|
 ofm_licence|
 ofm_licence_detail|
+ofm_month|
 ofm_payment|
 ofm_progress_tracker|
+ofm_question|
+ofm_question_business_rule|
+ofm_question_response|
 ofm_rate_schedule|
 ofm_request_category|
+ofm_section|
 ofm_space_allocation|
 ofm_supplementary_schedule|
+ofm_survey|
+ofm_survey_response|
+ofm_system_configuration|
 systemuser|
 team|
 timezonedefinition|

@@ -59,8 +59,8 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Payment.SendPaymentRequestId;
-    public string ProcessName => Setup.Process.Payment.SendPaymentRequestName;
+    public Int16 ProcessId => Setup.Process.Payments.SendPaymentRequestId;
+    public string ProcessName => Setup.Process.Payments.SendPaymentRequestName;
 
     public string RequestUri
     {
@@ -213,8 +213,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
     }
    
-
-
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
@@ -466,19 +464,3 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -43,10 +43,12 @@ public class ApiKeyMiddleware
         var isAllowAnonymous = endpoint?.Metadata.Any(x => x.GetType() == typeof(AllowAnonymousAttribute));
         if (isAllowAnonymous == true)
         {
-            _logger.LogWarning(CustomLogEvent.API, "Anonymous user detected.");
+            //_logger.LogWarning(CustomLogEvent.API, "Anonymous user detected.");
             await _next(context);
             return;
         }
+
+        _logger.LogError(CustomLogEvent.API, "Attempted Key: [x-ofm-apikey:{extractedApiKey}]", string.IsNullOrEmpty(extractedApiKey) ? "NA" : extractedApiKey);
 
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
         await context.Response.WriteAsync(options.Value.Schemes.ApiKeyScheme.ApiKeyErrorMesssage);

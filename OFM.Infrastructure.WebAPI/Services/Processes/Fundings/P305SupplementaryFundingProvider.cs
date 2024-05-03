@@ -1,33 +1,24 @@
 ﻿using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace OFM.Infrastructure.WebAPI.Services.Fundings;
+namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
-public class P305SupplementaryFundingProvider : ID365ProcessProvider
+public class P305SupplementaryFundingProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
-    private readonly ID365AppUserService _appUserService;
-    private readonly ID365WebApiService _d365webapiservice;
-    private readonly ILogger _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
 
-    public P305SupplementaryFundingProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
-    {
-        _appUserService = appUserService;
-        _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process);
-        _timeProvider = timeProvider;
-    }
-
-    public Int16 ProcessId => Setup.Process.Funding.CalculateSupplementaryFundingId;
-    public string ProcessName => Setup.Process.Funding.CalculateSupplementaryFundingName;
+    public short ProcessId => Setup.Process.Fundings.CalculateSupplementaryFundingId;
+    public string ProcessName => Setup.Process.Fundings.CalculateSupplementaryFundingName;
 
     public string RequestUri
     {
@@ -49,9 +40,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                                     <attribute name="ofm_allowance_type" />
                                     <attribute name="ofm_application" />
                                     <attribute name="ofm_funding_amount" />
-                                    <attribute name="ofm_needs_number_of_children_scd" />
-                                    <attribute name="ofm_transport_estimated_monthly_km" />
-                                    <attribute name="ofm_transport_lease" />
+                                    <attribute name="ofm_transport_estimated_yearly_km" />
                                     <attribute name="ofm_transport_monthly_lease" />
                                     <attribute name="ofm_transport_odometer" />
                                     <attribute name="statuscode" />
@@ -60,17 +49,15 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                                     </filter>
                                     <link-entity name="ofm_supplementary_schedule" from="ofm_supplementary_scheduleid" to="ofm_supplementary_schedule">
                                       <attribute name="ofm_end_date" />
-                                      <attribute name="ofm_indigenous_10_to_19_spaces" />
-                                      <attribute name="ofm_indigenous_ge_20_spaces" />
-                                      <attribute name="ofm_indigenous_le_9_spaces" />
-                                      <attribute name="ofm_needs_10_to_19_spaces" />
-                                      <attribute name="ofm_needs_ge_20_spaces" />
-                                      <attribute name="ofm_needs_le_9_spaces" />
+                                      <attribute name="ofm_indigenous_between_limits_amount" />
+                                      <attribute name="ofm_indigenous_greater_upper_limit_amount" />
+                                      <attribute name="ofm_indigenous_less_lower_limit_amount" />
+                                      <attribute name="ofm_needs_between_limits_amount" />
+                                      <attribute name="ofm_needs_greater_upper_limit_amount" />
+                                      <attribute name="ofm_needs_less_lower_limit_amount" />
                                       <attribute name="ofm_sqw_caps_for_centers" />
                                       <attribute name="ofm_sqw_caps_for_homebased" />
                                       <attribute name="ofm_start_date" />
-                                      <attribute name="ofm_transport_ge_20_spaces_lease_cap_month" />
-                                      <attribute name="ofm_transport_less_20_spaces_lease_cap_month" />
                                       <attribute name="ofm_transport_reimbursement_rate_per_km" />
                                     </link-entity>
                                   </entity>
@@ -79,8 +66,8 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
                 */
 
                 var requestUri = $"""                                
-                                ofm_allowances?$select=ofm_allowance_number,ofm_allowance_type,_ofm_application_value,ofm_funding_amount,ofm_needs_number_of_children_scd,ofm_transport_estimated_monthly_km,ofm_transport_lease,ofm_transport_monthly_lease,ofm_transport_odometer,statuscode
-                                &$expand=ofm_supplementary_schedule($select=ofm_end_date,ofm_indigenous_10_to_19_spaces,ofm_indigenous_ge_20_spaces,ofm_indigenous_le_9_spaces,ofm_needs_10_to_19_spaces,ofm_needs_ge_20_spaces,ofm_needs_le_9_spaces,ofm_sqw_caps_for_centers,ofm_sqw_caps_for_homebased,ofm_start_date,ofm_transport_ge_20_spaces_lease_cap_month,ofm_transport_less_20_spaces_lease_cap_month,ofm_transport_reimbursement_rate_per_km)
+                                ofm_allowances?$select=ofm_allowance_number,ofm_allowance_type,_ofm_application_value,ofm_funding_amount,ofm_transport_estimated_yearly_km,ofm_transport_monthly_lease,ofm_transport_odometer,statuscode
+                                &$expand=ofm_supplementary_schedule($select=ofm_end_date,ofm_indigenous_between_limits_amount,ofm_indigenous_greater_upper_limit_amount,ofm_indigenous_less_lower_limit_amount,ofm_needs_between_limits_amount,ofm_needs_greater_upper_limit_amount,ofm_needs_less_lower_limit_amount,ofm_sqw_caps_for_centers,ofm_sqw_caps_for_homebased,ofm_start_date,ofm_space_upper_limit,ofm_space_lower_limit,ofm_transport_reimbursement_rate_per_km)
                                 &$filter=(ofm_allowanceid eq '{supplementaryId}') and (ofm_supplementary_schedule/ofm_supplementary_scheduleid ne null)
                                 """;
                 _requestUri = requestUri.CleanCRLF();
@@ -97,7 +84,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         if (applicationId is not null)
         {
             var requestUri = $"""                                
-                                ofm_applications?$expand=ofm_facility($expand=ofm_facility_licence($select=ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_licenceid,ofm_tdad_funding_agreement_number,statecode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_detailid,ofm_licence_spaces,ofm_licence_type,ofm_operation_from_time,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_operations_to_time,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,statecode);$filter=(statecode eq 0))),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))&$filter=(ofm_applicationid eq '{applicationId}') and (ofm_application_funding/any(o1:(o1/statecode eq 0)))
+                                ofm_applications?$expand=ofm_facility($expand=ofm_facility_licence($select=ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_licenceid,ofm_tdad_funding_agreement_number,statecode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_detailid,ofm_licence_spaces,ofm_licence_type,ofm_operation_from_time,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_operations_to_time,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,statecode;$filter=(statecode eq 0));$filter=(statecode eq 0))),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))&$filter=(ofm_applicationid eq '{applicationId}') and (ofm_application_funding/any(o1:(o1/statecode eq 0)))
                                 """;
 
             _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", requestUri);
@@ -132,7 +119,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         return await Task.FromResult(_data);
     }
 
-    public async Task<ProcessData> GetData()
+    public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P305SupplementaryFundingProvider));
 
@@ -177,15 +164,15 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         #region Step 0: Pre-Calculation
 
         //fetch the supplemental data
-        var localData = await GetData();
-        var deserializedData = JsonSerializer.Deserialize<List<Supplementary>>(localData.Data, Setup.s_writeOptionsForLogs);
+        var localData = await GetDataAsync();
+        var deserializedData = localData.Data.Deserialize<List<SupplementaryApplication>>(Setup.s_writeOptionsForLogs);
 
         var supplementary = deserializedData?.FirstOrDefault();
 
         //fetch the application and licences data
         var applicationId = supplementary._ofm_application_value;
         var applicationData = await GetApplicationData(applicationId);
-        var deserializedApplicationData = JsonSerializer.Deserialize<List<Models.Application>>(applicationData.Data, Setup.s_writeOptionsForLogs);
+        var deserializedApplicationData = applicationData.Data.Deserialize<List<Application>>(Setup.s_writeOptionsForLogs);
 
         var application = deserializedApplicationData?.FirstOrDefault();
 
@@ -215,49 +202,41 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
             switch ((int)supplementary.ofm_allowance_type.Value)
             {
                 case 1:
-                    if (totalSpaces <= 9)
+                    if (totalSpaces < supplementary.ofm_supplementary_schedule.ofm_space_lower_limit)
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_le_9_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_less_lower_limit_amount ?? 0;
                     }
-                    else if (totalSpaces <= 19)
+                    else if (totalSpaces <= supplementary.ofm_supplementary_schedule.ofm_space_upper_limit)
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_10_to_19_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_between_limits_amount ?? 0;
                     }
                     else
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_ge_20_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_needs_greater_upper_limit_amount ?? 0;
                     }
                     break;
                 case 2:
-                    if (totalSpaces <= 9)
+                    if (totalSpaces < supplementary.ofm_supplementary_schedule.ofm_space_lower_limit)
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_le_9_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_less_lower_limit_amount ?? 0;
                     }
-                    else if (totalSpaces <= 19)
+                    else if (totalSpaces <= supplementary.ofm_supplementary_schedule.ofm_space_upper_limit)
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_10_to_19_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_between_limits_amount ?? 0;
                     }
                     else
                     {
-                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_ge_20_spaces ?? 0;
+                        calculatedFundingAmount = supplementary.ofm_supplementary_schedule.ofm_indigenous_greater_upper_limit_amount ?? 0;
                     }
                     break;
                 case 3:
                     //if lease = Yes
-                    if (supplementary.ofm_transport_lease == ECC.Core.DataContext.ecc_ynempty.Yes && supplementary.ofm_transport_monthly_lease is not null)
+                    if (supplementary.ofm_transport_monthly_lease is not null)
                     {
-                        if (totalSpaces < 20)
-                        {
-                            calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_less_20_spaces_lease_cap_month) * 12;
-
-                        }
-                        else if (totalSpaces >= 20)
-                        {
-                            calculatedFundingAmount += Math.Min((decimal)supplementary.ofm_transport_monthly_lease, (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_ge_20_spaces_lease_cap_month) * 12;
-                        }
+                        calculatedFundingAmount += (decimal)supplementary.ofm_transport_monthly_lease * 12;
                     }
 
-                    var monthlyKMCost = (supplementary.ofm_transport_estimated_monthly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * 12;
+                    var monthlyKMCost = (supplementary.ofm_transport_estimated_yearly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * 12;
 
                     calculatedFundingAmount += monthlyKMCost;
 
@@ -276,7 +255,7 @@ public class P305SupplementaryFundingProvider : ID365ProcessProvider
         {
             ofm_funding_amount = calculatedFundingAmount
         };
-        var requestBody = System.Text.Json.JsonSerializer.Serialize(updateContent);
+        var requestBody = JsonSerializer.Serialize(updateContent);
         var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateSupplementalUrl, requestBody);
 
         _logger.LogDebug(CustomLogEvent.Process, "Update Supplemental Record {supplemental.ofm_allowanceid}", supplementary.ofm_allowanceid);

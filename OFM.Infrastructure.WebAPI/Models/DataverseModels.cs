@@ -1,8 +1,5 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Metadata;
 using System;
-using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
@@ -14,10 +11,10 @@ public record FacilityPermission
     public bool? ofm_portal_access { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
-    public required Facility facility { get; set; }
+    public required D365Facility facility { get; set; }
 }
 
-public record Facility
+public record D365Facility
 {
     public required string accountid { get; set; }
     public string? accountnumber { get; set; }
@@ -25,10 +22,11 @@ public record Facility
     public int ccof_accounttype { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
+    public int? ofm_program { get; set; }
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
 
-public record Organization
+public record D365Organization
 {
     public required string accountid { get; set; }
     public string? accountnumber { get; set; }
@@ -47,7 +45,8 @@ public class ProviderProfile
     public string? telephone1 { get; set; }
     public string? ofm_first_name { get; set; }
     public string? ofm_last_name { get; set; }
-    public Organization? organization { get; set; }
+    public D365Organization? organization { get; set; }
+    public PortalRole? role { get; set; }
     public int? ofm_portal_role { get; set; }
     public IList<FacilityPermission>? facility_permission { get; set; }
 
@@ -70,7 +69,7 @@ public class ProviderProfile
         ofm_portal_role = firstContact.ofm_portal_role;
 
 
-        organization = new Organization
+        organization = new D365Organization
         {
             accountid = firstContact!.parentcustomerid_account!.accountid!,
             accountnumber = firstContact.parentcustomerid_account.accountnumber,
@@ -79,7 +78,14 @@ public class ProviderProfile
             statecode = firstContact.parentcustomerid_account.statecode,
             statuscode = firstContact.parentcustomerid_account.statuscode
         };
+       
+            role = new PortalRole
+            {
+                ofm_portal_roleid = firstContact.ofm_portal_role_id?.ofm_portal_roleid,
+                ofm_portal_role_number = firstContact.ofm_portal_role_id?.ofm_portal_role_number
 
+            };
+        
         for (int i = 0; i < firstContact.ofm_facility_business_bceid!.Count(); i++)
         {
             if (firstContact.ofm_facility_business_bceid![i] is not null &&
@@ -89,13 +95,14 @@ public class ProviderProfile
                 facilityPermissions.Add(new FacilityPermission
                 {
                     ofm_bceid_facilityid = firstContact.ofm_facility_business_bceid![i].ofm_bceid_facilityid!,
-                    facility = new Facility
+                    facility = new D365Facility
                     {
                         accountid = facility.accountid ?? "",
                         accountnumber = facility.accountnumber,
                         name = facility.name,
                         statecode = facility.statecode,
-                        statuscode = facility.statuscode
+                        statuscode = facility.statuscode,
+                        ofm_program=facility.ofm_program,
                     },
                     ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
                     statecode = firstContact.ofm_facility_business_bceid[i].statecode,
@@ -125,9 +132,14 @@ public record D365Contact
     public string? telephone1 { get; set; }
     public ofm_Facility_Business_Bceid[]? ofm_facility_business_bceid { get; set; }
     public Parentcustomerid_Account? parentcustomerid_account { get; set; }
+    public PortalRole? ofm_portal_role_id { get; set; }
 }
 
-
+public record PortalRole
+{
+    public Guid? ofm_portal_roleid{ get; set; }
+    public string? ofm_portal_role_number { get; set; }
+}
 
 public record Parentcustomerid_Account
 {
@@ -159,15 +171,19 @@ public record ofm_Facility
     public int statecode { get; set; }
     public int statuscode { get; set; }
     public string? name { get; set; }
+    public int? ofm_program { get; set; }
 }
 
 #endregion
+
 public record D365Template
 {
     public string? title { get; set; }
     public string? safehtml { get; set; }
-    public string? body { get; set; }
+     public string? body { get; set; }
     public string? templateid { get; set; }
+    public string? templatecode { get; set; }
+    
 }
 
 public record D365Email
@@ -186,7 +202,7 @@ public record D365Email
     public DateTime? ofm_expiry_time { get; set; }
     public string? _regardingobjectid_value { get; set; }
 
-    public Email_Activity_Parties[]? email_activity_parties { get; set; }
+    public Email_Activity_Parties[] email_activity_parties { get; set; }
 
     public bool IsCompleted
     {
@@ -197,6 +213,34 @@ public record D365Email
     }
 }
 
+public record D365Organization_Account
+{
+    public string? accountid { get; set; }
+    public string? name { get; set; }
+    public string? ofm_incorporation_number { get; set; }
+    public string? ofm_business_number { get; set; }
+    public bool? ofm_bypass_bc_registry_good_standing { get; set; }  
+    public int statecode { get; set; }
+    public Guid _primarycontactid_value { get; set; }
+    public Guid _ofm_primarycontact_value { get; set; }
+
+
+}
+
+public record D365StandingHistory
+{
+    public string? ofm_standing_historyid { get; set; }
+    public string? _ofm_organization_value { get; set; }
+    public int? ofm_good_standing_status { get; set; }
+    public DateTime? ofm_start_date { get; set; }
+    public DateTime? ofm_end_date { get; set; }
+    public DateTime? ofm_validated_on { get; set; }
+    public decimal? ofm_duration { get; set; }
+    public int? ofm_no_counter { get; set; }
+    public int statecode { get; set; }
+    public int statuscode { get; set; }
+}
+
 public record FileMapping
 {
     public required string ofm_subject { get; set; }
@@ -205,6 +249,7 @@ public record FileMapping
     public required decimal ofm_file_size { get; set; }
     public required string entity_name_set { get; set; }
     public required string regardingid { get; set; }
+    public required string ofm_category { get; set; }
 }
 
 public record Email_Activity_Parties
@@ -213,6 +258,7 @@ public record Email_Activity_Parties
     public string? _partyid_value { get; set; }
     public string? _activityid_value { get; set; }
     public string? activitypartyid { get; set; }
+    public string? addressused { get; set; }
 }
 
 
@@ -363,10 +409,6 @@ public class SupplementarySchedule : ofm_supplementary_schedule
     public new decimal? ofm_transport_reimbursement_rate_per_km { get; set; }
 }
 
-#endregion
-
 #region External Parameters
-
-
 
 #endregion

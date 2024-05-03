@@ -1,4 +1,4 @@
-﻿"use strict";
+﻿﻿"use strict";
 
 //Create Namespace Object 
 var organizationid;
@@ -18,18 +18,27 @@ OFM.Application.Form = {
                 break;
 
             case 1: //Create/QuickCreate
-                this.addSubgridEventListener("00000000-0000-0000-0000-000000000000", formContext);
                 this.filterPrimaryContactLookup(executionContext);
+                this.filterExpenseAuthorityLookup(executionContext);
                 this.UpdateOrganizationdetails(executionContext);
+                this.showBanner(executionContext);
+                this.filterCreatedBySPLookup(executionContext);
                 break;
 
-            case 2: // update  
-                this.addSubgridEventListener("00000000-0000-0000-0000-000000000000", formContext);
+            case 2: // update
+                this.licenceDetailsFromFacility(executionContext);
                 this.filterPrimaryContactLookup(executionContext);
-                this.licenceCheck(formContext);
+                this.filterExpenseAuthorityLookup(executionContext);
+                this.licenceCheck(executionContext);
+                this.showBanner(executionContext);
+                this.lockStatusReason(executionContext);
+                this.filterCreatedBySPLookup(executionContext);
+                this.hideVerificationTab(executionContext);
                 break;
 
             case 3: //readonly
+                this.showBanner(executionContext);
+                this.hideVerificationTab(executionContext);
                 break;
 
             case 4: //disable
@@ -40,17 +49,96 @@ OFM.Application.Form = {
         }
     },
 
-
     //A function called on save
     onSave: function (executionContext) {
-
+        //debugger;
+        this.licenceDetailsFromFacility(executionContext);
     },
 
-
+    licenceDetailsFromFacility: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var facilityId = formContext.getAttribute("ofm_facility").getValue() ? formContext.getAttribute("ofm_facility").getValue()[0].id : null;
+        var submittedOnDate = formContext.getAttribute("ofm_summary_submittedon").getValue();
+        if (submittedOnDate != null) {
+            var date = submittedOnDate.toISOString();
+        }
+        else
+            var date = formContext.getAttribute("createdon").getValue() != null ?
+                formContext.getAttribute("createdon").getValue().toISOString() : new Date();
+        if (facilityId != null) {
+            var conditionFetchXML = "";
+            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ((ofm_end_date eq null and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "')) or (Microsoft.Dynamics.CRM.OnOrAfter(PropertyName='ofm_end_date',PropertyValue='" + date + "') and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "'))))").then(
+                function success(results) {
+                    console.log(results);
+                    if (results.entities.length > 0) {
+                        for (var i = 0; i < results.entities.length; i++) {
+                            var result = results.entities[i];
+                            conditionFetchXML += "<value>{" + result["ofm_licenceid"] + "}</value>";
+                        }
+                    }
+                    else {
+                        conditionFetchXML += "<value>{00000000-0000-0000-0000-000000000000}</value>"
+                    }
+                    var fetchLicenceXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>" +
+                        "<entity name = 'ofm_licence' >" +
+                        "<attribute name='ofm_licence' />" +
+                        "<attribute name='ofm_health_authority' />" +
+                        "<attribute name='ofm_ccof_facilityid' />" +
+                        "<attribute name='ofm_tdad_funding_agreement_number' />" +
+                        "<attribute name='ofm_ccof_organizationid' />" +
+                        "<attribute name='ofm_accb_providerid' />" +
+                        "<attribute name='ofm_start_date' />" +
+                        "<attribute name='ofm_end_date' />" +
+                        "<filter type='and' >" +
+                        "<condition attribute = 'ofm_facility' operator = 'eq' uitype = 'account' value = '" + facilityId + "' />" +
+                        "<filter type='or' >" +
+                        "<filter type='and' >" +
+                        "<condition attribute='ofm_end_date' operator='null' />" +
+                        "<condition attribute='ofm_start_date' operator='on-or-before' value='" + date + "' />" +
+                        "</filter>" +
+                        "<filter type='and' >" +
+                        "<condition attribute='ofm_end_date' operator='on-or-after' value='" + date + "' />" +
+                        "<condition attribute='ofm_start_date' operator='on-or-before' value='" + date + "' />" +
+                        "</filter>" +
+                        "</filter>" +
+                        "</filter >" +
+                        "</entity >" +
+                        "</fetch > ";
+                    console.log(fetchLicenceXML);
+                    OFM.Application.Form.addSubgridEventListener(formContext, fetchLicenceXML, "Subgrid_new_5");
+                    var fetchLicenceDetail = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>" +
+                        "<entity name = 'ofm_licence_detail' >" +
+                        "<attribute name='ofm_licence_type' />" +
+                        "<attribute name='ofm_overnight_care' />" +
+                        "<attribute name='ofm_licence_spaces' />" +
+                        "<attribute name='ofm_operational_spaces' />" +
+                        "<attribute name='ofm_enrolled_spaces' />" +
+                        "<attribute name='ofm_weeks_in_operation' />" +
+                        "<attribute name='ofm_week_days' />" +
+                        "<attribute name='ofm_operation_from_time' />" +
+                        "<attribute name='ofm_operations_to_time' />" +
+                        "<attribute name='ofm_care_type' />" +
+                        "<filter type='and'>" +
+                        "<condition attribute='ofm_licence' operator='in'>" +
+                        conditionFetchXML +
+                        "</condition>" +
+                        "</filter>" +
+                        "</entity >" +
+                        "</fetch > ";
+                    console.log(fetchLicenceDetail);
+                    OFM.Application.Form.addSubgridEventListener(formContext, fetchLicenceDetail, "Subgrid_new_2");
+                },
+                function (error) {
+                    console.log(error.message);
+                }
+            );
+        }
+    },
 
     //A function called to filter active contacts associated to organization (lookup on Organization form)
     filterPrimaryContactLookup: function (executionContext) {
-        debugger;
+        //debugger;
         var formContext = executionContext.getFormContext();
         var formLabel = formContext.ui.formSelector.getCurrentItem().getLabel();	    // get current form's label
         var facility = formContext.getAttribute("ofm_facility").getValue();
@@ -58,7 +146,7 @@ OFM.Application.Form = {
         if (facility != null) {
             facilityid = facility[0].id;
 
-            var viewId = "{00000000-0000-0000-0000-000000000089}";
+            var viewId = "{00000000-0000-0000-0000-000000000090}";
             var entity = "contact";
             var ViewDisplayName = "Facility Contacts";
             var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
@@ -72,6 +160,7 @@ OFM.Application.Form = {
                 "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
                 "<filter type='and'>" +
                 "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + facilityid + "'/>" +
+                "<condition attribute='ofm_portal_access' operator='eq' value='1' />" +
                 "</filter></link-entity></entity></fetch>";
 
 
@@ -94,17 +183,50 @@ OFM.Application.Form = {
         }
         // perform operations on record retrieval
     },
+    filterCreatedBySPLookup: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+        if (facility != null) {
+            facilityid = facility[0].id;
 
-    //function called on Licence Editable grid event:OnRecordSelect, to filter the associated Licence Details 
-    subgridOnSelect: function (executionContext) {
-        var selected = executionContext.getFormContext().data.entity;
-        var Id = selected.getId();
-        var formContext = window.pageContext;
-        this.addSubgridEventListener(Id, formContext);
+            var viewId = "{00000000-0000-0000-0000-000000000091}";
+            var entity = "contact";
+            var ViewDisplayName = "Facility Created By Contacts";
+            var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
+                "<entity name='contact'>" +
+                "<attribute name='fullname' />" +
+                "<attribute name='ccof_username' />" +
+                "<attribute name='parentcustomerid' />" +
+                "<attribute name='emailaddress1' />" +
+                "<attribute name='contactid' />" +
+                "<order attribute='fullname' descending='false' />" +
+                "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
+                "<filter type='and'>" +
+                "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + facilityid + "'/>" +
+                "</filter></link-entity></entity></fetch>";
+
+            var layout = "<grid name='resultset' jump='fullname' select='1' icon='1' preview='1'>" +
+                "<row name = 'result' id = 'contactid' >" +
+                "<cell name='fullname' width='300' />" +
+                "<cell name='ccof_username' width='125' />" +
+                "<cell name='emailaddress1' width='150' />" +
+                "<cell name='parentcustomerid' width='150' />" +
+                "</row></grid>";
+
+            formContext.getControl("ofm_createdby").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
+
+        }
+        else {
+            formContext.getAttribute("ofm_createdby").setValue(null);
+        }
+        // perform operations on record retrieval
     },
+
     // function to validate seconday and primary contact
     validateSecondaryContact: function (executionContext) {
-        debugger;
+        //debugger;
         var formContext = executionContext.getFormContext();
         var primaryContact = formContext.getAttribute("ofm_contact").getValue();
         var secondaryContact = formContext.getAttribute("ofm_secondary_contact").getValue();
@@ -119,46 +241,30 @@ OFM.Application.Form = {
         }
 
     },
+
     // function to filter the licence details grid based on record selected in licence grid
-    addSubgridEventListener: function (recordid, formContext) {
-        var gridContext = formContext.getControl("Subgrid_new_2");
-        //ensure that the subgrid is readyâ€¦if not wait and call this function again
+    addSubgridEventListener: function (formContext, filterFetchXML, subgridName) {
+        var gridContext = formContext.getControl(subgridName);
+        //ensure that the subgrid is ready, if not wait and call this function again
         if (gridContext == null) {
-            setTimeout(function () { this.addSubgridEventListener(recordid, formContext); }, 500);
+            setTimeout(function () { this.addSubgridEventListener(formContext, filterFetchXML, subgridName); }, 500);
             return;
         }
-        //bind the event listener when the subgrid is ready
-        var fetchxml = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>" +
-            "  <entity name='ofm_licence_detail'>" +
-            "   <attribute name='ofm_care_type' />" +
-            "   <attribute name = 'ofm_enrolled_spaces' />" +
-            "   <attribute name='ofm_licence' />" +
-            "   <attribute name='ofm_licence_detailid' />" +
-            "   <attribute name='ofm_licence_spaces' />" +
-            "   <attribute name='ofm_licence_type' />" +
-            "   <attribute name='ofm_operational_spaces' />" +
-            "   <attribute name='ofm_overnight_care' />" +
-            "   <attribute name='ofm_week_days' />" +
-            "   <attribute name='ofm_weeks_in_operation' />" +
-            "    <filter type='and'>" +
-            "      <condition attribute='ofm_licence' operator='eq' value='" + recordid.replace("{", "").replace("}", "") + "' />" +
-            "    </filter>" +
-            "  </entity>" +
-            "</fetch>";
 
-        gridContext.setFilterXml(fetchxml);
+        gridContext.setFilterXml(filterFetchXML);
         gridContext.refresh();
     },
 
-    //function to check if the application has atleast 1 licence and licence details
-    licenceCheck: function (formContext) {
-        debugger;
-        var applicationId = formContext.data.entity.getId().replace("{", "").replace("}", "");
-        var message = "Application needs to have atleast 1 Licence Type for Licence : ";
-        Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_application_value eq " + applicationId + " and statecode eq 0)").then(
+    //function to check if the facility has atleast 1 licence and licence details
+    licenceCheck: function (executionContext) {
+        //debugger;
+        var formContext = executionContext.getFormContext();
+        var facilityId = formContext.getAttribute("ofm_facility").getValue() ? formContext.getAttribute("ofm_facility").getValue()[0].id : null;
+        var message = "Facility needs to have atleast 1 Licence Type for Licence : ";
+        Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + " and statecode eq 0)").then(
             function success(results) {
                 if (results.entities.length <= 0) {
-                    formContext.ui.setFormNotification("Application needs to have atleast 1 Licence. Please go to Licence tab to add 1 licence.", "ERROR", "licence");
+                    formContext.ui.setFormNotification("Facility needs to have atleast 1 Licence. Please go to the facility and add atleast 1 licence.", "ERROR", "licence");
                 }
                 else {
                     formContext.ui.clearFormNotification("licence");
@@ -218,60 +324,101 @@ OFM.Application.Form = {
         }
     },
 
-    RecalculateFundings: function (executionContext) {
+    filterExpenseAuthorityLookup: function (executionContext) {
         debugger;
-        //alert("Recalculation initiated!");
-        var formContext = executionContext;
-        var recordId = formContext.data.entity.getId();
-        var pageInput = {
-            pageType: "custom",
-            name: "ofm_ofmfundingrecalculation_08432",
-            entityName: "ofm_application",
-            recordId: recordId
-        };
-        var navigationOptions = {
-            target: 2,
-            position: 1,
-            height: 720,
-            width: 600,
-            title: "Recalculate the fundings"
-        };
-        Xrm.Navigation.navigateTo(pageInput, navigationOptions);
-    },
-    CreateFundingRecord: function (executionContext) {
-        debugger;
-        var formContext = executionContext;
-        var recordId = formContext.data.entity.getId();
-        var statusReason = formContext.getAttribute("statuscode").getValue();
-        var FundingBaseNum = formContext.getAttribute("ofm_funding_number_base").getValue();
-        var parameters = { EntityId: recordId };
+        var formContext = executionContext.getFormContext();
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+        if (facility != null) {
+            facilityid = facility[0].id;
 
-        var executeWorkflowRequest = {
-            entity: { entityType: "workflow", id: "2752f03f-8db5-ee11-a569-000d3af4865d" },
-            EntityId: { guid: recordId },
-            getMetadata: function () {
-                return {
-                    boundParameter: "entity",
-                    parameterTypes: {
-                        entity: { typeName: "mscrm.workflow", structuralProperty: 5 },
-                        EntityId: { typeName: "Edm.Guid", structuralProperty: 1 }
-                    },
-                    operationType: 0, operationName: "ExecuteWorkflow"
-                };
-            }
-        };
-        Xrm.WebApi.execute(executeWorkflowRequest).then(
-            function success(response) {
-                if (response.ok) {
-                    return response.json();
-                    alert("create funding sucessfully!");
+            var viewId = "{00000000-0000-0000-0000-000000000089}";
+            var entity = "contact";
+            var ViewDisplayName = "Facility Expense Authority Contacts";
+            var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
+                "<entity name='contact'>" +
+                "<attribute name='fullname' />" +
+                "<attribute name='ccof_username' />" +
+                "<attribute name='parentcustomerid' />" +
+                "<attribute name='emailaddress1' />" +
+                "<attribute name='contactid' />" +
+                "<order attribute='fullname' descending='false' />" +
+                "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
+                "<filter type='and'>" +
+                "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + facilityid + "'/>" +
+                "<condition attribute='ofm_is_expense_authority' operator='eq' value='1' />" +
+                "</filter></link-entity></entity></fetch>";
+
+            var layout = "<grid name='resultset' jump='fullname' select='1' icon='1' preview='1'>" +
+                "<row name = 'result' id = 'contactid' >" +
+                "<cell name='fullname' width='300' />" +
+                "<cell name='ccof_username' width='125' />" +
+                "<cell name='emailaddress1' width='150' />" +
+                "<cell name='parentcustomerid' width='150' />" +
+                "</row></grid>";
+
+            formContext.getControl("ofm_expense_authority").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
+
+        }
+        else {
+            formContext.getAttribute("ofm_expense_authority").setValue(null);
+        }
+        // perform operations on record retrieval
+    },
+
+    //Last Updated on and Last Updated by on verification checklist
+    updateVerificationInfo: function (executionContext, lastUpdatedOnField, LastUpdatedByField) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var currentDate = new Date();
+        var userSettings = Xrm.Utility.getGlobalContext().userSettings;
+        var username = userSettings.userName;
+        formContext.getAttribute(lastUpdatedOnField) != null ? formContext.getAttribute(lastUpdatedOnField).setValue(currentDate) : null;
+        formContext.getAttribute(LastUpdatedByField) != null ? formContext.getAttribute(LastUpdatedByField).setValue(username) : null;
+    },
+
+    showBanner: function (executionContext) {
+        //debugger;
+        var formContext = executionContext.getFormContext();
+        var roomSplitIndicator = formContext.getAttribute("ofm_room_split_indicator").getValue();
+        var pcmIndicator = formContext.getAttribute("ofm_pcm_indicator").getValue();
+        var status = formContext.getAttribute("statecode").getValue();
+        var statusReason = formContext.getAttribute("statuscode").getValue();
+        var supplementaryIndicator = formContext.getAttribute("ofm_supplementary_indicator").getValue();
+        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_5").setVisible(roomSplitIndicator || pcmIndicator || supplementaryIndicator);
+        formContext.ui.tabs.get("tab_9").sections.get("tab_9_banner").setVisible(pcmIndicator);
+        formContext.getControl("ofm_room_split_banner").setVisible(roomSplitIndicator);
+        formContext.getControl("ofm_pcm_banner").setVisible(pcmIndicator);
+        if (status == 0 && statusReason != 6)
+            formContext.getControl("ofm_supplementary_banner").setVisible(supplementaryIndicator);
+    },
+
+    lockStatusReason: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        if (formContext.getAttribute("statuscode").getValue() != 1) {
+            var roles = Xrm.Utility.getGlobalContext().userSettings.roles.getAll();
+            var disable = true;
+            for (var i = 0; i < roles.length; i++) {
+                var name = roles[i].name;
+                if (name == "System Administrator" || name == "OFM - System Administrator") {
+                    disable = false;
+                    break;
                 }
             }
-        ).then(function (responseBody) {
-            var result = responseBody;
-            console.log(result);
-        }).catch(function (error) {
-            console.log(error.message);
-        });
+            formContext.getControl("header_statuscode").setDisabled(disable);
+        }
+        else
+            formContext.getControl("header_statuscode").setDisabled(false);
+    },
+    hideVerificationTab: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        if (userRoles.getLength() > 1) { }
+
+        else if (userRoles.get()[0].name == "OFM - Read Only") {
+            formContext.ui.tabs.get("tab_9").setVisible(false);
+        }
     }
 }

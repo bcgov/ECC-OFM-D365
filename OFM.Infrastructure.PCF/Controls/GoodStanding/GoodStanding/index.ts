@@ -39,6 +39,7 @@ export class GoodStanding implements ComponentFramework.ReactControl<IInputs, IO
             defaultMessage: context.parameters.DefaultMessage.raw!,
             successMessage: context.parameters.ValidMessage.raw!,
             blockedMessage: context.parameters.InvalidMessage.raw!,
+            errorMessage: context.parameters.ErrorMessage.raw!,
             context: context
         };
 

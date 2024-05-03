@@ -31,6 +31,17 @@ public record NotificationSettings
     public required string DefaultSenderId { get; set; }
     public required EmailTemplate[] EmailTemplates { get; set; }
     public required CommunicationTypes CommunicationTypes { get; set; }
+    public required SafeList EmailSafeList { get; set; }
+    public required string fundingUrl { get; set; }
+    public required string fundingTabUrl { get; set; }
+
+
+    public record SafeList
+    {
+        public required bool Enable { get; set; }
+        public required string[] Recipients { get; set; }
+        public required string DefaultContactId { get; set; }
+    }
 }
 
 public record UnreadEmailOptions
@@ -53,8 +64,7 @@ public record CommunicationTypes
 public class EmailTemplate
 {
     public int TemplateNumber { get; set; }
-    public string TemplateId { get; set; }
-    public string Description { get; set; }
+   
 }
 
 public record ProcessSettings
@@ -81,6 +91,8 @@ public record D365AuthSettings
     public required string SearchVersion { get; set; }
     public required List<AZAppUser> AZAppUsers { get; set; }
     public required string HttpClientName { get; set; }
+    public required Guid CallerObjectId { get; set; }
+    
 }
 
 public record AZAppUser
@@ -137,6 +149,17 @@ public record BCRegistrySettings
     public required string KeyName { get; set; }
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
+    public int NoDuration { get; set; }
+    public string batchtaskprocess { get; set; }
+    public string singletaskprocess { get; set; }
+    public required TaskActivity TaskActivity { get; set; }
+   
+}
+public record TaskActivity
+{
+    public required string subject { get; set; }
+    public required string description { get; set; }
+    
 }
 
  public record BCCASApi

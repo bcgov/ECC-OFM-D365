@@ -33,13 +33,14 @@ env:
   TAG: 'latest'
 
   MIN_REPLICAS: '1'
-  MAX_REPLICAS: '1'
+  MAX_REPLICAS: '2'
   MIN_CPU: '50m'
   MAX_CPU: '100m'
   MIN_MEM: '200Mi'
   MAX_MEM: '250Mi'
   # SITE_URL should have no scheme or port. It will be prepended with https://
   HOST_ROUTE: ${{ secrets.SITE_URL }}
+  HAPROXY_IP_WHITELIST: ${{ secrets.HAPROXY_IP_WHITELIST }}
 
 on:
   workflow_dispatch:
@@ -158,7 +159,7 @@ jobs:
           oc process -f tools/openshift/d365api.dc.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} \
           -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ env.TAG }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
           -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
-          -p ENVIRONMENT=${{ env.APP_ENVIRONMENT }} \
+          -p ENVIRONMENT=${{ env.APP_ENVIRONMENT }} -p HAPROXY_IP_WHITELIST=${{ env.HAPROXY_IP_WHITELIST }} \
           | oc apply -f -
 
           # Start rollout (if necessary) and follow it

@@ -48,8 +48,8 @@ public record BCRegistrySearchResult
 
     public record Categories
     {
-        public string[]? legalType { get; set; }
-        public string[]? status { get; set; }
+        public object? legalType { get; set; }
+        public object? status { get; set; }
     }
 
     public record Query

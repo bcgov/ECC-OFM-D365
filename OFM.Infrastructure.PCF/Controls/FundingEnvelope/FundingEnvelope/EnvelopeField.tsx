@@ -36,13 +36,13 @@ export const EnvelopeField = React.memo(
                 props.onValueChanged({ [props.field.name]: parseFloat(roundedAmount) });
             }
 
-            console.log(JSON.stringify({
-                "props.field.control.attributes?.LogicalName": props.field.control.attributes?.LogicalName,
-                "newValue": newValue!,
-                "roundedAmount": roundedAmount,
-                "props.min!": props.min!,
-                "props.max!": props.max!
-            }, null, 2));
+            // console.log(JSON.stringify({
+            //     "props.field.control.attributes?.LogicalName": props.field.control.attributes?.LogicalName,
+            //     "newValue": newValue!,
+            //     "roundedAmount": roundedAmount,
+            //     "props.min!": props.min!,
+            //     "props.max!": props.max!
+            // }, null, 2));
         }
     }, [amount]);
    
@@ -63,7 +63,6 @@ export const EnvelopeField = React.memo(
                 readOnly={props.isReadOnly} 
                 disabled={props.isReadOnly}
                 errorMessage={props.errorMessage}
-                // onGetErrorMessage={(val)=>{ if( parseFloat(val) < 0 ) return "Invalid Value" }}
             />
         </Stack>
         );

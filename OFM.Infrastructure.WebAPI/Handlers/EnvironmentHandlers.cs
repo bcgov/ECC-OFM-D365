@@ -20,7 +20,7 @@ public static class EnvironmentHandlers
         IOptionsSnapshot<D365AuthSettings> options)
     {
         var _authConfig = options.Value;
-        _authConfig.AZAppUsers = new List<AZAppUser>();
+        _authConfig.AZAppUsers = [];
 
         Assembly execassembly = Assembly.GetExecutingAssembly();
         var creationtime = new FileInfo(execassembly.Location).CreationTimeUtc;
