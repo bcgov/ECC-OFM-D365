@@ -1,10 +1,5 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.Xrm.Sdk;
-using Newtonsoft.Json.Linq;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System;
-using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
@@ -266,10 +261,152 @@ public record Email_Activity_Parties
     public string? addressused { get; set; }
 }
 
-public record D365CommunicationType
+
+
+public record Payment_File_Exchange
 {
-    public string? ofm_communication_typeid { get; set; }
-    public Int16? ofm_communication_type_number { get; set; }
+    public string ofm_batch_number { get; set; }
+    public string ofm_oracle_batch_name { get; set; }
+    public string ofm_payment_file_exchangeid { get; set; }
+    
+
+}
+
+public class Payment_Line :ofm_payment
+{
+    public string? ofm_paymentid { get; set; }
+    public decimal? ofm_amount { get; set; }
+    public decimal? ofm_amount_paid { get; set; }
+    public DateTime? ofm_effective_date { get; set; }
+    public string _ofm_fiscal_year_value { get; set; }
+    public string? _ofm_funding_value { get; set; }
+    public int? ofm_invoice_line_number { get; set; }
+    public DateTime? ofm_paid_date { get; set; }
+    public string? ofm_remittance_message { get; set; }
+    public string? ofm_invoice_number { get; set; }
+    public string? ofm_siteid { get; set; }
+    public string? ofm_supplierid { get; set; }
+    public int? ofm_payment_method { get; set; }
+    [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
+    public string? ofm_financial_year { get; set; }
+    [property: JsonPropertyName("ofm_funding.ofm_funding_number")]
+    public string? ofm_funding_number { get; set; }
+    [property: JsonPropertyName("ofm_facility.name")]
+    public string? accountname { get; set; }
+    [property: JsonPropertyName("ofm_facility.accountnumber")]
+    public string? accountnumber { get; set; }
+    // public ofm_fiscal_year ofm_fiscal_year { get { return new ofm_fiscal_year { Id= new Guid(_ofm_fiscal_year_value)}; }  }
+
+
+}
+
+
+#region Funding
+
+
+public class RateSchedule : ofm_rate_schedule
+{
+    public new decimal? ofm_transport_reimbursement_per_km { get; set; }
+    public new decimal? ofm_greater_than20_spaces_lease_cap_per_month { get; set; }
+    public new decimal? ofm_facilities_with_9_or_less_spaces_inclusio { get; set; }
+    public new decimal? ofm_facilities_with_20_or_more_spaces_ip { get; set; }
+    public new decimal? ofm_wages_ra_cost { get; set; }
+    public new decimal? ofm_licenced_childcare_cap_per_fte_per_year { get; set; }
+    public new decimal? ofm_wages_ecea_cost { get; set; }
+    public new decimal? ofm_facilities_with_9_or_less_spaces_ip { get; set; }
+    public new decimal? ofm_wages_ite_cost { get; set; }
+    public new decimal? ofm_wages_ece_cost { get; set; }
+    public new decimal? ofm_elf_educational_programming_cap_fte_year { get; set; }
+    public new decimal? ofm_parent_fee_per_day_pt { get; set; }
+    public new decimal? ofm_wages_ra_supervisor_differential { get; set; }
+    public new decimal? ofm_standard_dues_per_fte { get; set; }
+    public new decimal? ofm_parent_fee_per_month_ft { get; set; }
+    public new decimal? ofm_facilities_with_10_to_19_spaces_inclusion { get; set; }
+    public new decimal? ofm_less_than20_spaces_lease_cap_per_month { get; set; }
+    public new decimal? ofm_wages_ite_sne_supervisor_differential { get; set; }
+    public new decimal? ofm_parent_fee_per_day_ft { get; set; }
+    public new decimal? ofm_facilities_with_20_or_more_spaces_inclusi { get; set; }
+    public new decimal? ofm_facilities_with_10_to_19_spaces_ip { get; set; }
+    public new decimal? ofm_parent_fee_per_month_pt { get; set; }
+    public new decimal? ofm_facilities_with_10_to_19_spaces_ip_base { get; set; }
+    public new decimal? ofm_wages_ece_supervisor_differential { get; set; }
+    public FundingRate[] ofm_rateschedule_fundingrate { get; set; }
+}
+
+public class FundingRate : ofm_funding_rate
+{
+    public new decimal? ofm_rate { get; set; }
+}
+public class PaymentApplication : ofm_application
+{
+    
+    public string? ofm_applicationid { get; set; }
+    public string? _ofm_facility_value { get; set; }
+    public new Funding? ofm_funding { get; set; }
+}
+public class Funding : ofm_funding
+{
+    public string? ofm_fundingid { get; set; }
+    public new decimal? ofm_envelope_grand_total { get; set; }
+}
+public class Application : ofm_application
+{
+    public string? ofm_applicationid { get; set; }
+    public string? _ofm_facility_value { get; set; }
+    public new Funding? ofm_funding { get; set; }
+    public new decimal? ofm_costs_furniture_equipment { get; set; }
+    public new decimal? ofm_costs_yearly_operating_costs { get; set; }
+    public new decimal? ofm_costs_year_facility_costs { get; set; }
+    public new decimal? ofm_costs_applicable_fee { get; set; }
+    public new decimal? ofm_costs_property_insurance_base { get; set; }
+    public new decimal? ofm_costs_maintenance_repairs { get; set; }
+    public new decimal? ofm_costs_utilities { get; set; }
+    public new decimal? ofm_costs_rent_lease { get; set; }
+    public new decimal? ofm_costs_mortgage { get; set; }
+    public new decimal? ofm_costs_upkeep_labour_supplies { get; set; }
+    public new decimal? ofm_costs_property_municipal_tax { get; set; }
+    public new decimal? ofm_costs_property_insurance { get; set; }
+    public new decimal? ofm_costs_supplies { get; set; }
+    public new decimal? ofm_costs_strata_fee { get; set; }
+
+    public new Facility? ofm_facility { get; set; }
+}
+
+public class FacilityLicence: ofm_licence
+{
+    public new LicenceDetail[]? ofm_licence_licencedetail { get; set; }
+}
+
+public class LicenceDetail: ofm_licence_detail
+{
+    public new string ofm_week_days { get; set; }
+}
+
+
+public class Supplementary : ofm_allowance
+{
+    public new decimal? ofm_funding_amount { get; set; }
+    public new decimal? ofm_transport_estimated_monthly_km { get; set; }
+    public new decimal? ofm_transport_monthly_lease { get; set; }
+    public new decimal? ofm_transport_odometer { get; set; }
+    public SupplementarySchedule ofm_supplementary_schedule { get; set; }
+    public string _ofm_application_value { get; set; }
+    //public bool ofm_transport_lease { get; set; }
+}
+
+public class SupplementarySchedule : ofm_supplementary_schedule
+{
+    public new decimal? ofm_indigenous_10_to_19_spaces { get; set; }
+    public new decimal? ofm_indigenous_ge_20_spaces { get; set; }
+    public new decimal? ofm_indigenous_le_9_spaces { get; set; }
+    public new decimal? ofm_needs_10_to_19_spaces { get; set; }
+    public new decimal? ofm_needs_ge_20_spaces { get; set; }
+    public new decimal? ofm_needs_le_9_spaces { get; set; }
+    public new decimal? ofm_sqw_caps_for_centers { get; set; }
+    public new decimal? ofm_sqw_caps_for_homebased { get; set; }
+    public new decimal? ofm_transport_ge_20_spaces_lease_cap_month { get; set; }
+    public new decimal? ofm_transport_less_20_spaces_lease_cap_month { get; set; }
+    public new decimal? ofm_transport_reimbursement_rate_per_km { get; set; }
 }
 
 #region External Parameters

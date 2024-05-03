@@ -1,6 +1,8 @@
-﻿using System.Text.Json.Serialization;
-
+﻿using FixedWidthParserWriter;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 namespace OFM.Infrastructure.WebAPI.Models;
+
 public record AppSettings
 {
     public required APIKey[] ApiKeys { get; set; }
@@ -160,14 +162,28 @@ public record TaskActivity
     
 }
 
-    public record BCCASApi
+ public record BCCASApi
 {
     public bool Enable { get; set; }
     public required string Url { get; set; }
     public required string KeyName { get; set; }
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
+    public int transactionCount { get; set; }
+    public required string cGIBatchNumber { get; set; }
+    public required string clientCode { get; set; }
+    public required string feederNumber { get; set; }
+    public required string trailertransactionType { get; set; }
+    public required string messageVersionNumber { get; set; }
+    public required string transactionType { get; set; }
+    public required string batchType { get; set; }
+    public required string delimiter { get; set; }
+    public required InvoiceHeader InvoiceHeader { get; set; }
+    public required InvoiceLines InvoiceLines { get; set; }
+    
+
 }
+
 
 
 [JsonSourceGenerationOptions(
