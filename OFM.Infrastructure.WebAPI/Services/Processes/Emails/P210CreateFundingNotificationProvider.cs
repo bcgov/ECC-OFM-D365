@@ -168,7 +168,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
         if (statusReason == 8)      // 8 = Active
         {
             // Get template details to create emails.
-            var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 218).TemplateNumber);
+            var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 235).TemplateNumber);
 
             var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
 
