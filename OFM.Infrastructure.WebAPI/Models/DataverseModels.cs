@@ -185,10 +185,10 @@ public record D365Template
 {
     public string? title { get; set; }
     public string? safehtml { get; set; }
-     public string? body { get; set; }
+    public string? subjectsafehtml { get; set; }
+    public string? body { get; set; }
     public string? templateid { get; set; }
-    public string? templatecode { get; set; }
-    
+    public string? templatecode { get; set; }   
 }
 
 public record D365Email
