@@ -149,7 +149,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P500SendPaymentRequestProvider));
 
-
         var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestUri, isProcess: true);
         if (!response.IsSuccessStatusCode)
         {
@@ -180,7 +179,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
 
     }
-
 
     public async Task<ProcessData> GetPaymentLineData()
     {
@@ -218,9 +216,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
     }
 
-
-
-
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
@@ -232,8 +227,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         string result = string.Empty;
         string oracleBatchName;
 
-
-
         var paymentData = await GetPaymentLineData();
         List<Payment_Line> paymentserializedData = new List<Payment_Line>();
 
@@ -244,8 +237,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
     catch (Exception ex) { }
     var grouppayment = paymentserializedData.GroupBy(p => p.ofm_invoice_number).ToList();
         var _fiscalyear = paymentserializedData.FirstOrDefault().ofm_financial_year;
-
-
 
         var localData = await GetDataAsync();
         var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
@@ -261,9 +252,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             _cGIBatchNumber = _BCCASApi.cGIBatchNumber;
             oracleBatchName = _BCCASApi.clientCode + _fiscalyear.Substring(2) + "OFM" + "00004";
 
-        }
-
-       
+        }      
 
         #region Step 1: Handlebars format to generate Inbox data
 
@@ -343,9 +332,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
         }
 
-
-
-
         // break transaction list into multiple list if it contains more than 250 transaction
         headerList = invoiceHeaders
         .Select((x, i) => new { Index = i, Value = x })
@@ -401,7 +387,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         payment.ForEach(pay =>
         {
             var payToUpdate = new JsonObject {
-                  { "statuscode", Convert.ToInt16(ofm_payment_StatusCode.ACTIVEProcessingPayment) }
+                  { "statuscode", Convert.ToInt16(ofm_payment_StatusCode.ProcessingPayment) }
 
              };
 

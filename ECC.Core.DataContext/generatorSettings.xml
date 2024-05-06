@@ -15,6 +15,7 @@
     <AddDebuggerNonUserCode>true</AddDebuggerNonUserCode>
     <AddNewFilesToProject>true</AddNewFilesToProject>
     <AddOptionSetMetadataAttribute>true</AddOptionSetMetadataAttribute>
+    <AdjustCasingForEnumOptions>false</AdjustCasingForEnumOptions>
     <BuilderSettingsJsonRelativePath>builderSettings.json</BuilderSettingsJsonRelativePath>
     <CamelCaseClassNames>false</CamelCaseClassNames>
     <CamelCaseCustomWords />
@@ -1576,8 +1577,10 @@ ofm_facility_intake|
 ofm_facility_request|
 ofm_fiscal_year|
 ofm_funding|
+ofm_funding_ofm_licence_detail|
 ofm_funding_rate|
 ofm_intake|
+ofm_integration_error_log|
 ofm_integration_log|
 ofm_licence|
 ofm_licence_detail|
@@ -1699,7 +1702,7 @@ VoiceMail</TokenCapitalizationOverrides>
   <Namespace>ECC.Core.DataContext</Namespace>
   <ServiceContextName>DataverseContext</ServiceContextName>
   <SuppressGeneratedCodeAttribute>true</SuppressGeneratedCodeAttribute>
-  <SettingsVersion>2.2023.12.14</SettingsVersion>
+  <SettingsVersion>2.2023.5.13</SettingsVersion>
   <UpdateBuilderSettingsJson>true</UpdateBuilderSettingsJson>
-  <Version>2.2023.12.14</Version>
+  <Version>2.2024.2.1</Version>
 </Config>

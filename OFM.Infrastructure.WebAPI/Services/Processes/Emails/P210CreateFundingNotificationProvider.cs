@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
@@ -130,7 +131,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
         #region Create the funding email notifications 
 
 
-        if (statusReason == 5)      // 5 = FA Signature Pending
+        if (statusReason == (int)ofm_funding_StatusCode.FASignaturePending)
         {
             // Get template details to create emails.
             var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateNumber);
@@ -148,6 +149,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             emaildescription = emaildescription?.Replace("{HYPERLINK_FATAB}", $"<a href=\"{hyperlinkFATab}\">Funding Overview</a>");
             List<Guid> recipientsList = new List<Guid>();
             recipientsList.Add((Guid)expenseOfficer);
+
             await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _fundingAgreementCommunicationType, appUserService, d365WebApiService, 210);
 
             if (expenseOfficer != primaryContact)
@@ -165,7 +167,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             }
         }
 
-        if (statusReason == 8)      // 8 = Active
+        if (statusReason == (int)ofm_funding_StatusCode.Active)
         {
             // Get template details to create emails.
             var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 235).TemplateNumber);
