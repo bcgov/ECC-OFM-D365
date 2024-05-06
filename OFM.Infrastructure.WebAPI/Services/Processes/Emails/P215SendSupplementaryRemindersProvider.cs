@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
@@ -9,11 +8,10 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 
-public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvider
+public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
 {
     private readonly NotificationSettings _notificationSettings;
     private readonly ID365AppUserService _appUserService;
@@ -26,7 +24,7 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
 
-    public P215SendSupplementariesNotificationUponReminder(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P215SendSupplementaryRemindersProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
@@ -35,8 +33,8 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Emails.SendSupplementariesNotificationsId;
-    public string ProcessName => Setup.Process.Emails.SendSupplementariesNotificationsName;
+    public Int16 ProcessId => Setup.Process.Emails.SendSupplementaryNotificationsId;
+    public string ProcessName => Setup.Process.Emails.SendSupplementaryNotificationsName;
     private string ofmapplicationids = string.Empty;
     private string RequestReminderWithDuedateUri
     {
@@ -89,6 +87,7 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
             return requestUri.CleanCRLF();
         }
     }
+
     private string SupplementariesUri
     {
         get
@@ -142,7 +141,7 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
     }
     public async Task<ProcessData> GetDataAsync()
     {
-        _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P215SendSupplementariesNotificationUponReminder));
+        _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P215SendSupplementaryRemindersProvider));
 
         if (_data is null)
         {
@@ -177,7 +176,6 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
 
     public async Task<ProcessData> GetDataFromCRMAsync(string requestUri, string webapiName, string? description = null)
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(webapiName));
         _logger.LogDebug(CustomLogEvent.Process, "Getting records from with query {requestUri}", requestUri.CleanLog());
 
         var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri, isProcess: true);
@@ -209,7 +207,7 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
     {
         _processParams = processParams;
         var startTime = _timeProvider.GetTimestamp();
-        //Get all reminders with duedate in Today include all contacts related to them
+        //Get all reminders with duedate is Today and all contacts related to them
         var localDataReminders = await GetDataFromCRMAsync(RequestReminderWithDuedateUri, "P215SendSupplementariesNotificationUponReminder");
         JsonArray reminders = (JsonArray)localDataReminders.Data;
         if (reminders.Count == 0)
@@ -224,8 +222,10 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
         {
             ofmapplicationids = ofmapplicationids + $@"<condition attribute = ""ofm_application"" operator= ""eq"" value = """ + reminder["_ofm_application_value"] + $@""" />";
         }
+        
         // get all supplementaries records for all reminders
         var localDateSupplementaries = await GetDataFromCRMAsync(SupplementariesUri, "P215SendSupplementariesNotificationUponReminder");
+        
         // get emailtemplate
         var localDateEmailTemplate = await GetDataFromCRMAsync(TemplatetoRetrieveUri, "P215SendSupplementariesNotificationUponReminder");
         JsonArray emailTemplate = (JsonArray)localDateEmailTemplate.Data;
