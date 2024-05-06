@@ -498,6 +498,11 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_funding"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_funding_ofm_licence_detailSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_funding_ofm_licence_detail"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_funding_rateSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_funding_rate"/> entities.
@@ -506,6 +511,11 @@
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_intakeSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_intake"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_integration_error_logSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_integration_error_log"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_integration_logSet">
@@ -1801,14 +1811,14 @@
             1:N ofm_organization_payment
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_organization_standing_history">
+            <summary>
+            1:N ofm_organization_standing_history
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_payment_facility_account">
             <summary>
             1:N ofm_payment_facility_account
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_intakes_facilities">
-            <summary>
-            N:N ofm_intakes_facilities
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.Referencingaccount_master_account">
@@ -3042,6 +3052,16 @@
             1:N ofm_contact_funding
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Contact.ofm_contact_ofm_cas_response">
+            <summary>
+            1:N ofm_contact_ofm_cas_response
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Contact.ofm_contact_ofm_integration_error_log">
+            <summary>
+            1:N ofm_contact_ofm_integration_error_log
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Contact.ofm_contact_survey_response">
             <summary>
             1:N ofm_contact_survey_response
@@ -3764,649 +3784,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.msfp_project">
-            <summary>
-            Set of surveys to collect feedback.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_project.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the msfp_project entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.msfp_project.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.createdby">
-            <summary>
-            User who created the project.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.createdon">
-            <summary>
-            Date and time when the project was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.modifiedby">
-            <summary>
-            User who modified the project.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.modifiedon">
-            <summary>
-            Date and time when the project was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_customerinsightsconfiguration">
-            <summary>
-            Stores Customer Insights configuration in JSON format.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_dataclassification">
-            <summary>
-            Classification allows organization to protect data based on our policies and standards.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_description">
-            <summary>
-            Description of the project.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_environmentid">
-            <summary>
-            Environment ID where project is stored.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_environmentregion">
-            <summary>
-            Environment region where project is stored.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_name">
-            <summary>
-            Name of the project.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_permanentid">
-            <summary>
-            Permanent ID is auto-generated for a new project. For a copied project, the ID is carried over from the original project.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_projectid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_status">
-            <summary>
-            Status of the project.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_templateid">
-            <summary>
-            Project template ID.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_templateversion">
-            <summary>
-            Version number of the project template.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.statecode">
-            <summary>
-            Status of the Customer Voice project
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.statuscode">
-            <summary>
-            Reason for the status of the Customer Voice project
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.msfp_msfp_project_msfp_survey_project">
-            <summary>
-            1:N msfp_msfp_project_msfp_survey_project
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_project.team_msfp_project">
-            <summary>
-            N:1 team_msfp_project
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.msfp_project.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_question">
-            <summary>
-            Question in a survey to collect feedback.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_question.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the msfp_question entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.msfp_question.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_choicetype">
-            <summary>
-            Shows whether the question accepts single line or multiple lines of response.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_correctanswer">
-            <summary>
-            Stores the correct answer in case of quizzes.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_imageproperties">
-            <summary>
-            Question image properties in JSON format.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_maximumrating">
-            <summary>
-            Stores maximum rating of rating question type
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_multiline">
-            <summary>
-            Shows if the text question is multiple lines or not
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_name">
-            <summary>
-            The name of the custom entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_order">
-            <summary>
-            Order of the question in the survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_otherproperties">
-            <summary>
-            Stores other question properties in JSON format.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_permanentid">
-            <summary>
-            Permanent ID is auto-generated for a new survey question. For a copied survey, the ID is carried over from the original survey question.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_questionchoices">
-            <summary>
-            Stores the list of answer options
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_questionid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_questiontext">
-            <summary>
-            Text of the question in the survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_questiontype">
-            <summary>
-            Stores the type of question to display.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_responserequired">
-            <summary>
-            Shows if the question is mandatory.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_sequence">
-            <summary>
-            Order of the question in the survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_sourceparentquestionidentifier">
-            <summary>
-            Unique identifier for the parent question in the source application.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_sourcequestionidentifier">
-            <summary>
-            Unique identifier for the question in the source application.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_sourcesurveyidentifier">
-            <summary>
-            Unique identifier for the survey in the source application.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_subtitle">
-            <summary>
-            Stores subtitle of a question.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_survey">
-            <summary>
-            Unique identifier of the survey to which the question belongs.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.statecode">
-            <summary>
-            Status of the Question
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.statuscode">
-            <summary>
-            Reason for the status of the Question
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.msfp_msfp_survey_msfp_question_Survey">
-            <summary>
-            N:1 msfp_msfp_survey_msfp_question_Survey
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_question.team_msfp_question">
-            <summary>
-            N:1 team_msfp_question
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.msfp_question.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_survey">
-            <summary>
-            Set of questions to collect feedback.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_survey.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the msfp_survey entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.msfp_survey.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msdyn_inspection">
-            <summary>
-            Unique identifier for Inspection Template associated with Survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_acceptanonymousresponses">
-            <summary>
-            Specifies if responses can be accepted from anonymous respondents.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_anonymousurl">
-            <summary>
-            Link to the anonymous survey response.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_description">
-            <summary>
-            Description of the survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_embedcode">
-            <summary>
-            Embed code for the survey
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_enddate">
-            <summary>
-            End date and time of the survey, if configured.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_friendlyname">
-            <summary>
-            Friendly name of the survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_name">
-            <summary>
-            The name of the custom entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_otherproperties">
-            <summary>
-            Other survey properties in JSON format.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_permanentid">
-            <summary>
-            Permanent ID is auto-generated for a new survey. For a copied survey, the ID is carried over from the original survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_project">
-            <summary>
-            Project associated with the survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_publishedby">
-            <summary>
-            User who published the survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_publishedon">
-            <summary>
-            Date and time on which the survey was published.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_sourcesurveyidentifier">
-            <summary>
-            Unique identifier for the survey in the source application.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_sourcesurveymodifieddate">
-            <summary>
-            Date when a survey is modified in source.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_sourcesurveyversion">
-            <summary>
-            Version number of the survey.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_startdate">
-            <summary>
-            Start date and time of the survey, if configured.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_surveyid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_surveysource">
-            <summary>
-            Source through which the survey was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_surveyurl">
-            <summary>
-            Link to the survey in Customer Voice.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_variables">
-            <summary>
-            Stores survey variables and their default values in JSON format.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.statecode">
-            <summary>
-            Status of the Survey
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.statuscode">
-            <summary>
-            Reason for the status of the Survey
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_msfp_survey_msfp_question_Survey">
-            <summary>
-            1:N msfp_msfp_survey_msfp_question_Survey
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.msfp_msfp_project_msfp_survey_project">
-            <summary>
-            N:1 msfp_msfp_project_msfp_survey_project
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.msfp_survey.team_msfp_survey">
-            <summary>
-            N:1 team_msfp_survey
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.msfp_survey.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_allowance">
             <summary>
             Supplementary Application Record
@@ -5081,6 +4458,11 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_payment_application">
             <summary>
             1:N ofm_payment_application
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_pcmreview_application">
+            <summary>
+            1:N ofm_pcmreview_application
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_request_application">
@@ -6396,6 +5778,21 @@
             Version Number
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_error_enhancer.ofm_error_enhancer_ofm_integration_error_log">
+            <summary>
+            1:N ofm_error_enhancer_ofm_integration_error_log
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_error_enhancer.ofm_error_enhancer_ofm_integration_error_log2">
+            <summary>
+            1:N ofm_error_enhancer_ofm_integration_error_log2
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_error_enhancer.ofm_error_enhancer_ofm_integration_error_log3">
+            <summary>
+            1:N ofm_error_enhancer_ofm_integration_error_log3
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_error_enhancer.team_ofm_error_enhancer">
             <summary>
             N:1 team_ofm_error_enhancer
@@ -7401,11 +6798,6 @@
             N:N ofm_funding_licencedetail
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_licencedetail">
-            <summary>
-            N:N ofm_funding_licencedetail
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_application_funding">
             <summary>
             N:1 ofm_application_funding
@@ -7432,6 +6824,27 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_funding.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_funding_ofm_licence_detail.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_funding_ofm_licence_detail entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_funding_ofm_licence_detail.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding_ofm_licence_detail.ofm_funding_licencedetail">
+            <summary>
+            N:N ofm_funding_licencedetail
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_funding_ofm_licence_detail.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -7788,17 +7201,158 @@
             1:N ofm_intake_facilityintake
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intakes_facilities">
-            <summary>
-            N:N ofm_intakes_facilities
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_intake.team_ofm_intake">
             <summary>
             N:1 team_ofm_intake
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_intake.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_integration_error_log.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_integration_error_log entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_integration_error_log.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_integration_error_logid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_name">
+            <summary>
+            The name of the custom entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.statecode">
+            <summary>
+            Status of the Integration Error Log
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.statuscode">
+            <summary>
+            Reason for the status of the Integration Error Log
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_contact_ofm_integration_error_log">
+            <summary>
+            N:1 ofm_contact_ofm_integration_error_log
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_error_enhancer_ofm_integration_error_log">
+            <summary>
+            N:1 ofm_error_enhancer_ofm_integration_error_log
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_error_enhancer_ofm_integration_error_log2">
+            <summary>
+            N:1 ofm_error_enhancer_ofm_integration_error_log2
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_error_enhancer_ofm_integration_error_log3">
+            <summary>
+            N:1 ofm_error_enhancer_ofm_integration_error_log3
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.team_ofm_integration_error_log">
+            <summary>
+            N:1 team_ofm_integration_error_log
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_integration_error_log.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -8701,16 +8255,6 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_fiscalyear_payment">
             <summary>
             N:1 ofm_fiscalyear_payment
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_organization_payment">
-            <summary>
-            N:1 ofm_organization_payment
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_application">
-            <summary>
-            N:1 ofm_payment_application
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_organization_payment">
@@ -12488,21 +12032,6 @@
             1:N team_email
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Team.team_msfp_project">
-            <summary>
-            1:N team_msfp_project
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_msfp_question">
-            <summary>
-            1:N team_msfp_question
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_msfp_survey">
-            <summary>
-            1:N team_msfp_survey
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_allowance">
             <summary>
             1:N team_ofm_allowance
@@ -12581,6 +12110,11 @@
         <member name="P:ECC.Core.DataContext.Team.team_ofm_intake">
             <summary>
             1:N team_ofm_intake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_integration_error_log">
+            <summary>
+            1:N team_ofm_integration_error_log
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_integration_log">
@@ -14421,7 +13955,7 @@
             Crew Strategy used in crew management
             </summary>
         </member>
-        <member name="F:ECC.Core.DataContext.msdyn_CrewStrategy.CascadeandAcceptCascadeCompletely_NotRecommended">
+        <member name="F:ECC.Core.DataContext.msdyn_CrewStrategy.CascadeandAcceptCascadeCompletelyNotRecommended">
             <summary>
             Cascade and Accept Cascade Completely (Not Recommended)
             </summary>
@@ -15926,51 +15460,6 @@
             Picklist supported languages
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.msfp_project_msfp_status">
-            <summary>
-            Status of the project.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_project_statecode">
-            <summary>
-            Status of the Customer Voice project
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_project_StatusCode">
-            <summary>
-            Reason for the status of the Customer Voice project
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_question_msfp_choicetype">
-            <summary>
-            Shows whether the question accepts single line or multiple lines of response.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_question_msfp_questiontype">
-            <summary>
-            Stores the type of question to display.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_question_statecode">
-            <summary>
-            Status of the Customer Voice survey question
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_question_StatusCode">
-            <summary>
-            Reason for the status of the Customer Voice survey question
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_survey_statecode">
-            <summary>
-            Status of the Customer Voice survey
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.msfp_survey_StatusCode">
-            <summary>
-            Reason for the status of the Customer Voice survey
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.Need">
             <summary>
             Need type
@@ -16146,6 +15635,16 @@
             Reason for the status of the Intake
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_integration_error_log_statecode">
+            <summary>
+            Status of the Integration Error Log
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_integration_error_log_StatusCode">
+            <summary>
+            Reason for the status of the Integration Error Log
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ofm_integration_log_statecode">
             <summary>
             Status of the Integration Log
@@ -16189,6 +15688,16 @@
         <member name="T:ECC.Core.DataContext.ofm_ops_manager_approval_status">
             <summary>
             Operations Manager Approval Status
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_file_exchange_statecode">
+            <summary>
+            Status of the Payment File Exchange
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_file_exchange_StatusCode">
+            <summary>
+            Reason for the status of the Payment File Exchange
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_payment_statecode">
@@ -16433,7 +15942,7 @@
         </member>
         <member name="T:ECC.Core.DataContext.organization_applicationbasedaccesscontrolmode">
             <summary>
-            Application Based Access Control Mode. 0 is Disabled, 1 is Enabled , 2 is audit mode
+            Application Based Access Control Mode. 0 is Disabled, 1 is Enabled, 2 is audit mode, 3 is Enabled for roles
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.organization_SamesitemodeforSessionCookie">
