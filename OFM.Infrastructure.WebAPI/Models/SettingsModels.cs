@@ -182,9 +182,7 @@ public record BCCASApi
     public required InvoiceHeader InvoiceHeader { get; set; }
     public required InvoiceLines InvoiceLines { get; set; }
    
-
 }
-
 
 
 [JsonSourceGenerationOptions(

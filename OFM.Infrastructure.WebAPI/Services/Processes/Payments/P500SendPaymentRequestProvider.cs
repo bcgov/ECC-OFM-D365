@@ -1,36 +1,15 @@
 ﻿using HandlebarsDotNet;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Interfaces;
-using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
-using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using System.Collections.Generic;
-using System.IO;
-using System.Transactions;
-using Newtonsoft.Json.Linq;
-using Microsoft.Crm.Sdk.Messages;
-using System;
-using System.Linq;
-using System.Reflection.Metadata;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
-using System.Collections;
 using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-using Microsoft.AspNetCore.Http.HttpResults;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
-using Microsoft.AspNetCore.Mvc;
 using ECC.Core.DataContext;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 
 
@@ -118,7 +97,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                        <attribute name="ofm_invoice_date" />
                         <order attribute="ofm_name" descending="false" />
                      <filter type="and">
-                    <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ACTIVEApprovedforPayment}" />
+                    <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ApprovedforPayment}" />
                     <condition attribute="ofm_supplierid" operator="not-null" />
                     <condition attribute="ofm_siteid" operator="not-null" />
                     <condition attribute="ofm_payment_method" operator="not-null" />
