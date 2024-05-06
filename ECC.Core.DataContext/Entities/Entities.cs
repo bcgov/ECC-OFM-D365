@@ -37426,6 +37426,7 @@ namespace ECC.Core.DataContext
             public const string ofm_caption = "ofm_caption";
             public const string ofm_category = "ofm_category";
             public const string ofm_categoryname = "ofm_categoryname";
+            public const string ofm_description = "ofm_description";
             public const string ofm_integration_logid = "ofm_integration_logid";
             public const string Id = "ofm_integration_logid";
             public const string ofm_integrationlog_application = "ofm_integrationlog_application";
@@ -37786,6 +37787,21 @@ namespace ECC.Core.DataContext
                 {
                     return default(string);
                 }
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_description")]
+        public string ofm_description
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<string>("ofm_description");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_description", value);
             }
         }
 
@@ -41188,6 +41204,7 @@ namespace ECC.Core.DataContext
             public const string ofm_expense_authority = "ofm_expense_authority";
             public const string ofm_expense_authorityname = "ofm_expense_authorityname";
             public const string ofm_expense_authorityyominame = "ofm_expense_authorityyominame";
+            public const string ofm_fa_year = "ofm_fa_year";
             public const string ofm_facility = "ofm_facility";
             public const string ofm_facilityname = "ofm_facilityname";
             public const string ofm_facilityyominame = "ofm_facilityyominame";
@@ -41198,8 +41215,10 @@ namespace ECC.Core.DataContext
             public const string ofm_funding_amount = "ofm_funding_amount";
             public const string ofm_funding_amount_base = "ofm_funding_amount_base";
             public const string ofm_fundingname = "ofm_fundingname";
+            public const string ofm_invoice_date = "ofm_invoice_date";
             public const string ofm_invoice_line_number = "ofm_invoice_line_number";
             public const string ofm_invoice_number = "ofm_invoice_number";
+            public const string ofm_invoice_received_date = "ofm_invoice_received_date";
             public const string ofm_invoice_status = "ofm_invoice_status";
             public const string ofm_name = "ofm_name";
             public const string ofm_organization = "ofm_organization";
@@ -41736,6 +41755,19 @@ namespace ECC.Core.DataContext
             }
         }
 
+        /// <summary>
+        /// The funding year number (1, 2 or 3). This is an auto calculated field based on the funding's end date
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_fa_year")]
+        public System.Nullable<decimal> ofm_fa_year
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<decimal>>("ofm_fa_year");
+            }
+        }
+
         [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility")]
         public Microsoft.Xrm.Sdk.EntityReference ofm_facility
         {
@@ -41881,6 +41913,24 @@ namespace ECC.Core.DataContext
         }
 
         /// <summary>
+        /// Invoice Date
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_invoice_date")]
+        public System.Nullable<System.DateTime> ofm_invoice_date
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_invoice_date");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_invoice_date", value);
+            }
+        }
+
+        /// <summary>
         /// Invoice Line #
         /// </summary>
         [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_invoice_line_number")]
@@ -41905,6 +41955,24 @@ namespace ECC.Core.DataContext
             get
             {
                 return this.GetAttributeValue<string>("ofm_invoice_number");
+            }
+        }
+
+        /// <summary>
+        /// Invoice Received Date. Typically, 4 days after the Effective Date
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_invoice_received_date")]
+        public System.Nullable<System.DateTime> ofm_invoice_received_date
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_invoice_received_date");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_invoice_received_date", value);
             }
         }
 
@@ -43605,6 +43673,7 @@ namespace ECC.Core.DataContext
             public const string ofm_child_question_business_rule = "ofm_child_question_business_rule";
             public const string ofm_choice_type = "ofm_choice_type";
             public const string ofm_choice_typename = "ofm_choice_typename";
+            public const string ofm_customer_voice_question_id = "ofm_customer_voice_question_id";
             public const string ofm_default_rows = "ofm_default_rows";
             public const string ofm_display_text = "ofm_display_text";
             public const string ofm_display_type = "ofm_display_type";
@@ -43640,6 +43709,7 @@ namespace ECC.Core.DataContext
             public const string ofm_sectionname = "ofm_sectionname";
             public const string ofm_sequence = "ofm_sequence";
             public const string ofm_source_question_id = "ofm_source_question_id";
+            public const string ofm_source_question_identifier = "ofm_source_question_identifier";
             public const string ofm_subtitle = "ofm_subtitle";
             public const string ofm_table_name = "ofm_table_name";
             public const string ofm_table_sequence = "ofm_table_sequence";
@@ -43680,8 +43750,6 @@ namespace ECC.Core.DataContext
                 base(EntityLogicalName, keyAttributes)
         {
         }
-
-        public const string AlternateKeys = "ofm_question_id";
 
         /// <summary>
         /// Default Constructor.
@@ -44010,6 +44078,21 @@ namespace ECC.Core.DataContext
                 {
                     return default(string);
                 }
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_customer_voice_question_id")]
+        public string ofm_customer_voice_question_id
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<string>("ofm_customer_voice_question_id");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_customer_voice_question_id", value);
             }
         }
 
@@ -44466,6 +44549,21 @@ namespace ECC.Core.DataContext
             set
             {
                 this.SetAttributeValue("ofm_source_question_id", value);
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_source_question_identifier")]
+        public string ofm_source_question_identifier
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<string>("ofm_source_question_identifier");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_source_question_identifier", value);
             }
         }
 
@@ -46050,6 +46148,8 @@ namespace ECC.Core.DataContext
             public const string modifiedonbehalfby = "modifiedonbehalfby";
             public const string modifiedonbehalfbyname = "modifiedonbehalfbyname";
             public const string modifiedonbehalfbyyominame = "modifiedonbehalfbyyominame";
+            public const string ofm_current_version = "ofm_current_version";
+            public const string ofm_current_versionname = "ofm_current_versionname";
             public const string ofm_embedded_data = "ofm_embedded_data";
             public const string ofm_header = "ofm_header";
             public const string ofm_header_question_response = "ofm_header_question_response";
@@ -46059,6 +46159,7 @@ namespace ECC.Core.DataContext
             public const string ofm_name = "ofm_name";
             public const string ofm_question = "ofm_question";
             public const string ofm_question_question_response = "ofm_question_question_response";
+            public const string Referencingofm_question_response_current_version = "ofm_question_response_current_version";
             public const string ofm_question_responseid = "ofm_question_responseid";
             public const string Id = "ofm_question_responseid";
             public const string ofm_questionname = "ofm_questionname";
@@ -46075,6 +46176,7 @@ namespace ECC.Core.DataContext
             public const string owningbusinessunitname = "owningbusinessunitname";
             public const string owningteam = "owningteam";
             public const string owninguser = "owninguser";
+            public const string Referencedofm_question_response_current_version = "Referencedofm_question_response_current_version";
             public const string statecode = "statecode";
             public const string statecodename = "statecodename";
             public const string statuscode = "statuscode";
@@ -46360,6 +46462,38 @@ namespace ECC.Core.DataContext
                 if (this.FormattedValues.Contains("modifiedonbehalfby"))
                 {
                     return this.FormattedValues["modifiedonbehalfby"];
+                }
+                else
+                {
+                    return default(string);
+                }
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_current_version")]
+        public Microsoft.Xrm.Sdk.EntityReference ofm_current_version
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_current_version");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_current_version", value);
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_current_versionname")]
+        public string ofm_current_versionname
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                if (this.FormattedValues.Contains("ofm_current_version"))
+                {
+                    return this.FormattedValues["ofm_current_version"];
                 }
                 else
                 {
@@ -46866,6 +47000,24 @@ namespace ECC.Core.DataContext
         }
 
         /// <summary>
+        /// 1:N ofm_question_response_current_version
+        /// </summary>
+        [Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_question_response_current_version", Microsoft.Xrm.Sdk.EntityRole.Referenced)]
+        public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_question_response> Referencedofm_question_response_current_version
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetRelatedEntities<ECC.Core.DataContext.ofm_question_response>("ofm_question_response_current_version", Microsoft.Xrm.Sdk.EntityRole.Referenced);
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetRelatedEntities<ECC.Core.DataContext.ofm_question_response>("ofm_question_response_current_version", Microsoft.Xrm.Sdk.EntityRole.Referenced, value);
+            }
+        }
+
+        /// <summary>
         /// N:1 ofm_header_question_response
         /// </summary>
         [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_header")]
@@ -46900,6 +47052,25 @@ namespace ECC.Core.DataContext
             set
             {
                 this.SetRelatedEntity<ECC.Core.DataContext.ofm_question>("ofm_question_question_response", null, value);
+            }
+        }
+
+        /// <summary>
+        /// N:1 ofm_question_response_current_version
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_current_version")]
+        [Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_question_response_current_version", Microsoft.Xrm.Sdk.EntityRole.Referencing)]
+        public ECC.Core.DataContext.ofm_question_response Referencingofm_question_response_current_version
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetRelatedEntity<ECC.Core.DataContext.ofm_question_response>("ofm_question_response_current_version", Microsoft.Xrm.Sdk.EntityRole.Referencing);
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetRelatedEntity<ECC.Core.DataContext.ofm_question_response>("ofm_question_response_current_version", Microsoft.Xrm.Sdk.EntityRole.Referencing, value);
             }
         }
 
@@ -47013,6 +47184,7 @@ namespace ECC.Core.DataContext
             public const string ofm_cpp = "ofm_cpp";
             public const string ofm_cultural_hours_per_fte = "ofm_cultural_hours_per_fte";
             public const string ofm_days_in_a_week = "ofm_days_in_a_week";
+            public const string ofm_description = "ofm_description";
             public const string ofm_eht_maximum_cost_for_profit = "ofm_eht_maximum_cost_for_profit";
             public const string ofm_eht_maximum_cost_for_profit_base = "ofm_eht_maximum_cost_for_profit_base";
             public const string ofm_eht_maximum_cost_not_for_profit = "ofm_eht_maximum_cost_not_for_profit";
@@ -47466,6 +47638,24 @@ namespace ECC.Core.DataContext
             set
             {
                 this.SetAttributeValue("ofm_days_in_a_week", value);
+            }
+        }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_description")]
+        public string ofm_description
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<string>("ofm_description");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_description", value);
             }
         }
 
@@ -52586,8 +52776,6 @@ namespace ECC.Core.DataContext
         {
         }
 
-        public const string AlternateKeys = "ofm_name";
-
         /// <summary>
         /// Default Constructor.
         /// </summary>
@@ -53423,6 +53611,7 @@ namespace ECC.Core.DataContext
             public const string ofm_surveyname = "ofm_surveyname";
             public const string ofm_unlock = "ofm_unlock";
             public const string ofm_unlock_date = "ofm_unlock_date";
+            public const string ofm_unlock_reason = "ofm_unlock_reason";
             public const string ofm_unlockname = "ofm_unlockname";
             public const string ofm_version_number = "ofm_version_number";
             public const string overriddencreatedon = "overriddencreatedon";
@@ -54322,6 +54511,21 @@ namespace ECC.Core.DataContext
             set
             {
                 this.SetAttributeValue("ofm_unlock_date", value);
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_unlock_reason")]
+        public string ofm_unlock_reason
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<string>("ofm_unlock_reason");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_unlock_reason", value);
             }
         }
 

@@ -7843,6 +7843,11 @@
             Effective Date
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_fa_year">
+            <summary>
+            The funding year number (1, 2 or 3). This is an auto calculated field based on the funding's end date
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_fiscal_year">
             <summary>
             The associated Fiscal Year record
@@ -7853,9 +7858,19 @@
             Value of the Funding Amount in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_invoice_date">
+            <summary>
+            Invoice Date
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_invoice_line_number">
             <summary>
             Invoice Line #
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_invoice_received_date">
+            <summary>
+            Invoice Received Date. Typically, 4 days after the Effective Date
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_organization">
@@ -8652,6 +8667,11 @@
             Version Number
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_question_response.Referencedofm_question_response_current_version">
+            <summary>
+            1:N ofm_question_response_current_version
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_header_question_response">
             <summary>
             N:1 ofm_header_question_response
@@ -8660,6 +8680,11 @@
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_question_question_response">
             <summary>
             N:1 ofm_question_question_response
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_question_response.Referencingofm_question_response_current_version">
+            <summary>
+            N:1 ofm_question_response_current_version
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_survey_response_question_response">
@@ -8736,6 +8761,11 @@
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_caption">
             <summary>
             The record identifier
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_description">
+            <summary>
+            Description
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_eht_maximum_cost_for_profit_base">

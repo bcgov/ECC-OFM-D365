@@ -171,6 +171,7 @@ public record BCCASApi
     public int MinsToCache { get; set; }
     public int transactionCount { get; set; }
     public required string cGIBatchNumber { get; set; }
+    public required string oracleBatchNumber { get; set; }
     public required string clientCode { get; set; }
     public required string feederNumber { get; set; }
     public required string trailertransactionType { get; set; }
