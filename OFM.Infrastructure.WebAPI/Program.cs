@@ -15,6 +15,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
+using OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,7 +61,7 @@ services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
 services.AddScoped<ID365ProcessProvider, P405VerifyGoodStandingBatchProvider>();
 services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P505ReadPaymentResponseProvider>();
-
+services.AddScoped<ID365ProcessProvider, P600CloneFundingReportResponse>();
 
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();

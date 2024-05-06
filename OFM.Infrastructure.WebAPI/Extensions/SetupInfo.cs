@@ -66,6 +66,12 @@ public static class Setup
             public const Int16 GetPaymentResponseId = 505;
             public const string GetPaymentResponseName = "Get Payment Feedback and Invoices to BC Pay";
         }
+
+        public static class FundingReports
+        {
+            public const Int16 CloneFundingReportResponseId = 600;
+            public const string CloneFundingReportResponseName = "Clone Funding Report Response";
+        }
     }
 
     public static readonly JsonSerializerOptions s_writeOptions = new()
