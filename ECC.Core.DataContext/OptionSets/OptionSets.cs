@@ -1245,11 +1245,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Approved (Closures)", 9)]
-		NotApproved_Closures = 100000007,
+		NotApprovedClosures = 100000007,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Approved (Fee Schedule)", 10)]
-		NotApproved_FeeSchedule = 100000008,
+		NotApprovedFeeSchedule = 100000008,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Opt-Out", 1)]
@@ -1261,19 +1261,19 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 1 (NRC)", 2)]
-		Stage1_NRC = 100000002,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Stage 2 (MED)", 4)]
-		Stage2_MED = 100000011,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Stage 2 (NOM)", 3)]
-		Stage2_NOM = 100000010,
+		Stage1NRC = 100000002,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 2 - Fee Increase Limit", 5)]
 		Stage2FeeIncreaseLimit = 100000003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Stage 2 (MED)", 4)]
+		Stage2MED = 100000011,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Stage 2 (NOM)", 3)]
+		Stage2NOM = 100000010,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3", 6)]
@@ -1281,7 +1281,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3 (AFC)", 7)]
-		Stage3_AFC = 100000005,
+		Stage3AFC = 100000005,
 	}
 	
 	/// <summary>
@@ -1397,11 +1397,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Approved (Closure)", 9, "#0000ff")]
-		NotApproved_Closure = 100000009,
+		NotApprovedClosure = 100000009,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Approved (Fee Schedule)", 10, "#0000ff")]
-		NotApproved_FeeSchedule = 100000010,
+		NotApprovedFeeSchedule = 100000010,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Opt-Out", 1, "#0000ff")]
@@ -1413,19 +1413,19 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 1 (NRC)", 2, "#0000ff")]
-		Stage1_NRC = 100000002,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Stage 2 (MED)", 4, "#0000ff")]
-		Stage2_MED = 100000004,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Stage 2 (NOM)", 3, "#0000ff")]
-		Stage2_NOM = 100000003,
+		Stage1NRC = 100000002,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 2 - Fee Increase Limit", 5, "#0000ff")]
 		Stage2FeeIncreaseLimit = 100000005,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Stage 2 (MED)", 4, "#0000ff")]
+		Stage2MED = 100000004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Stage 2 (NOM)", 3, "#0000ff")]
+		Stage2NOM = 100000003,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3", 6, "#0000ff")]
@@ -1433,7 +1433,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3 (AFC)", 7, "#0000ff")]
-		Stage3_AFC = 100000007,
+		Stage3AFC = 100000007,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -1561,7 +1561,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Parent Fee Change (MTFI)", 7)]
-		ParentFeeChange_MTFI = 100000007,
+		ParentFeeChangeMTFI = 100000007,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Service Detail Change", 6)]
@@ -1887,11 +1887,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Approved (Closure)", 9)]
-		NotApproved_Closure = 100000009,
+		NotApprovedClosure = 100000009,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Approved (Fee Schedule)", 10)]
-		NotApproved_FeeSchedule = 100000010,
+		NotApprovedFeeSchedule = 100000010,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Opt-Out", 1)]
@@ -1903,19 +1903,19 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 1 (NRC)", 2)]
-		Stage1_NRC = 100000002,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Stage 2 (MED)", 4)]
-		Stage2_MED = 100000004,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Stage 2 (NOM)", 3)]
-		Stage2_NOM = 100000003,
+		Stage1NRC = 100000002,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 2 - Fee Increase Limit", 5)]
 		Stage2FeeIncreaseLimit = 100000005,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Stage 2 (MED)", 4)]
+		Stage2MED = 100000004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Stage 2 (NOM)", 3)]
+		Stage2NOM = 100000003,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3", 6)]
@@ -1923,7 +1923,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3 (AFC)", 7)]
-		Stage3_AFC = 100000007,
+		Stage3AFC = 100000007,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -1977,11 +1977,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Approved (Closure)", 9)]
-		NotApproved_Closure = 100000009,
+		NotApprovedClosure = 100000009,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Approved (Fee Schedule)", 10)]
-		NotApproved_FeeSchedule = 100000010,
+		NotApprovedFeeSchedule = 100000010,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Opt-Out", 1)]
@@ -1993,19 +1993,19 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 1 (NRC)", 2)]
-		Stage1_NRC = 100000002,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Stage 2 (MED)", 4)]
-		Stage2_MED = 100000004,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Stage 2 (NOM)", 3)]
-		Stage2_NOM = 100000003,
+		Stage1NRC = 100000002,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 2 - Fee Increase Limit", 5)]
 		Stage2FeeIncreaseLimit = 100000005,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Stage 2 (MED)", 4)]
+		Stage2MED = 100000004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Stage 2 (NOM)", 3)]
+		Stage2NOM = 100000003,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3", 6)]
@@ -2013,7 +2013,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3 (AFC)", 7)]
-		Stage3_AFC = 100000007,
+		Stage3AFC = 100000007,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -2047,7 +2047,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Approved (AFC)", 2, "#0000ff")]
-		Approved_AFC = 100000002,
+		ApprovedAFC = 100000002,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("N/A", 0, "#0000ff")]
@@ -2157,7 +2157,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Community Social Services Employers\' Association (CSSEA) Member", 0, "#0000ff")]
-		CommunitySocialServicesEmployersAssociation_CSSEAMember = 100000000,
+		CommunitySocialServicesEmployersAssociationCSSEAMember = 100000000,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Other Unionized Employer", 1, "#0000ff")]
@@ -2186,7 +2186,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 2 - Fee Increase Limit (FIL)", 0)]
-		Stage2FeeIncreaseLimit_FIL = 100000005,
+		Stage2FeeIncreaseLimitFIL = 100000005,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Total Allowable Fee Increase", 5)]
@@ -2306,7 +2306,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Public Institution (college/university)", 1, "#0000ff")]
-		PublicInstitution_collegeuniversity = 100000001,
+		PublicInstitutioncollegeuniversity = 100000001,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Registered Company", 2, "#0000ff")]
@@ -2381,11 +2381,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Chinese (Simplified)", 10)]
-		Chinese_Simplified = 2052,
+		ChineseSimplified = 2052,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Chinese (Traditional)", 11)]
-		Chinese_Traditional = 1028,
+		ChineseTraditional = 1028,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Czech", 23)]
@@ -2405,11 +2405,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("English (Australia)", 27)]
-		English_Australia = 3081,
+		EnglishAustralia = 3081,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("English (United Kingdom)", 24)]
-		English_UnitedKingdom = 2057,
+		EnglishUnitedKingdom = 2057,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Finnish", 21)]
@@ -2421,7 +2421,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("French (Canada)", 25)]
-		French_Canada = 3084,
+		FrenchCanada = 3084,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("German", 9)]
@@ -2461,7 +2461,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Portuguese (Brazilian)", 2)]
-		Portuguese_Brazilian = 1046,
+		PortugueseBrazilian = 1046,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Russian", 17)]
@@ -2473,7 +2473,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Spanish (United States)", 26)]
-		Spanish_UnitedStates = 21514,
+		SpanishUnitedStates = 21514,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Swedish", 7)]
@@ -3863,7 +3863,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Public Institution (College/University)", 2)]
-		PublicInstitution_CollegeUniversity = 3,
+		PublicInstitutionCollegeUniversity = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Registered Company", 0)]
@@ -4081,7 +4081,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Materials for a cultural program (beads, wood, food, etc.)", 2)]
-		Materialsforaculturalprogram_beadswoodfoodetc = 3,
+		Materialsforaculturalprogrambeadswoodfoodetc = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Other", 8)]
@@ -4101,7 +4101,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Pre-defined View (Intake Facilities)", 0)]
-		PredefinedView_IntakeFacilities = 1,
+		PredefinedViewIntakeFacilities = 1,
 	}
 	
 	/// <summary>
@@ -4157,23 +4157,23 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Group Child Care (30 Months to School-Age)", 1)]
-		GroupChildCare_30MonthstoSchoolAge = 2,
+		GroupChildCare30MonthstoSchoolAge = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Group Child Care (School-Age) Group 1", 6)]
-		GroupChildCare_SchoolAgeGroup1 = 7,
+		GroupChildCareSchoolAgeGroup1 = 7,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Group Child Care (School-Age) Group 2", 7)]
-		GroupChildCare_SchoolAgeGroup2 = 8,
+		GroupChildCareSchoolAgeGroup2 = 8,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Group Child Care (School-Age) Group 3", 8)]
-		GroupChildCare_SchoolAgeGroup3 = 9,
+		GroupChildCareSchoolAgeGroup3 = 9,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Group Child Care (Under 36 Months)", 0)]
-		GroupChildCare_Under36Months = 1,
+		GroupChildCareUnder36Months = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Group Multi-Age Child Care", 2)]
@@ -4185,15 +4185,15 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Preschool (4 Hours Max) Group 1", 3)]
-		Preschool_4HoursMaxGroup1 = 4,
+		Preschool4HoursMaxGroup1 = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Preschool (4 Hours Max) Group 2", 4)]
-		Preschool_4HoursMaxGroup2 = 5,
+		Preschool4HoursMaxGroup2 = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Preschool (4 Hours Max) Group 3", 5)]
-		Preschool_4HoursMaxGroup3 = 6,
+		Preschool4HoursMaxGroup3 = 6,
 	}
 	
 	/// <summary>
@@ -4224,8 +4224,8 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cheque", 1)]
-		Cheque = 2,
+		[OptionSetMetadataAttribute("CHQ", 1)]
+		CHQ = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("EFT", 0)]
@@ -5275,7 +5275,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Direct User (Basic) access level and Team privileges", 1)]
-		DirectUser_BasicaccesslevelandTeamprivileges = 1,
+		DirectUserBasicaccesslevelandTeamprivileges = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Team privileges only", 0)]
@@ -6099,11 +6099,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Serbian (Cyrillic) - Serbia", 32, "#0000ff", "", "sr-Cyrl-CS")]
-		Serbian_CyrillicSerbia = 3098,
+		SerbianCyrillicSerbia = 3098,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Serbian (Latin) - Serbia", 33, "#0000ff", "", "sr-Latn-CS")]
-		Serbian_LatinSerbia = 2074,
+		SerbianLatinSerbia = 2074,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Slovak - Slovakia", 34, "#0000ff", "", "sk-SK")]
@@ -7163,7 +7163,7 @@ namespace ECC.Core.DataContext
 		/// </summary>
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Cascade and Accept Cascade Completely (Not Recommended)", 2, "#0000ff", "Cascade and Accept Cascade Completely (Not Recommended)")]
-		CascadeandAcceptCascadeCompletely_NotRecommended = 192350000,
+		CascadeandAcceptCascadeCompletelyNotRecommended = 192350000,
 		
 		/// <summary>
 		/// Crew Leader Management
@@ -7929,11 +7929,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("English(en-US)", 0, "#0000ff", "", "en-us")]
-		English_enUS = 100000001,
+		EnglishenUS = 100000001,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("French(fr-FR)", 1, "#0000ff", "", "fr-FR")]
-		French_frFR = 100000002,
+		FrenchfrFR = 100000002,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -10465,7 +10465,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("End after (#specified) occurrences", 1, "#0000ff")]
-		Endafter_specifiedoccurrences = 192350001,
+		Endafterspecifiedoccurrences = 192350001,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("End by", 2, "#0000ff")]
@@ -11065,16 +11065,16 @@ namespace ECC.Core.DataContext
 		CatalanSpain = 1027,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Chinese (Traditional)", 44, "#0000ff", "", "zh-TW")]
-		Chinese_Traditional = 1028,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Chinese - China", 42, "#0000ff", "", "zh-CN")]
 		ChineseChina = 2052,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Chinese - Hong Kong", 43, "#0000ff", "", "zh-HK")]
 		ChineseHongKong = 3076,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Chinese (Traditional)", 44, "#0000ff", "", "zh-TW")]
+		ChineseTraditional = 1028,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Croatian - Croatia", 5, "#0000ff", "", "hr-HR")]
@@ -11190,11 +11190,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Serbian (Cyrillic) - Serbia", 32, "#0000ff", "", "sr-Cyrl-CS")]
-		Serbian_CyrillicSerbia = 3098,
+		SerbianCyrillicSerbia = 3098,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Serbian (Latin) - Serbia", 33, "#0000ff", "", "sr-Latn-CS")]
-		Serbian_LatinSerbia = 2074,
+		SerbianLatinSerbia = 2074,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Slovak - Slovakia", 34, "#0000ff", "", "sk-SK")]
@@ -12101,7 +12101,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Fill (Cover)", 0, "#0000ff")]
-		Fill_Cover = 164230000,
+		FillCover = 164230000,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -12400,39 +12400,39 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Arabic (Saudi Arabia)", 0, "#0000ff")]
-		Arabic_SaudiArabia = 1025,
+		ArabicSaudiArabia = 1025,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Basque (Basque)", 34, "#0000ff")]
-		Basque_Basque = 1069,
+		BasqueBasque = 1069,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Bulgarian (Bulgaria)", 1, "#0000ff")]
-		Bulgarian_Bulgaria = 1026,
+		BulgarianBulgaria = 1026,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Catalan (Catalan)", 2, "#0000ff")]
-		Catalan_Catalan = 1027,
+		CatalanCatalan = 1027,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Chinese (Hong Kong S.A.R.)", 40, "#0000ff")]
-		Chinese_HongKongSAR = 3076,
+		ChineseHongKongSAR = 3076,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Chinese (PRC)", 36, "#0000ff")]
-		Chinese_PRC = 2052,
+		ChinesePRC = 2052,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Chinese (Taiwan)", 3, "#0000ff")]
-		Chinese_Taiwan = 1028,
+		ChineseTaiwan = 1028,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Croatian (Croatia)", 22, "#0000ff")]
-		Croatian_Croatia = 1050,
+		CroatianCroatia = 1050,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Czech (Czech Republic)", 4, "#0000ff")]
-		Czech_CzechRepublic = 1029,
+		CzechCzechRepublic = 1029,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Danish", 5, "#0000ff")]
@@ -12448,23 +12448,23 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("English (Australia)", 41, "#0000ff")]
-		English_Australia = 3081,
+		EnglishAustralia = 3081,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("English (Canada)", 45, "#0000ff")]
-		English_Canada = 4105,
+		EnglishCanada = 4105,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("English (United Kingdom)", 37, "#0000ff")]
-		English_UnitedKingdom = 2057,
+		EnglishUnitedKingdom = 2057,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Estonian (Estonia)", 30, "#0000ff")]
-		Estonian_Estonia = 1061,
+		EstonianEstonia = 1061,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Finnish (Finland)", 9, "#0000ff")]
-		Finnish_Finland = 1035,
+		FinnishFinland = 1035,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("French", 10, "#0000ff")]
@@ -12472,11 +12472,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("French (Canada)", 43, "#0000ff")]
-		French_Canada = 3084,
+		FrenchCanada = 3084,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Galician (Galician)", 35, "#0000ff")]
-		Galician_Galician = 1110,
+		GalicianGalician = 1110,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("German", 6, "#0000ff")]
@@ -12484,19 +12484,19 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Greek (Greece)", 7, "#0000ff")]
-		Greek_Greece = 1032,
+		GreekGreece = 1032,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Hebrew (Israel)", 11, "#0000ff")]
-		Hebrew_Israel = 1037,
+		HebrewIsrael = 1037,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Hungarian (Hungary)", 12, "#0000ff")]
-		Hungarian_Hungary = 1038,
+		HungarianHungary = 1038,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Indonesian (Indonesia)", 27, "#0000ff")]
-		Indonesian_Indonesia = 1057,
+		IndonesianIndonesia = 1057,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Italian", 13, "#0000ff")]
@@ -12508,55 +12508,55 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Korean (Korea)", 15, "#0000ff")]
-		Korean_Korea = 1042,
+		KoreanKorea = 1042,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Latvian (Latvia)", 31, "#0000ff")]
-		Latvian_Latvia = 1062,
+		LatvianLatvia = 1062,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Lithuanian (Lithuania)", 32, "#0000ff")]
-		Lithuanian_Lithuania = 1063,
+		LithuanianLithuania = 1063,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Norwegian, Bokmål (Norway)", 17, "#0000ff")]
-		NorwegianBokml_Norway = 1044,
+		NorwegianBokmlNorway = 1044,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Polish (Poland)", 18, "#0000ff")]
-		Polish_Poland = 1045,
+		PolishPoland = 1045,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Portuguese (Brazil)", 19, "#0000ff")]
-		Portuguese_Brazil = 1046,
+		PortugueseBrazil = 1046,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Portuguese (Portugal)", 38, "#0000ff")]
-		Portuguese_Portugal = 2070,
+		PortuguesePortugal = 2070,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Romanian (Romania)", 20, "#0000ff")]
-		Romanian_Romania = 1048,
+		RomanianRomania = 1048,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Russian (Russia)", 21, "#0000ff")]
-		Russian_Russia = 1049,
+		RussianRussia = 1049,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Serbian (Cyrillic, Serbia and Montenegro)", 44, "#0000ff")]
-		Serbian_CyrillicSerbiaandMontenegro = 3098,
+		SerbianCyrillicSerbiaandMontenegro = 3098,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Serbian (Latin, Serbia and Montenegro)", 39, "#0000ff")]
-		Serbian_LatinSerbiaandMontenegro = 2074,
+		SerbianLatinSerbiaandMontenegro = 2074,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Slovak (Slovakia)", 23, "#0000ff")]
-		Slovak_Slovakia = 1051,
+		SlovakSlovakia = 1051,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Slovenian (Slovenia)", 29, "#0000ff")]
-		Slovenian_Slovenia = 1060,
+		SlovenianSlovenia = 1060,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Spanish", 42, "#0000ff")]
@@ -12564,23 +12564,23 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Swedish (Sweden)", 24, "#0000ff")]
-		Swedish_Sweden = 1053,
+		SwedishSweden = 1053,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Thai (Thailand)", 25, "#0000ff")]
-		Thai_Thailand = 1054,
+		ThaiThailand = 1054,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Turkish (Türkiye)", 26, "#0000ff")]
-		Turkish_Trkiye = 1055,
+		TurkishTrkiye = 1055,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Ukrainian (Ukraine)", 28, "#0000ff")]
-		Ukrainian_Ukraine = 1058,
+		UkrainianUkraine = 1058,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Vietnamese (Vietnam)", 33, "#0000ff")]
-		Vietnamese_Vietnam = 1066,
+		VietnameseVietnam = 1066,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -12784,6 +12784,10 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Submitted", 1, "#0000ff")]
 		Submitted = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Verified", 9)]
+		Verified = 10,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -13325,6 +13329,63 @@ namespace ECC.Core.DataContext
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_intake_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_integration_error_log_ofm_call_type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Create Supplier", 1, "#0000ff")]
+		CreateSupplier = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Fetch Payment Results From CAS", 0, "#0000ff")]
+		FetchPaymentResultsFromCAS = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Fetch Supplier", 2, "#0000ff")]
+		FetchSupplier = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Update Supplier", 3, "#0000ff")]
+		UpdateSupplier = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Upsert Supplier", 4, "#0000ff")]
+		UpsertSupplier = 5,
+	}
+	
+	/// <summary>
+	/// Status of the Integration Error Log
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_integration_error_log_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Integration Error Log
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_integration_error_log_StatusCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -14487,7 +14548,7 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
-	/// Application Based Access Control Mode. 0 is Disabled, 1 is Enabled , 2 is audit mode
+	/// Application Based Access Control Mode. 0 is Disabled, 1 is Enabled, 2 is audit mode, 3 is Enabled for roles
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum organization_applicationbasedaccesscontrolmode
@@ -14504,6 +14565,10 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Enabled", 1)]
 		Enabled = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Enabled for roles", 3)]
+		Enabledforroles = 3,
 	}
 	
 	/// <summary>
@@ -14914,7 +14979,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Norwegian (Bokmål) - Norway", 29, "#0000ff")]
-		Norwegian_BokmlNorway = 1044,
+		NorwegianBokmlNorway = 1044,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Polish - Poland", 30, "#0000ff")]
@@ -14938,11 +15003,11 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Serbian (Cyrillic) - Serbia", 35, "#0000ff")]
-		Serbian_CyrillicSerbia = 3098,
+		SerbianCyrillicSerbia = 3098,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Serbian (Latin) - Serbia", 36, "#0000ff")]
-		Serbian_LatinSerbia = 2074,
+		SerbianLatinSerbia = 2074,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Slovak - Slovakia", 37, "#0000ff")]
@@ -14954,7 +15019,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Spanish (Traditional Sort) - Spain", 39, "#0000ff")]
-		Spanish_TraditionalSortSpain = 3082,
+		SpanishTraditionalSortSpain = 3082,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Swedish - Sweden", 40, "#0000ff")]
@@ -15663,7 +15728,7 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Random (default)", 0)]
-		Random_default = 0,
+		Randomdefault = 0,
 	}
 	
 	/// <summary>

@@ -216,6 +216,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_funding_ofm_licence_detail"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_funding_ofm_licence_detail> ofm_funding_ofm_licence_detailSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_funding_ofm_licence_detail>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_funding_rate"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_funding_rate> ofm_funding_rateSet
@@ -234,6 +245,17 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.ofm_intake>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_integration_error_log"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_integration_error_log> ofm_integration_error_logSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_integration_error_log>();
 			}
 		}
 		

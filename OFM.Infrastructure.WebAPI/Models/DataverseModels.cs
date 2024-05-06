@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Models;
@@ -270,6 +271,37 @@ public record D365CommunicationType
 {
     public string? ofm_communication_typeid { get; set; }
     public Int16? ofm_communication_type_number { get; set; }
+}
+
+public record Payment_File_Exchange
+{
+    public string ofm_batch_number { get; set; }
+    public string ofm_oracle_batch_name { get; set; }
+    public string ofm_payment_file_exchangeid { get; set; }
+
+
+}
+
+public class Payment_Line : ofm_payment
+{
+    public required string ofm_paymentid { get; set; }
+    public required DateTime ofm_effective_date { get; set; }
+    public required DateTime ofm_invoice_date { get; set; }
+    public required DateTime ofm_invoice_received_date { get; set; }
+    public required string ofm_supplierid { get; set; }
+    public required string ofm_siteid { get; set; }
+    public required string ofm_invoice_number { get; set; }
+    public required decimal ofm_amount { get; set; }
+    public required int ofm_payment_method { get; set; }
+    [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
+    public required string ofm_financial_year { get; set; }
+    [property: JsonPropertyName("ofm_funding.ofm_funding_number")]
+    public required string ofm_funding_number { get; set; }
+    [property: JsonPropertyName("ofm_facility.name")]
+    public required string accountname { get; set; }
+    [property: JsonPropertyName("ofm_facility.accountnumber")]
+    public required string accountnumber { get; set; }
+  
 }
 
 #region External Parameters
