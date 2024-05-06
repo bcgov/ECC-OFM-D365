@@ -10,7 +10,7 @@ OFM.Application.Form = OFM.Application.Form || {};
 //Formload logic starts here
 OFM.Application.Form = {
     onLoad: function (executionContext) {
-        //debugger;
+        debugger;
         let formContext = executionContext.getFormContext();
         pageContext = executionContext.getFormContext();
         switch (formContext.ui.getFormType()) {
@@ -22,6 +22,7 @@ OFM.Application.Form = {
                 this.filterExpenseAuthorityLookup(executionContext);
                 this.UpdateOrganizationdetails(executionContext);
                 this.showBanner(executionContext);
+                this.filterCreatedBySPLookup(executionContext);
                 break;
 
             case 2: // update
@@ -31,6 +32,9 @@ OFM.Application.Form = {
                 this.licenceCheck(executionContext);
                 this.showBanner(executionContext);
                 this.lockStatusReason(executionContext);
+                this.lockPCMReviewSubgrid(executionContext);
+                this.filterCreatedBySPLookup(executionContext);
+
                 break;
 
             case 3: //readonly
@@ -180,6 +184,47 @@ OFM.Application.Form = {
         }
         // perform operations on record retrieval
     },
+    filterCreatedBySPLookup: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+        if (facility != null) {
+            facilityid = facility[0].id;
+
+            var viewId = "{00000000-0000-0000-0000-000000000091}";
+            var entity = "contact";
+            var ViewDisplayName = "Facility Created By Contacts";
+            var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
+                "<entity name='contact'>" +
+                "<attribute name='fullname' />" +
+                "<attribute name='ccof_username' />" +
+                "<attribute name='parentcustomerid' />" +
+                "<attribute name='emailaddress1' />" +
+                "<attribute name='contactid' />" +
+                "<order attribute='fullname' descending='false' />" +
+                "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
+                "<filter type='and'>" +
+                "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + facilityid + "'/>" +
+                "</filter></link-entity></entity></fetch>";
+
+            var layout = "<grid name='resultset' jump='fullname' select='1' icon='1' preview='1'>" +
+                "<row name = 'result' id = 'contactid' >" +
+                "<cell name='fullname' width='300' />" +
+                "<cell name='ccof_username' width='125' />" +
+                "<cell name='emailaddress1' width='150' />" +
+                "<cell name='parentcustomerid' width='150' />" +
+                "</row></grid>";
+
+            formContext.getControl("ofm_createdby").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
+
+        }
+        else {
+            formContext.getAttribute("ofm_createdby").setValue(null);
+        }
+        // perform operations on record retrieval
+    },
+
 
     // function to validate seconday and primary contact
     validateSecondaryContact: function (executionContext) {
@@ -335,15 +380,19 @@ OFM.Application.Form = {
     },
 
     showBanner: function (executionContext) {
-        debugger;
+        //debugger;
         var formContext = executionContext.getFormContext();
         var roomSplitIndicator = formContext.getAttribute("ofm_room_split_indicator").getValue();
         var pcmIndicator = formContext.getAttribute("ofm_pcm_indicator").getValue();
-        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_5").setVisible(roomSplitIndicator || pcmIndicator);
+        var status = formContext.getAttribute("statecode").getValue();
+        var statusReason = formContext.getAttribute("statuscode").getValue();
+        var supplementaryIndicator = formContext.getAttribute("ofm_supplementary_indicator").getValue();
+        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_5").setVisible(roomSplitIndicator || pcmIndicator || supplementaryIndicator);
         formContext.ui.tabs.get("tab_9").sections.get("tab_9_banner").setVisible(pcmIndicator);
         formContext.getControl("ofm_room_split_banner").setVisible(roomSplitIndicator);
         formContext.getControl("ofm_pcm_banner").setVisible(pcmIndicator);
-        formContext.getControl("ofm_pcm_banner1").setVisible(pcmIndicator);
+        if (status == 0 && statusReason != 6)
+            formContext.getControl("ofm_supplementary_banner").setVisible(supplementaryIndicator);
     },
 
     lockStatusReason: function (executionContext) {
@@ -363,5 +412,38 @@ OFM.Application.Form = {
         }
         else
             formContext.getControl("header_statuscode").setDisabled(false);
+    },
+    lockPCMReviewSubgrid: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var subgridControl = formContext.getControl("application_pcm_review");
+        var appStatus = formContext.getAttribute("statuscode").getValue();
+        if (subgridControl) {
+            // Get the rows in the subgrid
+            var rows = subgridControl.getGrid().getRows();
+            // Loop through each row
+            rows.forEach(function (row) {
+                // Get all controls within the row
+                var controls = row.getData().entity.attributes.get();
+
+                // Loop through each control and disable it
+                controls.forEach(function (control) {
+                    control.controls.forEach(function (innerControl) {
+                        // Disable the control
+                        innerControl.setDisabled(true);
+                    });
+                });
+            });
+        }
+    },
+    hideVerificationTab: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        if (userRoles.getLength() > 1) { }
+
+        else if (userRoles.get()[0].name == "OFM - Read Only") {
+            formContext.ui.tabs.get("tab_9").setVisible(false);
+        }
     }
 }
