@@ -352,15 +352,14 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
             updateRemindersRequests.Add(new D365UpdateRequest(new EntityReference("ofm_reminders", (Guid)reminder["ofm_reminderid"]), reminderToUpdate));
         }
         // Deactive reminders
-        //var updateRemindersResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRemindersRequests, null);
-        //if (sendEmailBatchResult.Errors.Any())
-        //{
-        //    var sendNotificationError = ProcessResult.Failure(ProcessId, sendEmailBatchResult.Errors, sendEmailBatchResult.TotalProcessed, sendEmailBatchResult.TotalRecords);
-        //    _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
+        var updateRemindersResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRemindersRequests, null);
+        if (updateRemindersResults.Errors.Any())
+        {
+            var sendNotificationError = ProcessResult.Failure(ProcessId, updateRemindersResults.Errors, updateRemindersResults.TotalProcessed, updateRemindersResults.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
 
-        //    return sendNotificationError.SimpleProcessResult;
-        //}
-
+            return sendNotificationError.SimpleProcessResult;
+        }
 
         var result = ProcessResult.Success(ProcessId, reminders!.Count);
 
