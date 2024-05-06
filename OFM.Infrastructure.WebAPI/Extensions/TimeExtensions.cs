@@ -77,4 +77,90 @@ public static class TimeExtensions {
 
         return pacificTime;
     }
+
+    /// <summary>
+    /// A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
+    /// </summary>
+    /// <param name="currentDate"></param>
+    /// <param name="holidays"></param>
+    /// <param name="trailingDays"></param>
+    /// <returns></returns>
+    public static DateTime GetCFSInvoiceDate(this DateTime currentDate, List<DateTime> holidays, int trailingDays = 3)
+    {
+        Func<int, DateTime> isBusinessDay = days =>
+        {
+            var dateToCheck = currentDate.AddDays(days);
+            var isNonWorkingDay =
+                dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
+                dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
+                holidays.Exists(excludedDate => excludedDate.Date.Equals(dateToCheck.Date));
+
+            return !isNonWorkingDay ? dateToCheck : DateTime.MinValue;
+        };
+
+        var potentialDates = Enumerable.Range(0, trailingDays).Select(isBusinessDay);
+
+        return potentialDates
+                .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
+                .OrderBy(d => d.Date)
+                .First();
+    }
+
+    /// <summary>
+    /// A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
+    /// </summary>
+    /// <param name="invoiceDate"></param>
+    /// <param name="holidays"></param>
+    /// <param name="defaultDaysAfter"></param>
+    /// <param name="trailingDays"></param>
+    /// <returns></returns>
+    public static DateTime GetCFSEffectiveDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysAfter = 2, int trailingDays = 3)
+    {
+        Func<int, DateTime> isBusinessDay = days =>
+        {
+            var dateToCheck = invoiceDate.AddDays(days);
+            var isNonWorkingDay =
+                dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
+                dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
+                holidays.Exists(excludedDate => excludedDate.Date.Equals(dateToCheck.Date));
+
+            return !isNonWorkingDay ? dateToCheck : DateTime.MinValue;
+        };
+
+        var potentialDates = Enumerable.Range(defaultDaysAfter, defaultDaysAfter + trailingDays).Select(isBusinessDay);
+
+        return potentialDates
+                .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
+                .OrderBy(d => d.Date)
+                .First();
+    }
+
+    /// <summary>
+    ///  A pre-determined CFS Invoice Received Date. The recommended default is 4 days before the Invoice Date.
+    /// </summary>
+    /// <param name="invoiceDate"></param>
+    /// <param name="holidays"></param>
+    /// <param name="defaultDaysBefore"></param>
+    /// <param name="trailingDays"></param>
+    /// <returns></returns>
+    public static DateTime GetCFSInvoiceReceivedDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysBefore = -4, int trailingDays = -3)
+    {
+        Func<int, DateTime> isBusinessDay = days =>
+        {
+            var dateToCheck = invoiceDate.AddDays(days);
+            var isNonWorkingDay =
+                dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
+                dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
+                holidays.Exists(excludedDate => excludedDate.Date.Equals(dateToCheck.Date));
+
+            return !isNonWorkingDay ? dateToCheck : DateTime.MinValue;
+        };
+
+        var potentialDates = Enumerable.Range(defaultDaysBefore, defaultDaysBefore + trailingDays).Select(isBusinessDay);
+
+        return potentialDates
+                .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
+                .OrderBy(d => d.Date)
+                .First();
+    }
 }
