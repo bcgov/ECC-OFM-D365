@@ -285,15 +285,13 @@ public record Payment_File_Exchange
 public class Payment_Line : ofm_payment
 {
     public required string ofm_paymentid { get; set; }
-    public required decimal ofm_amount { get; set; }
-     public required DateTime ofm_effective_date { get; set; }
-    public required string _ofm_fiscal_year_value { get; set; }
-    public required string _ofm_funding_value { get; set; }
-    public required int ofm_invoice_line_number { get; set; }
-    public string? ofm_remittance_message { get; set; }
-    public required string ofm_invoice_number { get; set; }
-    public required string ofm_siteid { get; set; }
+    public required DateTime ofm_effective_date { get; set; }
+    public required DateTime ofm_invoice_date { get; set; }
+    public required DateTime ofm_invoice_received_date { get; set; }
     public required string ofm_supplierid { get; set; }
+    public required string ofm_siteid { get; set; }
+    public required string ofm_invoice_number { get; set; }
+    public required decimal ofm_amount { get; set; }
     public required int ofm_payment_method { get; set; }
     [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
     public required string ofm_financial_year { get; set; }
@@ -303,9 +301,7 @@ public class Payment_Line : ofm_payment
     public required string accountname { get; set; }
     [property: JsonPropertyName("ofm_facility.accountnumber")]
     public required string accountnumber { get; set; }
-    // public ofm_fiscal_year ofm_fiscal_year { get { return new ofm_fiscal_year { Id= new Guid(_ofm_fiscal_year_value)}; }  }
-
-
+  
 }
 
 #region External Parameters
