@@ -212,11 +212,10 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         var paymentData = await GetPaymentLineData();
         List<Payment_Line> paymentserializedData = new List<Payment_Line>();
 
-        try { 
+        
         paymentserializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(paymentData.Data.ToString());
 
-    }
-    catch (Exception ex) { }
+  
     var grouppayment = paymentserializedData.GroupBy(p => p.ofm_invoice_number).ToList();
         var _fiscalyear = paymentserializedData.FirstOrDefault().ofm_financial_year;
 
@@ -234,11 +233,12 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             _cGIBatchNumber = _BCCASApi.cGIBatchNumber;
             oracleBatchName = _BCCASApi.clientCode + _fiscalyear.Substring(2) + "OFM" + _BCCASApi.oracleBatchNumber;
 
-        }      
+        }
 
-        #region Step 1: Handlebars format to generate Inbox data
-
-        string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}{{delimiter}}\n" + "{{#each InvoiceHeader}}{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceRecDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
+#region Step 1: Handlebars format to generate Inbox data
+try
+{
+    string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}{{delimiter}}\n" + "{{#each InvoiceHeader}}{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceRecDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
                     "{{#each InvoiceLines}}{{this.feederNumber}}{{this.batchType}}{{this.linetransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.invoiceLineNumber}}{{this.committmentLine}}{{this.lineAmount}}{{this.lineCode}}{{this.distributionACK}}{{this.lineDescription}}{{this.effectiveDate}}{{this.quantity}}{{this.unitPrice}}{{this.optionalData}}{{this.distributionSupplierNumber}}{{this.flow}}{{this.delimiter}}\n{{/each}}{{/each}}" +
                     "{{this.feederNumber}}{{this.batchType}}{{this.trailertransactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.controlCount}}{{this.controlAmount}}{{this.delimiter}}\n";
 
@@ -361,9 +361,11 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
         #region  Step 4: Mark payment as processed.
         await MarkPayAsProcessed(appUserService, d365WebApiService, paymentserializedData);
-        #endregion
+            #endregion
 
 
+        }
+        catch (Exception ex) { }
         #endregion
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
