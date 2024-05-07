@@ -143,6 +143,7 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
 
         var fundingReportData = await InitializeCloneRequest(_processParams.FundingReport.FundingReportId, "ofm_survey_response");
         fundingReportData["ofm_current_version@odata.bind"] = $"/ofm_survey_responses({_processParams.FundingReport.FundingReportId})";
+        fundingReportData["ofm_unlock"] = false;
 
         //Create a new fundingReport
         var sendNewFundingReportResponseRequestResult = await d365WebApiService.SendCreateRequestAsync(_appUserService.AZSystemAppUser, "ofm_survey_responses", fundingReportData.ToString());
@@ -201,7 +202,7 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
 
     public async Task<JsonObject> InitializeCloneRequest(string id, string targetEntityName)
     {
-/*        var entityMoniker = "{" + $"'@odata.id':'{targetEntityName}({id})'" + "}";*/
+ 
         var entityMoniker = "{" + "'@odata.id':'" + targetEntityName + "s" + $"({id})'" + "}";
         var fundingReportReponseUri = $"""                                
                                 InitializeFrom(EntityMoniker=@p1,TargetEntityName=@p2,TargetFieldType=@p3)?@p1={entityMoniker}&@p2='{targetEntityName}'&@p3=Microsoft.Dynamics.CRM.TargetFieldType'ValidForCreate'
