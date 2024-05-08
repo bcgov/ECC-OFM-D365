@@ -33,8 +33,8 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Emails.SendSupplementariesNotificationsId;
-    public string ProcessName => Setup.Process.Emails.SendSupplementariesNotificationsName;
+    public Int16 ProcessId => Setup.Process.Emails.SendSupplementaryNotificationsId;
+    public string ProcessName => Setup.Process.Emails.SendSupplementaryNotificationsName;
     private string ofmapplicationids = string.Empty;
     private string[] _activeCommunicationTypes = [];
     private string RequestReminderWithDuedateUri
@@ -109,7 +109,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
     }
      public async Task<ProcessData> GetDataAsync()
     {
-        _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P215SendSupplementariesNotificationUponReminder));
+        _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P215SendSupplementaryRemindersProvider));
 
         if (_data is null)
         {
