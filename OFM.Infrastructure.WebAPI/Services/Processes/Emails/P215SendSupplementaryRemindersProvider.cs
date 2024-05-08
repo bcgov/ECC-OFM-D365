@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
@@ -9,11 +8,10 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 
-public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvider
+public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
 {
     private readonly NotificationSettings _notificationSettings;
     private readonly ID365AppUserService _appUserService;
@@ -26,12 +24,11 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
 
-    public P215SendSupplementariesNotificationUponReminder(IOptionsSnapshot<NotificationSettings> notificationSettings, IEmailRepository emailRepository, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P215SendSupplementaryRemindersProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
-        _emailRepository = emailRepository;
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
@@ -147,7 +144,6 @@ public class P215SendSupplementariesNotificationUponReminder : ID365ProcessProvi
 
     public async Task<ProcessData> GetDataFromCRMAsync(string requestUri, string webapiName, string? description = null)
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(webapiName));
         _logger.LogDebug(CustomLogEvent.Process, "Getting records from with query {requestUri}", requestUri.CleanLog());
 
         var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, requestUri, isProcess: true);
