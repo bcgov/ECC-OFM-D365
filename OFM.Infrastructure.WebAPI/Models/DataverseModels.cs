@@ -299,8 +299,6 @@ public class Payment_Line : ofm_payment
     public required string ofm_funding_number { get; set; }
     [property: JsonPropertyName("ofm_facility.name")]
     public required string accountname { get; set; }
-    [property: JsonPropertyName("ofm_facility.accountnumber")]
-    public required string accountnumber { get; set; }
   
 }
 
