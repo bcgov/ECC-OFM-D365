@@ -271,16 +271,6 @@ public record D365CommunicationType
     public string? ofm_communication_typeid { get; set; }
     public Int16? ofm_communication_type_number { get; set; }
 }
-public record D365Reminder
-{
-    public string? ofm_reminderid { get; set; }
-    public string? ofm_caption { get; set; }
-    public string? _ofm_application_value { get; set; }
-    public Int16? statecode { get; set; }
-    public int? ofm_template_number { get; set; }
-    public DateTime? ofm_due_date    { get; set; }
-    public Int16? ofm_communication_type_number { get; set; }
-}
 
 
 #region External Parameters

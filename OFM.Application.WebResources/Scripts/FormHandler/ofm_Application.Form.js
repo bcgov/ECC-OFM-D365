@@ -10,7 +10,7 @@ OFM.Application.Form = OFM.Application.Form || {};
 //Formload logic starts here
 OFM.Application.Form = {
     onLoad: function (executionContext) {
-        debugger;
+        //debugger;
         let formContext = executionContext.getFormContext();
         pageContext = executionContext.getFormContext();
         switch (formContext.ui.getFormType()) {
@@ -32,9 +32,7 @@ OFM.Application.Form = {
                 this.licenceCheck(executionContext);
                 this.showBanner(executionContext);
                 this.lockStatusReason(executionContext);
-                this.lockPCMReviewSubgrid(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
-
                 break;
 
             case 3: //readonly
@@ -302,6 +300,7 @@ OFM.Application.Form = {
         if (facility != null) {
             facilityid = facility[0].id;
             Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=_parentaccountid_value").then(
+
                 function success(results) {
                     console.log(results);
                     if (results["_parentaccountid_value"] != null) {
@@ -412,29 +411,6 @@ OFM.Application.Form = {
         }
         else
             formContext.getControl("header_statuscode").setDisabled(false);
-    },
-    lockPCMReviewSubgrid: function (executionContext) {
-        debugger;
-        var formContext = executionContext.getFormContext();
-        var subgridControl = formContext.getControl("application_pcm_review");
-        var appStatus = formContext.getAttribute("statuscode").getValue();
-        if (subgridControl) {
-            // Get the rows in the subgrid
-            var rows = subgridControl.getGrid().getRows();
-            // Loop through each row
-            rows.forEach(function (row) {
-                // Get all controls within the row
-                var controls = row.getData().entity.attributes.get();
-
-                // Loop through each control and disable it
-                controls.forEach(function (control) {
-                    control.controls.forEach(function (innerControl) {
-                        // Disable the control
-                        innerControl.setDisabled(true);
-                    });
-                });
-            });
-        }
     },
     hideVerificationTab: function (executionContext) {
         debugger;
