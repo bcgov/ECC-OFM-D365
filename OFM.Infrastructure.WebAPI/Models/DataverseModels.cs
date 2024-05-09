@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Models;

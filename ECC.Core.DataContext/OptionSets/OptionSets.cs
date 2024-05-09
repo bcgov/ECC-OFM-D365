@@ -12750,7 +12750,7 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Approved", 4, "#0000ff")]
+		[OptionSetMetadataAttribute("Approved", 5, "#0000ff")]
 		Approved = 6,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -12758,15 +12758,15 @@ namespace ECC.Core.DataContext
 		AwaitingProvider = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cancelled by Ministry", 6, "#0000ff")]
+		[OptionSetMetadataAttribute("Cancelled by Ministry", 7, "#0000ff")]
 		CancelledbyMinistry = 7,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cancelled by SP", 7, "#0000ff")]
+		[OptionSetMetadataAttribute("Cancelled by SP", 8, "#0000ff")]
 		CancelledbySP = 8,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cancelled - Expired Deadline", 8, "#0000ff")]
+		[OptionSetMetadataAttribute("Cancelled - Expired Deadline", 9, "#0000ff")]
 		CancelledExpiredDeadline = 9,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -12774,7 +12774,7 @@ namespace ECC.Core.DataContext
 		Draft = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Ineligible", 5, "#0000ff")]
+		[OptionSetMetadataAttribute("Ineligible", 6, "#0000ff")]
 		Ineligible = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -12786,7 +12786,7 @@ namespace ECC.Core.DataContext
 		Submitted = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Verified", 9)]
+		[OptionSetMetadataAttribute("Verified", 4)]
 		Verified = 10,
 	}
 	
@@ -12872,38 +12872,6 @@ namespace ECC.Core.DataContext
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_bceid_facility_StatusCode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 2,
-	}
-	
-	/// <summary>
-	/// Status of the CAS Response
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_cas_response_statecode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 1,
-	}
-	
-	/// <summary>
-	/// Reason for the status of the CAS Response
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_cas_response_StatusCode
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -13340,63 +13308,6 @@ namespace ECC.Core.DataContext
 		Inactive = 2,
 	}
 	
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_integration_error_log_ofm_call_type
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Create Supplier", 1, "#0000ff")]
-		CreateSupplier = 2,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Fetch Payment Results From CAS", 0, "#0000ff")]
-		FetchPaymentResultsFromCAS = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Fetch Supplier", 2, "#0000ff")]
-		FetchSupplier = 3,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Update Supplier", 3, "#0000ff")]
-		UpdateSupplier = 4,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Upsert Supplier", 4, "#0000ff")]
-		UpsertSupplier = 5,
-	}
-	
-	/// <summary>
-	/// Status of the Integration Error Log
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_integration_error_log_statecode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 1,
-	}
-	
-	/// <summary>
-	/// Reason for the status of the Integration Error Log
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_integration_error_log_StatusCode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 2,
-	}
-	
 	/// <summary>
 	/// Status of the Integration Log
 	/// </summary>
@@ -13668,6 +13579,10 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Assigned", 2)]
 		Assigned = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Completed", 6)]
+		Completed = 7,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Fail", 4)]
