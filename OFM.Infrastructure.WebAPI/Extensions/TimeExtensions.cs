@@ -47,7 +47,8 @@ public class Range<T> : IRange<T> where T : IComparable<T>
     }
 }
 
-public static class TimeExtensions {
+public static class TimeExtensions
+{
 
     public static string GetIanaTimeZoneId(TimeZoneInfo tzi)
     {
@@ -60,9 +61,10 @@ public static class TimeExtensions {
         throw new TimeZoneNotFoundException($"No IANA time zone found for {tzi.Id}.");
     }
 
-    public static DateTime GetCurrentPSTdateTime() {
+    public static DateTime GetCurrentPSTdateTime()
+    {
 
-    TimeZoneInfo timeZone = TimeZoneInfo.Local;
+        TimeZoneInfo timeZone = TimeZoneInfo.Local;
         bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         if (isWindows)
         {
@@ -83,31 +85,31 @@ public static class TimeExtensions {
     /// </summary>
     /// <param name="currentDate"></param>
     /// <param name="holidays"></param>
-    /// <param name="trailingDays"></param>
+    /// <param name="preTrailingDays"></param>
     /// <returns></returns>
-    public static DateTime GetCFSInvoiceDate(this DateTime currentDate, List<DateTime> holidays, int trailingDays = 3)
+    public static DateTime GetCFSInvoiceDate(this DateTime lastDateOfPreviousMonth, List<DateTime> holidays, int preTrailingDays = -5)
     {
         Func<int, DateTime> isBusinessDay = days =>
         {
-            var dateToCheck = currentDate.AddDays(days);
-            var isNonWorkingDay =
-                dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
-                dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
-                holidays.Exists(excludedDate => excludedDate.Date.Equals(dateToCheck.Date));
+            var dateToCheck = lastDateOfPreviousMonth.AddDays(days);
+            var isNonBusinessDay =
+                            dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
+                            dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
+                            holidays.Exists(excludedDate => excludedDate.Date.Equals(dateToCheck.Date));
 
-            return !isNonWorkingDay ? dateToCheck : DateTime.MinValue;
+            return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
         };
 
-        var potentialDates = Enumerable.Range(0, trailingDays).Select(isBusinessDay);
+        var potentialDates = Enumerable.Range(preTrailingDays, Math.Abs(preTrailingDays)).Select(isBusinessDay);
 
         return potentialDates
                 .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
-                .OrderBy(d => d.Date)
+                .OrderByDescending(d => d.Date)
                 .First();
     }
 
     /// <summary>
-    /// A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
+    /// To Be Reviewed: A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
     /// </summary>
     /// <param name="invoiceDate"></param>
     /// <param name="holidays"></param>
@@ -119,12 +121,12 @@ public static class TimeExtensions {
         Func<int, DateTime> isBusinessDay = days =>
         {
             var dateToCheck = invoiceDate.AddDays(days);
-            var isNonWorkingDay =
+            var isNonBusinessDay =
                 dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
                 dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
                 holidays.Exists(excludedDate => excludedDate.Date.Equals(dateToCheck.Date));
 
-            return !isNonWorkingDay ? dateToCheck : DateTime.MinValue;
+            return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
         };
 
         var potentialDates = Enumerable.Range(defaultDaysAfter, defaultDaysAfter + trailingDays).Select(isBusinessDay);
@@ -143,20 +145,20 @@ public static class TimeExtensions {
     /// <param name="defaultDaysBefore"></param>
     /// <param name="trailingDays"></param>
     /// <returns></returns>
-    public static DateTime GetCFSInvoiceReceivedDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysBefore = -4, int trailingDays = -3)
+    public static DateTime GetCFSInvoiceReceivedDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysBefore = -4, int trailingDays = -5)
     {
         Func<int, DateTime> isBusinessDay = days =>
         {
             var dateToCheck = invoiceDate.AddDays(days);
-            var isNonWorkingDay =
+            var isNonBusinessDay =
                 dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
                 dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
                 holidays.Exists(excludedDate => excludedDate.Date.Equals(dateToCheck.Date));
 
-            return !isNonWorkingDay ? dateToCheck : DateTime.MinValue;
+            return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
         };
 
-        var potentialDates = Enumerable.Range(defaultDaysBefore, defaultDaysBefore + trailingDays).Select(isBusinessDay);
+        var potentialDates = Enumerable.Range(defaultDaysBefore, Math.Abs(trailingDays)).Select(isBusinessDay);
 
         return potentialDates
                 .Where(d => !d.Date.Equals(DateTime.MinValue.Date))

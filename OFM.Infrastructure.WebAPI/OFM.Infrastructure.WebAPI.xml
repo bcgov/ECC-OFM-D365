@@ -27,7 +27,7 @@
             </summary>
             <param name="currentDate"></param>
             <param name="holidays"></param>
-            <param name="trailingDays"></param>
+            <param name="preTrailingDays"></param>
             <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSEffectiveDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
