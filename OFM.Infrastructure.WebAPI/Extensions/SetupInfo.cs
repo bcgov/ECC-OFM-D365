@@ -39,6 +39,9 @@ public static class Setup
 
             public const Int16 SendSupplementaryNotificationsId = 215;
             public const string SendSupplementaryNotificationsName = "Create supplementary email reminders";
+
+            public const Int16 CreateEmailRemindersId = 220;
+            public const string CreateEmailRemindersName = "Create Email Reminders for Supplementary Application";
         }
 
         public static class Fundings

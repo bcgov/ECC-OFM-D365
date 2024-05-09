@@ -180,6 +180,21 @@ public record ofm_Facility
     public int? ofm_program { get; set; }
 }
 
+public class Supplementary : ofm_allowance
+{
+    public string _ofm_application_value { get; set; }
+
+}
+public record ofm_reminders
+{
+    public required string ofm_reminderid { get; set; }
+    public int ofm_template_number { get; set; }
+    public int statuscode { get; set; }
+    public int ofm_year_number { get; set; }
+
+    public DateTime ofm_due_date { get; set; }
+}
+
 #endregion
 
 public record D365Template
