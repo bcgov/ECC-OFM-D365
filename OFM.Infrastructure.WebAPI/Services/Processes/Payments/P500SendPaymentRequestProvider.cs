@@ -107,12 +107,12 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                         <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
                       <attribute name="ofm_financial_year" />                      
                     </link-entity>
-                     <link-entity name="ofm_funding" from="ofm_fundingid" to="ofm_funding" visible="false" link-type="outer" alias="ofm_funding">
-                      <attribute name="ofm_funding_number" />
+                    <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="ofm_application">
+                      <attribute name="ofm_application" />
                     </link-entity>
                      <link-entity name="account" from="accountid" to="ofm_facility" visible="false" link-type="outer" alias="ofm_facility">
-                      <attribute name="accountnumber" />
-                      <attribute name="name" />
+                       <attribute name="accountnumber" />                     
+                     <attribute name="name" />
                     </link-entity>
                       </entity>
                     </fetch>
@@ -211,13 +211,16 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
         var paymentData = await GetPaymentLineData();
         List<Payment_Line> paymentserializedData = new List<Payment_Line>();
-
+        try
+        { 
         
         paymentserializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(paymentData.Data.ToString());
 
-  
-    var grouppayment = paymentserializedData.GroupBy(p => p.ofm_invoice_number).ToList();
-        var _fiscalyear = paymentserializedData.FirstOrDefault().ofm_financial_year;
+
+        var grouppayment = paymentserializedData?.GroupBy(p => p.ofm_invoice_number).ToList();
+        
+        
+        var _fiscalyear = paymentserializedData?.FirstOrDefault()?.ofm_financial_year;
 
         var localData = await GetDataAsync();
         var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
@@ -225,19 +228,18 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         if (serializedData != null && serializedData[0].ofm_batch_number != null)
         {
             _oraclebatchnumber = Convert.ToInt32(serializedData[0].ofm_oracle_batch_name) + 1;
-            _cGIBatchNumber = (Convert.ToInt32(serializedData[0].ofm_batch_number) + 1).ToString("D9");
-            oracleBatchName = _BCCASApi.clientCode + _fiscalyear.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5");
+             _cGIBatchNumber = (Convert.ToInt32(serializedData[0].ofm_batch_number) + 1).ToString("D9").Substring(0,9);
+             oracleBatchName = _BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5");
         }
         else
         {
             _cGIBatchNumber = _BCCASApi.cGIBatchNumber;
-            oracleBatchName = _BCCASApi.clientCode + _fiscalyear.Substring(2) + "OFM" + _BCCASApi.oracleBatchNumber;
+            oracleBatchName = _BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + _BCCASApi.oracleBatchNumber;
 
         }
 
 #region Step 1: Handlebars format to generate Inbox data
-try
-{
+
     string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}{{delimiter}}\n" + "{{#each InvoiceHeader}}{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceRecDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
                     "{{#each InvoiceLines}}{{this.feederNumber}}{{this.batchType}}{{this.linetransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.invoiceLineNumber}}{{this.committmentLine}}{{this.lineAmount}}{{this.lineCode}}{{this.distributionACK}}{{this.lineDescription}}{{this.effectiveDate}}{{this.quantity}}{{this.unitPrice}}{{this.optionalData}}{{this.distributionSupplierNumber}}{{this.flow}}{{this.delimiter}}\n{{/each}}{{/each}}" +
                     "{{this.feederNumber}}{{this.batchType}}{{this.trailertransactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.controlCount}}{{this.controlAmount}}{{this.delimiter}}\n";
@@ -270,7 +272,7 @@ try
                     lineAmount = Convert.ToDouble(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount"), '0'),// come from split funding amount per facility
                     lineCode = _BCCASApi.InvoiceLines.lineCode,//Static Value:D (debit)
                     distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
-                    lineDescription = string.Concat(lineitem.item.ofm_funding_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
+                    lineDescription = string.Concat(lineitem.item.ofm_application_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
                     effectiveDate = lineitem.item.ofm_effective_date.ToString("yyyyMMdd"), //2 days after invoice posting
                     quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
                     unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder
@@ -300,10 +302,10 @@ try
                 termsName = _BCCASApi.InvoiceHeader.termsName.PadRight(header.FieldLength("termsName")),//getting from supplier 
                 goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
                 invoiceRecDate = headeritem.First().ofm_invoice_received_date.ToString("yyyyMMdd"),//ideally is is 4 days before current date
-                oracleBatchName = (_BCCASApi.clientCode + _fiscalyear.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
+                oracleBatchName = (_BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                 SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
-                description = string.Concat(headeritem.First().accountname + " " + headeritem.First().accountnumber).PadRight(header.FieldLength("description")),// can be used to pass extra info
+                description = string.Concat(headeritem.First().accountname).PadRight(header.FieldLength("description")),// can be used to pass extra info
                 flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
                 invoiceLines = invoiceLines
 
@@ -351,17 +353,15 @@ try
 
 
 
-        #region  Step 3: Create Payment Records for all approved applications.
-        if (!string.IsNullOrEmpty(result))
-        {
-            await CreatePaymentFile(appUserService, d365WebApiService, _BCCASApi.feederNumber, result);
-        }
-        #endregion
+            if (!string.IsNullOrEmpty(result))
+            {
+                #region  Step 3: Create Payment Records for all approved applications.
 
+                await CreatePaymentFile(appUserService, d365WebApiService, _BCCASApi.feederNumber, result,paymentserializedData);
 
-        #region  Step 4: Mark payment as processed.
-        await MarkPayAsProcessed(appUserService, d365WebApiService, paymentserializedData);
-            #endregion
+                #endregion
+
+            }
 
 
         }
@@ -396,7 +396,7 @@ try
         return step2BatchResult.SimpleBatchResult;
     }
 
-    private async Task<JsonObject> CreatePaymentFile(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string feederNumber, string result)
+    private async Task<JsonObject> CreatePaymentFile(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string feederNumber, string result, List<Payment_Line> payment)
     {
         var filename = ("INBOX.F" + feederNumber + "." + DateTime.Now.ToString("yyyyMMddHHMMss"));
         var requestBody = new JsonObject()
@@ -442,6 +442,12 @@ try
                     return await Task.FromResult<JsonObject>(new JsonObject() { });
 
                 }
+
+
+                #region  Step 4: Mark payment as processed.
+                await MarkPayAsProcessed(appUserService, d365WebApiService, payment);
+
+                #endregion
 
 
             }
