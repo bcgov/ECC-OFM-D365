@@ -126,8 +126,8 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                      <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
                       <attribute name="ofm_financial_year" />                      
                     </link-entity>
-                     <link-entity name="ofm_funding" from="ofm_fundingid" to="ofm_funding" visible="false" link-type="outer" alias="ofm_funding">
-                      <attribute name="ofm_funding_number" />
+                    <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="ofm_application">
+                      <attribute name="ofm_application" />
                     </link-entity>
                      <link-entity name="account" from="accountid" to="ofm_facility" visible="false" link-type="outer" alias="ofm_facility">
                        <attribute name="name" />
@@ -227,9 +227,8 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         List<feedbackHeader> headers = new List<feedbackHeader>();
 
         var startTime = _timeProvider.GetTimestamp();
-        try
-        {
-            var localData = await GetDataAsync();
+       
+        var localData = await GetDataAsync();
             var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
 
             HttpResponseMessage response1 = await _d365webapiservice.GetDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(serializedData[0].ofm_payment_file_exchangeid));
@@ -266,17 +265,17 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
             var serializedPayData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(localPayData.Data.ToString());
             var updatePayRequests = new List<HttpRequestMessage>() { };
 
-            serializedPayData.ForEach(pay =>
+            serializedPayData?.ForEach(pay =>
             {
-                var line = headers.SelectMany(p=>p.feedbackLine).First(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.StartsWith(string.Concat(pay.ofm_funding_number, " ", pay.ofm_payment_type)));
+                var line = headers.SelectMany(p=>p.feedbackLine).SingleOrDefault(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.StartsWith(string.Concat(pay.ofm_application_number, " ", pay.ofm_payment_type)));
                 var header =  headers.Where(p=>p.IHInvoice==pay.ofm_invoice_number).First();
-                string casResponse = string.Concat("line Processing :", line.ILCode, ":", line.ILError, "\n", "Header Processing :", header.IHCode, ":", header.IHError);
-
+                string casResponse = (line?.ILCode != "0000")?string.Concat("Error:", line?.ILCode, " ", line?.ILError) : string.Empty;
+                casResponse += (header.IHCode != "0000") ? string.Concat(header.IHCode, " ", header.IHError) : string.Empty;
 
                 var payToUpdate = new JsonObject {
                 {ofm_payment.Fields.ofm_cas_response, casResponse},
-                {ofm_payment.Fields.statecode,(int)((line.ILCode=="0000" &&header.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
-                {ofm_payment.Fields.statuscode,(int)((line.ILCode=="0000" && header.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingERROR)},
+                {ofm_payment.Fields.statecode,(int)((line?.ILCode=="0000" &&header.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
+                {ofm_payment.Fields.statuscode,(int)((line?.ILCode=="0000" && header.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingERROR)},
                };
                 updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName, new Guid(pay.ofm_paymentid)), payToUpdate));
 
@@ -291,11 +290,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
 
                 return errors.SimpleProcessResult;
             }
-        }
-        catch(Exception ex)
-        {
-
-        }
+      
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 

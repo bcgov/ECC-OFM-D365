@@ -171,13 +171,13 @@ public record BCRegistrySearchResult
     public record feedbackHeader
     {
         [CustomFileField(StartsWith = "APIH", Start = 4, Length = 9)]
-        public string IHSupplier { get; set; }
+        public  string IHSupplier { get; set; }
 
         [CustomFileField(StartsWith = "APIH", Start = 16, Length = 50)]
-        public string IHInvoice { get; set; }
+        public  string IHInvoice { get; set; }
 
         [CustomFileField(StartsWith = "APIH", Start = 411, Length = 4)]
-        public string IHCode { get; set; }
+        public  string IHCode { get; set; }
 
         [CustomFileField(StartsWith = "APIH", Start = 415, Length = 150)]
         public string IHError { get; set; }
@@ -191,20 +191,20 @@ public record BCRegistrySearchResult
     {
 
         [CustomFileField(StartsWith = "APIL", Start = 4, Length = 9)]
-        public string ILSupplier { get; set; }
+        public  string ILSupplier { get; set; }
 
         [CustomFileField(StartsWith = "APIL", Start = 16, Length = 50)]
         public  string ILInvoice { get; set; }
 
         [CustomFileField(StartsWith = "APIL", Start = 77, Length = 15)]
-        public  string ILAmount { get; set; }
+        public   string ILAmount { get; set; }
 
 
         [CustomFileField(StartsWith = "APIL", Start = 139, Length = 55)]
         public string ILDescription { get; set; }
 
         [CustomFileField(StartsWith = "APIL", Start = 531, Length = 4)]
-        public string ILCode { get; set; }
+        public  string ILCode { get; set; }
 
         [CustomFileField(StartsWith = "APIL", Start = 535, Length = 150)]
         public string ILError { get; set; }

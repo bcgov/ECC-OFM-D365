@@ -294,11 +294,11 @@ public class Payment_Line : ofm_payment
     public required decimal ofm_amount { get; set; }
     public required int ofm_payment_method { get; set; }
     [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
-    public required string ofm_financial_year { get; set; }
-    [property: JsonPropertyName("ofm_funding.ofm_funding_number")]
-    public required string ofm_funding_number { get; set; }
+    public  string ofm_financial_year { get; set; }
+    [property: JsonPropertyName("ofm_application.ofm_application")]
+    public  string ofm_application_number { get; set; }
     [property: JsonPropertyName("ofm_facility.name")]
-    public required string accountname { get; set; }
+    public  string accountname { get; set; }
   
 }
 

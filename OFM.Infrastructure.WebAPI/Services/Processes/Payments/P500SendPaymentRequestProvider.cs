@@ -107,8 +107,8 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                         <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
                       <attribute name="ofm_financial_year" />                      
                     </link-entity>
-                     <link-entity name="ofm_funding" from="ofm_fundingid" to="ofm_funding" visible="false" link-type="outer" alias="ofm_funding">
-                      <attribute name="ofm_funding_number" />
+                    <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="ofm_application">
+                      <attribute name="ofm_application" />
                     </link-entity>
                      <link-entity name="account" from="accountid" to="ofm_facility" visible="false" link-type="outer" alias="ofm_facility">
                        <attribute name="accountnumber" />                     
@@ -272,7 +272,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                     lineAmount = Convert.ToDouble(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount"), '0'),// come from split funding amount per facility
                     lineCode = _BCCASApi.InvoiceLines.lineCode,//Static Value:D (debit)
                     distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
-                    lineDescription = string.Concat(lineitem.item.ofm_funding_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
+                    lineDescription = string.Concat(lineitem.item.ofm_application_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
                     effectiveDate = lineitem.item.ofm_effective_date.ToString("yyyyMMdd"), //2 days after invoice posting
                     quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
                     unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder
@@ -302,7 +302,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                 termsName = _BCCASApi.InvoiceHeader.termsName.PadRight(header.FieldLength("termsName")),//getting from supplier 
                 goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
                 invoiceRecDate = headeritem.First().ofm_invoice_received_date.ToString("yyyyMMdd"),//ideally is is 4 days before current date
-                oracleBatchName = (_BCCASApi.clientCode + _fiscalyear.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
+                oracleBatchName = (_BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                 SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
                 description = string.Concat(headeritem.First().accountname).PadRight(header.FieldLength("description")),// can be used to pass extra info
