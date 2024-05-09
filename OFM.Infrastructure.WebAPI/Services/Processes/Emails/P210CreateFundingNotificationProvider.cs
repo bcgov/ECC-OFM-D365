@@ -97,13 +97,9 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             recipientsList.Add((Guid)primaryContact);
             await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
             }
+
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
         #endregion
     }
-
-
-
-
-    
 }

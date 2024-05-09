@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
@@ -87,7 +88,6 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             return requestUri.CleanCRLF();
         }
     }
-
     private string SupplementariesUri
     {
         get
@@ -139,6 +139,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             return requestUri.CleanCRLF();
         }
     }
+
     public async Task<ProcessData> GetDataAsync()
     {
         _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P215SendSupplementaryRemindersProvider));
@@ -174,7 +175,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
         return await Task.FromResult(_data);
     }
 
-    public async Task<ProcessData> GetDataFromCRMAsync(string requestUri, string webapiName, string? description = null)
+    public async Task<ProcessData> GetDataFromCRMAsync(string requestUri)
     {
         _logger.LogDebug(CustomLogEvent.Process, "Getting records from with query {requestUri}", requestUri.CleanLog());
 
@@ -203,31 +204,37 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
         return await Task.FromResult(new ProcessData(d365Result)!);
 
     }
+
     public async Task<JsonObject?> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
         var startTime = _timeProvider.GetTimestamp();
+
         //Get all reminders with duedate is Today and all contacts related to them
-        var localDataReminders = await GetDataFromCRMAsync(RequestReminderWithDuedateUri, "P215SendSupplementariesNotificationUponReminder");
+        var localDataReminders = await GetDataFromCRMAsync(RequestReminderWithDuedateUri);
         JsonArray reminders = (JsonArray)localDataReminders.Data;
+
         if (reminders.Count == 0)
         {
             _logger.LogDebug(CustomLogEvent.Process, "No Reminders need to deal with");
             return null;
         }
+
         // Get distinct reminders
         var distinctReminders = reminders.DistinctBy(item => (string)item["ofm_reminderid"]).ToArray();
+
         //conbine query string to get all Supplementaries records under all applications.
         foreach (var reminder in distinctReminders)  // conbine query string to get all Supplementaries records under all applications.
         {
             ofmapplicationids = ofmapplicationids + $@"<condition attribute = ""ofm_application"" operator= ""eq"" value = """ + reminder["_ofm_application_value"] + $@""" />";
         }
-        
+
         // get all supplementaries records for all reminders
-        var localDateSupplementaries = await GetDataFromCRMAsync(SupplementariesUri, "P215SendSupplementariesNotificationUponReminder");
-        
+        var localDateSupplementaries = await GetDataFromCRMAsync(SupplementariesUri);
+
         // get emailtemplate
-        var localDateEmailTemplate = await GetDataFromCRMAsync(TemplatetoRetrieveUri, "P215SendSupplementariesNotificationUponReminder");
+        var localDateEmailTemplate = await GetDataFromCRMAsync(TemplatetoRetrieveUri);
+
         JsonArray emailTemplate = (JsonArray)localDateEmailTemplate.Data;
         JsonNode templateobj = emailTemplate.FirstOrDefault();
         var updateRemindersRequests = new List<HttpRequestMessage>() { };
@@ -235,7 +242,9 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
         foreach (var reminder in distinctReminders)
         {
             var getContacts = reminders.Where(item => (string)item["_ofm_application_value"] == (string)reminder["_ofm_application_value"]).ToArray();
+
             #region Prepare SupplementaryApplicationTypes
+
             string SupplementaryApplicationTypes = string.Empty;
             var supplementaryApplications = localDateSupplementaries.Data.AsArray()
                 .Where(item => (Guid)item["_ofm_application_value"] == (Guid)reminder["_ofm_application_value"]).ToArray();
@@ -291,8 +300,11 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                 _logger.LogDebug(CustomLogEvent.Process, "SupplementaryApplicationTypes is empty");
                 continue;
             }
+
             #endregion SupplementaryApplicationTypes
+
             #region  Create the email notifications as Completed for each Contact
+
             string? subject = (string)templateobj["subjectsafehtml"];
             subject = subject.Replace("#FacilityName#", (string)reminder["facility.name"]);
             string? emaildescription = (string)templateobj["safehtml"];
@@ -333,8 +345,8 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                 var emailStatement = $"emails({newEmailId})";
                 var payload = new JsonObject {
                         { "ofm_sent_on", DateTime.UtcNow },
-                        { "statuscode", 2 },   // 6 = Pending Send ,2=Completed
-                        { "statecode", 1 }};
+                        { "statuscode", (int)Email_StatusCode.Completed },
+                        { "statecode", (int)email_statecode.Completed }};
                 var requestBody1 = JsonSerializer.Serialize(payload);
                 var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, emailStatement, requestBody1);
                 if (!patchResponse.IsSuccessStatusCode)
@@ -343,14 +355,18 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                     _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
                 }
             }
+
             #endregion Create the email notifications as Completed for each Contact
-            //  compose deactive Reminder object
+
+            // compose deactive Reminder object
             var reminderToUpdate = new JsonObject
             {
                 { "statecode", 1 }
             };
+
             updateRemindersRequests.Add(new D365UpdateRequest(new EntityReference("ofm_reminders", (Guid)reminder["ofm_reminderid"]), reminderToUpdate));
         }
+
         // Deactive reminders
         var updateRemindersResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRemindersRequests, null);
         if (updateRemindersResults.Errors.Any())
@@ -358,7 +374,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             var sendNotificationError = ProcessResult.Failure(ProcessId, updateRemindersResults.Errors, updateRemindersResults.TotalProcessed, updateRemindersResults.TotalRecords);
             _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
 
-            return sendNotificationError.SimpleProcessResult;
+            return await Task.FromResult(sendNotificationError.SimpleProcessResult);
         }
 
         var result = ProcessResult.Success(ProcessId, reminders!.Count);
@@ -370,9 +386,10 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             WriteIndented = true,
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
+
         string json = JsonSerializer.Serialize(result, serializeOptions);
         _logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
-        return result.SimpleProcessResult;
 
+        return await Task.FromResult(result.SimpleProcessResult);
     }
 }
