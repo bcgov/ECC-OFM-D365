@@ -448,11 +448,6 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_bceid_facility"/> entities.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_cas_responseSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_cas_response"/> entities.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_cclr_ratioSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_cclr_ratio"/> entities.
@@ -498,11 +493,6 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_funding"/> entities.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_funding_ofm_licence_detailSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_funding_ofm_licence_detail"/> entities.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_funding_rateSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_funding_rate"/> entities.
@@ -511,11 +501,6 @@
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_intakeSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_intake"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_integration_error_logSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_integration_error_log"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_integration_logSet">
@@ -1359,6 +1344,106 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_accb_providerid">
             <summary>
             ACCB provider ID
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address3_city">
+            <summary>
+            Type the city for the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address3_line1">
+            <summary>
+            Type the first line of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address3_line2">
+            <summary>
+            Type the second line of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address3_postal_code">
+            <summary>
+            Type the ZIP Code or postal code for the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address3_province">
+            <summary>
+            Type the state or province of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address4_city">
+            <summary>
+            Type the city for the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address4_line1">
+            <summary>
+            Type the first line of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address4_line2">
+            <summary>
+            Type the second line of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address4_postal_code">
+            <summary>
+            Type the ZIP Code or postal code for the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address4_province">
+            <summary>
+            Type the state or province of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address5_city">
+            <summary>
+            Type the city for the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address5_line1">
+            <summary>
+            Type the first line of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address5_line2">
+            <summary>
+            Type the second line of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address5_postal_code">
+            <summary>
+            Type the ZIP Code or postal code for the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address5_province">
+            <summary>
+            Type the state or province of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address6_city">
+            <summary>
+            Type the city for the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address6_line1">
+            <summary>
+            Type the first line of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address6_line2">
+            <summary>
+            Type the second line of the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address6_postal_code">
+            <summary>
+            Type the ZIP Code or postal code for the primary address.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address6_province">
+            <summary>
+            Type the state or province of the primary address.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_business_type">
@@ -3052,16 +3137,6 @@
             1:N ofm_contact_funding
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Contact.ofm_contact_ofm_cas_response">
-            <summary>
-            1:N ofm_contact_ofm_cas_response
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Contact.ofm_contact_ofm_integration_error_log">
-            <summary>
-            1:N ofm_contact_ofm_integration_error_log
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Contact.ofm_contact_survey_response">
             <summary>
             1:N ofm_contact_survey_response
@@ -3080,11 +3155,6 @@
         <member name="P:ECC.Core.DataContext.Contact.ofm_facility_business_bceid">
             <summary>
             1:N ofm_facility_business_bceid
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Contact.ofm_payment_expense_authority_contact">
-            <summary>
-            1:N ofm_payment_expense_authority_contact
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Contact.ofm_request_contact">
@@ -4923,152 +4993,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_cas_response.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_cas_response entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_cas_response.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.ofm_cas_responseid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.ofm_contactid">
-            <summary>
-            Unique identifier for Contact associated with CAS Response.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.ofm_name">
-            <summary>
-            The name of the custom entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.ofm_supplier_file_exchangeid">
-            <summary>
-            Unique identifier for Supplier File Exchange associated with CAS Response.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.statecode">
-            <summary>
-            Status of the CAS Response
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.statuscode">
-            <summary>
-            Reason for the status of the CAS Response
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.ofm_contact_ofm_cas_response">
-            <summary>
-            N:1 ofm_contact_ofm_cas_response
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.ofm_supplier_file_exchange_ofm_cas_response">
-            <summary>
-            N:1 ofm_supplier_file_exchange_ofm_cas_response
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_cas_response.team_ofm_cas_response">
-            <summary>
-            N:1 team_ofm_cas_response
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_cas_response.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_cclr_ratio">
             <summary>
             CCLR Ratio
@@ -5776,21 +5700,6 @@
         <member name="P:ECC.Core.DataContext.ofm_error_enhancer.versionnumber">
             <summary>
             Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_error_enhancer.ofm_error_enhancer_ofm_integration_error_log">
-            <summary>
-            1:N ofm_error_enhancer_ofm_integration_error_log
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_error_enhancer.ofm_error_enhancer_ofm_integration_error_log2">
-            <summary>
-            1:N ofm_error_enhancer_ofm_integration_error_log2
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_error_enhancer.ofm_error_enhancer_ofm_integration_error_log3">
-            <summary>
-            1:N ofm_error_enhancer_ofm_integration_error_log3
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_error_enhancer.team_ofm_error_enhancer">
@@ -6829,27 +6738,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_funding_ofm_licence_detail.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_funding_ofm_licence_detail entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_funding_ofm_licence_detail.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding_ofm_licence_detail.ofm_funding_licencedetail">
-            <summary>
-            N:N ofm_funding_licencedetail
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_funding_ofm_licence_detail.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_funding_rate">
             <summary>
             Funding Rate
@@ -7212,152 +7100,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_integration_error_log.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_integration_error_log entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_integration_error_log.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_integration_error_logid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_name">
-            <summary>
-            The name of the custom entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.statecode">
-            <summary>
-            Status of the Integration Error Log
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.statuscode">
-            <summary>
-            Reason for the status of the Integration Error Log
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_contact_ofm_integration_error_log">
-            <summary>
-            N:1 ofm_contact_ofm_integration_error_log
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_error_enhancer_ofm_integration_error_log">
-            <summary>
-            N:1 ofm_error_enhancer_ofm_integration_error_log
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_error_enhancer_ofm_integration_error_log2">
-            <summary>
-            N:1 ofm_error_enhancer_ofm_integration_error_log2
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.ofm_error_enhancer_ofm_integration_error_log3">
-            <summary>
-            N:1 ofm_error_enhancer_ofm_integration_error_log3
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_integration_error_log.team_ofm_integration_error_log">
-            <summary>
-            N:1 team_ofm_integration_error_log
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_integration_error_log.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_integration_log">
             <summary>
             Integration Log
@@ -7425,7 +7167,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_message">
             <summary>
-            Message
+            Integration Response Details
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_integration_log.ofm_regardingid">
@@ -7692,7 +7434,7 @@
         </member>
         <member name="T:ECC.Core.DataContext.ofm_licence_detail">
             <summary>
-            Licence Details
+            Service Delivery Details on a licence record
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_licence_detail.Fields">
@@ -7750,6 +7492,11 @@
             Care Type
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_end_date">
+            <summary>
+            End Date
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_enrolled_spaces">
             <summary>
             Enrolled Spaces
@@ -7803,6 +7550,11 @@
         <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_overnight_care">
             <summary>
             Overnight Care
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_start_date">
+            <summary>
+            Start Date
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_week_days">
@@ -8112,11 +7864,6 @@
             Value of the Amount Paid in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_description">
-            <summary>
-            Description
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_effective_date">
             <summary>
             Effective Date
@@ -8265,11 +8012,6 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_application">
             <summary>
             N:1 ofm_payment_application
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_expense_authority_contact">
-            <summary>
-            N:1 ofm_payment_expense_authority_contact
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_facility_account">
@@ -11363,11 +11105,6 @@
             Version Number
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_supplier_file_exchange.ofm_supplier_file_exchange_ofm_cas_response">
-            <summary>
-            1:N ofm_supplier_file_exchange_ofm_cas_response
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_supplier_file_exchange.team_ofm_supplier_file_exchange">
             <summary>
             N:1 team_ofm_supplier_file_exchange
@@ -12052,11 +11789,6 @@
             1:N team_ofm_bceid_facility
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_cas_response">
-            <summary>
-            1:N team_ofm_cas_response
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_cclr_ratio">
             <summary>
             1:N team_ofm_cclr_ratio
@@ -12110,11 +11842,6 @@
         <member name="P:ECC.Core.DataContext.Team.team_ofm_intake">
             <summary>
             1:N team_ofm_intake
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_integration_error_log">
-            <summary>
-            1:N team_ofm_integration_error_log
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_integration_log">
@@ -15510,16 +15237,6 @@
             Reason for the status of the BCeID Facility
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_cas_response_statecode">
-            <summary>
-            Status of the CAS Response
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_cas_response_StatusCode">
-            <summary>
-            Reason for the status of the CAS Response
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_cclr_ratio_statecode">
             <summary>
             Status of the CCLR Ratio
@@ -15633,16 +15350,6 @@
         <member name="T:ECC.Core.DataContext.ofm_intake_StatusCode">
             <summary>
             Reason for the status of the Intake
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_integration_error_log_statecode">
-            <summary>
-            Status of the Integration Error Log
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_integration_error_log_StatusCode">
-            <summary>
-            Reason for the status of the Integration Error Log
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_integration_log_statecode">
