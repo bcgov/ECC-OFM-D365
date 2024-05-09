@@ -65,6 +65,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                   <entity name="template">
                     <attribute name="title" />
+                    <attribute name="subjectsafehtml" />
                     <attribute name="templatetypecode" />
                     <attribute name="safehtml" />
                     <attribute name="languagecode" />

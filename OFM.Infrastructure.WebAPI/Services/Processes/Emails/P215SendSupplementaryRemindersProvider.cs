@@ -37,6 +37,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
     public Int16 ProcessId => Setup.Process.Emails.SendSupplementaryNotificationsId;
     public string ProcessName => Setup.Process.Emails.SendSupplementaryNotificationsName;
     private string ofmapplicationids = string.Empty;
+    private string[] _activeCommunicationTypes = [];
     private string RequestReminderWithDuedateUri
     {
         get
@@ -107,40 +108,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             return requestUri.CleanCRLF();
         }
     }
-    private string TemplatetoRetrieveUri
-    {
-        get
-        {
-            // Note: FetchXMl limit is 5000 records per request
-            var fetchXml = $"""
-                <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
-                  <entity name="template">
-                    <attribute name="title" />
-                    <attribute name="templatetypecode" />
-                    <attribute name="safehtml" />
-                    <attribute name="languagecode" />
-                    <attribute name="templateid" />
-                    <attribute name="subject" />
-                    <attribute name="subjectsafehtml" />
-                    <attribute name="description" />
-                    <attribute name="body" />
-                    <order attribute="title" descending="false" />
-                    <filter type="and">
-                      <condition attribute="templateid" operator="eq"  uitype="template" value="{_processParams.Notification.TemplateId}" />
-                    </filter>
-                  </entity>
-                </fetch>
-                """;
-
-            var requestUri = $"""
-                            templates?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                            """;
-
-            return requestUri.CleanCRLF();
-        }
-    }
-
-    public async Task<ProcessData> GetDataAsync()
+     public async Task<ProcessData> GetDataAsync()
     {
         _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P215SendSupplementaryRemindersProvider));
 
@@ -209,9 +177,15 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
     {
         _processParams = processParams;
         var startTime = _timeProvider.GetTimestamp();
+        IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
+        // get reminder Couumication Type guid 
+        IEnumerable<D365CommunicationType> _remindercommunicationType = _communicationType.Where(item=>item.ofm_communication_type_number==(int)(_processParams.Notification.CommunicationTypeNum));
+        string reminderCommunicationTypeid = _remindercommunicationType.FirstOrDefault().ofm_communication_typeid;
+        if (string.IsNullOrEmpty(reminderCommunicationTypeid))
+            throw new Exception("Communication Types are missing.");
 
-        //Get all reminders with duedate is Today and all contacts related to them
-        var localDataReminders = await GetDataFromCRMAsync(RequestReminderWithDuedateUri);
+        //Get all reminders with duedate in Today include all contacts related to them
+        var localDataReminders = await GetDataFromCRMAsync(RequestReminderWithDuedateUri, "P215SendSupplementariesNotificationUponReminder");
         JsonArray reminders = (JsonArray)localDataReminders.Data;
 
         if (reminders.Count == 0)
@@ -228,13 +202,10 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
         {
             ofmapplicationids = ofmapplicationids + $@"<condition attribute = ""ofm_application"" operator= ""eq"" value = """ + reminder["_ofm_application_value"] + $@""" />";
         }
-
         // get all supplementaries records for all reminders
-        var localDateSupplementaries = await GetDataFromCRMAsync(SupplementariesUri);
-
+        var localDateSupplementaries = await GetDataFromCRMAsync(SupplementariesUri, "P215SendSupplementariesNotificationUponReminder");
         // get emailtemplate
-        var localDateEmailTemplate = await GetDataFromCRMAsync(TemplatetoRetrieveUri);
-
+        var localDateEmailTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 220).TemplateNumber);
         JsonArray emailTemplate = (JsonArray)localDateEmailTemplate.Data;
         JsonNode templateobj = emailTemplate.FirstOrDefault();
         var updateRemindersRequests = new List<HttpRequestMessage>() { };
@@ -256,51 +227,53 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             if ((int)reminder["ofm_year_number"] == 1)
             {
                 supplementaryExpiryDate = DateTime.Parse(supplementaryApplicationYear1s.FirstOrDefault()["ofm_end_date"].ToString());
-                foreach (var year1 in supplementaryApplicationYear1s)
-                {
-                    //ofm_allowance_type Support Needs Programming==1, Indigenous Programming==2,Transportation==3  
-                    if ((int)year1["ofm_allowance_type"] == 1 || (int)year1["ofm_allowance_type"] == 2)
-                    {
-                        var tempSupplementaries = supplementaryApplicationYear2s.Where(item => (int)item["ofm_allowance_type"] == (int)year1["ofm_allowance_type"]).ToArray();
-                        if (tempSupplementaries.Count() == 0)
-                        {
-                            SupplementaryApplicationTypes = SupplementaryApplicationTypes + "Year:" + year1["ofm_renewal_term"].ToString() + ", Allowance Type:" + year1["ofm_allowance_type"].ToString();
-                        }
-                    }
-                    if ((int)year1["ofm_allowance_type"] == 3)
-                    {
-                        var tempSupplementaries = supplementaryApplicationYear2s
-                            .Where(item => (int)item["ofm_allowance_type"] == (int)year1["ofm_allowance_type"]
-                            && (string)item["ofm_transport_vehicle_vin"] == (string)year1["ofm_transport_vehicle_vin"]).ToArray();
-                        if (tempSupplementaries.Count() == 0)
-                        {
-                            SupplementaryApplicationTypes = SupplementaryApplicationTypes + "Year:" + year1["ofm_renewal_term"].ToString() + ", Allowance Type:" + year1["ofm_allowance_type"].ToString() + (string)year1["ofm_transport_vehicle_vin"];
-                        }
-                    }
-                }
+                // below code for getting SupplementaryType string,for futurn purpose 
+                //foreach (var year1 in supplementaryApplicationYear1s)
+                //{
+                //    ofm_allowance_type Support Needs Programming== 1, Indigenous Programming== 2,Transportation == 3
+                //    if ((int)year1["ofm_allowance_type"] == 1 || (int)year1["ofm_allowance_type"] == 2)
+                //    {
+                //        var tempSupplementaries = supplementaryApplicationYear2s.Where(item => (int)item["ofm_allowance_type"] == (int)year1["ofm_allowance_type"]).ToArray();
+                //        if (tempSupplementaries.Count() == 0)
+                //        {
+                //            SupplementaryApplicationTypes = SupplementaryApplicationTypes + "Year:" + year1["ofm_renewal_term"].ToString() + ", Allowance Type:" + year1["ofm_allowance_type"].ToString();
+                //        }
+                //    }
+                //    if ((int)year1["ofm_allowance_type"] == 3)
+                //    {
+                //        var tempSupplementaries = supplementaryApplicationYear2s
+                //            .Where(item => (int)item["ofm_allowance_type"] == (int)year1["ofm_allowance_type"]
+                //            && (string)item["ofm_transport_vehicle_vin"] == (string)year1["ofm_transport_vehicle_vin"]).ToArray();
+                //        if (tempSupplementaries.Count() == 0)
+                //        {
+                //            SupplementaryApplicationTypes = SupplementaryApplicationTypes + "Year:" + year1["ofm_renewal_term"].ToString() + ", Allowance Type:" + year1["ofm_allowance_type"].ToString() + (string)year1["ofm_transport_vehicle_vin"];
+                //        }
+                //    }
+                //}
             }
             if ((int)reminder["ofm_year_number"] == 2)
             {
                 supplementaryExpiryDate = DateTime.Parse(supplementaryApplicationYear2s.FirstOrDefault()["ofm_end_date"].ToString());
-                foreach (var year2 in supplementaryApplicationYear2s)
-                {
-                    if ((int)year2["ofm_allowance_type"] == 3)
-                    {
-                        SupplementaryApplicationTypes = SupplementaryApplicationTypes + "Year:" + year2["ofm_renewal_term"].ToString() + ", Allowance Type:" + (string)year2["ofm_allowance_type"].ToString() + (string)year2["ofm_transport_vehicle_vin"];
-                    }
-                    else
-                    {
-                        SupplementaryApplicationTypes = SupplementaryApplicationTypes + "Year:" + year2["ofm_renewal_term"].ToString() + ", Allowance Type:" + (string)year2["ofm_allowance_type"].ToString();
-                    }
-                }
+                // below code for getting SupplementaryType string,for futurn purpose 
+                //foreach (var year2 in supplementaryApplicationYear2s)
+                //{
+                //    if ((int)year2["ofm_allowance_type"] == 3)
+                //    {
+                //        SupplementaryApplicationTypes = SupplementaryApplicationTypes + "Year:" + year2["ofm_renewal_term"].ToString() + ", Allowance Type:" + (string)year2["ofm_allowance_type"].ToString() + (string)year2["ofm_transport_vehicle_vin"];
+                //    }
+                //    else
+                //    {
+                //        SupplementaryApplicationTypes = SupplementaryApplicationTypes + "Year:" + year2["ofm_renewal_term"].ToString() + ", Allowance Type:" + (string)year2["ofm_allowance_type"].ToString();
+                //    }
+                //}
 
             }
-            if (string.IsNullOrEmpty(SupplementaryApplicationTypes))
-            {
-                _logger.LogDebug(CustomLogEvent.Process, "SupplementaryApplicationTypes is empty");
-                continue;
-            }
-
+            // below code for getting SupplementaryType string,for futurn purpose 
+            //if (string.IsNullOrEmpty(SupplementaryApplicationTypes))
+            //{
+            //    _logger.LogDebug(CustomLogEvent.Process, "SupplementaryApplicationTypes is empty");
+            //    continue;
+            //}
             #endregion SupplementaryApplicationTypes
 
             #region  Create the email notifications as Completed for each Contact
@@ -321,7 +294,8 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                             {"email_activity_parties", new JsonArray(){
                                 new JsonObject
                                 {
-                                    { "partyid_systemuser@odata.bind", $"/systemusers({_processParams.Notification.SenderId})"},
+                                   //{ "partyid_systemuser@odata.bind", $"/systemusers({_processParams.Notification.SenderId})"},
+                                    { "partyid_systemuser@odata.bind", $"/systemusers({_notificationSettings.DefaultSenderId})"},
                                     { "participationtypemask", 1 } //From Email
                                 },
                                 new JsonObject
@@ -330,7 +304,8 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                                     { "participationtypemask",   2 } //To Email                             
                                 }
                             }},
-                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"}
+                            //{ "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"}
+                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({reminderCommunicationTypeid})"}
                         };
 
                 var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "emails", requestBody.ToString());
@@ -377,7 +352,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             return await Task.FromResult(sendNotificationError.SimpleProcessResult);
         }
 
-        var result = ProcessResult.Success(ProcessId, reminders!.Count);
+        var result = ProcessResult.Success(ProcessId, reminders.Count);
 
         var endTime = _timeProvider.GetTimestamp();
 

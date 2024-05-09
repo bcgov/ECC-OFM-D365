@@ -55,6 +55,9 @@ public record ProcessParameter
         [property: JsonPropertyName("communicationTypeId")]
         public Guid? CommunicationTypeId { get; set; }
 
+        [property: JsonPropertyName("communicationTypeNum")]
+        public int? CommunicationTypeNum { get; set; }
+
         [property: JsonPropertyName("subject")]
         public string? Subject { get; set; }
 
