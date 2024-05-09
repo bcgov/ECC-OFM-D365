@@ -11,12 +11,13 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 {
-    public class P220CreateRemindersForApplications(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
+    public class P220CreateRemindersForApplications(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IOptionsSnapshot<NotificationSettings> notificationSettings) : ID365ProcessProvider
     {
         private readonly ID365AppUserService _appUserService = appUserService;
         private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
         private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
         private readonly TimeProvider _timeProvider = timeProvider;
+        private readonly NotificationSettings _notificationSettings = notificationSettings.Value;
         private ProcessParameter? _processParams;
         public short ProcessId => Setup.Process.Reminders.CreateEmailRemindersId;
         public string ProcessName => Setup.Process.Reminders.CreateEmailRemindersName;
@@ -168,9 +169,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                         DateTime enddate = (DateTime)supplememtary.ofm_end_date;
                         //put day numbers to config file
                         //check the current time and due date
-                        DateTime sixtydaysduedate = enddate.AddDays(-60);
-                        DateTime thirtydaysduedate = enddate.AddDays(-30);
-                        DateTime eighteendaysduedate = enddate.AddDays(-18);
+                        DateTime sixtydaysduedate = enddate.AddDays(-_notificationSettings.RenewalReminderOptions.FirstReminderInDays);
+                        DateTime thirtydaysduedate = enddate.AddDays(-_notificationSettings.RenewalReminderOptions.SecondReminderInDays);
+                        DateTime eighteendaysduedate = enddate.AddDays(-_notificationSettings.RenewalReminderOptions.ThirdReminderInDays);
 
                         sendCreateReminderRequests.Add(new CreateRequest("ofm_reminders",
                         new JsonObject(){
