@@ -1,4 +1,4 @@
-﻿"use strict";
+﻿﻿"use strict";
 
 //Create Namespace Object 
 var organizationid;
@@ -33,10 +33,12 @@ OFM.Application.Form = {
                 this.showBanner(executionContext);
                 this.lockStatusReason(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
+                this.hideVerificationTab(executionContext);
                 break;
 
             case 3: //readonly
                 this.showBanner(executionContext);
+                this.hideVerificationTab(executionContext);
                 break;
 
             case 4: //disable
@@ -50,7 +52,6 @@ OFM.Application.Form = {
     //A function called on save
     onSave: function (executionContext) {
         //debugger;
-        let formContext = executionContext.getFormContext();
         this.licenceDetailsFromFacility(executionContext);
     },
 
@@ -222,7 +223,6 @@ OFM.Application.Form = {
         }
         // perform operations on record retrieval
     },
-
 
     // function to validate seconday and primary contact
     validateSecondaryContact: function (executionContext) {

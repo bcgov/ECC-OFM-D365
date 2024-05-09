@@ -1,4 +1,5 @@
 ﻿using OFM.Infrastructure.WebAPI.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
@@ -61,10 +62,18 @@ public static class Setup
             public const string VerifyGoodStandingBatchName = "Verify Good Standing Status for Organizations in batch";
         }
 
-        public static class Payments
+        public static class Payment
         {
             public const Int16 SendPaymentRequestId = 500;
             public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";
+            public const Int16 GetPaymentResponseId = 505;
+            public const string GetPaymentResponseName = "Get Payment Feedback and Invoices to BC Pay";
+        }
+
+        public static class FundingReports
+        {
+            public const Int16 CloneFundingReportResponseId = 600;
+            public const string CloneFundingReportResponseName = "Clone Funding Report Response";
         }
     }
 
@@ -129,6 +138,17 @@ public static class Setup
         }
 
         return requertUrl;
+    }
+
+    public static int FieldLength(this Type modelClass, string propertyName)
+    {
+        int fieldLen = 0;
+        StringLengthAttribute strLen = modelClass.GetProperty(propertyName).GetCustomAttributes(typeof(StringLengthAttribute), false).Cast<StringLengthAttribute>().SingleOrDefault();
+        if (strLen != null)
+        {
+            fieldLen = strLen.MaximumLength;
+        }
+        return fieldLen;
     }
 }
 

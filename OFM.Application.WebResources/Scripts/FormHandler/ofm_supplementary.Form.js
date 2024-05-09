@@ -54,6 +54,7 @@ OFM.Supplementary.Form = {
             var allowanceType = formContext.getAttribute("ofm_allowance_type").getValue();
 
             if (typeof (allowanceType) != "undefined" && allowanceType != null) {
+                formContext.ui.tabs.get("tab_3").setVisible(true);
                 switch (allowanceType) {
                     /*
                     Support Needs Programming = 1
@@ -64,6 +65,9 @@ OFM.Supplementary.Form = {
                         formContext.ui.tabs.get("tab_general").sections.get("section_support_needs").setVisible(true);
                         formContext.ui.tabs.get("tab_general").sections.get("section_indigenous").setVisible(false);
                         formContext.ui.tabs.get("tab_general").sections.get("section_transportation").setVisible(false);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_1").setVisible(true);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_4").setVisible(false);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_3").setVisible(false);
 
                         //set attributes to required
                         formContext.getAttribute("ofm_needs_expenses").setRequiredLevel("required");
@@ -81,6 +85,9 @@ OFM.Supplementary.Form = {
                         formContext.ui.tabs.get("tab_general").sections.get("section_support_needs").setVisible(false);
                         formContext.ui.tabs.get("tab_general").sections.get("section_indigenous").setVisible(true);
                         formContext.ui.tabs.get("tab_general").sections.get("section_transportation").setVisible(false);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_3").setVisible(true);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_1").setVisible(false);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_4").setVisible(false);
 
                         //set attributes to required
                         formContext.getAttribute("ofm_indigenous_expenses").setRequiredLevel("required");
@@ -98,6 +105,9 @@ OFM.Supplementary.Form = {
                         formContext.ui.tabs.get("tab_general").sections.get("section_support_needs").setVisible(false);
                         formContext.ui.tabs.get("tab_general").sections.get("section_indigenous").setVisible(false);
                         formContext.ui.tabs.get("tab_general").sections.get("section_transportation").setVisible(true);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_4").setVisible(true);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_1").setVisible(false);
+                        formContext.ui.tabs.get("tab_3").sections.get("tab_3_section_3").setVisible(false);
 
                         //set attributes to required
                         formContext.getAttribute("ofm_transport_estimated_yearly_km").setRequiredLevel("required");
@@ -248,6 +258,30 @@ OFM.Supplementary.Form = {
         }
         else
             formContext.getControl("header_statuscode").setDisabled(false);
-    }
+    },
+
+    approveSupplementaryApplication: function (primaryControl) {
+        debugger;
+        var formContext = primaryControl;
+        var confirmStrings = {
+            title: "Confirm Supplementary Application Approval",
+            text: "Are you sure you want to approve this supplementary application? Please click Yes button to continue, or click No button to cancel.",
+            confirmButtonLabel: "Yes",
+            cancelButtonLabel: "No"
+        };
+
+        var confirmOptions = { height: 200, width: 550 };
+        Xrm.Navigation.openConfirmDialog(confirmStrings, confirmOptions).then(
+            function (success) {
+                if (success.confirmed) {
+                    formContext.getAttribute("statuscode").setValue(6);                                    // 6 = Approved
+                    formContext.data.entity.save();
+                } 
+            },
+            function (error) {
+                Xrm.Navigation.openErrorDialog({ message: error });
+            });
+    },
+
 
 }

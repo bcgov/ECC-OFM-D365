@@ -26,7 +26,6 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     private readonly ID365DataService _dataService = dataService;
     private readonly ID365AppUserService _appUserService = appUserService;
     private readonly ID365WebApiService _d365webapiservice = service;
-    private Guid? _fundingId;
     private int _templateNumber;
 
     #region Pre-Defined Queries
@@ -68,6 +67,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                     <attribute name="subjectsafehtml" />
                     <attribute name="templatetypecode" />
                     <attribute name="safehtml" />
+                    <attribute name="subjectsafehtml" />        
                     <attribute name="languagecode" />
                     <attribute name="templateid" />
                     <attribute name="description" />
@@ -161,7 +161,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 var responseBody = await response.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Failed to create the record with the server error {responseBody}", responseBody.CleanLog());
 
-                //return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                return;
             }
 
             var newEmail = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -171,8 +171,8 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
 
             var payload = new JsonObject {
                         { "ofm_sent_on", DateTime.UtcNow },
-                        { "statuscode", 2 },   // 6 = Pending Send ,2=Completed
-                        { "statecode", 1 }};
+                        { "statuscode", (int) Email_StatusCode.Completed },
+                        { "statecode", (int) email_statecode.Completed }};
 
             var requestBody1 = JsonSerializer.Serialize(payload);
 
@@ -183,7 +183,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 var responseBody = await patchResponse.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
 
-                //return ProcessResult.Failure(processId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                return;
             }
         });
 
