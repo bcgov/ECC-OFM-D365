@@ -12,7 +12,7 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 {
-    public class P220CreateRemindersForApplications(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IOptionsSnapshot<NotificationSettings> notificationSettings) : ID365ProcessProvider
+    public class P220CreateSuppletaryRemindersProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IOptionsSnapshot<NotificationSettings> notificationSettings) : ID365ProcessProvider
     {
         private readonly ID365AppUserService _appUserService = appUserService;
         private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
