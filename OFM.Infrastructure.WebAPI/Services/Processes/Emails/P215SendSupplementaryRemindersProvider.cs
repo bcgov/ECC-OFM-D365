@@ -182,15 +182,17 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
         IEnumerable<D365CommunicationType> _remindercommunicationType = _communicationType.Where(item=>item.ofm_communication_type_number==(int)(_processParams.Notification.CommunicationTypeNum));
         string reminderCommunicationTypeid = _remindercommunicationType.FirstOrDefault().ofm_communication_typeid;
         if (string.IsNullOrEmpty(reminderCommunicationTypeid))
-            throw new Exception("Communication Types are missing.");
+        {
+            _logger.LogError(CustomLogEvent.Process, "Communication Type is not found for ID: {Id}", _processParams.Notification.CommunicationTypeNum);
+        }
 
         //Get all reminders with duedate in Today include all contacts related to them
-        var localDataReminders = await GetDataFromCRMAsync(RequestReminderWithDuedateUri, "P215SendSupplementariesNotificationUponReminder");
+        var localDataReminders = await GetDataFromCRMAsync(RequestReminderWithDuedateUri);
         JsonArray reminders = (JsonArray)localDataReminders.Data;
 
         if (reminders.Count == 0)
         {
-            _logger.LogDebug(CustomLogEvent.Process, "No Reminders need to deal with");
+            _logger.LogDebug(CustomLogEvent.Process, "No Reminders found");
             return null;
         }
 
@@ -203,7 +205,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             ofmapplicationids = ofmapplicationids + $@"<condition attribute = ""ofm_application"" operator= ""eq"" value = """ + reminder["_ofm_application_value"] + $@""" />";
         }
         // get all supplementaries records for all reminders
-        var localDateSupplementaries = await GetDataFromCRMAsync(SupplementariesUri, "P215SendSupplementariesNotificationUponReminder");
+        var localDateSupplementaries = await GetDataFromCRMAsync(SupplementariesUri);
         // get emailtemplate
         var localDateEmailTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 220).TemplateNumber);
         JsonArray emailTemplate = (JsonArray)localDateEmailTemplate.Data;
