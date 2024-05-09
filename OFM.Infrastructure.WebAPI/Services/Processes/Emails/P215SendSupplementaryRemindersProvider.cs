@@ -25,11 +25,12 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
 
-    public P215SendSupplementaryRemindersProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P215SendSupplementaryRemindersProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, IEmailRepository emailRepository, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
+        _emailRepository = emailRepository;
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
