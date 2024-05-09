@@ -300,6 +300,7 @@ OFM.Application.Form = {
         if (facility != null) {
             facilityid = facility[0].id;
             Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=_parentaccountid_value").then(
+
                 function success(results) {
                     console.log(results);
                     if (results["_parentaccountid_value"] != null) {
