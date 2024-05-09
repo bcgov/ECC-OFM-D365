@@ -84,5 +84,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("supplementaryId")]
         public string? SupplementaryId { get; set; }
+
+        [property: JsonPropertyName("ofm_monthly_province_base_funding_y1")]
+        public string? ofm_monthly_province_base_funding_y1 { get; set; }
     }
 }
+

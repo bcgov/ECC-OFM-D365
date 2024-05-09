@@ -35,6 +35,9 @@ public static class Setup
 
             public const Int16 SendFundingNotificationsId = 210;
             public const string SendFundingNotificationsName = "Create emails on Status change of Funding record to FASignaturePending when a Ministry EA approves the funding";
+
+            public const Int16 SendEmailReminderForSupplementaryFundingRenewalId = 215;
+            public const string SendEmailReminderForSupplementaryFundingRenewalName = "Send email reminder for supplementary";
         }
 
         public static class Fundings
@@ -62,6 +65,9 @@ public static class Setup
         {
             public const Int16 SendPaymentRequestId = 500;
             public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";
+
+            public const Int16 GeneratePaymentLinesId = 505;
+            public const string GeneratePaymentLinesName = "Generate Payment Lines";
         }
     }
 

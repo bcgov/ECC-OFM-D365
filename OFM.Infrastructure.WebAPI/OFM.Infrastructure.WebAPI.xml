@@ -32,7 +32,7 @@
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSEffectiveDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
             <summary>
-            A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
+            To Be Reviewed: A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
             </summary>
             <param name="invoiceDate"></param>
             <param name="holidays"></param>
