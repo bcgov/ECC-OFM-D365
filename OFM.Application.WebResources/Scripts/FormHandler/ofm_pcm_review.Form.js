@@ -45,9 +45,11 @@ OFM.PCMReview.Form = {
                 console.log("Retrieved values: Name: " + result.ofm_application+ ", statuscode: " + result.statuscode);
                 if (result.statuscode === 6) {
                     var controls = formContext.ui.controls.get();
+                    // formContext.getAttribute("ofm_reason").setValue(1);
                     controls.forEach(function (control) {
                         control.setDisabled(true);
-                    });
+                }
+                    );
                 }
             },
             function (error) { 
