@@ -140,13 +140,25 @@ public class Application : ofm_application
     public new Guid? _ofm_expense_authority_value { get; set; }
 
     public new D365Facility? ofm_facility { get; set; }
+    public new PaymentLine? ofm_payment { get; set; }
 }
 
 public class FacilityLicence : ofm_licence
 {
     public new LicenceDetail[]? ofm_licence_licencedetail { get; set; }
 }
-
+public class PaymentLine : ofm_payment
+{
+    [JsonPropertyName("statuscode@OData.Community.Display.V1.FormattedValue")]
+    public new string? statuscode_formatted { get; set; }
+    public new int? statuscode { get; set; }
+}
+public class FiscalYear
+{
+    public new Guid? ofm_fiscal_yearid { get; set; }
+    public DateTime ofm_start_date { get; set; }
+    public DateTime ofm_end_date { get; set; }
+}
 public class SupplementaryApplication : ofm_allowance
 {
     public new decimal? ofm_funding_amount { get; set; }
