@@ -63,6 +63,11 @@ public static class Setup
             public const Int16 SendPaymentRequestId = 500;
             public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";
         }
+        public static class Reporting
+        {
+            public const Int16 CreateUpdateQuestionId = 600;
+            public const string CreateUpdateQuestionName = "Create/Update Question from Customer Voice to Reporting Custom Tables.";
+        }
     }
 
     public static readonly JsonSerializerOptions s_writeOptions = new()

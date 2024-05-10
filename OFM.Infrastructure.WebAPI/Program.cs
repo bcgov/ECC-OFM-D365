@@ -13,6 +13,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
+using OFM.Infrastructure.WebAPI.Services.Processes.Reporting;
 using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using System.Reflection;
 
@@ -58,6 +59,7 @@ services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>
 services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
 services.AddScoped<ID365ProcessProvider, P405VerifyGoodStandingBatchProvider>();
 services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
+services.AddScoped<ID365ProcessProvider, P600CreateQuestionProvider>();
 
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();

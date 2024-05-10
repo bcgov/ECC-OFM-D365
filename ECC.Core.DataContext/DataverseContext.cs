@@ -413,7 +413,14 @@ namespace ECC.Core.DataContext
 				return this.CreateQuery<ECC.Core.DataContext.UserSettings>();
 			}
 		}
-	}
+        public System.Linq.IQueryable<ECC.Core.DataContext.msfp_question> msfp_question
+        {
+            get
+            {
+                return this.CreateQuery<ECC.Core.DataContext.msfp_question>();
+            }
+        }
+    }
 	
 	/// <summary>
 	/// Attribute to handle storing the OptionSet's Metadata.

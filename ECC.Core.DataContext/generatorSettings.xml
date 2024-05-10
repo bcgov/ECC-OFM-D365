@@ -1202,11 +1202,8 @@ msfp_alertrule|
 msfp_emailtemplate|
 msfp_fileresponse|
 msfp_localizedemailtemplate|
-msfp_project|
-msfp_question|
 msfp_questionresponse|
 msfp_satisfactionmetric|
-msfp_survey|
 msfp_surveyinvite|
 msfp_surveyreminder|
 msfp_surveyresponse|
@@ -1589,6 +1586,9 @@ ofm_supplementary_schedule|
 ofm_survey|
 ofm_survey_response|
 ofm_system_configuration|
+msfp_project|
+msfp_survey|
+msfp_question|
 systemuser|
 team|
 timezonedefinition|

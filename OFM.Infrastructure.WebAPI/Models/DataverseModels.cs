@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Models;
@@ -271,6 +272,75 @@ public record D365CommunicationType
     public string? ofm_communication_typeid { get; set; }
     public Int16? ofm_communication_type_number { get; set; }
 }
+public class CVS_Question : ofm_question_business_rule
+{
+    [property: JsonPropertyName("true.ofm_source_question_id")]
+    public string? TrueSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("false.ofm_source_question_id")]
+    public string? FalseSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("child.ofm_source_question_id")]
+    public string? childSourcequestionIdentifier { get; set; }
+}
+public record D365Reporting
+{
+    public string? msfp_name { get; set; }
+    public Guid msfp_projectid { get; set; }
+    [property: JsonPropertyName("questions.msfp_questiontype")]
+    public int QuestionType { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questionid")]
+    public Guid QuestionId { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_choicetype")]
+    public int QuestionChoiceType { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questionchoices")]
+    public string QuestionChoices { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questiontext")]
+    public string QuestionText { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_name")]
+    public string QuestionName { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_subtitle")]
+    public string QuestionSubtitle { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sourcesurveyidentifier")]
+    public string QuestionSourceSurveyIdentifier { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_responserequired")]
+    public bool QuestionresponseRequired { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sourcequestionidentifier")]
+
+    public string QuestionSourcequestionIdentifier { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_multiline")]
+
+    public bool QuestionMultiline { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_survey")]
+     public Guid QuestionSurveyId { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sequence")]
+    public int QuestionSequence { get; set; }
+
+    [property: JsonPropertyName("section.msfp_project")]
+    public Guid SectionProject { get; set; }
+
+    [property: JsonPropertyName("section.msfp_surveyid")]
+    public Guid SectionSurveyId { get; set; }
+
+    [property: JsonPropertyName("section.msfp_name")]
+    public string SectionName { get; set; }
+
+    [property: JsonPropertyName("section.msfp_sourcesurveyidentifier")]
+    public string SectionSourceSurveyIdentifier { get; set; }
+
+}
+
+
 
 #region External Parameters
 
