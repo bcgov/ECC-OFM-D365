@@ -25,19 +25,19 @@
             <summary>
             A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
             </summary>
-            <param name="currentDate"></param>
+            <param name="candidate"></param>
             <param name="holidays"></param>
-            <param name="preTrailingDays"></param>
+            <param name="totalTrailingDays"></param>
             <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSEffectiveDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
             <summary>
-            To Be Reviewed: A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
+            A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
             </summary>
             <param name="invoiceDate"></param>
             <param name="holidays"></param>
             <param name="defaultDaysAfter"></param>
-            <param name="trailingDays"></param>
+            <param name="trailingTotalDays"></param>
             <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceReceivedDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
@@ -47,7 +47,7 @@
             <param name="invoiceDate"></param>
             <param name="holidays"></param>
             <param name="defaultDaysBefore"></param>
-            <param name="trailingDays"></param>
+            <param name="trailingTotalDays"></param>
             <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.BatchOperationsHandlers.BatchOperationsAsync(OFM.Infrastructure.WebAPI.Services.Batches.ID365BatchService,Microsoft.Extensions.Logging.ILoggerFactory,System.Object)">

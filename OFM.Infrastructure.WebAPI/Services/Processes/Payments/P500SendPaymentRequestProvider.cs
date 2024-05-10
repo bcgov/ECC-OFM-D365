@@ -96,13 +96,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        var date = DateTime.Now;
-        var holidays = new List<DateTime> { DateTime.Today, DateTime.Today.AddDays(-1) };
-
-        var invoiceDate = date.GetCFSInvoiceDate(holidays);
-        var effectiveDate = invoiceDate.GetCFSEffectiveDate(holidays);
-        var invoiceReceivedDate = invoiceDate.GetCFSEffectiveDate(holidays);
-
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P500SendPaymentRequestProvider));
 
         _processParams = processParams;
