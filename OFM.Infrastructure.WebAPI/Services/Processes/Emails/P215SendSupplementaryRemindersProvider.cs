@@ -286,7 +286,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             string? emaildescription = (string)templateobj["safehtml"];
             emaildescription = emaildescription?.Replace("#SupplementaryApplicationTypes#", SupplementaryApplicationTypes);
             emaildescription = emaildescription?.Replace("#ExpiryDate#", supplementaryExpiryDate.ToString("MMMM-dd-yyyy"));
-            emaildescription = emaildescription?.Replace("#RenewalDeadlineDate#", supplementaryExpiryDate.AddDays(15).ToString("MMMM-dd-yyyy"));
+            emaildescription = emaildescription?.Replace("#RenewalDeadlineDate#", supplementaryExpiryDate.AddDays(-15).ToString("MMMM-dd-yyyy"));
             foreach (var getContact in getContacts)
             {
                 string tempEmaildescription = emaildescription;
