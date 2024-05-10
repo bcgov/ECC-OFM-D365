@@ -77,14 +77,12 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                         <attribute name="ofm_name" />
                         <attribute name="createdon" />
                         <attribute name="ofm_amount" />
-                        <attribute name="ofm_amount_paid_base" />
-                        <attribute name="ofm_description" />
+                         <attribute name="ofm_description" />
                         <attribute name="ofm_effective_date" />
                         <attribute name="ofm_fiscal_year" />
                         <attribute name="ofm_funding" />
                         <attribute name="ofm_invoice_line_number" />
                         <attribute name="owningbusinessunit" />
-                        <attribute name="ofm_paid_date" />
                         <attribute name="ofm_payment_type" />
                         <attribute name="ofm_remittance_message" />
                         <attribute name="statuscode" />
