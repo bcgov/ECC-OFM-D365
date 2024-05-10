@@ -6,6 +6,7 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -31,6 +32,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 // Note: FetchXMl limit is 5000 records per request
                 //Ignore the supplementary applications for term 3 -> FA is expiring
 
+
+                DateTime todayUtc = DateTime.UtcNow;
+                DateTime yesterdayUtc = todayUtc.AddDays(-1);
+
+                string todayUtcstr = todayUtc.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+                string yesterdayUtcstr = yesterdayUtc.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+
                 var fetchXml = $"""
                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
                   <entity name="ofm_allowance">
@@ -52,8 +60,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 """;
 
                 var requestUri = $"""
-                                ofm_allowances?$select=createdon,ofm_allowance_number,ofm_allowance_type,ofm_allowanceid,ofm_end_date,ofm_renewal_term,ofm_start_date,ofm_transport_vehicle_vin,_ofm_application_value&$filter=(Microsoft.Dynamics.CRM.Today(PropertyName='ofm_submittedon') and ofm_renewal_term ne 3)
-                                """;
+                               ofm_allowances?$select=createdon,ofm_allowance_number,ofm_allowance_type,ofm_allowanceid,ofm_end_date,ofm_renewal_term,ofm_start_date,ofm_transport_vehicle_vin,_ofm_application_value,ofm_submittedon&$filter=(ofm_submittedon gt {yesterdayUtcstr} and ofm_submittedon lt {todayUtcstr} and ofm_renewal_term ne 3)
+                               """;
                 return requestUri.CleanCRLF();
             }
         }
@@ -111,7 +119,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No supplementary applications found with query {requestUri}", RetrieveSupplementaryApplications.CleanLog());
+                    _logger.LogInformation(CustomLogEvent.Process, "No reminders found with query {requestUri}", RetrieveSupplementaryApplications.CleanLog());
                 }
                 d365Result = currentValue!;
             }
