@@ -8,12 +8,13 @@ public class LicenceDetail : ofm_licence_detail
 {
     #region Split Room & Duplicate Licence Types/Care Types
     /// <summary>
-    /// Split Room is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
-    /// The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
+    /// 1. Split Room condition is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
+    ///    The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
+    /// 2. Duplicate Care Type condition happens when a facility operates with multiple locations. The capacity and hours may differ at each location hence there are duplicate licence details.
     /// </summary>
 
-    private readonly bool _applyDuplicateCareType;
     private readonly bool _applyRoomSplit;
+    private readonly bool _applyDuplicateCareType;
     public bool ApplyRoomSplitCondition { get; set; }
     private IEnumerable<SpaceAllocation>? _newSpacesAllocationAll = [];
     public IEnumerable<SpaceAllocation>? NewSpacesAllocationAll
@@ -25,9 +26,9 @@ public class LicenceDetail : ofm_licence_detail
     {
         get
         {
-            var filteredByCareType = NewSpacesAllocationAll.Where(space =>
+            var filteredByCareType = NewSpacesAllocationAll?.Where(space =>
             {
-                var typesMapping = space.ofm_cclr_ratio.ofm_licence_mapping!.Split(",")?.Select(int.Parse);
+                var typesMapping = space.ofm_cclr_ratio?.ofm_licence_mapping!.Split(",")?.Select(int.Parse);
                 bool isMapped = typesMapping!.Contains(LicenceTypeNumber);
                 return isMapped;
             });
@@ -86,9 +87,9 @@ public class LicenceDetail : ofm_licence_detail
 
     #endregion
 
-    #region Non-HR Adjusted FTE Spaces
+    #region Non-HR Adjusted Spaces
 
-    public decimal AdjustedFTESpaces => (Spaces * AnnualStandardHours) / (decimal)_rateSchedule!.ofm_max_annual_open_hours!;
+    public decimal AdjustedNonHRSpaces => (Spaces * AnnualStandardHours) / (decimal)_rateSchedule!.ofm_max_annual_open_hours!;
 
     #endregion
 

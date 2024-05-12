@@ -90,7 +90,6 @@ public class MustHaveValidApplicationStatusRule : IFundingValidator<Funding>
         _next = next;
         return next;
     }
-
 }
 
 public class MustHaveValidRateScheduleRule : IFundingValidator<Funding>

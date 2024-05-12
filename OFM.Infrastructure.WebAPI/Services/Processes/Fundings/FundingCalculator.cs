@@ -1,13 +1,12 @@
 ﻿using ECC.Core.DataContext;
 using HandlebarsDotNet;
 using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Diagnostics;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
@@ -19,6 +18,9 @@ public interface IFundingCalculator
     Task<bool> ProcessFundingResultAsync();
 }
 
+/// <summary>
+/// Funding Calculator Version 9
+/// </summary>
 public class FundingCalculator : IFundingCalculator
 {
     private readonly ILogger _logger;
@@ -61,7 +63,7 @@ public class FundingCalculator : IFundingCalculator
             // the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
             if (ApplyDuplicateCareTypesCondition)
             {
-                var groupedlicenceDetails = licenceDetails
+                var groupedlicenceDetails = licenceDetails?
                                             .GroupBy(ltype => ltype.ofm_licence_type, (ltype, lgroup) =>
                                             {
                                                 var grouped = lgroup.First(); //Get the first occurance of the grouped licence details and override with the grouped hours and max spaces
@@ -72,7 +74,7 @@ public class FundingCalculator : IFundingCalculator
                                                 grouped.ofm_weeks_in_operation = lgroup.Sum(t => t.ofm_weeks_in_operation);
                                                 grouped.RateSchedule = _rateSchedule;
                                                 grouped.ApplyRoomSplitCondition = ApplyRoomSplitCondition;
-                                                grouped.NewSpacesAllocationAll = _funding.ofm_funding_spaceallocation;
+                                                grouped.NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation;
 
                                                 return grouped;
                                             });
@@ -84,7 +86,7 @@ public class FundingCalculator : IFundingCalculator
             {
                 service.RateSchedule = _rateSchedule;
                 service.ApplyRoomSplitCondition = ApplyRoomSplitCondition;
-                service.NewSpacesAllocationAll = _funding.ofm_funding_spaceallocation;
+                service.NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation;
             }
 
             return licenceDetails;
@@ -119,7 +121,7 @@ public class FundingCalculator : IFundingCalculator
                 { OwnershipType: ecc_Ownership.Private, Renumeration: > EHT_LOWER_THRESHHOLD, Renumeration: <= EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_for_profit_eht_over_500k ?? 0m,
                 { OwnershipType: ecc_Ownership.Private, Renumeration: > EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_for_profit_eht_over_1_5m ?? 0m,
                 { OwnershipType: ecc_Ownership.Notforprofit, Renumeration: > EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m,
-                null => throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with null value"),
+                null => throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with a null value"),
                 _ => 0m
             };
 
@@ -131,14 +133,13 @@ public class FundingCalculator : IFundingCalculator
 
     #region nonHR Costs & Rates
 
-    //private decimal AdjustmentRateForNonHREnvelopes => MAX_ANNUAL_OPEN_HOURS!.Value / LicenceDetails.Max(cs => cs.AnnualStandardHours); // Todo: Logic is in review with the Ministry
     private const decimal AdjustmentRateForNonHREnvelopes = 1;
     private decimal NonHRProgrammingAmount
     {
         get
         {
             if (_nonHRProgrammingAmount == 0)
-                _nonHRProgrammingAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Programming, TotalSpacesNonHR);
+                _nonHRProgrammingAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Programming, TotalAdjustedSpacesNonHR);
             return _nonHRProgrammingAmount;
         }
     }
@@ -148,7 +149,7 @@ public class FundingCalculator : IFundingCalculator
         get
         {
             if (_nonHRAdministrativeAmount == 0)
-                _nonHRAdministrativeAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Administration, TotalSpacesNonHR);
+                _nonHRAdministrativeAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Administration, TotalAdjustedSpacesNonHR);
             return _nonHRAdministrativeAmount;
         }
     }
@@ -158,7 +159,7 @@ public class FundingCalculator : IFundingCalculator
         get
         {
             if (_nonHROperationalAmount == 0)
-                _nonHROperationalAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Operational, TotalSpacesNonHR);
+                _nonHROperationalAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Operational, TotalAdjustedSpacesNonHR);
             return _nonHROperationalAmount;
         }
     }
@@ -168,7 +169,7 @@ public class FundingCalculator : IFundingCalculator
         get
         {
             if (_nonHRFacilityAmount == 0)
-                _nonHRFacilityAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Facility, TotalSpacesNonHR);
+                _nonHRFacilityAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Facility, TotalAdjustedSpacesNonHR);
             return _nonHRFacilityAmount;
         }
     }
@@ -190,7 +191,7 @@ public class FundingCalculator : IFundingCalculator
     #region Totals
 
     private int TotalSpaces => LicenceDetails.Sum(detail => detail.ofm_operational_spaces!.Value);
-    private decimal TotalSpacesNonHR => LicenceDetails.Sum(sp => sp.AdjustedFTESpaces);
+    private decimal TotalAdjustedSpacesNonHR => LicenceDetails.Sum(sp => sp.AdjustedNonHRSpaces);
     private decimal TotalParentFees => LicenceDetails.Sum(cs => cs.ParentFees);
     private decimal TotalProjectedFundingCost => TotalHRRenumeration + TotalNonHRCost;
 
@@ -287,7 +288,7 @@ public class FundingCalculator : IFundingCalculator
 
             foreach (var space in licenceDetail.NewSpacesAllocationByLicenceType)
             {
-                space.ofm_default_allocation = groupedByGSize.FirstOrDefault(grp => grp.GroupSize == space.ofm_cclr_ratio.ofm_group_size)?.Count ?? 0;
+                space.ofm_default_allocation = groupedByGSize.FirstOrDefault(grp => grp.GroupSize == space.ofm_cclr_ratio?.ofm_group_size)?.Count ?? 0;
             }
         }
 
@@ -307,41 +308,82 @@ public class FundingCalculator : IFundingCalculator
 
     public async Task LogProgressAsync(ID365WebApiService d365webapiservice, ID365AppUserService appUserService, ILogger logger)
     {
-        //ToDo
+        //ToDo: Add the progress tracking of the calculation
+
+        if (_fundingResult is not null && _fundingResult.Errors.Any())
+        {
+            List<HttpRequestMessage> errorMessageRequests = [];
+
+            foreach (var errorMessage in _fundingResult.Errors)
+            {
+                errorMessageRequests.Add(new CreateRequest(ofm_progress_tracker.EntitySetName,
+                        new JsonObject(){
+                            { "ofm_title","ERROR: Calculator Error" },
+                            { "ofm_category","ERROR" },
+                            { "ofm_tracking_details",errorMessage },
+                            { "ofm_regardingid_ofm_funding@odata.bind", $"/ofm_fundings({_funding.Id})"}
+                }));
+            }
+
+            var d365Result = await d365webapiservice.SendBatchMessageAsync(appUserService.AZSystemAppUser, errorMessageRequests, Guid.Empty);
+
+            if (d365Result.Errors.Any())
+            {
+                _logger.LogError(CustomLogEvent.Process, "Failed to create the progress tracker for the calculation errors with an error: {error}", JsonValue.Create(d365Result.Errors)!.ToString());
+            }
+        }
     }
 
     #endregion
 
     #region Supporting Methods
 
-    private IEnumerable<decimal> ComputeRate(IEnumerable<FundingRate> fundingRates, decimal spaces)
+    /// <summary>
+    /// This is a dynamic and simplified version, but also works with the excel calculator V9
+    /// </summary>
+    /// <param name="fundingRates"></param>
+    /// <param name="adjustedSpaces"></param>
+    /// <returns></returns>
+    private IEnumerable<decimal> ComputeRate(IEnumerable<FundingRate> fundingRates, decimal adjustedSpaces)
+    {
+        foreach (var step in fundingRates)
+        {
+            if (adjustedSpaces >= step.ofm_spaces_max!.Value)
+            {
+                LogStepAction(step, (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1), adjustedSpaces);
+                yield return (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
+            }
+            else
+            {
+                LogStepAction(step, (adjustedSpaces - step.ofm_spaces_min!.Value + 1), adjustedSpaces);
+                yield return (adjustedSpaces - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
+            }
+        }
+    }
+
+    /// <summary>
+    /// This version is coded with the same exact logic in the excel calculator V9
+    /// </summary>
+    /// <param name="fundingRates"></param>
+    /// <param name="adjustedSpaces"></param>
+    /// <returns></returns>
+    private IEnumerable<decimal> ComputeRateV9(IEnumerable<FundingRate> fundingRates, decimal adjustedSpaces)
     {
         var previousMax = 0;
         foreach (var step in fundingRates)
-        {            
-            //if (spaces >= step.ofm_spaces_max!.Value)
-            //{
-            //    LogStepAction(step, (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1), spaces);
-            //    yield return (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
-            //}
-            //else
-            //{
-            //    LogStepAction(step, (spaces - step.ofm_spaces_min!.Value + 1), spaces);
-            //    yield return (spaces - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
-            //}
-            //yield return Math.Max((Math.Min(spaces, step.ofm_spaces_max!.Value)) - step.ofm_spaces_min!.Value + 1, 0) * step.ofm_rate!.Value;
+        {
             switch (step.ofm_step!.Value)
             {
                 case 1:
-                    yield return Math.Min(spaces, step.ofm_spaces_max!.Value) * step.ofm_rate!.Value;
+                    yield return Math.Min(adjustedSpaces, step.ofm_spaces_max!.Value) * step.ofm_rate!.Value;
                     break;
                 case 2:
                 case 3:
-                    yield return Math.Max(0, Math.Min(spaces - step.ofm_spaces_min!.Value + 1, 
+                    yield return Math.Max(0, Math.Min(adjustedSpaces - step.ofm_spaces_min!.Value + 1,
                         step.ofm_spaces_max!.Value - previousMax)) * step.ofm_rate!.Value;
                     break;
                 case 4:
-                    yield return Math.Max(0, spaces - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
+                    yield return Math.Max(0, adjustedSpaces - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
                     break;
                 default:
                     break;
@@ -350,29 +392,29 @@ public class FundingCalculator : IFundingCalculator
         }
     }
 
-    private decimal GetNonHRScheduleAmount(ecc_Ownership? ownershipType, ecc_funding_envelope envelope, decimal spaces)
+    private decimal GetNonHRScheduleAmount(ecc_Ownership? ownershipType, ecc_funding_envelope envelope, decimal adjustedSpacesNonHR)
     {
         FundingRate[] fundingRates =
         [
             .. _rateSchedule?.ofm_rateschedule_fundingrate?
                         .Where(rate => rate.ofm_ownership == ownershipType
                                 && rate.ofm_nonhr_funding_envelope == envelope
-                                && rate.ofm_spaces_min <= spaces)
+                                && rate.ofm_spaces_min <= adjustedSpacesNonHR)
                         .OrderBy(rate => rate.ofm_step)
         ];
 
-        return ComputeRate(fundingRates, spaces).Sum();
+        return ComputeRate(fundingRates, adjustedSpacesNonHR).Sum();
     }
 
-    private void LogStepAction(FundingRate fundingRate, int allocatedSpaces, int totalSpace)
+    private void LogStepAction(FundingRate fundingRate, decimal allocatedSpaces, decimal totalSpace)
     {
-        NonHRStepActions.Add(new NonHRStepAction(fundingRate.ofm_step.Value,
-                                            allocatedSpaces, Math.Round(fundingRate.ofm_rate.Value, 2, MidpointRounding.AwayFromZero),
-                                            Math.Round((allocatedSpaces * fundingRate.ofm_rate).Value, 2, MidpointRounding.AwayFromZero),
-                                            fundingRate.ofm_nonhr_funding_envelope.Value.ToString(),
-                                            fundingRate.ofm_spaces_min.Value,
-                                            fundingRate.ofm_spaces_max.Value,
-                                            _funding.ofm_application.ofm_summary_ownership.ToString()
+        NonHRStepActions.Add(new NonHRStepAction(fundingRate.ofm_step.GetValueOrDefault(),
+                                            allocatedSpaces, Math.Round(fundingRate.ofm_rate.GetValueOrDefault(), 2, MidpointRounding.AwayFromZero),
+                                            Math.Round((allocatedSpaces * fundingRate.ofm_rate.GetValueOrDefault()), 2, MidpointRounding.AwayFromZero),
+                                            fundingRate.ofm_nonhr_funding_envelope.GetValueOrDefault().ToString(),
+                                            fundingRate.ofm_spaces_min.GetValueOrDefault(),
+                                            fundingRate.ofm_spaces_max.GetValueOrDefault(),
+                                            _funding.ofm_application!.ofm_summary_ownership!.Value
                             ));
     }
 

@@ -292,10 +292,11 @@
             Specifies the behavior for an Upsert operation.
             </summary>
         </member>
-        <member name="F:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail._applyDuplicateCareType">
+        <member name="F:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail._applyRoomSplit">
             <summary>
-            Split Room is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
-            The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
+            1. Split Room condition is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
+               The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
+            2. Duplicate Care Type condition happens when a facility operates with multiple locations. The capacity and hours may differ at each location hence there are duplicate licence details.
             </summary>
         </member>
         <member name="P:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail.AnnualAvailableHoursPerFTE">
@@ -396,6 +397,22 @@
             <summary>
             Only used for split room scenario. It will calculate and set the default allocation values for each applicable space allocation record.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.ComputeRate(System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.Fundings.FundingRate},System.Decimal)">
+            <summary>
+            This is a simplified version, but also works with the excel calculator V9
+            </summary>
+            <param name="fundingRates"></param>
+            <param name="adjustedSpaces"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.ComputeRateV9(System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.Fundings.FundingRate},System.Decimal)">
+            <summary>
+            This version is coded with the same exact logic in the excel calculator V9
+            </summary>
+            <param name="fundingRates"></param>
+            <param name="adjustedSpaces"></param>
             <returns></returns>
         </member>
         <member name="T:ECC.Core.DataContext.DataverseContext">

@@ -63,7 +63,7 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                //_logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
+                _logger.LogError(CustomLogEvent.Process, "Failed to query the requests with the server error {responseBody}", responseBody);
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -96,7 +96,7 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
         var calculator = new FundingCalculator(_fundingRepository, _funding, _rateSchedules, _logger);
         _ = await calculator.CalculateAsync();
         _ = await calculator.ProcessFundingResultAsync();
-        await calculator.LogProgressAsync(_d365webapiservice!, _appUserService!, _logger!); // This line should always be at the end to avoid impact to the main calculator's funtionalities
+        await calculator.LogProgressAsync(_d365webapiservice!, _appUserService!, _logger!); // This line should always be at the end to avoid impact to the calculator's main functionalities
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
