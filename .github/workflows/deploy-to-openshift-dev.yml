@@ -173,6 +173,21 @@ jobs:
             -p HAPROXY_IP_WHITELIST=${{ env.HAPROXY_IP_WHITELIST }} \
             | oc apply -f -
 
+          # Process update-configmap
+          curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh \
+            | bash /dev/stdin \
+                dev \
+                ${{ env.APP_NAME }} \
+                ${{ env.NAMESPACE }} \
+                ${{ env.COMMON_NAMESPACE }} \
+                ${{ secrets.D365_API_KEY_SCHEME }} \
+                ${{ secrets.D365_API_AUTH_SETTINGS }} \
+                ${{ secrets.D365_DEFAULT_SENDER_ID }} \
+                ${{ secrets.D365_DEFAULT_CONTACT_ID }} \
+                ${{ secrets.D365_RECIPIENTS }} \
+                ${{ secrets.D365_BC_REGISTRY_API }} \
+                ${{ secrets.D365_BCCAS_API_URL }}
+
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
             || true && echo "Rollout in progress"
