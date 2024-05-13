@@ -393,6 +393,11 @@
             <param name="client"></param>
             <returns></returns>
         </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator">
+            <summary>
+            Funding Calculator Version 9
+            </summary>
+        </member>
         <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.EmployerHealthTax">
             <summary>
              HR Envelopes: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at the calculator level to HR Total Renumeration Only ***
@@ -406,7 +411,7 @@
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.ComputeRate(System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.Fundings.FundingRate},System.Decimal)">
             <summary>
-            This is a simplified version, but also works with the excel calculator V9
+            This is a dynamic and simplified version, but also works with the excel calculator V9
             </summary>
             <param name="fundingRates"></param>
             <param name="adjustedSpaces"></param>

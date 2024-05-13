@@ -6,7 +6,6 @@ using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.D365WebApi;
 
