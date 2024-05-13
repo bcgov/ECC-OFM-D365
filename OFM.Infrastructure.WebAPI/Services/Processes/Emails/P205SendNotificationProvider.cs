@@ -291,7 +291,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                 }));
         });
 
-        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreateEmailRequests, new Guid(processParams.CallerObjectId.ToString()));
+        var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, sendCreateEmailRequests, null);
 
         if (sendEmailBatchResult.Errors.Any())
         {
