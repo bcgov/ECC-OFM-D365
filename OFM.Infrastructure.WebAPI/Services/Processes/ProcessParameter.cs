@@ -93,5 +93,11 @@ public record ProcessParameter
         [property: JsonPropertyName("ofm_monthly_province_base_funding_y1")]
         public string? ofm_monthly_province_base_funding_y1 { get; set; }
     }
+
+    public record FundingReportParameter
+    {
+        [property: JsonPropertyName("fundingReportId")]
+        public string? FundingReportId { get; set; }
+    }
 }
 

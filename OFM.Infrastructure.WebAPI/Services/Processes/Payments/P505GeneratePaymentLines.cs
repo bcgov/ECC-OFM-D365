@@ -29,7 +29,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             _d365webapiservice = d365WebApiService;
             _logger = loggerFactory.CreateLogger(LogCategory.Process);
             _timeProvider = timeProvider;
-
         }
 
         public Int16 ProcessId => Setup.Process.Payments.GeneratePaymentLinesId;
