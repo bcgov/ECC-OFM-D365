@@ -6,6 +6,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.D365WebApi;
 
@@ -64,7 +65,15 @@ public class D365WebAPIService : ID365WebApiService
 
     public async Task<HttpResponseMessage> SendDocumentRequestAsync(AZAppUser spn, string entityNameSet, Guid id, Byte[] data, string fileName)
     {
-        UploadFileRequest request = new(new EntityReference(entityNameSet, id), columnName: "ofm_file", data, fileName);
+        UploadFileRequest request;
+        if (entityNameSet.Equals("ofm_payment_file_exchanges"))
+        {
+            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_input_document_memo", data, fileName);
+        }
+        else
+        {
+            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_file", data, fileName);
+        }
         HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 
         return await client.SendAsync(request);
@@ -140,6 +149,22 @@ public class D365WebAPIService : ID365WebApiService
         if (callerObjectId != null)
             request.Headers.Add("CallerObjectId", callerObjectId.ToString());
 
+        HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
+
+        return await client.SendAsync(request);
+    }
+
+    public async Task<HttpResponseMessage> GetDocumentRequestAsync(AZAppUser spn, string entityNameSet, Guid id)
+    {
+        DownloadFileRequest request;
+        if (entityNameSet.Equals("ofm_payment_file_exchanges"))
+        {
+            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_feedback_document_memo", false);
+        }
+        else
+        {
+            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_file", false);
+        }
         HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 
         return await client.SendAsync(request);

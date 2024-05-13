@@ -249,7 +249,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
         var result = ProcessResult.Success(ProcessId, uniqueContacts.Count);
         _logger.LogInformation(CustomLogEvent.Process, "Send email reminders process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, JsonValue.Create(result)!.ToString());
 
-        return result.SimpleProcessResult;
+        return await Task.FromResult(result.SimpleProcessResult);
     }
 
     #region Local Validation & Setup Code

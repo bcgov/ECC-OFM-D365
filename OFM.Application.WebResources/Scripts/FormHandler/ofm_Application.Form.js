@@ -1,4 +1,4 @@
-﻿"use strict";
+﻿﻿"use strict";
 
 //Create Namespace Object 
 var organizationid;
@@ -22,6 +22,7 @@ OFM.Application.Form = {
                 this.filterExpenseAuthorityLookup(executionContext);
                 this.UpdateOrganizationdetails(executionContext);
                 this.showBanner(executionContext);
+                this.filterCreatedBySPLookup(executionContext);
                 break;
 
             case 2: // update
@@ -31,6 +32,7 @@ OFM.Application.Form = {
                 this.licenceCheck(executionContext);
                 this.showBanner(executionContext);
                 this.lockStatusReason(executionContext);
+                this.filterCreatedBySPLookup(executionContext);
                 this.hideVerificationTab(executionContext);
                 break;
 
@@ -181,19 +183,17 @@ OFM.Application.Form = {
         }
         // perform operations on record retrieval
     },
-    //A function called to filter active contacts associated to organization (lookup on Organization form)
     filterCreatedBySPLookup: function (executionContext) {
-        //debugger;
+        debugger;
         var formContext = executionContext.getFormContext();
-        var formLabel = formContext.ui.formSelector.getCurrentItem().getLabel();	    // get current form's label
-        var createdby = formContext.getAttribute("ofm_createdby").getValue();
-        var createdbyid;
-        if (createdby != null) {
-            createdbyid = createdby[0].id;
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+        if (facility != null) {
+            facilityid = facility[0].id;
 
-            var viewId = "{00000000-0000-0000-0000-000000000090}";
+            var viewId = "{00000000-0000-0000-0000-000000000091}";
             var entity = "contact";
-            var ViewDisplayName = "createdby Contacts";
+            var ViewDisplayName = "Facility Created By Contacts";
             var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
                 "<entity name='contact'>" +
                 "<attribute name='fullname' />" +
@@ -204,10 +204,8 @@ OFM.Application.Form = {
                 "<order attribute='fullname' descending='false' />" +
                 "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
                 "<filter type='and'>" +
-                "<condition attribute='ofm_createdby' operator='eq'  uitype='account' value='" + createdbyid + "'/>" +
-                "<condition attribute='ofm_portal_access' operator='eq' value='1' />" +
+                "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + facilityid + "'/>" +
                 "</filter></link-entity></entity></fetch>";
-
 
             var layout = "<grid name='resultset' jump='fullname' select='1' icon='1' preview='1'>" +
                 "<row name = 'result' id = 'contactid' >" +
@@ -221,8 +219,7 @@ OFM.Application.Form = {
 
         }
         else {
-            formContext.getAttribute("ofm_contact").setValue(null);
-
+            formContext.getAttribute("ofm_createdby").setValue(null);
         }
         // perform operations on record retrieval
     },
@@ -303,6 +300,7 @@ OFM.Application.Form = {
         if (facility != null) {
             facilityid = facility[0].id;
             Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=_parentaccountid_value").then(
+
                 function success(results) {
                     console.log(results);
                     if (results["_parentaccountid_value"] != null) {

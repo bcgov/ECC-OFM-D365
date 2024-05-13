@@ -37,6 +37,8 @@ public record ProcessParameter
     public OrganizationParameter? Organization { get; set; }
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
+    [property: JsonPropertyName("fundingReport")]
+    public FundingReportParameter? FundingReport { get; set; }
 
     public record EmailParameter
     {
@@ -54,6 +56,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("communicationTypeId")]
         public Guid? CommunicationTypeId { get; set; }
+
+        [property: JsonPropertyName("communicationTypeNum")]
+        public int? CommunicationTypeNum { get; set; }
 
         [property: JsonPropertyName("subject")]
         public string? Subject { get; set; }
@@ -85,4 +90,11 @@ public record ProcessParameter
         [property: JsonPropertyName("supplementaryId")]
         public string? SupplementaryId { get; set; }
     }
+
+    public record FundingReportParameter
+    {
+        [property: JsonPropertyName("fundingReportId")]
+        public string? FundingReportId { get; set; }
+    }
+
 }
