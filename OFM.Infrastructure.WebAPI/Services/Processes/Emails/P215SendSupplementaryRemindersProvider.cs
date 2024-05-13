@@ -6,6 +6,7 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
+using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -56,7 +57,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                     <attribute name=""ofm_year_number"" />
                     <attribute name=""statecode"" />
                     <filter>
-                      <condition attribute=""ofm_due_date"" operator=""today"" />
+                      <condition attribute="ofm_due_date" operator="last-x-days" value="1" />
                       <condition attribute=""statecode"" operator=""eq"" value=""0"" />
                     </filter>
                     <link-entity name=""ofm_application"" from=""ofm_applicationid"" to=""ofm_application"" link-type=""inner"" alias=""ofmapp"">
@@ -97,8 +98,13 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                 <fetch>
                   <entity name=""ofm_allowance"">
-                    <filter type=""or"">
+                    <filter type=""and"">
+                      <filter>
+                        <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                      </filter>
+                      <filter type=""or"">
                         {ofmapplicationids}
+                      </filter>
                     </filter>
                   </entity>
                 </fetch>";
