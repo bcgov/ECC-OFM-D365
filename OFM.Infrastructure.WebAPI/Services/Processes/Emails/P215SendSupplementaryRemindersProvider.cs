@@ -57,7 +57,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                     <attribute name=""ofm_year_number"" />
                     <attribute name=""statecode"" />
                     <filter>
-                      <condition attribute="ofm_due_date" operator="last-x-days" value="1" />
+                      <condition attribute=""ofm_due_date"" operator=""last-x-days"" value=""1"" />
                       <condition attribute=""statecode"" operator=""eq"" value=""0"" />
                     </filter>
                     <link-entity name=""ofm_application"" from=""ofm_applicationid"" to=""ofm_application"" link-type=""inner"" alias=""ofmapp"">
