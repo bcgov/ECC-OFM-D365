@@ -339,7 +339,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             for (DateTime paymentdate = startdate; paymentdate <= enddate; paymentdate = paymentdate.AddMonths(1))
             {
                 Guid? fiscalYear = AssignFiscalYear(paymentdate, fiscalYears);
-                DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(paymentdate.AddDays(-1), holidayList, 3);
+                DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(paymentdate.AddDays(-1), holidayList);
                 DateTime invoiceReceivedDate = TimeExtensions.GetCFSInvoiceReceivedDate(invoicedate, holidayList);
                 DateTime effectiveDate = TimeExtensions.GetCFSEffectiveDate(invoicedate, holidayList);
                 var payload = new JsonObject()
