@@ -271,7 +271,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             _processParams = processParams;
 
             var startTime = _timeProvider.GetTimestamp();
-
+            //Get funding Info
             var localData = await GetDataAsync();
 
             var deserializedData = JsonSerializer.Deserialize<List<Funding>>(localData.Data.ToString());
@@ -282,7 +282,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 foreach (var fundingInfo in deserializedData)
                 {
                     string fundingid = fundingInfo.ofm_fundingid.Value.ToString();
-                    decimal monthlybasefunding = Math.Round(decimal.Parse(_processParams?.Funding.ofm_monthly_province_base_funding_y1), 2);
                     DateTime startdate = fundingInfo.ofm_start_date.Value;
                     DateTime enddate = fundingInfo.ofm_end_date.Value;
                     int fundingStatus = fundingInfo.statuscode.Value;
@@ -296,12 +295,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     {
                         var allPayments = await GetApplicationPaymentDataAsync();
                         var paymentDeserializedData = JsonSerializer.Deserialize<List<PaymentLine>>(allPayments.Data.ToString());
+                        //if application payments does not exist create payment lines.
                         if (paymentDeserializedData.Count == 0)
                         {
-                            createPaymentTasks.Add(CreatePaymentLines(monthlybasefunding, facility, organization, startdate, enddate, fundingid, application, appUserService, d365WebApiService, _processParams));
+                            createPaymentTasks.Add(CreatePaymentLines( facility, organization, startdate, enddate, fundingid, application, appUserService, d365WebApiService, _processParams));
                         }
                     }
-                    //Update not paid payments to cancelled.
+                    //Update not paid payments to cancelled if funding is terminated or inactive or cancelled.
                     else if (fundingStatus == 2 || fundingStatus == 9 || fundingStatus == 10)
                     {
                         var allPayments = await GetApplicationPaymentDataAsync();
@@ -328,15 +328,15 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> CreatePaymentLines(decimal monthlybasefunding, string Facility, Guid? Organization, DateTime startdate, DateTime enddate, string fundingId, string application, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+        private async Task<JsonObject> CreatePaymentLines( string Facility, Guid? Organization, DateTime startdate, DateTime enddate, string fundingId, string application, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             var entitySetName = "ofm_payments";
-            DateTime corePaymentDate = startdate.AddMonths(35);
             var fiscalYearData = await GetFiscalYearDataAsync();
             List<FiscalYear> fiscalYears = JsonSerializer.Deserialize<List<FiscalYear>>(fiscalYearData.Data.ToString());
             var businessclosuresdata = await GetBusinessClosuresDataAsync();
             List<DateTime> holidayList = GetStartTimes(businessclosuresdata.Data.ToString());
-            for (DateTime paymentdate = startdate; paymentdate <= corePaymentDate; paymentdate = paymentdate.AddMonths(1))
+            //From start date to end date create payments
+            for (DateTime paymentdate = startdate; paymentdate <= enddate; paymentdate = paymentdate.AddMonths(1))
             {
                 Guid? fiscalYear = AssignFiscalYear(paymentdate, fiscalYears);
                 DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(paymentdate.AddDays(-1), holidayList, 3);
@@ -349,6 +349,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             { "ofm_payment_type", 1 },
             { "ofm_facility@odata.bind", $"/accounts({Facility})" },
             { "ofm_organization@odata.bind", $"/accounts({_processParams?.Organization?.organizationId})" },
+            { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },
             { "ofm_description", "payment" },
             { "ofm_application@odata.bind",$"/ofm_applications({application})" },
             { "ofm_invoice_date", invoicedate },
