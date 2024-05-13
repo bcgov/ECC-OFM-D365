@@ -89,12 +89,21 @@ public static class TimeExtensions
     /// <returns></returns>
     public static DateTime GetCFSInvoiceDate(this DateTime candidate, List<DateTime> holidays, int totalTrailingDays = -5)
     {
-        var potentialDates = Enumerable.Range(totalTrailingDays, Math.Abs(totalTrailingDays)).Select(day => IsBusinessDay(day, candidate, holidays));
+        var potentialDates = Enumerable.Range(totalTrailingDays, Math.Abs(totalTrailingDays))
+                                   .Select(day => IsBusinessDay(day, candidate, holidays))
+                                   .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
+                                   .OrderByDescending(d => d.Date);
 
-        return potentialDates
-                .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
-                .OrderByDescending(d => d.Date)
-                .First();
+       
+        if (potentialDates.Any())
+        {
+            return potentialDates.First();
+        }
+        else
+        {
+          
+            throw new InvalidOperationException("No valid invoice dates found.");
+        }
     }
 
     /// <summary>
