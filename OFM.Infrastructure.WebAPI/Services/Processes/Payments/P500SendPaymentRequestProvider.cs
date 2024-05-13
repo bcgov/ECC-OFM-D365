@@ -11,8 +11,6 @@ using System.Text;
 using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 using ECC.Core.DataContext;
 
-
-
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
 public class P500SendPaymentRequestProvider : ID365ProcessProvider
@@ -39,8 +37,8 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Payment.SendPaymentRequestId;
-    public string ProcessName => Setup.Process.Payment.SendPaymentRequestName;
+    public Int16 ProcessId => Setup.Process.Payments.SendPaymentRequestId;
+    public string ProcessName => Setup.Process.Payments.SendPaymentRequestName;
 
     public string RequestUri
     {
@@ -123,7 +121,6 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             return requestUri;
         }
     }
-
 
     public async Task<ProcessData> GetDataAsync()
     {
@@ -210,144 +207,144 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         var paymentData = await GetPaymentLineData();
         List<Payment_Line> paymentserializedData = new List<Payment_Line>();
         try
-        { 
-        
-        paymentserializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(paymentData.Data.ToString());
-
-
-        var grouppayment = paymentserializedData?.GroupBy(p => p.ofm_invoice_number).ToList();
-        
-        
-        var _fiscalyear = paymentserializedData?.FirstOrDefault()?.ofm_financial_year;
-
-        var localData = await GetDataAsync();
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
-
-        if (serializedData != null && serializedData[0].ofm_batch_number != null)
         {
-            _oraclebatchnumber = Convert.ToInt32(serializedData[0].ofm_oracle_batch_name) + 1;
-             _cGIBatchNumber = (Convert.ToInt32(serializedData[0].ofm_batch_number) + 1).ToString("D9").Substring(0,9);
-             oracleBatchName = _BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5");
-        }
-        else
-        {
-            _cGIBatchNumber = _BCCASApi.cGIBatchNumber;
-            oracleBatchName = _BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + _BCCASApi.oracleBatchNumber;
 
-        }
+            paymentserializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(paymentData.Data.ToString());
 
-#region Step 1: Handlebars format to generate Inbox data
 
-    string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}{{delimiter}}\n" + "{{#each InvoiceHeader}}{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceRecDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
-                    "{{#each InvoiceLines}}{{this.feederNumber}}{{this.batchType}}{{this.linetransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.invoiceLineNumber}}{{this.committmentLine}}{{this.lineAmount}}{{this.lineCode}}{{this.distributionACK}}{{this.lineDescription}}{{this.effectiveDate}}{{this.quantity}}{{this.unitPrice}}{{this.optionalData}}{{this.distributionSupplierNumber}}{{this.flow}}{{this.delimiter}}\n{{/each}}{{/each}}" +
-                    "{{this.feederNumber}}{{this.batchType}}{{this.trailertransactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.controlCount}}{{this.controlAmount}}{{this.delimiter}}\n";
+            var grouppayment = paymentserializedData?.GroupBy(p => p.ofm_invoice_number).ToList();
 
-        var template = Handlebars.Compile(source);
 
-        // add invoice header for each organization and invoice lines for each facility
-        foreach (var headeritem in grouppayment)
-        {
-            var pay_method = (ecc_payment_method)headeritem.First().ofm_payment_method;
-             double invoiceamount = 0.00;
-            List<InvoiceLines> invoiceLines = new List<InvoiceLines>();
+            var _fiscalyear = paymentserializedData?.FirstOrDefault()?.ofm_financial_year;
 
-            foreach (var lineitem in headeritem.Select((item, i) => (item, i)))
+            var localData = await GetDataAsync();
+            var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
+
+            if (serializedData != null && serializedData[0].ofm_batch_number != null)
+            {
+                _oraclebatchnumber = Convert.ToInt32(serializedData[0].ofm_oracle_batch_name) + 1;
+                _cGIBatchNumber = (Convert.ToInt32(serializedData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);
+                oracleBatchName = _BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5");
+            }
+            else
+            {
+                _cGIBatchNumber = _BCCASApi.cGIBatchNumber;
+                oracleBatchName = _BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + _BCCASApi.oracleBatchNumber;
+
+            }
+
+            #region Step 1: Handlebars format to generate Inbox data
+
+            string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}{{delimiter}}\n" + "{{#each InvoiceHeader}}{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceRecDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
+                            "{{#each InvoiceLines}}{{this.feederNumber}}{{this.batchType}}{{this.linetransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.invoiceLineNumber}}{{this.committmentLine}}{{this.lineAmount}}{{this.lineCode}}{{this.distributionACK}}{{this.lineDescription}}{{this.effectiveDate}}{{this.quantity}}{{this.unitPrice}}{{this.optionalData}}{{this.distributionSupplierNumber}}{{this.flow}}{{this.delimiter}}\n{{/each}}{{/each}}" +
+                            "{{this.feederNumber}}{{this.batchType}}{{this.trailertransactionType}}{{this.delimiter}}{{this.feederNumber}}{{this.fiscalYear}}{{this.cGIBatchNumber}}{{this.controlCount}}{{this.controlAmount}}{{this.delimiter}}\n";
+
+            var template = Handlebars.Compile(source);
+
+            // add invoice header for each organization and invoice lines for each facility
+            foreach (var headeritem in grouppayment)
+            {
+                var pay_method = (ecc_payment_method)headeritem.First().ofm_payment_method;
+                double invoiceamount = 0.00;
+                List<InvoiceLines> invoiceLines = new List<InvoiceLines>();
+
+                foreach (var lineitem in headeritem.Select((item, i) => (item, i)))
+                {
+
+                    invoiceamount = invoiceamount + Convert.ToDouble(lineitem.item.ofm_amount);//line amount should come from funding
+                    var paytype = lineitem.item.ofm_payment_typename;
+                    invoiceLines.Add(new InvoiceLines
+                    {
+                        feederNumber = _BCCASApi.feederNumber,// Static value:3540
+                        batchType = _BCCASApi.batchType,//Static  value :AP
+                        delimiter = _BCCASApi.delimiter,//Static value:\u001d
+                        linetransactionType = _BCCASApi.InvoiceLines.linetransactionType,//Static value:IL for each line
+                        invoiceNumber = lineitem.item.ofm_invoice_number.PadRight(line.FieldLength("invoiceNumber")),// Autogenerated and unique for supplier transaction
+                        invoiceLineNumber = (lineitem.i + 1).ToString("D4"),// Incremented by 1 for each line in case for multiple lines
+                        supplierNumber = lineitem.item.ofm_supplierid.PadRight(line.FieldLength("supplierNumber")),// Populate from Organization Supplier info
+                        supplierSiteNumber = lineitem.item.ofm_siteid.PadLeft(line.FieldLength("supplierSiteNumber"), '0'),// Populate from Organization Supplier info
+                        committmentLine = _BCCASApi.InvoiceLines.committmentLine,//Static value:0000
+                        lineAmount = Convert.ToDouble(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount"), '0'),// come from split funding amount per facility
+                        lineCode = _BCCASApi.InvoiceLines.lineCode,//Static Value:D (debit)
+                        distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
+                        lineDescription = string.Concat(lineitem.item.ofm_application_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
+                        effectiveDate = lineitem.item.ofm_effective_date.ToString("yyyyMMdd"), //2 days after invoice posting
+                        quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
+                        unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder
+                        optionalData = string.Empty.PadRight(line.FieldLength("optionalData")),// PO ship to asset tracking values are set to blank as it is optional
+                        distributionSupplierNumber = lineitem.item.ofm_supplierid.PadRight(line.FieldLength("distributionSupplierNumber")),// Supplier number from Organization
+                        flow = string.Empty.PadRight(line.FieldLength("flow")), //can be use to pass additinal info from facility or application
+                    });
+
+                    _controlCount++;
+                }
+                invoiceHeaders.Add(new InvoiceHeader
+                {
+                    feederNumber = _BCCASApi.feederNumber,// Static value:3540
+                    batchType = _BCCASApi.batchType,//Static  value :AP
+                    headertransactionType = _BCCASApi.InvoiceHeader.headertransactionType,//Static value:IH for each header
+                    delimiter = _BCCASApi.delimiter,//Static value:\u001d
+                    supplierNumber = headeritem.First().ofm_supplierid.PadRight(header.FieldLength("supplierNumber")),// Populate from Organization Supplier info
+                    supplierSiteNumber = headeritem.First().ofm_siteid.PadLeft(header.FieldLength("supplierSiteNumber"), '0'),// Populate from Organization Supplier info
+                    invoiceNumber = headeritem.First().ofm_invoice_number.PadRight(header.FieldLength("invoiceNumber")),// Autogenerated and unique for supplier transaction
+                    PONumber = string.Empty.PadRight(header.FieldLength("PONumber")),// sending blank as not used by feeder
+                    invoiceDate = headeritem.First().ofm_invoice_date.ToString("yyyyMMdd"), // set to current date
+                    invoiceType = _BCCASApi.InvoiceHeader.invoiceType,// static to ST (standard invoice)
+                    payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
+                    remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
+                    grossInvoiceAmount = invoiceamount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount"), '0'), // invoice amount come from OFM total base value.
+                    CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
+                    termsName = _BCCASApi.InvoiceHeader.termsName.PadRight(header.FieldLength("termsName")),//getting from supplier 
+                    goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
+                    invoiceRecDate = headeritem.First().ofm_invoice_received_date.ToString("yyyyMMdd"),//ideally is is 4 days before current date
+                    oracleBatchName = (_BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
+                    SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
+                    payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
+                    description = string.Concat(headeritem.First().accountname).PadRight(header.FieldLength("description")),// can be used to pass extra info
+                    flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
+                    invoiceLines = invoiceLines
+
+                });
+                _controlAmount = _controlAmount + invoiceamount;
+                _controlCount++;
+                _oraclebatchnumber++;
+
+
+            }
+
+            // break transaction list into multiple list if it contains more than 250 transaction
+            headerList = invoiceHeaders
+            .Select((x, i) => new { Index = i, Value = x })
+            .GroupBy(x => x.Index / _BCCASApi.transactionCount)
+            .Select(x => x.Select(v => v.Value).ToList())
+            .ToList();
+            #endregion
+
+            #region Step 2: Generate and process inbox file in CRM
+            // for each set of transaction create and upload inbox file in payment file exchange
+            foreach (List<InvoiceHeader> headeritem in headerList)
             {
 
-                invoiceamount = invoiceamount + Convert.ToDouble(lineitem.item.ofm_amount);//line amount should come from funding
-                var paytype = lineitem.item.ofm_payment_typename;
-                invoiceLines.Add(new InvoiceLines
+                var data = new
                 {
                     feederNumber = _BCCASApi.feederNumber,// Static value:3540
                     batchType = _BCCASApi.batchType,//Static  value :AP
                     delimiter = _BCCASApi.delimiter,//Static value:\u001d
-                    linetransactionType = _BCCASApi.InvoiceLines.linetransactionType,//Static value:IL for each line
-                    invoiceNumber = lineitem.item.ofm_invoice_number.PadRight(line.FieldLength("invoiceNumber")),// Autogenerated and unique for supplier transaction
-                    invoiceLineNumber = (lineitem.i + 1).ToString("D4"),// Incremented by 1 for each line in case for multiple lines
-                    supplierNumber = lineitem.item.ofm_supplierid.PadRight(line.FieldLength("supplierNumber")),// Populate from Organization Supplier info
-                    supplierSiteNumber = lineitem.item.ofm_siteid.PadLeft(line.FieldLength("supplierSiteNumber"), '0'),// Populate from Organization Supplier info
-                    committmentLine = _BCCASApi.InvoiceLines.committmentLine,//Static value:0000
-                    lineAmount = Convert.ToDouble(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount"), '0'),// come from split funding amount per facility
-                    lineCode = _BCCASApi.InvoiceLines.lineCode,//Static Value:D (debit)
-                    distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
-                    lineDescription = string.Concat(lineitem.item.ofm_application_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
-                    effectiveDate = lineitem.item.ofm_effective_date.ToString("yyyyMMdd"), //2 days after invoice posting
-                    quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
-                    unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder
-                    optionalData = string.Empty.PadRight(line.FieldLength("optionalData")),// PO ship to asset tracking values are set to blank as it is optional
-                    distributionSupplierNumber = lineitem.item.ofm_supplierid.PadRight(line.FieldLength("distributionSupplierNumber")),// Supplier number from Organization
-                    flow = string.Empty.PadRight(line.FieldLength("flow")), //can be use to pass additinal info from facility or application
-                });
+                    transactionType = _BCCASApi.transactionType,//Static  value :BH
+                    fiscalYear = _fiscalyear,//cureent fiscal year
+                    cGIBatchNumber = _cGIBatchNumber,//unique autogenerated number
+                    messageVersionNumber = _BCCASApi.messageVersionNumber,//Static  value :0001
+                    controlCount = _controlCount.ToString("D15"),// total number of lines count except BH and BT
+                    controlAmount = _controlAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount"), '0'),// total sum of amount
+                    trailertransactionType = _BCCASApi.trailertransactionType,//Static  value :BT
+                    InvoiceHeader = headeritem
 
-                _controlCount++;
+                };
+
+                _cGIBatchNumber = ((Convert.ToInt32(_cGIBatchNumber)) + 1).ToString("D9");
+                result += template(data);
+
             }
-            invoiceHeaders.Add(new InvoiceHeader
-            {
-                feederNumber = _BCCASApi.feederNumber,// Static value:3540
-                batchType = _BCCASApi.batchType,//Static  value :AP
-                headertransactionType = _BCCASApi.InvoiceHeader.headertransactionType,//Static value:IH for each header
-                delimiter = _BCCASApi.delimiter,//Static value:\u001d
-                supplierNumber = headeritem.First().ofm_supplierid.PadRight(header.FieldLength("supplierNumber")),// Populate from Organization Supplier info
-                supplierSiteNumber = headeritem.First().ofm_siteid.PadLeft(header.FieldLength("supplierSiteNumber"), '0'),// Populate from Organization Supplier info
-                invoiceNumber = headeritem.First().ofm_invoice_number.PadRight(header.FieldLength("invoiceNumber")),// Autogenerated and unique for supplier transaction
-                PONumber = string.Empty.PadRight(header.FieldLength("PONumber")),// sending blank as not used by feeder
-                invoiceDate = headeritem.First().ofm_invoice_date.ToString("yyyyMMdd"), // set to current date
-                invoiceType = _BCCASApi.InvoiceHeader.invoiceType,// static to ST (standard invoice)
-                payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
-                remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
-                grossInvoiceAmount = invoiceamount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount"), '0'), // invoice amount come from OFM total base value.
-                CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
-                termsName = _BCCASApi.InvoiceHeader.termsName.PadRight(header.FieldLength("termsName")),//getting from supplier 
-                goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
-                invoiceRecDate = headeritem.First().ofm_invoice_received_date.ToString("yyyyMMdd"),//ideally is is 4 days before current date
-                oracleBatchName = (_BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
-                SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
-                payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
-                description = string.Concat(headeritem.First().accountname).PadRight(header.FieldLength("description")),// can be used to pass extra info
-                flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
-                invoiceLines = invoiceLines
-
-            });
-            _controlAmount = _controlAmount + invoiceamount;
-            _controlCount++;
-            _oraclebatchnumber++;
-
-
-        }
-
-        // break transaction list into multiple list if it contains more than 250 transaction
-        headerList = invoiceHeaders
-        .Select((x, i) => new { Index = i, Value = x })
-        .GroupBy(x => x.Index / _BCCASApi.transactionCount)
-        .Select(x => x.Select(v => v.Value).ToList())
-        .ToList();
-        #endregion
-
-        #region Step 2: Generate and process inbox file in CRM
-        // for each set of transaction create and upload inbox file in payment file exchange
-        foreach (List<InvoiceHeader> headeritem in headerList)
-        {
-
-            var data = new
-            {
-                feederNumber = _BCCASApi.feederNumber,// Static value:3540
-                batchType = _BCCASApi.batchType,//Static  value :AP
-                delimiter = _BCCASApi.delimiter,//Static value:\u001d
-                transactionType = _BCCASApi.transactionType,//Static  value :BH
-                fiscalYear = _fiscalyear,//cureent fiscal year
-                cGIBatchNumber = _cGIBatchNumber,//unique autogenerated number
-                messageVersionNumber = _BCCASApi.messageVersionNumber,//Static  value :0001
-                controlCount = _controlCount.ToString("D15"),// total number of lines count except BH and BT
-                controlAmount = _controlAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount"), '0'),// total sum of amount
-                trailertransactionType = _BCCASApi.trailertransactionType,//Static  value :BT
-                InvoiceHeader = headeritem
-
-            };
-
-            _cGIBatchNumber = ((Convert.ToInt32(_cGIBatchNumber)) + 1).ToString("D9");
-            result += template(data);
-
-        }
 
 
 
@@ -355,7 +352,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             {
                 #region  Step 3: Create Payment Records for all approved applications.
 
-                await CreatePaymentFile(appUserService, d365WebApiService, _BCCASApi.feederNumber, result,paymentserializedData);
+                await CreatePaymentFile(appUserService, d365WebApiService, _BCCASApi.feederNumber, result, paymentserializedData);
 
                 #endregion
 
@@ -453,6 +450,5 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         }
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-
     }
 }

@@ -62,6 +62,7 @@ services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>
 services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
 services.AddScoped<ID365ProcessProvider, P405VerifyGoodStandingBatchProvider>();
 services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
+services.AddScoped<ID365ProcessProvider, P505GeneratePaymentLinesProvider>();
 services.AddScoped<ID365ProcessProvider, P510ReadPaymentResponseProvider>();
 services.AddScoped<ID365ProcessProvider, P600CloneFundingReportResponse>();
 

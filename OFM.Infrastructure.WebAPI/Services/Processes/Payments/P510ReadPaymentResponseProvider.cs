@@ -60,8 +60,8 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Payment.GetPaymentResponseId;
-    public string ProcessName => Setup.Process.Payment.GetPaymentResponseName;
+    public Int16 ProcessId => Setup.Process.Payments.GetPaymentResponseId;
+    public string ProcessName => Setup.Process.Payments.GetPaymentResponseName;
 
     public string RequestUri
     {

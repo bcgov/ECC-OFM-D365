@@ -65,10 +65,14 @@ public static class Setup
             public const string VerifyGoodStandingBatchName = "Verify Good Standing Status for Organizations in batch";
         }
 
-        public static class Payment
+        public static class Payments
         {
             public const Int16 SendPaymentRequestId = 500;
             public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";
+
+            public const Int16 GeneratePaymentLinesId = 505;
+            public const string GeneratePaymentLinesName = "Generate Payment Lines";
+
             public const Int16 GetPaymentResponseId = 510;
             public const string GetPaymentResponseName = "Get Payment Feedback and Invoices to BC Pay";
         }
@@ -77,6 +81,9 @@ public static class Setup
         {
             public const Int16 CloneFundingReportResponseId = 600;
             public const string CloneFundingReportResponseName = "Clone Funding Report Response";
+
+            public const Int16 GeneratePaymentLinesId = 505;
+            public const string GeneratePaymentLinesName = "Generate Payment Lines";
         }
     }
 
