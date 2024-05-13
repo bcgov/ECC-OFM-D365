@@ -8,12 +8,13 @@ public class LicenceDetail : ofm_licence_detail
 {
     #region Split Room & Duplicate Licence Types/Care Types
     /// <summary>
-    /// Split Room is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
-    /// The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
+    /// 1. Split Room condition is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
+    ///    The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
+    /// 2. Duplicate Care Type condition happens when a facility operates with multiple locations. The capacity and hours may differ at each location hence there are duplicate licence details.
     /// </summary>
 
-    private readonly bool _applyDuplicateCareType;
     private readonly bool _applyRoomSplit;
+    private readonly bool _applyDuplicateCareType;
     public bool ApplyRoomSplitCondition { get; set; }
     private IEnumerable<SpaceAllocation>? _newSpacesAllocationAll = [];
     public IEnumerable<SpaceAllocation>? NewSpacesAllocationAll
@@ -25,9 +26,9 @@ public class LicenceDetail : ofm_licence_detail
     {
         get
         {
-            var filteredByCareType = NewSpacesAllocationAll.Where(space =>
+            var filteredByCareType = NewSpacesAllocationAll?.Where(space =>
             {
-                var typesMapping = space.ofm_cclr_ratio.ofm_licence_mapping!.Split(",")?.Select(int.Parse);
+                var typesMapping = space.ofm_cclr_ratio?.ofm_licence_mapping!.Split(",")?.Select(int.Parse);
                 bool isMapped = typesMapping!.Contains(LicenceTypeNumber);
                 return isMapped;
             });
@@ -83,6 +84,12 @@ public class LicenceDetail : ofm_licence_detail
     // NOTE: If a facility has duplicate care types/licence types with the same address (seasonal schedules), the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
     public decimal AnnualCareHoursFTERatio => Math.Max(AnnualStandardHours / AnnualAvailableHoursPerFTE, MIN_CARE_HOURS_FTE_RATIO);
     public decimal ExpectedAnnualFTEHours => _rateSchedule!.ofm_total_fte_hours_per_year!.Value; // The default is 1957.5
+
+    #endregion
+
+    #region Non-HR Adjusted Spaces
+
+    public decimal AdjustedNonHRSpaces => (Spaces * AnnualStandardHours) / (decimal)_rateSchedule!.ofm_max_annual_open_hours!;
 
     #endregion
 

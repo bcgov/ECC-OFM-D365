@@ -6,7 +6,6 @@ using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.D365WebApi;
 
@@ -106,14 +105,14 @@ public class D365WebAPIService : ID365WebApiService
             Requests = requestMessages,
             ContinueOnError = true
         };
-        if (callerObjectId != null)
+        if (callerObjectId != null && callerObjectId != Guid.Empty)
             batchRequest.Headers.Add("CallerObjectId", callerObjectId.ToString());
 
         HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.Batch, spn);
         BatchResponse batchResponse = await SendAsync<BatchResponse>(batchRequest, client);
 
         Int16 processed = 0;
-        List<string> errors = new();
+        List<string> errors = [];
 
         if (batchResponse.IsSuccessStatusCode)
             batchResponse.HttpResponseMessages.ForEach(async res =>

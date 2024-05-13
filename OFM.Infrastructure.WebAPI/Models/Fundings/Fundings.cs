@@ -193,4 +193,4 @@ public class SupplementarySchedule : ofm_supplementary_schedule
     public new decimal? ofm_transport_reimbursement_rate_per_km { get; set; }
 }
 
-public record NonHRStepAction(int Step, int AllocatedSpaces, decimal Rate, decimal Cost, string Envelope, int MinSpaces, int MaxSpaces, string Ownership);
+public record NonHRStepAction(int Step, decimal AllocatedSpaces, decimal Rate, decimal Cost, string Envelope, int MinSpaces, int MaxSpaces, ecc_Ownership Ownership);
