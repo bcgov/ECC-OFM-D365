@@ -39,6 +39,7 @@ public class Funding : ofm_funding
     public new decimal? ofm_envelope_programming { get; set; }
     public new decimal? ofm_envelope_programming_pf { get; set; }
     public new decimal? ofm_envelope_programming_proj { get; set; }
+    public new Guid? _ofm_provider_approver_value { get; set; }
     public new DateTime? ofm_start_date { get; set; }
     public new DateTime? ofm_end_date { get; set; }
     public new string? _ofm_funding_value { get; set; }

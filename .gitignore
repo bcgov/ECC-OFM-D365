@@ -411,7 +411,6 @@ FodyWeavers.xsd
 /OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Other/Customizations.xml
 /OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/ControlManifest.xml.data.xml
 /OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_ECC.PCF.FundingEnvelopeControl/ControlManifest.xml
-/OFM.Infrastructure.WebAPI/Services/Processes/Emails/P215SendEmailReminderForSupplementaryFundingRenewal.cs
-/OFM.Infrastructure.Plugins/Payment/GeneratePaymentSchedule.cs
-/OFM.Infrastructure.WebAPI/appsettings.Development.json
-/.gitignore
+/OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_Banner.Banner
+/OFM.Infrastructure.WebAPI/appsettings.DEV.json
+/OFM.Infrastructure.WebAPI/appsettings.UAT.json

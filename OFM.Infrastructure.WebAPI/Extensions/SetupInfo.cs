@@ -1,4 +1,5 @@
 ﻿using OFM.Infrastructure.WebAPI.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
@@ -36,8 +37,11 @@ public static class Setup
             public const Int16 SendFundingNotificationsId = 210;
             public const string SendFundingNotificationsName = "Create emails on Status change of Funding record to FASignaturePending when a Ministry EA approves the funding";
 
-            public const Int16 SendEmailReminderForSupplementaryFundingRenewalId = 215;
-            public const string SendEmailReminderForSupplementaryFundingRenewalName = "Send email reminder for supplementary";
+            public const Int16 SendSupplementaryNotificationsId = 215;
+            public const string SendSupplementaryNotificationsName = "Create supplementary email reminders";
+
+            public const Int16 CreateEmailRemindersId = 220;
+            public const string CreateEmailRemindersName = "Create Email Reminders for Supplementary Application";
         }
 
         public static class Fundings
@@ -61,10 +65,18 @@ public static class Setup
             public const string VerifyGoodStandingBatchName = "Verify Good Standing Status for Organizations in batch";
         }
 
-        public static class Payments
+        public static class Payment
         {
             public const Int16 SendPaymentRequestId = 500;
             public const string SendPaymentRequestName = "Send Payment Request and Invoices to BC Pay";
+            public const Int16 GetPaymentResponseId = 510;
+            public const string GetPaymentResponseName = "Get Payment Feedback and Invoices to BC Pay";
+        }
+
+        public static class FundingReports
+        {
+            public const Int16 CloneFundingReportResponseId = 600;
+            public const string CloneFundingReportResponseName = "Clone Funding Report Response";
 
             public const Int16 GeneratePaymentLinesId = 505;
             public const string GeneratePaymentLinesName = "Generate Payment Lines";
@@ -132,6 +144,17 @@ public static class Setup
         }
 
         return requertUrl;
+    }
+
+    public static int FieldLength(this Type modelClass, string propertyName)
+    {
+        int fieldLen = 0;
+        StringLengthAttribute strLen = modelClass.GetProperty(propertyName).GetCustomAttributes(typeof(StringLengthAttribute), false).Cast<StringLengthAttribute>().SingleOrDefault();
+        if (strLen != null)
+        {
+            fieldLen = strLen.MaximumLength;
+        }
+        return fieldLen;
     }
 }
 

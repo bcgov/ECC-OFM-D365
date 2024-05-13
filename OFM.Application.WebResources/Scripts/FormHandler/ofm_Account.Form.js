@@ -123,7 +123,7 @@ OFM.Account.OrgFacility.Form = {
         if (formLabel == "Facility Information - OFM") {
             formContext.getAttribute("ccof_accounttype").setValue(100000001);           // AccountType = Facility (100000001) 
             formContext.getControl("ccof_accounttype").setDisabled(true);
-            formContext.getControl("ofm_primarycontact").setDisabled(true);
+            //formContext.getControl("ofm_primarycontact").setDisabled(true);
             // readonly
             formContext.getAttribute("parentaccountid").setRequiredLevel("required");   // required field			
         }

@@ -35,7 +35,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                 int statusReason = applicationRcord.GetAttributeValue<OptionSetValue>("statuscode").Value;
 
                 tracingService.Trace("Checking Application record StatusReason value:{0} ", statusReason);
-                if (applicationRcord != null && applicationRcord.Attributes.Count > 0 && statusReason == (int)ofm_application_StatusCode.Approved)
+                if (applicationRcord != null && applicationRcord.Attributes.Count > 0 && statusReason == (int)ofm_application_StatusCode.Verified)
                 {
                     tracingService.Trace("\nThe Application Record - logical name: {0}, id:{1}", applicationRcord.LogicalName, applicationRcord.Id);
                     var fetchData = new
