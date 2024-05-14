@@ -2,24 +2,14 @@ set -euo pipefail
 
 readonly ENV_VAL=$1
 readonly APP_NAME=$2
-readonly NAMESPACE_PREFIX=$3
+readonly OPENSHIFT_NAMESPACE=$3
 readonly D365_API_KEY_SCHEME=$4
-readonly D365_API_AUTH_SETTINGS=$4
-readonly D365_DEFAULT_SENDER_ID=$5
-readonly D365_DEFAULT_CONTACT_ID=$6
-readonly D365_RECIPIENTS=$7
-readonly D365_BC_REGISTRY_API=$8
-readonly D365_BCCAS_API_URL=$9
-
-NAMESPACE_SUFFIX="$ENV_VAL"
-if [ "$ENV_VAL" = "dev" ] || [ "$ENV_VAL" = "test" ]; then
-  NAMESPACE_SUFFIX="dev"
-elif [ "$ENV_VAL" = "uat" ]; then
-  NAMESPACE_SUFFIX="test"
-fi
-readonly NAMESPACE_SUFFIX
-
-readonly OPENSHIFT_NAMESPACE="$NAMESPACE_PREFIX-$NAMESPACE_SUFFIX"
+readonly D365_API_AUTH_SETTINGS=$5
+readonly D365_DEFAULT_SENDER_ID=$6
+readonly D365_DEFAULT_CONTACT_ID=$7
+readonly D365_RECIPIENTS=$8
+readonly D365_BC_REGISTRY_API=$9
+readonly D365_BCCAS_API_URL=${10}
 
 SERVER_FRONTEND="https://ofm-frontend-$ENV_VAL-$OPENSHIFT_NAMESPACE.apps.silver.devops.gov.bc.ca"
 if [ "$ENV_VAL" = "prod" ]; then
