@@ -50,7 +50,6 @@ if [ "$ENV_VAL" != "prod" ]; then
 fi
 readonly D365_EMAIL_SAFE_LIST_ENABLE
 
-
 D365_CONFIGURATION=$(cat << JSON
 {
   "Logging": $D365_LOG_LEVEL,
