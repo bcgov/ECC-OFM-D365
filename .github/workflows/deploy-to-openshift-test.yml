@@ -141,7 +141,7 @@ jobs:
                 dev \
                 ${{ env.APP_NAME }} \
                 ${{ env.NAMESPACE }} \
-                ${{ env.COMMON_NAMESPACE }} \
+                ${{ env.OPENSHIFT_NAMESPACE }} \
                 ${{ secrets.D365_API_KEY_SCHEME }} \
                 ${{ secrets.D365_API_AUTH_SETTINGS }} \
                 ${{ secrets.D365_DEFAULT_SENDER_ID }} \
