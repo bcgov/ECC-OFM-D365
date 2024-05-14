@@ -142,7 +142,7 @@ jobs:
           # Process update-configmap
           curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh \
             | bash /dev/stdin \
-                dev \
+                uat \
                 ${{ env.APP_NAME }} \
                 ${{ env.OPENSHIFT_NAMESPACE }} \
                 ${{ secrets.D365_API_KEY_SCHEME }} \
