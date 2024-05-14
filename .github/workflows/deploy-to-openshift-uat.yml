@@ -140,17 +140,36 @@ jobs:
           | oc apply -f -
 
           # Process update-configmap
+          D365_API_KEY_SCHEME=$(jq -c << JSON
+            ${{ secrets.D365_API_KEY_SCHEME }}
+          JSON
+          )
+
+          D365_API_AUTH_SETTINGS=$(jc -c << JSON
+            ${{ secrets.D365_API_AUTH_SETTINGS }}
+          JSON
+          )
+
+          D365_RECIPIENTS=$(jc -c << JSON
+            ${{ secrets.D365_RECIPIENTS }}
+          JSON
+          )
+
+          D365_BC_REGISTRY_API=$(jc -c << JSON
+            ${{ secrets.D365_BC_REGISTRY_API }}
+          JSON
+          )
           curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh \
             | bash /dev/stdin \
                 uat \
                 ${{ env.APP_NAME }} \
                 ${{ env.OPENSHIFT_NAMESPACE }} \
-                ${{ secrets.D365_API_KEY_SCHEME }} \
-                ${{ secrets.D365_API_AUTH_SETTINGS }} \
+                "$D365_API_KEY_SCHEME" \
+                "$D365_API_AUTH_SETTINGS" \
                 ${{ secrets.D365_DEFAULT_SENDER_ID }} \
                 ${{ secrets.D365_DEFAULT_CONTACT_ID }} \
-                ${{ secrets.D365_RECIPIENTS }} \
-                ${{ secrets.D365_BC_REGISTRY_API }} \
+                "$D365_RECIPIENTS" \
+                "$D365_BC_REGISTRY_API" \
                 ${{ secrets.D365_BCCAS_API_URL }}
 
           # Start rollout (if necessary) and follow it
