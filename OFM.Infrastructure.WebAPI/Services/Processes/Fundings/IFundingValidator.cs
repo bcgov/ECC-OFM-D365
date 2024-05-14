@@ -15,6 +15,7 @@ public static class GeneralValidation {
                                                                                                   {
                                                                                                       ofm_application_StatusCode.Submitted => true,
                                                                                                       ofm_application_StatusCode.InReview => true,
+                                                                                                      ofm_application_StatusCode.Verified => true,
                                                                                                       ofm_application_StatusCode.Approved => true,
                                                                                                       _ => false
                                                                                                   };
