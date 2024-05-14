@@ -1,21 +1,14 @@
 ﻿using ECC.Core.DataContext;
-using HandlebarsDotNet.Helpers.Enums;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Options;
 using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
-using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Xml.Linq;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
+using CreateRequest = OFM.Infrastructure.WebAPI.Messages.CreateRequest;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Reporting;
 
@@ -30,13 +23,8 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
-    private Guid? _sectionId ;
-    private string? _questionIdentifier;
-    private Guid? _trueChildQuestionId;
-    private Guid? _falseChildQuestionId;
-    private Guid? _childQuestionId;
-
-
+    private Guid? _sectionId;
+    private string[] _questionIdentifier;
 
     public P600CreateQuestionProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -135,36 +123,41 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     {
         get
         {
-            var fetchXml = $"""
-                    <fetch>
-                    <entity name="ofm_question_business_rule">
-                    <attribute name="ofm_name" />
-                    <attribute name="ofm_false_child_question" />
-                    <attribute name="ofm_true_child_question" />
-                    <attribute name="ofm_parent_has_response" />
-                    <attribute name="ofm_condition" />
-                    <attribute name="ofm_section" />
-                    <attribute name="ofm_child_question" />
-                    
-                    <link-entity name="ofm_question" from="ofm_questionid" to="ofm_parentquestionid" link-type="inner" alias="que" intersect="true" >
+            var fetchXml =
+                     @"<fetch>
+                    <entity name='ofm_question_business_rule'>
+                    <attribute name='ofm_name' />
+                    <attribute name='ofm_false_child_question' />
+                    <attribute name='ofm_true_child_question' />
+                    <attribute name='ofm_parent_has_response' />
+                    <attribute name='ofm_condition' />
+                    <attribute name='ofm_section' />
+                    <attribute name='ofm_child_question' />
+
+                    <link-entity name='ofm_question' from='ofm_questionid' to='ofm_parentquestionid' link-type='inner' alias='que' intersect='true' >
+                    <attribute name='ofm_source_question_id' />
                     <order attribute='createdon' descending='true' /> 
                     <filter>
-                    <condition attribute="ofm_source_question_id" operator="eq" value="{_questionIdentifier}" />
-                    </filter>
-                    
+                    <condition attribute='ofm_source_question_id' operator='in'>";
+            for (var i = 0; i < _questionIdentifier.Length; i++)
+            {
+                fetchXml += "<value>" + _questionIdentifier[i] + "</value>";
+            }
+            fetchXml += @"</condition></filter>
+
                     </link-entity>
-                    <link-entity name="ofm_question" from="ofm_questionid" to="ofm_true_child_question" link-type="outer" alias="true">
-                    <attribute name="ofm_source_question_id" />
+                    <link-entity name='ofm_question' from='ofm_questionid' to='ofm_true_child_question' link-type='outer' alias='true'>
+                    <attribute name='ofm_source_question_id' />
                     </link-entity>
-                    <link-entity name="ofm_question" from="ofm_questionid" to="ofm_false_child_question" link-type="outer" alias="false">
-                    <attribute name="ofm_source_question_id" />
+                    <link-entity name='ofm_question' from='ofm_questionid' to='ofm_false_child_question' link-type='outer' alias='false'>
+                    <attribute name='ofm_source_question_id' />
                     </link-entity>
-                    <link-entity name="ofm_question" from="ofm_questionid" to="ofm_child_question" link-type="outer" alias="child">
-                    <attribute name="ofm_source_question_id" />
+                    <link-entity name='ofm_question' from='ofm_questionid' to='ofm_child_question' link-type='outer' alias='child'>
+                    <attribute name='ofm_source_question_id' />
                     </link-entity>
                     </entity>
-                    </fetch>
-                    """;
+                    </fetch>";
+
 
             var requestUri = $"""
                          ofm_question_business_rules?fetchXml={WebUtility.UrlEncode(fetchXml)}
@@ -177,21 +170,34 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     {
         get
         {
-            var fetchXml = $"""
-                    <fetch>
-                      <entity name="ofm_question">
-                        <attribute name="ofm_questionid" />
-                        <attribute name="ofm_default_rows" />
-                        <attribute name="ofm_occurence" />
-                        <attribute name="ofm_maximum_rows" />
-                        <attribute name="ofm_fixed_response" />
-                    <order attribute='createdon' descending='true' /> 
+              var fetchXml =
+                    @"<fetch>
+                      <entity name='ofm_question'>
+                        <attribute name='ofm_questionid' />
+                        <attribute name='ofm_default_rows' />
+                        <attribute name='ofm_occurence' />
+                        <attribute name='ofm_maximum_rows' />
+                        <attribute name='ofm_fixed_response' />
+                        <attribute name='ofm_source_question_id' />
                         <filter>
-                          <condition attribute="ofm_source_question_id" operator="eq" value="{_questionIdentifier}" />
-                        </filter>
+                          <condition attribute='ofm_source_question_id' operator='in'>";
+            for (var i = 0; i < _questionIdentifier.Length; i++)
+            {
+                fetchXml += "<value>" + _questionIdentifier[i] + "</value>";
+            }
+            fetchXml += @"</condition></filter>
+                       <link-entity name='ofm_section' from='ofm_sectionid' to='ofm_section' alias='section'>
+                          <link-entity name='ofm_survey' from='ofm_surveyid' to='ofm_survey' alias='survey' >
+                            <attribute name='ofm_is_published' />
+                            <attribute name='createdon' />
+                            <attribute name='statecode' />
+                          </link-entity>
+                        </link-entity>
                       </entity>
-                    </fetch>
-                    """;
+                    </fetch>";
+
+
+
 
             var requestUri = $"""
                          ofm_questions?fetchXml={WebUtility.UrlEncode(fetchXml)}
@@ -200,7 +206,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             return requestUri;
         }
     }
-    
+
 
     public async Task<ProcessData> GetDataAsync()
     {
@@ -241,7 +247,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     {
         _logger.LogDebug(CustomLogEvent.Process, "GetTableDataAsync");
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TableRequestUri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, TableRequestUri, isProcess: true);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -271,7 +277,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     {
         _logger.LogDebug(CustomLogEvent.Process, "GetBRDataAsync");
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, QuestionBusinessRuleRequestUri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, QuestionBusinessRuleRequestUri, isProcess: true);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -301,7 +307,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     {
         _logger.LogDebug(CustomLogEvent.Process, "GetQuestionDataAsync");
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, QuestionRequestUri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, QuestionRequestUri, isProcess: true);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -336,8 +342,9 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
         {
             var localData = await GetDataAsync();
             var deserializedData = JsonSerializer.Deserialize<List<D365Reporting>>(localData.Data.ToString());
-            var questions = deserializedData.SelectMany(q => q.QuestionSourcequestionIdentifier);
+            var questionIdentifiers = deserializedData.Select(q => q.QuestionSourcequestionIdentifier).ToList();
 
+            _questionIdentifier = questionIdentifiers.ToArray();
             #region Create Customer Voice Project as Report Template in CE Custom
 
             var payloadReportTemplate = new JsonObject
@@ -353,7 +360,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             {
                 var responseBody = await CreateResponserequestBodyReportTemplate.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Failed to create the Report Template record with the server error {responseBody}", responseBody.CleanLog());
-              
+
                 return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
             }
 
@@ -376,6 +383,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
                 var payloadSurvey = new JsonObject
             {
                 {ofm_section.Fields.ofm_name,survey.First().SectionName },
+                {ofm_section.Fields.ofm_section_title,survey.First().SectionName },
                 {ofm_section.Fields.ofm_source_section_id,survey.First().SectionSurveyId },
                 {ofm_section.Fields.ofm_customer_voice_survey_id,survey.First().SectionSourceSurveyIdentifier },
                 {ofm_section.Fields.ofm_survey+"@odata.bind",$"/{ofm_survey.EntitySetName}({newReportTemplateId})" }
@@ -411,9 +419,9 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
                             CreateJsonObject(question)));
                     }
 
-                   else if (question.QuestionSubtitle != null && question.QuestionSubtitle.ToLower().Contains("table"))
+                    else if (question.QuestionSubtitle != null && question.QuestionSubtitle.ToLower().Contains("table"))
                     {
-                        
+
                         requestsQuestionCreationTable.Add(new CreateRequest($"{entitySetNameQuestion}",
                             CreateJsonObject(question)));
 
@@ -460,56 +468,57 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
                                 }));
 
                     }
-                    
+
                 }
 
-                    if (requestsQuestionCreation.Count > 0)
+                if (requestsQuestionCreation.Count > 0)
+                {
+
+                    var createQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreation, null);
+
+                    if (createQuestionBatchResult.Errors.Any())
                     {
-
-                        var createQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreation, null);
-
-                        if (createQuestionBatchResult.Errors.Any())
-                        {
-                            var createQuestionError = ProcessResult.Failure(ProcessId, createQuestionBatchResult.Errors, createQuestionBatchResult.TotalProcessed, createQuestionBatchResult.TotalRecords);
-                            _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionError)!.ToString());
-                             _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
-                            _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                            return createQuestionError.SimpleProcessResult;
+                        var createQuestionError = ProcessResult.Failure(ProcessId, createQuestionBatchResult.Errors, createQuestionBatchResult.TotalProcessed, createQuestionBatchResult.TotalRecords);
+                        _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionError)!.ToString());
+                        _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
+                        _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                        return createQuestionError.SimpleProcessResult;
 
                     }
-                        requestsQuestionCreation.Clear();
-                    }
+                    requestsQuestionCreation.Clear();
+                }
 
-                    if (requestsQuestionCreationColumn.Count > 0)
+                if (requestsQuestionCreationColumn.Count > 0)
+                {
+                    var createQuestionColumnBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreationColumn, null);
+
+                    if (createQuestionColumnBatchResult.Errors.Any())
                     {
-                        var createQuestionColumnBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreationColumn, null);
-
-                        if (createQuestionColumnBatchResult.Errors.Any())
-                        {
-                            var createQuestionColumnError = ProcessResult.Failure(ProcessId, createQuestionColumnBatchResult.Errors, createQuestionColumnBatchResult.TotalProcessed, createQuestionColumnBatchResult.TotalRecords);
-                            _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionColumnError)!.ToString());
-                            _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
-                              _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                            return createQuestionColumnError.SimpleProcessResult;
+                        var createQuestionColumnError = ProcessResult.Failure(ProcessId, createQuestionColumnBatchResult.Errors, createQuestionColumnBatchResult.TotalProcessed, createQuestionColumnBatchResult.TotalRecords);
+                        _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionColumnError)!.ToString());
+                        _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
+                        _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                        return createQuestionColumnError.SimpleProcessResult;
 
 
                     }
-                        requestsQuestionCreationColumn.Clear();
-                    }
+                    requestsQuestionCreationColumn.Clear();
+                }
 
                 #endregion Create Questions
 
 
             }
-            CreateBusinessRule(surveyDataGroup, _sectionId, appUserService, d365WebApiService);
+            UpdateQuestionwithManualData(questionIdentifiers, _sectionId, appUserService, d365WebApiService);
+            
         }
 
         catch (Exception ex)
         {
-            throw ex;
+            _logger.LogError(CustomLogEvent.Process, "Failed under catch block RunProcess", ex.InnerException.ToString());
         }
 
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;  
+        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
     }
     public JsonObject CreateJsonObject(D365Reporting question)
@@ -540,7 +549,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
         else if (question.QuestionType == (int)msfp_question_msfp_questiontype.Number)
             return (int)ofm_ReportingQuestionType.Number;
 
-        else if (question.QuestionChoices!=null && question.QuestionChoices.Replace("\"", "") == "Yes,No")
+        else if (question.QuestionChoices != null && question.QuestionChoices.Replace("\"", "") == "Yes,No")
         {
             return (int)ofm_ReportingQuestionType.TwoOption;
         }
@@ -552,87 +561,40 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             return (int)(ofm_ReportingQuestionType)question.QuestionType;
 
     }
-    public async void CreateBusinessRule(IEnumerable<IGrouping<Guid,D365Reporting>> surveyData,Guid? _sectionId, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
+    public async void CreateBusinessRule(Guid? _sectionId, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
     {
         try
         {
             List<HttpRequestMessage> requestsQuestionBRCreation = new() { };
             var entitySetNameQuestionBR = ofm_question_business_rule.EntitySetName;
-            foreach (var survey in surveyData)
-            {
-               var surveyQuestions = survey.OrderByDescending(x => x.QuestionSubtitle).GroupBy(x => x.QuestionSubtitle).SelectMany(g => g);
-                foreach (var question in surveyQuestions)
+            var localdataBusinessRule = await GetBRDataAsync();
+            var deserializedDataBR = JsonSerializer.Deserialize<List<BRQuestion>>(localdataBusinessRule.Data.ToString());
+            var localQuestionData = await GetQuestionDataAsync();
+            var deserializedQuestiondata = JsonSerializer.Deserialize<List<Question>>(localQuestionData.Data.ToString());
+                deserializedDataBR?.ForEach(br =>
                 {
-                    _questionIdentifier = question.QuestionSourcequestionIdentifier;
-                    Console.WriteLine(_questionIdentifier);
-                    var localdataBusinessRule = await GetBRDataAsync();
-                    var deserializedDataBR = JsonSerializer.Deserialize<List<CVS_Question>>(localdataBusinessRule.Data.ToString());
-                    if (deserializedDataBR.Count > 0)
-                    {
-                        var _parentQuestiondata = await GetQuestionDataAsync();
-                        var deserializedDataParentQues = JsonSerializer.Deserialize<List<ofm_question>>(_parentQuestiondata.Data.ToString());
-                        
-                        string ofm_false_child_questionName = "_" + ofm_question_business_rule.Fields.ofm_false_child_question + "_value";
-                        string ofm_true_child_questionName = "_" + ofm_question_business_rule.Fields.ofm_true_child_question + "_value";
-                        string ofm_child_questionName = "_" + ofm_question_business_rule.Fields.ofm_child_question + "_value";
-                        string ofm_false_child_questionValue = null;
-                        string ofm_true_child_questionValue = null;
-                        string ofm_child_questionValue = null;
-
-                        foreach (var br in deserializedDataBR)
-                        {
-
-                            if (br.ofm_condition != null && br.ofm_condition.ToLower() == "yes")
-                            {
-                                _questionIdentifier = br.TrueSourcequestionIdentifier;
-                                var localdataChild = await GetQuestionDataAsync();
-                                var deserializedDataTrueChild = JsonSerializer.Deserialize<List<ofm_question>>(localdataChild.Data.ToString());
-                                _trueChildQuestionId = deserializedDataTrueChild.First().ofm_questionid;
-                                ofm_true_child_questionName = ofm_question_business_rule.Fields.ofm_true_child_question + "@odata.bind";
-                                ofm_true_child_questionValue = $"/{ofm_question.EntitySetName}({_trueChildQuestionId})";
-
-                            }
-                            else
-                            {
-                                _questionIdentifier = br.FalseSourcequestionIdentifier;
-                                var localdataChild = await GetQuestionDataAsync();
-                                var deserializedDataFalseChild = JsonSerializer.Deserialize<List<ofm_question>>(localdataChild.Data.ToString());
-                                _falseChildQuestionId = deserializedDataFalseChild.First().ofm_questionid;
-                                ofm_false_child_questionName = ofm_question_business_rule.Fields.ofm_false_child_question + "@odata.bind";
-                                ofm_false_child_questionValue = $"/{ofm_question.EntitySetName}({_falseChildQuestionId})";
-                            }
-                            if (br.ofm_parent_has_response == true)
-                            {
-                                _questionIdentifier = br.childSourcequestionIdentifier;
-                                var localdataChild = await GetQuestionDataAsync();
-                                var deserializedDataChild = JsonSerializer.Deserialize<List<ofm_question>>(localdataChild.Data.ToString());
-                                _childQuestionId = deserializedDataChild.First().ofm_questionid;
-                                ofm_child_questionName = ofm_question_business_rule.Fields.ofm_child_question + "@odata.bind";
-                                ofm_child_questionValue = $"/{ofm_question.EntitySetName}({_childQuestionId})";
-                            }
-
-                            requestsQuestionBRCreation.Add(new CreateRequest($"{entitySetNameQuestionBR}",
-                                new JsonObject()
-                                {
+                    var parentQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.brSourceQuestion && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                    var trueQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.TrueSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                    var falseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.FalseSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                    var hasResponseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.childSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                    requestsQuestionBRCreation.Add(new CreateRequest($"{entitySetNameQuestionBR}",
+          new JsonObject()
+          {
                                             {ofm_question_business_rule.Fields.ofm_name, br.ofm_name },
-                                            {ofm_false_child_questionName,ofm_false_child_questionValue},
-                                            {ofm_true_child_questionName,ofm_true_child_questionValue },
+                                            {br._ofm_true_child_question_value != Guid.Empty ?ofm_question_business_rule.Fields.ofm_true_child_question + "@odata.bind":"_"+ofm_question_business_rule.Fields.ofm_true_child_question + "_value" ,br._ofm_true_child_question_value != Guid.Empty ? $"/{ofm_question.EntitySetName}({trueQuestionId})" : null},
+                                            {br._ofm_false_child_question_value != Guid.Empty ?ofm_question_business_rule.Fields.ofm_false_child_question + "@odata.bind":"_"+ofm_question_business_rule.Fields.ofm_false_child_question + "_value" ,br._ofm_false_child_question_value != Guid.Empty ? $"/{ofm_question.EntitySetName}({falseQuestionId})" : null},
                                             {ofm_question_business_rule.Fields.ofm_parent_has_response, br.ofm_parent_has_response },
                                             {ofm_question_business_rule.Fields.ofm_condition, br.ofm_condition },
                                             {ofm_question_business_rule.Fields.ofm_section+"@odata.bind", $"/{ofm_section.EntitySetName}({_sectionId})" },
-                                            {ofm_child_questionName, ofm_child_questionValue },
-                                            {ofm_question_business_rule.Fields.ofm_parentquestionid+"@odata.bind",$"/{ofm_question.EntitySetName}({deserializedDataParentQues.First().ofm_questionid})" }
+                                            {br.ofm_parent_has_response == true ?ofm_question_business_rule.Fields.ofm_child_question + "@odata.bind":"_"+ofm_question_business_rule.Fields.ofm_child_question + "_value", br.ofm_parent_has_response == true ? $"/{ofm_question.EntitySetName}({hasResponseQuestionId})": null},
+                                            {ofm_question_business_rule.Fields.ofm_parentquestionid+"@odata.bind",$"/{ofm_question.EntitySetName}({parentQuestionId})" }
 
 
-                                }));
+          }));
 
-                        }
 
-                    }
-                }
-                //}
-
-            }
+                });
+           
             if (requestsQuestionBRCreation.Count > 0)
             {
                 var createQuestionBRBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionBRCreation, null);
@@ -642,7 +604,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
                     var createQuestionBRError = ProcessResult.Failure(ProcessId, createQuestionBRBatchResult.Errors, createQuestionBRBatchResult.TotalProcessed, createQuestionBRBatchResult.TotalRecords);
                     _logger.LogError(CustomLogEvent.Process, "Failed to create Question Business rules with an error: {error}", JsonValue.Create(createQuestionBRError)!.ToString());
                     _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                    
+
 
                 }
                 requestsQuestionBRCreation.Clear();
@@ -655,42 +617,51 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
 
             throw ex.InnerException;
         }
-        
+
     }
-    public async void UpdateQuestionwithManualData(IEnumerable<IGrouping<Guid, D365Reporting>> surveyData, Guid? _sectionId, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
-    {
+    public async void UpdateQuestionwithManualData(IEnumerable<string?> questionIdentifiers, Guid? _sectionId, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
+   {
+        var questionData = await GetQuestionDataAsync();
+        var deserializedQuestion = JsonSerializer.Deserialize<List<Question>>(questionData.Data.ToString());
         List<HttpRequestMessage> requestsQuestionUpdate = new() { };
-        var entitySetNameQuestion = ofm_question_business_rule.EntitySetName;
-        foreach (var question in surveyData)
+
+        foreach (var identifier in questionIdentifiers)
         {
-            var questionData = await GetQuestionDataAsync();
-            var deserializedQuestion = JsonSerializer.Deserialize<List<ofm_question>>(questionData.Data.ToString());
-            requestsQuestionUpdate.Add(new CreateRequest($"{entitySetNameQuestion}",
-                               new JsonObject()
-                               {
-                                            {ofm_question.Fields.ofm_default_rows, deserializedQuestion.First().ofm_default_rows},
-                                            {ofm_question.Fields.ofm_maximum_rows, deserializedQuestion.First().ofm_maximum_rows},
-                                            {ofm_question.Fields.ofm_occurence,(int)deserializedQuestion.First().ofm_occurence },
-                                            {ofm_question.Fields.ofm_fixed_response, deserializedQuestion.First().ofm_fixed_response }
-                               }));
-            if (requestsQuestionUpdate.Count > 0)
+        
+            var getLatestPublishedVersion = deserializedQuestion?.FirstOrDefault(x => x.surveyIsPublished == true && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
+            var getQuestionToUpdate = deserializedQuestion?.FirstOrDefault(x => x.surveyIsPublished == false && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
+            if (getLatestPublishedVersion != null && getQuestionToUpdate != null)
             {
-                var createQuestionBRBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionUpdate, null);
-
-                if (createQuestionBRBatchResult.Errors.Any())
-                {
-                    var createQuestionBRError = ProcessResult.Failure(ProcessId, createQuestionBRBatchResult.Errors, createQuestionBRBatchResult.TotalProcessed, createQuestionBRBatchResult.TotalRecords);
-                    _logger.LogError(CustomLogEvent.Process, "Failed to Update fixed values on Question with an error: {error}", JsonValue.Create(createQuestionBRError)!.ToString());
-                    _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-
-
-                }
-                requestsQuestionUpdate.Clear();
+                requestsQuestionUpdate.Add(new D365UpdateRequest(new Messages.EntityReference(ofm_question.EntitySetName, getQuestionToUpdate.ofm_questionid),
+                                   new JsonObject()
+                                   {
+                                            {ofm_question.Fields.ofm_default_rows, getLatestPublishedVersion.ofm_default_rows ?? null},
+                                            {ofm_question.Fields.ofm_maximum_rows, getLatestPublishedVersion.ofm_maximum_rows ?? null},
+                                            {ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
+                                            {ofm_question.Fields.ofm_fixed_response, getLatestPublishedVersion.ofm_fixed_response }
+                                   }));
             }
+   
 
 
 
         }
+
+        if (requestsQuestionUpdate.Count > 0)
+                {
+                    var UpdateQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionUpdate, null);
+
+                    if (UpdateQuestionBatchResult.Errors.Any())
+                    {
+                        var createQuestionBRError = ProcessResult.Failure(ProcessId, UpdateQuestionBatchResult.Errors, UpdateQuestionBatchResult.TotalProcessed, UpdateQuestionBatchResult.TotalRecords);
+                        _logger.LogError(CustomLogEvent.Process, "Failed to Update manual values on Question with an error: {error}", JsonValue.Create(createQuestionBRError)!.ToString());
+                        _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+
+
+                    }
+                    requestsQuestionUpdate.Clear();
+            CreateBusinessRule(_sectionId,appUserService,d365WebApiService);
+                }
 
     }
 }

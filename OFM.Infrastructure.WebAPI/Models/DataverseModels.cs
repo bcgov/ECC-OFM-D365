@@ -272,7 +272,7 @@ public record D365CommunicationType
     public string? ofm_communication_typeid { get; set; }
     public Int16? ofm_communication_type_number { get; set; }
 }
-public class CVS_Question : ofm_question_business_rule
+public class BRQuestion : ofm_question_business_rule
 {
     [property: JsonPropertyName("true.ofm_source_question_id")]
     public string? TrueSourcequestionIdentifier { get; set; }
@@ -280,6 +280,27 @@ public class CVS_Question : ofm_question_business_rule
     public string? FalseSourcequestionIdentifier { get; set; }
     [property: JsonPropertyName("child.ofm_source_question_id")]
     public string? childSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? survey_ofm_is_published { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? survey_statecode { get; set; }
+
+    [property: JsonPropertyName("que.ofm_source_question_id")]
+    public string? brSourceQuestion { get; set; }
+  
+    public Guid _ofm_true_child_question_value { get; set; }
+    public Guid _ofm_false_child_question_value { get; set; }
+    
+
+}
+public class Question : ofm_question
+{
+   
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? surveyIsPublished { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? surveyStatecode { get; set; }
+
 }
 public record D365Reporting
 {
