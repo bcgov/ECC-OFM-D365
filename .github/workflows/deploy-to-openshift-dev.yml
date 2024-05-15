@@ -156,11 +156,41 @@ jobs:
           oc tag ${{ steps.push-image-backend.outputs.registry-path }} ${{ env.IMAGE_NAME }}:${{ env.TAG }}
 
           # Process and apply deployment template
-          oc process -f tools/openshift/d365api.dc.yaml -p APP_NAME=${{ env.APP_NAME }} -p REPO_NAME=${{ env.REPO_NAME }} -p BRANCH=${{ env.BRANCH }} \
-          -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} -p TAG=${{ env.TAG }} -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
-          -p MIN_CPU=${{ env.MIN_CPU }} -p MAX_CPU=${{ env.MAX_CPU }} -p MIN_MEM=${{ env.MIN_MEM }} -p MAX_MEM=${{ env.MAX_MEM }} \
-          -p ENVIRONMENT=${{ env.APP_ENVIRONMENT }} -p HAPROXY_IP_WHITELIST=${{ env.HAPROXY_IP_WHITELIST }} \
-          | oc apply -f -
+          oc process \
+            -f tools/openshift/d365api.dc.yaml \
+            -p APP_NAME=${{ env.APP_NAME }} \
+            -p REPO_NAME=${{ env.REPO_NAME }} \
+            -p BRANCH=${{ env.BRANCH }} \
+            -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} \
+            -p TAG=${{ env.TAG }} \
+            -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} \
+            -p MAX_REPLICAS=${{ env.MAX_REPLICAS }} \
+            -p MIN_CPU=${{ env.MIN_CPU }} \
+            -p MAX_CPU=${{ env.MAX_CPU }} \
+            -p MIN_MEM=${{ env.MIN_MEM }} \
+            -p MAX_MEM=${{ env.MAX_MEM }} \
+            -p ENVIRONMENT=${{ env.APP_ENVIRONMENT }} \
+            -p HAPROXY_IP_WHITELIST=${{ env.HAPROXY_IP_WHITELIST }} \
+            | oc apply -f -
+
+          # Process update-configmap
+          echo ${{ secrets.D365_API_KEY_SCHEME }} > /tmp/key_scheme
+          echo ${{ secrets.D365_API_AUTH_SETTINGS }} > /tmp/api_auth_settings
+          echo ${{ secrets.D365_RECIPIENTS }} > /tmp/recipients
+          echo ${{ secrets.D365_BC_REGISTRY_API }} > tmp/bc_registry_api
+
+          curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh \
+            | bash /dev/stdin \
+                dev \
+                ${{ env.APP_NAME }} \
+                ${{ env.OPENSHIFT_NAMESPACE }} \
+                /tmp/key_scheme \
+                /tmp/api_auth_settings \
+                ${{ secrets.D365_DEFAULT_SENDER_ID }} \
+                ${{ secrets.D365_DEFAULT_CONTACT_ID }} \
+                /tmp/recipients \
+                /tmp/bc_registry_api \
+                ${{ secrets.D365_BCCAS_API_URL }}
 
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
