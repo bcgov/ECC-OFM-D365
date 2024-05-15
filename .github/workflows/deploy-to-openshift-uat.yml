@@ -114,7 +114,7 @@ jobs:
           # Cancel any rollouts in progress
           oc rollout cancel dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
           || true && echo "No rollout in progress"
-          
+
           # Create the image stream if it doesn't exist
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
 
@@ -129,7 +129,37 @@ jobs:
           | oc apply -f -
 
           # Process update-configmap
-          # curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh | bash /dev/stdin test ${{ env.APP_NAME }} ${{ env.NAMESPACE }} ${{ env.SPLUNK_TOKEN }}
+          D365_API_KEY_SCHEME=$(jq -c << JSON
+            ${{ secrets.D365_API_KEY_SCHEME }}
+          JSON
+          )
+
+          D365_API_AUTH_SETTINGS=$(jc -c << JSON
+            ${{ secrets.D365_API_AUTH_SETTINGS }}
+          JSON
+          )
+
+          D365_RECIPIENTS=$(jc -c << JSON
+            ${{ secrets.D365_RECIPIENTS }}
+          JSON
+          )
+
+          D365_BC_REGISTRY_API=$(jc -c << JSON
+            ${{ secrets.D365_BC_REGISTRY_API }}
+          JSON
+          )
+          curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh \
+            | bash /dev/stdin \
+                uat \
+                ${{ env.APP_NAME }} \
+                ${{ env.OPENSHIFT_NAMESPACE }} \
+                "$D365_API_KEY_SCHEME" \
+                "$D365_API_AUTH_SETTINGS" \
+                ${{ secrets.D365_DEFAULT_SENDER_ID }} \
+                ${{ secrets.D365_DEFAULT_CONTACT_ID }} \
+                "$D365_RECIPIENTS" \
+                "$D365_BC_REGISTRY_API" \
+                ${{ secrets.D365_BCCAS_API_URL }}
 
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \

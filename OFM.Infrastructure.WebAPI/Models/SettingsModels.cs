@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 public record AppSettings
@@ -26,6 +27,7 @@ public record DocumentSettings
 public record NotificationSettings
 {
     public required UnreadEmailOptions UnreadEmailOptions { get; set; }
+    public required RenewalReminderOptions RenewalReminderOptions { get; set; }
     public required string DefaultSenderId { get; set; }
     public required EmailTemplate[] EmailTemplates { get; set; }
     public required CommunicationTypes CommunicationTypes { get; set; }
@@ -50,6 +52,12 @@ public record UnreadEmailOptions
     public Int16 TimeOffsetInDays { get; set; }
 }
 
+public record RenewalReminderOptions
+{
+    public Int16 FirstReminderInDays { get; set; }
+    public Int16 SecondReminderInDays { get; set; }
+    public Int16 ThirdReminderInDays { get; set; }
+}
 public record CommunicationTypes
 {
     public required Int16 ActionRequired { get; set; }
@@ -152,6 +160,7 @@ public record BCRegistrySettings
     public string singletaskprocess { get; set; }
     public required TaskActivity TaskActivity { get; set; }
    
+
 }
 public record TaskActivity
 {
@@ -160,13 +169,26 @@ public record TaskActivity
     
 }
 
-    public record BCCASApi
+public record BCCASApi
 {
     public bool Enable { get; set; }
     public required string Url { get; set; }
     public required string KeyName { get; set; }
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
+    public int transactionCount { get; set; }
+    public required string cGIBatchNumber { get; set; }
+    public required string oracleBatchNumber { get; set; }
+    public required string clientCode { get; set; }
+    public required string feederNumber { get; set; }
+    public required string trailertransactionType { get; set; }
+    public required string messageVersionNumber { get; set; }
+    public required string transactionType { get; set; }
+    public required string batchType { get; set; }
+    public required string delimiter { get; set; }
+    public required InvoiceHeader InvoiceHeader { get; set; }
+    public required InvoiceLines InvoiceLines { get; set; }
+   
 }
 
 

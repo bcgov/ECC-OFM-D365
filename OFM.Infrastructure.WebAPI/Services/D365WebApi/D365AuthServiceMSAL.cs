@@ -1,12 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
+﻿using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
-using Polly;
-using Polly.Extensions.Http;
-using System.Net.Http;
 using System.Net.Http.Headers;
 
 namespace OFM.Infrastructure.WebAPI.Services.D365WebApi;

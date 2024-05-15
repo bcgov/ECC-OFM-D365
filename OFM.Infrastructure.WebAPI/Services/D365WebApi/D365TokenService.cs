@@ -1,10 +1,7 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Identity.Client;
+﻿using Microsoft.Identity.Client;
 using OFM.Infrastructure.WebAPI.Caching;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
-using System;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.D365WebApi;
