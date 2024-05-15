@@ -50,7 +50,7 @@ if [ "$ENV_VAL" != "prod" ]; then
 fi
 readonly D365_EMAIL_SAFE_LIST_ENABLE
 
-D365_CONFIGURATION=$(cat << JSON
+D365_CONFIGURATION=$(jq << JSON
 {
   "Logging": $D365_LOG_LEVEL,
   "AllowedHosts": "*",
@@ -200,11 +200,14 @@ D365_CONFIGURATION=$(cat << JSON
 JSON
 )
 readonly D365_CONFIGURATION
+echo "$D365_CONFIGURATION" > /tmp/appsettings.json
 
 echo
 echo Creating D365 config map "$APP_NAME-d365api-$ENV_VAL-config-map"
 oc create -n "$OPENSHIFT_NAMESPACE" configmap \
-  --from-literal="appsettings.json=$D365_CONFIGURATION"
+  "$APP_NAME-d365api-$ENV_VAL-config-map" \
+  --from-file="appsettings.json=/tmp/appsettings.json" \
+  --dry-run -o yaml | oc apply -f -
 
 echo
 echo Setting environment variables for "$APP_NAME-d365api-$ENV_VAL" application
