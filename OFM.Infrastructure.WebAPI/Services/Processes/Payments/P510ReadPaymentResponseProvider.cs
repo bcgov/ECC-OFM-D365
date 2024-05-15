@@ -201,70 +201,71 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         List<feedbackHeader> headers = new List<feedbackHeader>();
 
         var startTime = _timeProvider.GetTimestamp();
-       
+
         var localData = await GetDataAsync();
-            var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
+        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
 
-            HttpResponseMessage response1 = await _d365webapiservice.GetDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(serializedData[0].ofm_payment_file_exchangeid));
-            if (!response1.IsSuccessStatusCode)
+        HttpResponseMessage response1 = await _d365webapiservice.GetDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(serializedData[0].ofm_payment_file_exchangeid));
+        if (!response1.IsSuccessStatusCode)
+        {
+            var responseBody = await response1.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to download file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
+            return await Task.FromResult<JsonObject>(new JsonObject() { });
+
+        }
+        byte[] file1 = response1.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+
+
+        listfeedback = System.Text.Encoding.UTF8.GetString(file1).Replace("APBG", "APBG#APBG").Split("APBG#").ToList();
+        listfeedback.RemoveAll(item => string.IsNullOrWhiteSpace(item));
+        batchfeedback = listfeedback.Select(g => g.Replace("APBH", "APBH#APBH")).SelectMany(group => group.Split("APBH#")).ToList();
+        headerfeedback = listfeedback.Select(g => g.Replace("APIH", "APIH#APIH")).SelectMany(group => group.Split("APIH#")).ToList();
+
+        foreach (string data in headerfeedback)
+        {
+            List<feedbackLine> lines = new List<feedbackLine>();
+            linefeedback = data.Split('\n').Where(g => g.StartsWith("APIL")).Select(g => g).ToList();
+            foreach (string list1 in linefeedback)
             {
-                var responseBody = await response1.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to download file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
-                return await Task.FromResult<JsonObject>(new JsonObject() { });
+                feedbackLine line = new CustomFileProvider<feedbackLine>().Parse(new List<string> { list1.TrimStart() });
+                lines.Add(line);
 
             }
-            byte[] file1 = response1.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+            feedbackHeader header = new CustomFileProvider<feedbackHeader>().Parse(new List<string> { data });
+            header.feedbackLine = lines;
+            headers.Add(header);
+        }
+        var localPayData = await GetPaylinesAsync();
+        var serializedPayData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(localPayData.Data.ToString());
+        var updatePayRequests = new List<HttpRequestMessage>() { };
 
-
-            listfeedback = System.Text.Encoding.UTF8.GetString(file1).Replace("APBG", "APBG#APBG").Split("APBG#").ToList();
-            listfeedback.RemoveAll(item => string.IsNullOrWhiteSpace(item));           
-            batchfeedback = listfeedback.Select(g => g.Replace("APBH", "APBH#APBH")).SelectMany(group => group.Split("APBH#")).ToList();
-            headerfeedback = listfeedback.Select(g => g.Replace("APIH", "APIH#APIH")).SelectMany(group => group.Split("APIH#")).ToList();
-          
-            foreach (string data in headerfeedback)
+        serializedPayData?.ForEach(pay =>
+        {
+            var line = headers.SelectMany(p => p.feedbackLine).SingleOrDefault(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.StartsWith(string.Concat(pay.ofm_application_number, " ", pay.ofm_payment_type)));
+            var header = headers.Where(p => p.IHInvoice == pay.ofm_invoice_number).FirstOrDefault();
+            if (line != null && header != null)
             {
-                List<feedbackLine> lines = new List<feedbackLine>();
-                linefeedback = data.Split('\n').Where(g => g.StartsWith("APIL")).Select(g => g).ToList();
-                foreach (string list1 in linefeedback)
-                {
-                    feedbackLine line = new CustomFileProvider<feedbackLine>().Parse(new List<string> { list1.TrimStart() });
-                    lines.Add(line);
-
-                }
-                feedbackHeader header = new CustomFileProvider<feedbackHeader>().Parse(new List<string> { data });
-                header.feedbackLine = lines;
-                headers.Add(header);
-            }
-            var localPayData = await GetPaylinesAsync();
-            var serializedPayData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(localPayData.Data.ToString());
-            var updatePayRequests = new List<HttpRequestMessage>() { };
-
-            serializedPayData?.ForEach(pay =>
-            {
-                var line = headers.SelectMany(p=>p.feedbackLine).SingleOrDefault(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.StartsWith(string.Concat(pay.ofm_application_number, " ", pay.ofm_payment_type)));
-                var header =  headers.Where(p=>p.IHInvoice==pay.ofm_invoice_number).First();
-                string casResponse = (line?.ILCode != "0000")?string.Concat("Error:", line?.ILCode, " ", line?.ILError) : string.Empty;
-                casResponse += (header.IHCode != "0000") ? string.Concat(header.IHCode, " ", header.IHError) : string.Empty;
+                string casResponse = (line?.ILCode != "0000") ? string.Concat("Error:", line?.ILCode, " ", line?.ILError) : string.Empty;
+                casResponse += (header?.IHCode != "0000") ? string.Concat(header?.IHCode, " ", header?.IHError) : string.Empty;
 
                 var payToUpdate = new JsonObject {
                 {ofm_payment.Fields.ofm_cas_response, casResponse},
-                {ofm_payment.Fields.statecode,(int)((line?.ILCode=="0000" &&header.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
-                {ofm_payment.Fields.statuscode,(int)((line?.ILCode=="0000" && header.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingERROR)},
+                {ofm_payment.Fields.statecode,(int)((line?.ILCode=="0000" &&header?.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
+                {ofm_payment.Fields.statuscode,(int)((line?.ILCode=="0000" && header?.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingERROR)},
                };
                 updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName, new Guid(pay.ofm_paymentid)), payToUpdate));
-
-
-            });
-
-            var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updatePayRequests, null);
-            if (step2BatchResult.Errors.Any())
-            {
-                var errors = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
-                _logger.LogError(CustomLogEvent.Process, "Failed to update email notifications with an error: {error}", JsonValue.Create(errors)!.ToString());
-
-                return errors.SimpleProcessResult;
             }
-      
+        });
+
+        var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updatePayRequests, null);
+        if (step2BatchResult.Errors.Any())
+        {
+            var errors = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to update email notifications with an error: {error}", JsonValue.Create(errors)!.ToString());
+
+            return errors.SimpleProcessResult;
+        }
+
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 
