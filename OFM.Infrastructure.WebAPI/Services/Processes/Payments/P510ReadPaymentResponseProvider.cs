@@ -52,8 +52,8 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                         <order attribute="ofm_name" descending="false" />
                         <filter type="and">                          
                         <condition attribute="modifiedon" operator="on-or-after" value="{DateTime.UtcNow.AddDays(-1)}" />
-                        <condition attribute="ofm_feedback_file_name" operator="not-null" />
-                        </filter>
+                         <condition attribute="ofm_feedback_file_name" operator="like" value="%{DateTime.UtcNow.AddDays(-1).ToString("yyyyMMdd")}%" />
+                       </filter>
                       </entity>
                     </fetch>
                     """;
