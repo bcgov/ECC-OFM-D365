@@ -21,6 +21,35 @@
             <param name="value"></param>
             <returns></returns>
         </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32)">
+            <summary>
+            A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
+            </summary>
+            <param name="candidate"></param>
+            <param name="holidays"></param>
+            <param name="totalTrailingDays"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSEffectiveDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
+            <summary>
+            A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
+            </summary>
+            <param name="invoiceDate"></param>
+            <param name="holidays"></param>
+            <param name="defaultDaysAfter"></param>
+            <param name="trailingTotalDays"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceReceivedDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
+            <summary>
+             A pre-determined CFS Invoice Received Date. The recommended default is 4 days before the Invoice Date.
+            </summary>
+            <param name="invoiceDate"></param>
+            <param name="holidays"></param>
+            <param name="defaultDaysBefore"></param>
+            <param name="trailingTotalDays"></param>
+            <returns></returns>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.BatchOperationsHandlers.BatchOperationsAsync(OFM.Infrastructure.WebAPI.Services.Batches.ID365BatchService,Microsoft.Extensions.Logging.ILoggerFactory,System.Object)">
              <summary>
              Batch Operation to perform multiple actions
@@ -269,6 +298,11 @@
             <param name="partitionId">The partition key to use.</param>
             <param name="eTag">The current ETag value to compare.</param>
         </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Messages.DownloadFileRequest">
+            <summary>
+            Contains the data to update file column
+            </summary>
+        </member>
         <member name="T:OFM.Infrastructure.WebAPI.Messages.UploadFileRequest">
             <summary>
             Contains the data to update file column
@@ -292,10 +326,11 @@
             Specifies the behavior for an Upsert operation.
             </summary>
         </member>
-        <member name="F:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail._applyDuplicateCareType">
+        <member name="F:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail._applyRoomSplit">
             <summary>
-            Split Room is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
-            The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
+            1. Split Room condition is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
+               The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
+            2. Duplicate Care Type condition happens when a facility operates with multiple locations. The capacity and hours may differ at each location hence there are duplicate licence details.
             </summary>
         </member>
         <member name="P:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail.AnnualAvailableHoursPerFTE">
@@ -387,6 +422,11 @@
             <param name="client"></param>
             <returns></returns>
         </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator">
+            <summary>
+            Funding Calculator Version 9
+            </summary>
+        </member>
         <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.EmployerHealthTax">
             <summary>
              HR Envelopes: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at the calculator level to HR Total Renumeration Only ***
@@ -396,6 +436,22 @@
             <summary>
             Only used for split room scenario. It will calculate and set the default allocation values for each applicable space allocation record.
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.ComputeRate(System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.Fundings.FundingRate},System.Decimal)">
+            <summary>
+            This is a dynamic and simplified version, but also works with the excel calculator V9
+            </summary>
+            <param name="fundingRates"></param>
+            <param name="adjustedSpaces"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.ComputeRateV9(System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.Fundings.FundingRate},System.Decimal)">
+            <summary>
+            This version is coded with the same exact logic in the excel calculator V9
+            </summary>
+            <param name="fundingRates"></param>
+            <param name="adjustedSpaces"></param>
             <returns></returns>
         </member>
         <member name="T:ECC.Core.DataContext.DataverseContext">
@@ -421,6 +477,21 @@
         <member name="P:ECC.Core.DataContext.DataverseContext.EmailSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.Email"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.msfp_projectSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.msfp_project"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.msfp_questionSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.msfp_question"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.msfp_surveySet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.msfp_survey"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_allowanceSet">
@@ -613,7 +684,12 @@
             Name of the OptionSetValue.
             </summary>
         </member>
-        <member name="M:ECC.Core.DataContext.OptionSetMetadataAttribute.#ctor(System.String,System.Int32,System.String,System.String,System.String)">
+        <member name="P:ECC.Core.DataContext.OptionSetMetadataAttribute.Names">
+            <summary>
+            Names of the OptionSetValue.
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.OptionSetMetadataAttribute.#ctor(System.String,System.Int32,System.String,System.String,System.String,System.Object[])">
             <summary>
             Initializes a new instance of the <see cref="T:ECC.Core.DataContext.OptionSetMetadataAttribute"/> class.
             </summary>
@@ -622,6 +698,7 @@
             <param name="color">Color of the value.</param>
             <param name="description">Description of the value.</param>
             <param name="externalValue">External value of the value.</param>
+            <param name="names">Names of the value.</param>
         </member>
         <member name="T:ECC.Core.DataContext.OptionSetExtension">
             <summary>
@@ -8133,11 +8210,6 @@
             The associated Organization record
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_paid_date">
-            <summary>
-            Paid Date
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_manual_review">
             <summary>
             Manual Review?
@@ -8560,9 +8632,9 @@
             1:N ofm_header_question_response
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_question.ofm_ofm_question_ofm_question_business_rule">
+        <member name="P:ECC.Core.DataContext.ofm_question.ofm_ofm_question_ofm_question_business_rule_parentquestionid">
             <summary>
-            1:N ofm_ofm_question_ofm_question_business_rule
+            1:N ofm_ofm_question_ofm_question_business_rule_parentquestionid
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question.Referencedofm_question_header">
@@ -8671,11 +8743,6 @@
             The name of the custom entity.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_parentquestionid">
-            <summary>
-            Unique identifier for Question associated with Question Business Rule.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_question_business_ruleid">
             <summary>
             Unique identifier for entity instances
@@ -8771,9 +8838,9 @@
             N:1 ofm_false_child_question_business_rule
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_ofm_question_ofm_question_business_rule">
+        <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_ofm_question_ofm_question_business_rule_parentquestionid">
             <summary>
-            N:1 ofm_ofm_question_ofm_question_business_rule
+            N:1 ofm_ofm_question_ofm_question_business_rule_parentquestionid
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question_business_rule.ofm_section_question_business_rule">
@@ -14328,7 +14395,7 @@
         </member>
         <member name="T:ECC.Core.DataContext.organization_applicationbasedaccesscontrolmode">
             <summary>
-            Application Based Access Control Mode. 0 is Disabled, 1 is Enabled , 2 is audit mode
+            Application Based Access Control Mode. 0 is Disabled, 1 is Enabled, 2 is audit mode, 3 is Enabled for roles
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.organization_SamesitemodeforSessionCookie">

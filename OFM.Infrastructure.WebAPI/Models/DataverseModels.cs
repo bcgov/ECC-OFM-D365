@@ -180,16 +180,31 @@ public record ofm_Facility
     public int? ofm_program { get; set; }
 }
 
+public class Supplementary : ofm_allowance
+{
+    public string _ofm_application_value { get; set; }
+
+}
+public record ofm_reminders
+{
+    public required string ofm_reminderid { get; set; }
+    public int ofm_template_number { get; set; }
+    public int statuscode { get; set; }
+    public int ofm_year_number { get; set; }
+
+    public DateTime ofm_due_date { get; set; }
+}
+
 #endregion
 
 public record D365Template
 {
     public string? title { get; set; }
     public string? safehtml { get; set; }
-     public string? body { get; set; }
+    public string? subjectsafehtml { get; set; }
+    public string? body { get; set; }
     public string? templateid { get; set; }
-    public string? templatecode { get; set; }
-    
+    public string? templatecode { get; set; }   
 }
 
 public record D365Email
@@ -372,6 +387,35 @@ public record D365Reporting
 }
 
 
+
+public record Payment_File_Exchange
+{
+    public string ofm_batch_number { get; set; }
+    public string ofm_oracle_batch_name { get; set; }
+    public string ofm_payment_file_exchangeid { get; set; }
+
+
+}
+
+public class Payment_Line : ofm_payment
+{
+    public required string ofm_paymentid { get; set; }
+    public required DateTime ofm_effective_date { get; set; }
+    public required DateTime ofm_invoice_date { get; set; }
+    public required DateTime ofm_invoice_received_date { get; set; }
+    public required string ofm_supplierid { get; set; }
+    public required string ofm_siteid { get; set; }
+    public required string ofm_invoice_number { get; set; }
+    public required decimal ofm_amount { get; set; }
+    public required int ofm_payment_method { get; set; }
+    [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
+    public  string ofm_financial_year { get; set; }
+    [property: JsonPropertyName("ofm_application.ofm_application")]
+    public  string ofm_application_number { get; set; }
+    [property: JsonPropertyName("ofm_facility.name")]
+    public  string accountname { get; set; }
+  
+}
 
 #region External Parameters
 

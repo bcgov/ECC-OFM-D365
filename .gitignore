@@ -414,3 +414,7 @@ FodyWeavers.xsd
 /OFM.Infrastructure.PCF/Controls/GoodStanding/Solution/OFMPCFs/src/Controls/ofm_Banner.Banner
 /OFM.Infrastructure.WebAPI/appsettings.DEV.json
 /OFM.Infrastructure.WebAPI/appsettings.UAT.json
+
+# Vim
+Session.vim
+.vim/

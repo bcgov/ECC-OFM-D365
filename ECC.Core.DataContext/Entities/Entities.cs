@@ -42639,7 +42639,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_organization_payment = "ofm_organization_payment";
 			public const string ofm_organizationname = "ofm_organizationname";
 			public const string ofm_organizationyominame = "ofm_organizationyominame";
-			public const string ofm_paid_date = "ofm_paid_date";
 			public const string ofm_payment_application = "ofm_payment_application";
 			public const string ofm_payment_facility_account = "ofm_payment_facility_account";
 			public const string ofm_payment_funding = "ofm_payment_funding";
@@ -43336,24 +43335,6 @@ namespace ECC.Core.DataContext
 				{
 					return default(string);
 				}
-			}
-		}
-		
-		/// <summary>
-		/// Paid Date
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_paid_date")]
-		public System.Nullable<System.DateTime> ofm_paid_date
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_paid_date");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_paid_date", value);
 			}
 		}
 		
@@ -44858,7 +44839,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_name = "ofm_name";
 			public const string ofm_occurence = "ofm_occurence";
 			public const string ofm_occurencename = "ofm_occurencename";
-			public const string ofm_ofm_question_ofm_question_business_rule = "ofm_ofm_question_ofm_question_business_rule";
+			public const string ofm_ofm_question_ofm_question_business_rule_parentquestionid = "ofm_ofm_question_ofm_question_business_rule_parentquestionid";
 			public const string ofm_question_business_rule_ques = "ofm_question_business_rule_ques";
 			public const string ofm_question_business_rule_question = "ofm_question_business_rule_question";
 			public const string ofm_question_choice = "ofm_question_choice";
@@ -46091,20 +46072,20 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// 1:N ofm_ofm_question_ofm_question_business_rule
+		/// 1:N ofm_ofm_question_ofm_question_business_rule_parentquestionid
 		/// </summary>
-		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_ofm_question_ofm_question_business_rule")]
-		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_question_business_rule> ofm_ofm_question_ofm_question_business_rule
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_ofm_question_ofm_question_business_rule_parentquestionid")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_question_business_rule> ofm_ofm_question_ofm_question_business_rule_parentquestionid
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_question_business_rule>("ofm_ofm_question_ofm_question_business_rule", null);
+				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_question_business_rule>("ofm_ofm_question_ofm_question_business_rule_parentquestionid", null);
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetRelatedEntities<ECC.Core.DataContext.ofm_question_business_rule>("ofm_ofm_question_ofm_question_business_rule", null, value);
+				this.SetRelatedEntities<ECC.Core.DataContext.ofm_question_business_rule>("ofm_ofm_question_ofm_question_business_rule_parentquestionid", null, value);
 			}
 		}
 		
@@ -46327,7 +46308,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_false_child_question_business_rule = "ofm_false_child_question_business_rule";
 			public const string ofm_false_child_questionname = "ofm_false_child_questionname";
 			public const string ofm_name = "ofm_name";
-			public const string ofm_ofm_question_ofm_question_business_rule = "ofm_ofm_question_ofm_question_business_rule";
+			public const string ofm_ofm_question_ofm_question_business_rule_parentquestionid = "ofm_ofm_question_ofm_question_business_rule_parentquestionid";
 			public const string ofm_parent_has_response = "ofm_parent_has_response";
 			public const string ofm_parent_has_responsename = "ofm_parent_has_responsename";
 			public const string ofm_parentquestionid = "ofm_parentquestionid";
@@ -46776,9 +46757,6 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
-		/// <summary>
-		/// Unique identifier for Question associated with Question Business Rule.
-		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parentquestionid")]
 		public Microsoft.Xrm.Sdk.EntityReference ofm_parentquestionid
 		{
@@ -47253,21 +47231,21 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// N:1 ofm_ofm_question_ofm_question_business_rule
+		/// N:1 ofm_ofm_question_ofm_question_business_rule_parentquestionid
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parentquestionid")]
-		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_ofm_question_ofm_question_business_rule")]
-		public ECC.Core.DataContext.ofm_question ofm_ofm_question_ofm_question_business_rule
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_ofm_question_ofm_question_business_rule_parentquestionid")]
+		public ECC.Core.DataContext.ofm_question ofm_ofm_question_ofm_question_business_rule_parentquestionid
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
 			get
 			{
-				return this.GetRelatedEntity<ECC.Core.DataContext.ofm_question>("ofm_ofm_question_ofm_question_business_rule", null);
+				return this.GetRelatedEntity<ECC.Core.DataContext.ofm_question>("ofm_ofm_question_ofm_question_business_rule_parentquestionid", null);
 			}
 			[System.Diagnostics.DebuggerNonUserCode()]
 			set
 			{
-				this.SetRelatedEntity<ECC.Core.DataContext.ofm_question>("ofm_ofm_question_ofm_question_business_rule", null, value);
+				this.SetRelatedEntity<ECC.Core.DataContext.ofm_question>("ofm_ofm_question_ofm_question_business_rule_parentquestionid", null, value);
 			}
 		}
 		

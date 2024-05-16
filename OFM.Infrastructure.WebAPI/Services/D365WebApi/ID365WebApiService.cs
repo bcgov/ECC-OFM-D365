@@ -17,4 +17,5 @@ public interface ID365WebApiService
     Task<HttpResponseMessage> SendDocumentRequestAsync(AZAppUser spn, string entityNameSet, Guid id, Byte[] data, string fileName);
     Task<HttpResponseMessage> SendBulkEmailTemplateMessageAsync(AZAppUser spn, JsonObject requestMessage, Guid? callerObjectId);
     Task<D365ServiceException> ParseError(HttpResponseMessage response);
+    Task<HttpResponseMessage> GetDocumentRequestAsync(AZAppUser spn, string entityNameSet, Guid id);
 }

@@ -55,8 +55,8 @@ public class ContactEditProvider : ID365BatchProvider
             return sendBatchError.SimpleProcessResult;
         }
         var result = ProcessResult.Success(batchResult.ProcessId, batchResult.TotalRecords);
-        //return await Task.FromResult<JsonObject>(new JsonObject());
-        return result.SimpleProcessResult;
+       
+        return await Task.FromResult(result.SimpleProcessResult);
     }
 
     private async Task<HttpRequestMessage> ProcessObjectData(JsonElement payload, JsonObject keyValuePairs)
