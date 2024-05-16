@@ -3,8 +3,10 @@ using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -25,6 +27,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     private string _requestUri = string.Empty;
     private Guid? _sectionId;
     private string[] _questionIdentifier;
+    private string[] _surveyIdentifier;
 
     public P600CreateQuestionProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -38,15 +41,17 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     public string ProcessName => Setup.Process.Reporting.CreateUpdateQuestionName;
     public string RequestUri
     {
+        
         get
         {
+            var projectId = _processParams?.ProjectId;
             var fetchXml = $"""
                     <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" >
                         <entity name="msfp_project" alias="template" >
                             <attribute name="msfp_name" />
                             <attribute name="msfp_projectid" />
                             <filter type="and" >
-                                <condition attribute="msfp_projectid" operator="eq" value="6296b68d-78d9-4ded-8ae3-69f036d77cde" />
+                                <condition attribute="msfp_projectid" operator="eq" value="{projectId}" />
                             </filter>
                             <link-entity name="msfp_survey" from="msfp_project" to="msfp_projectid" alias="section" link-type="inner" >
                                 <attribute name="msfp_name" />
@@ -104,7 +109,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
                     <attribute name="ofm_subtitle" />
                     <order attribute="ofm_name" descending="false" />
                     <filter type="and">
-                    <condition attribute="ofm_question_type" operator="eq" value="506580005" />
+                    <condition attribute="ofm_question_type" operator="eq" value="{(int)ofm_ReportingQuestionType.Table}" />
                     <condition attribute="ofm_section" operator="eq" value = "{_sectionId}"/>
                     </filter>
                     </entity>
@@ -206,7 +211,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             return requestUri;
         }
     }
-
+    
 
     public async Task<ProcessData> GetDataAsync()
     {
@@ -333,6 +338,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
 
         return await Task.FromResult(new ProcessData(d365Result));
     }
+   
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
@@ -343,8 +349,11 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             var localData = await GetDataAsync();
             var deserializedData = JsonSerializer.Deserialize<List<D365Reporting>>(localData.Data.ToString());
             var questionIdentifiers = deserializedData.Select(q => q.QuestionSourcequestionIdentifier).ToList();
+           
 
             _questionIdentifier = questionIdentifiers.ToArray();
+           
+
             #region Create Customer Voice Project as Report Template in CE Custom
 
             var payloadReportTemplate = new JsonObject
@@ -369,7 +378,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
 
             #endregion Create Customer Voice Project as Report Template in CE Custom
 
-            #region Create Customer Voice Survey as Section in CE CustomeyId);
+            #region Create Customer Voice Survey as Section in CE Custom
 
             var surveyDataGroup = deserializedData.GroupBy(s => s.SectionSurveyId);
 
@@ -384,8 +393,8 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             {
                 {ofm_section.Fields.ofm_name,survey.First().SectionName },
                 {ofm_section.Fields.ofm_section_title,survey.First().SectionName },
-                {ofm_section.Fields.ofm_source_section_id,survey.First().SectionSurveyId },
-                {ofm_section.Fields.ofm_customer_voice_survey_id,survey.First().SectionSourceSurveyIdentifier },
+                {ofm_section.Fields.ofm_source_section_id,survey.First().SectionSourceSurveyIdentifier },
+                {ofm_section.Fields.ofm_customer_voice_survey_id,survey.First().SectionSurveyId },
                 {ofm_section.Fields.ofm_survey+"@odata.bind",$"/{ofm_survey.EntitySetName}({newReportTemplateId})" }
             };
                 var requestBodySection = JsonSerializer.Serialize(payloadSurvey);
@@ -513,9 +522,10 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             
         }
 
-        catch (Exception ex)
+        catch (ValidationException exp)
         {
-            _logger.LogError(CustomLogEvent.Process, "Failed under catch block RunProcess", ex.InnerException.ToString());
+            _logger.LogError(CustomLogEvent.Process, "Failed under catch block RunProcessAsync", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+
         }
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
@@ -561,7 +571,64 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             return (int)(ofm_ReportingQuestionType)question.QuestionType;
 
     }
-    public async void CreateBusinessRule(Guid? _sectionId, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
+   
+    public async Task<bool> UpdateQuestionwithManualData(IEnumerable<string?> questionIdentifiers, Guid? _sectionId, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
+   {
+        try
+        {
+           
+            var questionData = await GetQuestionDataAsync();
+            var deserializedQuestion = JsonSerializer.Deserialize<List<Question>>(questionData.Data.ToString());
+            List<HttpRequestMessage> requestsQuestionUpdate = new() { };
+
+            foreach (var identifier in questionIdentifiers)
+            {
+
+                var getLatestPublishedVersion = deserializedQuestion?.FirstOrDefault(x => x.surveyIsPublished == true && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
+                var getQuestionToUpdate = deserializedQuestion?.FirstOrDefault(x => x.surveyIsPublished == false && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
+                if (getLatestPublishedVersion != null && getQuestionToUpdate != null)
+                {
+                    requestsQuestionUpdate.Add(new D365UpdateRequest(new Messages.EntityReference(ofm_question.EntitySetName, getQuestionToUpdate.ofm_questionid),
+                                       new JsonObject()
+                                       {
+                                            {ofm_question.Fields.ofm_default_rows, getLatestPublishedVersion.ofm_default_rows ?? null},
+                                            {ofm_question.Fields.ofm_maximum_rows, getLatestPublishedVersion.ofm_maximum_rows ?? null},
+                                            {ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
+                                            {ofm_question.Fields.ofm_fixed_response, getLatestPublishedVersion.ofm_fixed_response }
+                                       }));
+                }
+
+
+
+
+            }
+
+            if (requestsQuestionUpdate.Count > 0)
+            {
+                var UpdateQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionUpdate, null);
+
+                if (UpdateQuestionBatchResult.Errors.Any())
+                {
+                    var createQuestionBRError = ProcessResult.Failure(ProcessId, UpdateQuestionBatchResult.Errors, UpdateQuestionBatchResult.TotalProcessed, UpdateQuestionBatchResult.TotalRecords);
+                    _logger.LogError(CustomLogEvent.Process, "Failed to Update manual values on Question with an error: {error}", JsonValue.Create(createQuestionBRError)!.ToString());
+                    _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+
+
+                }
+                requestsQuestionUpdate.Clear();
+                await CreateBusinessRule(_sectionId, appUserService, d365WebApiService);
+            }
+        }
+        catch (ValidationException exp)
+        {
+            _logger.LogError(CustomLogEvent.Process, "Failed under catch block UpdateQuestionwithManualData", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+            ProcessResult.Failure(ProcessId, new[] { exp.Message, exp.StackTrace ?? string.Empty }, 0, 0);
+            return await Task.FromResult(false);
+        }
+        return await Task.FromResult(true);
+
+    }
+    public async Task<bool> CreateBusinessRule(Guid? _sectionId, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
     {
         try
         {
@@ -571,15 +638,15 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             var deserializedDataBR = JsonSerializer.Deserialize<List<BRQuestion>>(localdataBusinessRule.Data.ToString());
             var localQuestionData = await GetQuestionDataAsync();
             var deserializedQuestiondata = JsonSerializer.Deserialize<List<Question>>(localQuestionData.Data.ToString());
-                deserializedDataBR?.ForEach(br =>
-                {
-                    var parentQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.brSourceQuestion && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                    var trueQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.TrueSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                    var falseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.FalseSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                    var hasResponseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.childSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                    requestsQuestionBRCreation.Add(new CreateRequest($"{entitySetNameQuestionBR}",
-          new JsonObject()
-          {
+            deserializedDataBR?.ForEach(br =>
+            {
+                var parentQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.brSourceQuestion && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                var trueQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.TrueSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                var falseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.FalseSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                var hasResponseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.childSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                requestsQuestionBRCreation.Add(new CreateRequest($"{entitySetNameQuestionBR}",
+      new JsonObject()
+      {
                                             {ofm_question_business_rule.Fields.ofm_name, br.ofm_name },
                                             {br._ofm_true_child_question_value != Guid.Empty ?ofm_question_business_rule.Fields.ofm_true_child_question + "@odata.bind":"_"+ofm_question_business_rule.Fields.ofm_true_child_question + "_value" ,br._ofm_true_child_question_value != Guid.Empty ? $"/{ofm_question.EntitySetName}({trueQuestionId})" : null},
                                             {br._ofm_false_child_question_value != Guid.Empty ?ofm_question_business_rule.Fields.ofm_false_child_question + "@odata.bind":"_"+ofm_question_business_rule.Fields.ofm_false_child_question + "_value" ,br._ofm_false_child_question_value != Guid.Empty ? $"/{ofm_question.EntitySetName}({falseQuestionId})" : null},
@@ -590,11 +657,11 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
                                             {ofm_question_business_rule.Fields.ofm_parentquestionid+"@odata.bind",$"/{ofm_question.EntitySetName}({parentQuestionId})" }
 
 
-          }));
+      }));
 
 
-                });
-           
+            });
+
             if (requestsQuestionBRCreation.Count > 0)
             {
                 var createQuestionBRBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionBRCreation, null);
@@ -612,58 +679,17 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
 
 
         }
-        catch (Exception ex)
+        catch (ValidationException exp)
         {
-
-            throw ex.InnerException;
+            _logger.LogError(CustomLogEvent.Process, "Failed under catch block CreateBusinessRule", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+            ProcessResult.Failure(ProcessId, new[] { exp.Message, exp.StackTrace ?? string.Empty }, 0, 0);
+            return await Task.FromResult(false);
         }
+        return await Task.FromResult(true);
 
     }
-    public async void UpdateQuestionwithManualData(IEnumerable<string?> questionIdentifiers, Guid? _sectionId, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
-   {
-        var questionData = await GetQuestionDataAsync();
-        var deserializedQuestion = JsonSerializer.Deserialize<List<Question>>(questionData.Data.ToString());
-        List<HttpRequestMessage> requestsQuestionUpdate = new() { };
 
-        foreach (var identifier in questionIdentifiers)
-        {
-        
-            var getLatestPublishedVersion = deserializedQuestion?.FirstOrDefault(x => x.surveyIsPublished == true && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
-            var getQuestionToUpdate = deserializedQuestion?.FirstOrDefault(x => x.surveyIsPublished == false && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
-            if (getLatestPublishedVersion != null && getQuestionToUpdate != null)
-            {
-                requestsQuestionUpdate.Add(new D365UpdateRequest(new Messages.EntityReference(ofm_question.EntitySetName, getQuestionToUpdate.ofm_questionid),
-                                   new JsonObject()
-                                   {
-                                            {ofm_question.Fields.ofm_default_rows, getLatestPublishedVersion.ofm_default_rows ?? null},
-                                            {ofm_question.Fields.ofm_maximum_rows, getLatestPublishedVersion.ofm_maximum_rows ?? null},
-                                            {ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
-                                            {ofm_question.Fields.ofm_fixed_response, getLatestPublishedVersion.ofm_fixed_response }
-                                   }));
-            }
-   
-
-
-
-        }
-
-        if (requestsQuestionUpdate.Count > 0)
-                {
-                    var UpdateQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionUpdate, null);
-
-                    if (UpdateQuestionBatchResult.Errors.Any())
-                    {
-                        var createQuestionBRError = ProcessResult.Failure(ProcessId, UpdateQuestionBatchResult.Errors, UpdateQuestionBatchResult.TotalProcessed, UpdateQuestionBatchResult.TotalRecords);
-                        _logger.LogError(CustomLogEvent.Process, "Failed to Update manual values on Question with an error: {error}", JsonValue.Create(createQuestionBRError)!.ToString());
-                        _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-
-
-                    }
-                    requestsQuestionUpdate.Clear();
-            CreateBusinessRule(_sectionId,appUserService,d365WebApiService);
-                }
-
-    }
+    
 }
 
 

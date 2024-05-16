@@ -302,6 +302,16 @@ public class Question : ofm_question
     public int? surveyStatecode { get; set; }
 
 }
+
+public class Section : ofm_section
+{
+
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? surveyIsPublished { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? surveyStatecode { get; set; }
+
+}
 public record D365Reporting
 {
     public string? msfp_name { get; set; }

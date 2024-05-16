@@ -38,6 +38,9 @@ public record ProcessParameter
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
 
+    [property: JsonPropertyName("projectId")]
+    public Guid? ProjectId { get; set; }
+
     public record EmailParameter
     {
         [property: JsonPropertyName("templateId")]
