@@ -148,7 +148,7 @@ jobs:
           oc project ${{ env.OPENSHIFT_NAMESPACE }}
           # Cancel any rollouts in progress
           oc rollout cancel dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
-          || true && echo "No rollout in progress"
+            || true && echo "No rollout in progress"
 
           # Create the image stream if it doesn't exist
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
@@ -205,7 +205,7 @@ jobs:
 
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
-          || true && echo "Rollout in progress"
+            || true && echo "Rollout in progress"
 
           # Get status, returns 0 if rollout is successful
           oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }}
