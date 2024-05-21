@@ -379,10 +379,12 @@ public record D365Reporting
     public Guid SectionSurveyId { get; set; }
 
     [property: JsonPropertyName("section.msfp_name")]
-    public string SectionName { get; set; }
+    public string CVSectionName { get; set; }
 
     [property: JsonPropertyName("section.msfp_sourcesurveyidentifier")]
     public string SectionSourceSurveyIdentifier { get; set; }
+    public int? OrderNumber { get; set; }
+    public string? SectionName { get; set; }
 
 }
 
@@ -416,6 +418,12 @@ public class Payment_Line : ofm_payment
     public  string accountname { get; set; }
   
 }
+public record D365ReportSection
+{
+    public int? OrderNumber { get; set; }
+    public string? SectionName { get; set; }
+}
+
 
 #region External Parameters
 

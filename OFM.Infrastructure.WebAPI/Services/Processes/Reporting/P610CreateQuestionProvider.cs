@@ -7,6 +7,7 @@ using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -14,7 +15,7 @@ using CreateRequest = OFM.Infrastructure.WebAPI.Messages.CreateRequest;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Reporting;
 
-public class P600CreateQuestionProvider : ID365ProcessProvider
+public class P610CreateQuestionProvider : ID365ProcessProvider
 {
     const string EntityNameSet = "ofm_question";
     private readonly ID365AppUserService _appUserService;
@@ -29,7 +30,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     private string[] _questionIdentifier;
     private string[] _surveyIdentifier;
 
-    public P600CreateQuestionProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P610CreateQuestionProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
@@ -44,14 +45,15 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
         
         get
         {
-            var projectId = _processParams?.ProjectId;
+            var projectId = _processParams?.Project?.ProjectId;
+           
             var fetchXml = $"""
                     <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" >
                         <entity name="msfp_project" alias="template" >
                             <attribute name="msfp_name" />
                             <attribute name="msfp_projectid" />
                             <filter type="and" >
-                                <condition attribute="msfp_projectid" operator="eq" value="{projectId}" />
+                               <condition attribute="msfp_projectid" operator="eq" value="{projectId}" />
                             </filter>
                             <link-entity name="msfp_survey" from="msfp_project" to="msfp_projectid" alias="section" link-type="inner" >
                                 <attribute name="msfp_name" />
@@ -216,7 +218,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
     public async Task<ProcessData> GetDataAsync()
     {
 
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P600CreateQuestionProvider));
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P610CreateQuestionProvider));
 
         if (_data is null)
         {
@@ -349,119 +351,125 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
             var localData = await GetDataAsync();
             var deserializedData = JsonSerializer.Deserialize<List<D365Reporting>>(localData.Data.ToString());
             var questionIdentifiers = deserializedData.Select(q => q.QuestionSourcequestionIdentifier).ToList();
-           
+
 
             _questionIdentifier = questionIdentifiers.ToArray();
-           
+
 
             #region Create Customer Voice Project as Report Template in CE Custom
-
-            var payloadReportTemplate = new JsonObject
+            if (deserializedData.Count > 0)
+            {
+                var payloadReportTemplate = new JsonObject
             {
                 {ofm_survey.Fields.ofm_customervoiceprojectid,deserializedData.First().msfp_projectid },
                 {ofm_survey.Fields.ofm_name,deserializedData.First().msfp_name }
 
             };
 
-            var requestBodyReportTemplate = JsonSerializer.Serialize(payloadReportTemplate);
-            var CreateResponserequestBodyReportTemplate = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, ofm_survey.EntitySetName, requestBodyReportTemplate);
-            if (!CreateResponserequestBodyReportTemplate.IsSuccessStatusCode)
+                var requestBodyReportTemplate = JsonSerializer.Serialize(payloadReportTemplate);
+                var CreateResponserequestBodyReportTemplate = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, ofm_survey.EntitySetName, requestBodyReportTemplate);
+                if (!CreateResponserequestBodyReportTemplate.IsSuccessStatusCode)
+                {
+                    var responseBody = await CreateResponserequestBodyReportTemplate.Content.ReadAsStringAsync();
+                    _logger.LogError(CustomLogEvent.Process, "Failed to create the Report Template record with the server error {responseBody}", responseBody.CleanLog());
+
+                    return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
+                }
+
+                var newReportTemplate = await CreateResponserequestBodyReportTemplate.Content.ReadFromJsonAsync<JsonObject>();
+                var newReportTemplateId = newReportTemplate?["ofm_surveyid"];
+
+                #endregion Create Customer Voice Project as Report Template in CE Custom
+
+                #region Create Customer Voice Survey as Section in CE Custom
+
+                var sections = _processParams?.ReportSections;
+                var deserializedsectionOrder = JsonSerializer.Deserialize<List<D365Reporting>>(sections.ToString());
+
+                var surveyDataGroup = deserializedData.GroupBy(s => s.SectionSurveyId);
+                var reportSectionOrder = deserializedsectionOrder?.OrderBy(x => x.SectionName);
+
+                List<HttpRequestMessage> requestsQuestionCreation = new() { };
+                List<HttpRequestMessage> requestsQuestionCreationTable = new() { };
+                List<HttpRequestMessage> requestsQuestionCreationColumn = new() { };
+
+                foreach (var survey in surveyDataGroup)
+                {
+
+                    var payloadSurvey = new JsonObject
             {
-                var responseBody = await CreateResponserequestBodyReportTemplate.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to create the Report Template record with the server error {responseBody}", responseBody.CleanLog());
-
-                return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
-            }
-
-            var newReportTemplate = await CreateResponserequestBodyReportTemplate.Content.ReadFromJsonAsync<JsonObject>();
-            var newReportTemplateId = newReportTemplate?["ofm_surveyid"];
-
-            #endregion Create Customer Voice Project as Report Template in CE Custom
-
-            #region Create Customer Voice Survey as Section in CE Custom
-
-            var surveyDataGroup = deserializedData.GroupBy(s => s.SectionSurveyId);
-
-            List<HttpRequestMessage> requestsQuestionCreation = new() { };
-            List<HttpRequestMessage> requestsQuestionCreationTable = new() { };
-            List<HttpRequestMessage> requestsQuestionCreationColumn = new() { };
-
-            foreach (var survey in surveyDataGroup)
-            {
-
-                var payloadSurvey = new JsonObject
-            {
-                {ofm_section.Fields.ofm_name,survey.First().SectionName },
-                {ofm_section.Fields.ofm_section_title,survey.First().SectionName },
+                {ofm_section.Fields.ofm_name,survey.First().CVSectionName },
+                 {ofm_section.Fields.ofm_section_order,reportSectionOrder.Where(x => x.SectionName == survey.First().CVSectionName).Select(x => x.OrderNumber).First() },
+                {ofm_section.Fields.ofm_section_title,survey.First().CVSectionName },
                 {ofm_section.Fields.ofm_source_section_id,survey.First().SectionSourceSurveyIdentifier },
                 {ofm_section.Fields.ofm_customer_voice_survey_id,survey.First().SectionSurveyId },
                 {ofm_section.Fields.ofm_survey+"@odata.bind",$"/{ofm_survey.EntitySetName}({newReportTemplateId})" }
             };
-                var requestBodySection = JsonSerializer.Serialize(payloadSurvey);
-                var CreateResponseSection = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, ofm_section.EntitySetName, requestBodySection);
-                if (!CreateResponseSection.IsSuccessStatusCode)
-                {
-                    var responseBody = await CreateResponseSection.Content.ReadAsStringAsync();
-                    _logger.LogError(CustomLogEvent.Process, "Failed to create the Section record with the server error {responseBody}", responseBody.CleanLog());
-                    _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
-                    return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
-                }
-
-                var newSection = await CreateResponseSection.Content.ReadFromJsonAsync<JsonObject>();
-                var newSectionId = newSection?["ofm_sectionid"];
-                _sectionId = (Guid?)(newSectionId);
-
-                #endregion Create Customer Voice Survey as Section in CE Customm
-
-                #region Create Questions
-
-                var surveyQuestions = survey.OrderByDescending(x => x.QuestionSubtitle).GroupBy(x => x.QuestionSubtitle).SelectMany(g => g);
-                var entitySetNameQuestion = ofm_question.EntitySetName;
-                List<ofm_question> deserializedDataQuestion = null;
-
-
-                foreach (var question in surveyQuestions)
-                {
-                    if (question.QuestionSubtitle == null)
+                    var requestBodySection = JsonSerializer.Serialize(payloadSurvey);
+                    var CreateResponseSection = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, ofm_section.EntitySetName, requestBodySection);
+                    if (!CreateResponseSection.IsSuccessStatusCode)
                     {
-                        requestsQuestionCreation.Add(new CreateRequest($"{entitySetNameQuestion}",
-                            CreateJsonObject(question)));
+                        var responseBody = await CreateResponseSection.Content.ReadAsStringAsync();
+                        _logger.LogError(CustomLogEvent.Process, "Failed to create the Section record with the server error {responseBody}", responseBody.CleanLog());
+                        _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
+                        return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
                     }
 
-                    else if (question.QuestionSubtitle != null && question.QuestionSubtitle.ToLower().Contains("table"))
+                    var newSection = await CreateResponseSection.Content.ReadFromJsonAsync<JsonObject>();
+                    var newSectionId = newSection?["ofm_sectionid"];
+                    _sectionId = (Guid?)(newSectionId);
+
+                    #endregion Create Customer Voice Survey as Section in CE Customm
+
+                    #region Create Questions
+
+                    var surveyQuestions = survey.OrderByDescending(x => x.QuestionSubtitle).GroupBy(x => x.QuestionSubtitle).SelectMany(g => g);
+                    var entitySetNameQuestion = ofm_question.EntitySetName;
+                    List<ofm_question> deserializedDataQuestion = null;
+
+
+                    foreach (var question in surveyQuestions)
                     {
+                        if (question.QuestionSubtitle == null)
+                        {
+                            requestsQuestionCreation.Add(new CreateRequest($"{entitySetNameQuestion}",
+                                CreateJsonObject(question)));
+                        }
 
-                        requestsQuestionCreationTable.Add(new CreateRequest($"{entitySetNameQuestion}",
-                            CreateJsonObject(question)));
-
-                        if (requestsQuestionCreationTable.Count > 0)
+                        else if (question.QuestionSubtitle != null && question.QuestionSubtitle.ToLower().Contains("table"))
                         {
 
-                            var createTableQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreationTable, null);
+                            requestsQuestionCreationTable.Add(new CreateRequest($"{entitySetNameQuestion}",
+                                CreateJsonObject(question)));
 
-                            if (createTableQuestionBatchResult.Errors.Any())
+                            if (requestsQuestionCreationTable.Count > 0)
                             {
-                                var createQuestionTableError = ProcessResult.Failure(ProcessId, createTableQuestionBatchResult.Errors, createTableQuestionBatchResult.TotalProcessed, createTableQuestionBatchResult.TotalRecords);
-                                _logger.LogError(CustomLogEvent.Process, "Failed to create Table type Question with an error: {error}", JsonValue.Create(createQuestionTableError)!.ToString());
-                                _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
-                                _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                                return createQuestionTableError.SimpleProcessResult;
+
+                                var createTableQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreationTable, null);
+
+                                if (createTableQuestionBatchResult.Errors.Any())
+                                {
+                                    var createQuestionTableError = ProcessResult.Failure(ProcessId, createTableQuestionBatchResult.Errors, createTableQuestionBatchResult.TotalProcessed, createTableQuestionBatchResult.TotalRecords);
+                                    _logger.LogError(CustomLogEvent.Process, "Failed to create Table type Question with an error: {error}", JsonValue.Create(createQuestionTableError)!.ToString());
+                                    _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
+                                    _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                                    return createQuestionTableError.SimpleProcessResult;
 
 
+                                }
+                                requestsQuestionCreationTable.Clear();
                             }
-                            requestsQuestionCreationTable.Clear();
+                            var localdataTable = await GetTableDataAsync();
+                            deserializedDataQuestion = JsonSerializer.Deserialize<List<ofm_question>>(localdataTable.Data.ToString());
+
                         }
-                        var localdataTable = await GetTableDataAsync();
-                        deserializedDataQuestion = JsonSerializer.Deserialize<List<ofm_question>>(localdataTable.Data.ToString());
 
-                    }
+                        else if (question.QuestionSubtitle != null && question.QuestionSubtitle.ToLower().Contains("column"))
+                        {
+                            var parentQuestion = deserializedDataQuestion.Where(q => q.ofm_subtitle.Trim() == question.QuestionText.Split('#')[0].Trim()).Select(c => c.ofm_questionid ?? Guid.Empty).First();
 
-                    else if (question.QuestionSubtitle != null && question.QuestionSubtitle.ToLower().Contains("column"))
-                    {
-                        var parentQuestion = deserializedDataQuestion.Where(q => q.ofm_subtitle.Trim() == question.QuestionText.Split('#')[0].Trim()).Select(c => c.ofm_questionid ?? Guid.Empty).First();
-
-                        requestsQuestionCreationColumn.Add(new CreateRequest($"{entitySetNameQuestion}",
-                                new JsonObject(){
+                            requestsQuestionCreationColumn.Add(new CreateRequest($"{entitySetNameQuestion}",
+                                    new JsonObject(){
                                  {ofm_question.Fields.ofm_name, question.QuestionName.Split('#')[1] },
                        { ofm_question.Fields.ofm_subtitle, question.QuestionSubtitle },
                             { ofm_question.Fields.ofm_source_question_id, question.QuestionSourcequestionIdentifier},
@@ -474,52 +482,53 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
                            {ofm_question.Fields.ofm_question_type,GetQuestionType(question) },
                             {ofm_question.Fields.ofm_section+"@odata.bind",$"/{ofm_section.EntitySetName}({newSectionId})" },
                                      {ofm_question.Fields.ofm_header+"@odata.bind",$"/{ofm_question.EntitySetName}({parentQuestion})"}
-                                }));
+                                    }));
+
+                        }
 
                     }
 
-                }
-
-                if (requestsQuestionCreation.Count > 0)
-                {
-
-                    var createQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreation, null);
-
-                    if (createQuestionBatchResult.Errors.Any())
+                    if (requestsQuestionCreation.Count > 0)
                     {
-                        var createQuestionError = ProcessResult.Failure(ProcessId, createQuestionBatchResult.Errors, createQuestionBatchResult.TotalProcessed, createQuestionBatchResult.TotalRecords);
-                        _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionError)!.ToString());
-                        _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
-                        _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                        return createQuestionError.SimpleProcessResult;
 
+                        var createQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreation, null);
+
+                        if (createQuestionBatchResult.Errors.Any())
+                        {
+                            var createQuestionError = ProcessResult.Failure(ProcessId, createQuestionBatchResult.Errors, createQuestionBatchResult.TotalProcessed, createQuestionBatchResult.TotalRecords);
+                            _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionError)!.ToString());
+                            _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
+                            _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                            return createQuestionError.SimpleProcessResult;
+
+                        }
+                        requestsQuestionCreation.Clear();
                     }
-                    requestsQuestionCreation.Clear();
-                }
 
-                if (requestsQuestionCreationColumn.Count > 0)
-                {
-                    var createQuestionColumnBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreationColumn, null);
-
-                    if (createQuestionColumnBatchResult.Errors.Any())
+                    if (requestsQuestionCreationColumn.Count > 0)
                     {
-                        var createQuestionColumnError = ProcessResult.Failure(ProcessId, createQuestionColumnBatchResult.Errors, createQuestionColumnBatchResult.TotalProcessed, createQuestionColumnBatchResult.TotalRecords);
-                        _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionColumnError)!.ToString());
-                        _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
-                        _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                        return createQuestionColumnError.SimpleProcessResult;
+                        var createQuestionColumnBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionCreationColumn, null);
+
+                        if (createQuestionColumnBatchResult.Errors.Any())
+                        {
+                            var createQuestionColumnError = ProcessResult.Failure(ProcessId, createQuestionColumnBatchResult.Errors, createQuestionColumnBatchResult.TotalProcessed, createQuestionColumnBatchResult.TotalRecords);
+                            _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionColumnError)!.ToString());
+                            _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
+                            _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                            return createQuestionColumnError.SimpleProcessResult;
 
 
+                        }
+                        requestsQuestionCreationColumn.Clear();
                     }
-                    requestsQuestionCreationColumn.Clear();
+
+                    #endregion Create Questions
+
+
                 }
-
-                #endregion Create Questions
-
+                UpdateQuestionwithManualData(questionIdentifiers, _sectionId, appUserService, d365WebApiService);
 
             }
-            UpdateQuestionwithManualData(questionIdentifiers, _sectionId, appUserService, d365WebApiService);
-            
         }
 
         catch (ValidationException exp)
@@ -688,7 +697,7 @@ public class P600CreateQuestionProvider : ID365ProcessProvider
         return await Task.FromResult(true);
 
     }
-
+   
     
 }
 

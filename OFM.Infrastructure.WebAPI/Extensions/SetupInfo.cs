@@ -87,7 +87,7 @@ public static class Setup
         }
         public static class Reporting
         {
-            public const Int16 CreateUpdateQuestionId = 600;
+            public const Int16 CreateUpdateQuestionId = 610;
             public const string CreateUpdateQuestionName = "Create/Update Question from Customer Voice to Reporting Custom Tables.";
         }
     }

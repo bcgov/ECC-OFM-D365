@@ -40,8 +40,12 @@ public record ProcessParameter
     [property: JsonPropertyName("fundingReport")]
     public FundingReportParameter? FundingReport { get; set; }
 
-    [property: JsonPropertyName("projectId")]
-    public Guid? ProjectId { get; set; }
+    [property: JsonPropertyName("project")]
+    public ProjectParameter? Project { get; set; }
+    
+    [property: JsonPropertyName("ReportSections")]
+    public string? ReportSections { get; set; }
+    
 
     public record EmailParameter
     {
@@ -95,6 +99,15 @@ public record ProcessParameter
         
         [property: JsonPropertyName("ofm_monthly_province_base_funding_y1")]
         public string? ofm_monthly_province_base_funding_y1 { get; set; }
+    }
+
+    public record ProjectParameter
+    {
+        //[property: JsonPropertyName("facilityId")]
+        //public string? FacilityId { get; set; }
+
+        [property: JsonPropertyName("Project_Guid")]
+        public string? ProjectId { get; set; }
     }
 
     public record FundingReportParameter
