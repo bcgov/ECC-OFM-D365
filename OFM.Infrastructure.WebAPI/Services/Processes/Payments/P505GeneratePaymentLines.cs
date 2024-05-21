@@ -311,7 +311,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             List<PaymentLine> paymentDeserializedData = JsonSerializer.Deserialize<List<PaymentLine>>(allPayments.Data.ToString());
 
                             // Filter records where StatusCode is not equal to 2 or 7
-                            List<PaymentLine> notPaidPayments = paymentDeserializedData.Where(r => r.statuscode != (int) ofm_payment_StatusCode.Paid || r.statuscode != (int)ofm_payment_StatusCode.Cancelled).ToList();
+                            List<PaymentLine> notPaidPayments = paymentDeserializedData.Where(r => r.statuscode != (int)ofm_payment_StatusCode.Paid || r.statuscode != (int)ofm_payment_StatusCode.Cancelled).ToList();
                             if (notPaidPayments != null)
                             {
                                 foreach (var payment in notPaidPayments)
@@ -343,7 +343,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 Guid? fiscalYear = AssignFiscalYear(paymentdate, fiscalYears);
                 DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(paymentdate.AddDays(-1), holidaysList);
-                DateTime invoiceReceivedDate = TimeExtensions.GetCFSInvoiceReceivedDate(invoicedate, holidaysList);
+                DateTime invoiceReceivedDate = invoicedate.AddDays(-4);
                 DateTime effectiveDate = TimeExtensions.GetCFSEffectiveDate(invoicedate, holidaysList);
 
                 var payload = new JsonObject()
