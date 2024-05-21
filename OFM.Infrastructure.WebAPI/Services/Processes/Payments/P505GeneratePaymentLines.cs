@@ -360,7 +360,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         {
                             createPaymentTasks.Add(CreatePaymentLines(facility, organization, startdate, enddate, fundingid, application, appUserService, d365WebApiService, _processParams));
                         }
-                        //Check if supplementary payment exists.
+                        //Check if supplementary application exists.
                         if (supplementaryApplicationDeserializedData.Count == 0)
                         {
                             // Filter entries with ofm_allowance_type as "supportprogramming" or "indigenous"
@@ -384,20 +384,22 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             }
                            // Deserialize transportationApplications JSON array
                             var transportationApps = JsonSerializer.Deserialize<List<SupplementaryApplication>>(transportationApplications.ToString());
-                            var firstTransportationApp = transportationApps[0];
-                            //Sum the amounts of all transportation applications
-                            decimal? totalAmount = transportationApps.Sum(app => app.ofm_funding_amount);
+                            if (transportationApps.Any()) {
+                                var firstTransportationApp = transportationApps[0];
+                                //Sum the amounts of all transportation applications
+                                decimal? totalAmount = transportationApps.Sum(app => app.ofm_funding_amount);
 
-                           // Calculate number of months between start date and end date
-                            int numberOfMonths = (enddate.Year - startdate.Year) * 12 + enddate.Month - startdate.Month + 1;
+                                // Calculate number of months between start date and end date
+                                int numberOfMonths = (enddate.Year - startdate.Year) * 12 + enddate.Month - startdate.Month + 1;
 
-                            //Calculate the funding amount
-                            decimal? fundingAmountPerPayment = totalAmount / numberOfMonths;
+                                //Calculate the funding amount
+                                decimal? fundingAmountPerPayment = totalAmount / numberOfMonths;
 
-                            
-                            for (DateTime paymentdate = firstTransportationApp.ofm_start_date; paymentdate <= firstTransportationApp.ofm_end_date; paymentdate = paymentdate.AddMonths(1))
-                            {
-                                createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, paymentdate, enddate, fundingid, application, (int)ecc_payment_type.Transportation, fundingAmountPerPayment, appUserService, d365WebApiService, processParams));
+
+                                for (DateTime paymentdate = firstTransportationApp.ofm_start_date; paymentdate <= firstTransportationApp.ofm_end_date; paymentdate = paymentdate.AddMonths(1))
+                                {
+                                    createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, paymentdate, enddate, fundingid, application, (int)ecc_payment_type.Transportation, fundingAmountPerPayment, appUserService, d365WebApiService, processParams));
+                                }
                             }
 
                         }
@@ -407,6 +409,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             fundingStatus == (int)ofm_funding_StatusCode.Cancelled)
                     {
                         var allPayments = await GetApplicationPaymentDataAsync();
+
                         if (allPayments != null)
                         {
                             List<PaymentLine> paymentDeserializedData = JsonSerializer.Deserialize<List<PaymentLine>>(allPayments.Data.ToString());
