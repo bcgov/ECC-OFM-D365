@@ -7,7 +7,7 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
 using System.Text.Json.Nodes;
-
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
@@ -142,7 +142,37 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 return requestUri;
             }
         }
+        public string SupplementaryApplicationsRequestURI
+        {
+            get
+            {
+                var fetchXml = $$"""
+                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+                      <entity name="ofm_allowance">
+                        <attribute name="ofm_allowanceid" />
+                        <attribute name="ofm_allowance_number" />
+                        <attribute name="createdon" />
+                        <attribute name="ofm_allowance_type" />
+                        <attribute name="ofm_end_date" />
+                        <attribute name="ofm_start_date" />
+                        <attribute name="statuscode" />
+                        <attribute name="ofm_funding_amount" />
+                        <attribute name="ofm_renewal_term" />
+                        <order attribute="ofm_allowance_number" descending="false" />
+                        <filter type="and">
+                          <condition attribute="ofm_application" operator="eq" uiname="APP-23000010" uitype="ofm_application" value="{E4B5E2F2-ED8E-EE11-8179-000D3A09D132}" />
+                        </filter>
+                      </entity>
+                    </fetch>
+                    """;
 
+                var requestUri = $"""
+                         ofm_fundings?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         """;
+
+                return requestUri;
+            }
+        }
         public async Task<ProcessData> GetApplicationPaymentDataAsync()
         {
             _logger.LogDebug(CustomLogEvent.Process, nameof(GetApplicationPaymentDataAsync));
@@ -266,7 +296,36 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             return await Task.FromResult(new ProcessData(d365Result));
         }
+        public async Task<ProcessData> GetSupplementaryApplicationDataAsync()
+        {
+            _logger.LogDebug(CustomLogEvent.Process, "GetSupplementaryApplicationDataAsync");
 
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, SupplementaryApplicationsRequestURI);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query Funding record information with the server error {responseBody}", responseBody.CleanLog());
+
+                return await Task.FromResult(new ProcessData(string.Empty));
+            }
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+            {
+                if (currentValue?.AsArray().Count == 0)
+                {
+                    _logger.LogInformation(CustomLogEvent.Process, "No Funding records found with query {requestUri}", SupplementaryApplicationsRequestURI.CleanLog());
+                }
+                d365Result = currentValue!;
+            }
+
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+            return await Task.FromResult(new ProcessData(d365Result));
+        }
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             _processParams = processParams;
@@ -294,11 +353,53 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     {
                         var allPayments = await GetApplicationPaymentDataAsync();
                         var paymentDeserializedData = JsonSerializer.Deserialize<List<PaymentLine>>(allPayments.Data.ToString());
-
+                        var supplementaryApplications = await GetSupplementaryApplicationDataAsync();
+                        var supplementaryApplicationDeserializedData = JsonSerializer.Deserialize<List<SupplementaryApplication>>(supplementaryApplications.Data.ToString());
                         //if application payments does not exist create payment lines.
                         if (paymentDeserializedData.Count == 0)
                         {
                             createPaymentTasks.Add(CreatePaymentLines(facility, organization, startdate, enddate, fundingid, application, appUserService, d365WebApiService, _processParams));
+                        }
+                        //Check if supplementary payment exists.
+                        if (supplementaryApplicationDeserializedData.Count == 0)
+                        {
+                            // Filter entries with ofm_allowance_type as "supportprogramming" or "indigenous"
+                            var saSupportProgrammingOrIndigenous = supplementaryApplicationDeserializedData
+                                .Where(entry => entry.ofm_allowance_type == 1 || entry.ofm_allowance_type == 2)
+                                .ToList();
+                            var transportationApplications = supplementaryApplicationDeserializedData
+                                .Where(entry => entry.ofm_allowance_type == 3)
+                                .ToList();
+                            if (saSupportProgrammingOrIndigenous.Any())
+                            {
+                                
+                                foreach(var supplementaryApp in saSupportProgrammingOrIndigenous)
+                                {
+                                    decimal? fundingAmount = supplementaryApp.ofm_funding_amount;
+                                    int allowanceType = supplementaryApp.ofm_allowance_type;
+                                    createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, startdate, enddate, fundingid, application, allowanceType == 1 ? (int)ecc_payment_type.SupportNeedsFunding : (int)ecc_payment_type.IndigenousProgramming, fundingAmount, appUserService, d365WebApiService, processParams));
+                                }
+                                
+
+                            }
+                           // Deserialize transportationApplications JSON array
+                            var transportationApps = JsonSerializer.Deserialize<List<SupplementaryApplication>>(transportationApplications.ToString());
+                            var firstTransportationApp = transportationApps[0];
+                            //Sum the amounts of all transportation applications
+                            decimal? totalAmount = transportationApps.Sum(app => app.ofm_funding_amount);
+
+                           // Calculate number of months between start date and end date
+                            int numberOfMonths = (enddate.Year - startdate.Year) * 12 + enddate.Month - startdate.Month + 1;
+
+                            //Calculate the funding amount
+                            decimal? fundingAmountPerPayment = totalAmount / numberOfMonths;
+
+                            
+                            for (DateTime paymentdate = firstTransportationApp.ofm_start_date; paymentdate <= firstTransportationApp.ofm_end_date; paymentdate = paymentdate.AddMonths(1))
+                            {
+                                createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, paymentdate, enddate, fundingid, application, (int)ecc_payment_type.Transportation, fundingAmountPerPayment, appUserService, d365WebApiService, processParams));
+                            }
+
                         }
                     }
                     else if (fundingStatus == (int)ofm_funding_StatusCode.Expired ||
@@ -419,6 +520,50 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
             return Guid.Empty;
         }
+        
+
+        private async Task<JsonObject> CreateSupplementaryApplicationPayment(string Facility, Guid? Organization, DateTime startdate, DateTime enddate, string fundingId, string application, int paymentType, decimal? fundingAmount, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+        {
+            var entitySetName = "ofm_payments";
+            var fiscalYearData = await GetFiscalYearDataAsync();
+            List<FiscalYear> fiscalYears = JsonSerializer.Deserialize<List<FiscalYear>>(fiscalYearData.Data.ToString());
+            var businessclosuresdata = await GetBusinessClosuresDataAsync();
+            List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
+
+            Guid? fiscalYear = AssignFiscalYear(startdate, fiscalYears);
+            DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(startdate.AddDays(-1), holidaysList);
+            DateTime invoiceReceivedDate = invoicedate.AddDays(-4);
+            DateTime effectiveDate = TimeExtensions.GetCFSEffectiveDate(invoicedate, holidaysList);
+
+            var payload = new JsonObject()
+    {
+        { "ofm_invoice_line_number", 1 },
+        { "ofm_amount", fundingAmount },
+        { "ofm_payment_type", paymentType },
+        { "ofm_facility@odata.bind", $"/accounts({Facility})" },
+        { "ofm_organization@odata.bind", $"/accounts({_processParams?.Organization?.organizationId})" },
+        { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },
+        { "ofm_description", "payment" },
+        { "ofm_application@odata.bind",$"/ofm_applications({application})" },
+        { "ofm_invoice_date", invoicedate },
+        { "ofm_invoice_received_date", invoiceReceivedDate },
+        { "ofm_effective_date", effectiveDate },
+        { "ofm_fiscal_year@odata.bind",$"/ofm_fiscal_years({fiscalYear})" }
+    };
+
+            var requestBody = JsonSerializer.Serialize(payload);
+            var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to create payments for application with the server error {responseBody}", responseBody.CleanLog());
+
+                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+            }
+
+            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        }
+
     }
 }
 
