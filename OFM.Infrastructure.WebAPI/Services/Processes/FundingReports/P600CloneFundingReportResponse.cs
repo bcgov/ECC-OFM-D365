@@ -104,7 +104,7 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query email reminders with the server error {responseBody}", responseBody.CleanLog());
+                _logger.LogError(CustomLogEvent.Process, "Failed to query question response with the server error {responseBody}", responseBody.CleanLog());
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -116,7 +116,7 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No emails found with query {requestUri}", RequestUri);
+                    _logger.LogInformation(CustomLogEvent.Process, "No question response found with query {requestUri}", RequestUri);
                 }
                 d365Result = currentValue!;
             }
@@ -158,6 +158,26 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
 
         var newFundingReportResponse = await sendNewFundingReportResponseRequestResult.Content.ReadFromJsonAsync<JsonObject>();
         var newFundingReportResponseId = newFundingReportResponse?["ofm_survey_responseid"];
+
+        //Update the original funding report version number by 1
+        var orignialVersionNumber = (int)newFundingReportResponse?["ofm_version_number"];
+        var newVersionNumber = orignialVersionNumber + 1;
+
+        var updateFundingReportData = new JsonObject
+            {
+                {"ofm_version_number", newVersionNumber }
+            };
+
+        var updateFundingReportRequest = JsonSerializer.Serialize(updateFundingReportData);
+
+        var updateFundingReportResult = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, $"ofm_survey_responses({_processParams.FundingReport.FundingReportId})", updateFundingReportRequest);
+
+        if (!updateFundingReportResult.IsSuccessStatusCode)
+        {
+            var responseBody = await updateFundingReportResult.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to deactivate the record with the server error {responseBody}", responseBody.CleanLog());
+        }
+
 
         //Fetch Question Response from the funding report response
         var questionResponseData = await GetDataAsync();
@@ -210,7 +230,6 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
 
             //Deactivate the copied question responses
             var createResult = sendquestionResponseRequestBatchResult.Result;
-
 
             if(createResult?.Count() > 0)
             {
