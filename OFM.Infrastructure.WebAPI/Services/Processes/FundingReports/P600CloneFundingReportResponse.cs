@@ -12,10 +12,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 
@@ -157,7 +159,6 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
         var newFundingReportResponse = await sendNewFundingReportResponseRequestResult.Content.ReadFromJsonAsync<JsonObject>();
         var newFundingReportResponseId = newFundingReportResponse?["ofm_survey_responseid"];
 
-
         //Fetch Question Response from the funding report response
         var questionResponseData = await GetDataAsync();
 
@@ -175,6 +176,7 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
 
                 //Create a new questionResponse
                 var newQuestionResponseRequest = new CreateRequest("ofm_question_responses", questionData);
+                newQuestionResponseRequest.Headers.Add("Prefer", "return=representation");
                 questionResponseRequestList.Add(newQuestionResponseRequest);
 
             }
@@ -186,6 +188,57 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
                 _logger.LogError(CustomLogEvent.Process, "Failed to clone question response with an error: {error}", JsonValue.Create(sendQuestionResponseError)!.ToString());
 
                 return sendQuestionResponseError.SimpleProcessResult;
+            }
+
+
+            //Deactivate the copied funding report
+            var deactivateFundingReportData = new JsonObject
+            {
+                {"statuscode", 2 },
+                {"statecode", 1 }
+            };
+
+            var deactivateFundingReportRequest = JsonSerializer.Serialize(deactivateFundingReportData);
+
+            var deactivateFundingReportRequestResult = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, $"ofm_survey_responses({newFundingReportResponseId})", deactivateFundingReportRequest);
+
+            if (!deactivateFundingReportRequestResult.IsSuccessStatusCode)
+            {
+                var responseBody = await deactivateFundingReportRequestResult.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to deactivate the record with the server error {responseBody}", responseBody.CleanLog());
+            }
+
+            //Deactivate the copied question responses
+            var createResult = sendquestionResponseRequestBatchResult.Result;
+
+
+            if(createResult?.Count() > 0)
+            {
+                List<HttpRequestMessage> deactivatedQuestionResponseRequestList = [];
+
+                foreach (var res in createResult)
+                {
+                    var deactivatedQuestionResponseId = res["ofm_question_responseid"].ToString();
+                    var deactivateQuestionResponseData = new JsonObject
+                    {
+                        {"statuscode",  2},
+                        {"statecode", 1 }
+                    };
+                    deactivatedQuestionResponseRequestList.Add(new D365UpdateRequest(new EntityReference("ofm_question_responses", new Guid(deactivatedQuestionResponseId)), deactivateQuestionResponseData));
+
+                  
+                }
+
+                var deactivatedQuestionResponseRequestResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, deactivatedQuestionResponseRequestList, null);
+
+                if (deactivatedQuestionResponseRequestResult.Errors.Any())
+                {
+                    var deactivatedQuestionResponseError = ProcessResult.Failure(ProcessId, deactivatedQuestionResponseRequestResult.Errors, deactivatedQuestionResponseRequestResult.TotalProcessed, deactivatedQuestionResponseRequestResult.TotalRecords);
+                    _logger.LogError(CustomLogEvent.Process, "Failed to deactivate question response with an error: {error}", JsonValue.Create(deactivatedQuestionResponseError)!.ToString());
+
+                    return deactivatedQuestionResponseError.SimpleProcessResult;
+                }
+
             }
 
         }

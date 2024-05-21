@@ -82,8 +82,8 @@ public static class Setup
             public const Int16 CloneFundingReportResponseId = 600;
             public const string CloneFundingReportResponseName = "Clone Funding Report Response";
 
-            public const Int16 GeneratePaymentLinesId = 505;
-            public const string GeneratePaymentLinesName = "Generate Payment Lines";
+            public const Int16 DeactivateReportsPastDuedateId = 601;
+            public const string DeactivateReportsPastDuedateName = "Deactivate Provider Reports Past Duedate";
         }
     }
 
