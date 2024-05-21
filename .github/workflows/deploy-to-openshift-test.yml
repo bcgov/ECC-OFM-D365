@@ -125,10 +125,21 @@ jobs:
           | oc apply -f -
 
           # Process update-configmap
-          echo ${{ secrets.D365_API_KEY_SCHEME }} > /tmp/key_scheme
-          echo ${{ secrets.D365_API_AUTH_SETTINGS }} > /tmp/api_auth_settings
-          echo ${{ secrets.D365_RECIPIENTS }} > /tmp/recipients
-          echo ${{ secrets.D365_BC_REGISTRY_API }} > tmp/bc_registry_api
+          cat << JSON > /tmp/key_scheme
+            ${{ secrets.D365_API_KEY_SCHEME }}
+          JSON
+
+          cat << JSON > /tmp/api_auth_settings
+            ${{ secrets.D365_API_AUTH_SETTINGS }}
+          JSON
+
+          cat << JSON > /tmp/recipients
+            ${{ secrets.D365_RECIPIENTS }}
+          JSON
+
+          cat << JSON > tmp/bc_registry_api
+           ${{ secrets.D365_BC_REGISTRY_API }}
+          JSON
 
           curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh \
             | bash /dev/stdin \
