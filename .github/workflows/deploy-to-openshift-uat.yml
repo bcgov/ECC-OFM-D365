@@ -141,7 +141,7 @@ jobs:
             ${{ secrets.D365_RECIPIENTS }}
           JSON
 
-          cat << JSON > tmp/bc_registry_api
+          cat << JSON > /tmp/bc_registry_api
            ${{ secrets.D365_BC_REGISTRY_API }}
           JSON
 
