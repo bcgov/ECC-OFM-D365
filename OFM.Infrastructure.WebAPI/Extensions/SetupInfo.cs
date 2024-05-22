@@ -85,6 +85,11 @@ public static class Setup
             public const Int16 GeneratePaymentLinesId = 505;
             public const string GeneratePaymentLinesName = "Generate Payment Lines";
         }
+        public static class Reporting
+        {
+            public const Int16 CreateUpdateQuestionId = 610;
+            public const string CreateUpdateQuestionName = "Create/Update Question from Customer Voice to Reporting Custom Tables.";
+        }
     }
 
     public static readonly JsonSerializerOptions s_writeOptions = new()
