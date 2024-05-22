@@ -44,8 +44,8 @@ namespace OFM.Infrastructure.Plugins.Provider_Reports
 
                     //Set the duedate base on fiscal year and report month
 
-                    var fiscal_year_ref = localPluginContext.Target.GetAttributeValue<EntityReference>(ECC.Core.DataContext.ofm_survey_response.Fields.ofm_fiscal_year);
-                    var report_month_ref = localPluginContext.Target.GetAttributeValue<EntityReference>(ECC.Core.DataContext.ofm_survey_response.Fields.ofm_reporting_month);
+                    var fiscal_year_ref = localPluginContext.Target.GetAttributeValue<EntityReference>(ofm_survey_response.Fields.ofm_fiscal_year);
+                    var report_month_ref = localPluginContext.Target.GetAttributeValue<EntityReference>(ofm_survey_response.Fields.ofm_reporting_month);
 
      
                     if (fiscal_year_ref != null && report_month_ref != null)

@@ -65,7 +65,7 @@ services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P505GeneratePaymentLinesProvider>();
 services.AddScoped<ID365ProcessProvider, P510ReadPaymentResponseProvider>();
 services.AddScoped<ID365ProcessProvider, P600CloneFundingReportResponse>();
-services.AddScoped<ID365ProcessProvider, P601DeactivateReportsPastDuedate>();
+services.AddScoped<ID365ProcessProvider, P605CloseDuedReportsProvider>();
 
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();

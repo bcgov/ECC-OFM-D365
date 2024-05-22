@@ -1,27 +1,14 @@
-﻿using ECC.Core.DataContext;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
-using System.Reflection.PortableExecutable;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 
-public class P601DeactivateReportsPastDuedate : ID365ProcessProvider
+public class P605CloseDuedReportsProvider : ID365ProcessProvider
 {
     private readonly ID365AppUserService _appUserService;
     private readonly ID365WebApiService _d365webapiservice;
@@ -31,7 +18,7 @@ public class P601DeactivateReportsPastDuedate : ID365ProcessProvider
     private ProcessData? _data;
     private ProcessParameter? _processParams;
 
-    public P601DeactivateReportsPastDuedate(IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P605CloseDuedReportsProvider(IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
@@ -40,8 +27,8 @@ public class P601DeactivateReportsPastDuedate : ID365ProcessProvider
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.FundingReports.DeactivateReportsPastDuedateId;
-    public string ProcessName => Setup.Process.FundingReports.DeactivateReportsPastDuedateName;
+    public Int16 ProcessId => Setup.Process.FundingReports.CloseDuedReportsId;
+    public string ProcessName => Setup.Process.FundingReports.CloseDuedReportsName;
     public string RequestUri
     {
         get
@@ -70,7 +57,7 @@ public class P601DeactivateReportsPastDuedate : ID365ProcessProvider
 
     public async Task<ProcessData> GetDataAsync()
     {
-        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P601DeactivateReportsPastDuedate));
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P605CloseDuedReportsProvider));
 
         if (_data is null)
         {
