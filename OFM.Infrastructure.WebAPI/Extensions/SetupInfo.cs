@@ -85,6 +85,11 @@ public static class Setup
             public const Int16 CloseDuedReportsId = 605;
             public const string CloseDuedReportsName = "Automatically Close Provider Reports at the Due Date";
         }
+        public static class Reporting
+        {
+            public const Int16 CreateUpdateQuestionId = 610;
+            public const string CreateUpdateQuestionName = "Create/Update Question from Customer Voice to Reporting Custom Tables.";
+        }
     }
 
     public static readonly JsonSerializerOptions s_writeOptions = new()

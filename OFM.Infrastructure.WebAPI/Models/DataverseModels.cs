@@ -287,6 +287,108 @@ public record D365CommunicationType
     public string? ofm_communication_typeid { get; set; }
     public Int16? ofm_communication_type_number { get; set; }
 }
+public class BRQuestion : ofm_question_business_rule
+{
+    [property: JsonPropertyName("true.ofm_source_question_id")]
+    public string? TrueSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("false.ofm_source_question_id")]
+    public string? FalseSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("child.ofm_source_question_id")]
+    public string? childSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? survey_ofm_is_published { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? survey_statecode { get; set; }
+
+    [property: JsonPropertyName("que.ofm_source_question_id")]
+    public string? brSourceQuestion { get; set; }
+  
+    public Guid _ofm_true_child_question_value { get; set; }
+    public Guid _ofm_false_child_question_value { get; set; }
+    
+
+}
+public class Question : ofm_question
+{
+   
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? surveyIsPublished { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? surveyStatecode { get; set; }
+
+}
+
+public class Section : ofm_section
+{
+
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? surveyIsPublished { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? surveyStatecode { get; set; }
+
+}
+public record D365Reporting
+{
+    public string? msfp_name { get; set; }
+    public Guid msfp_projectid { get; set; }
+    [property: JsonPropertyName("questions.msfp_questiontype")]
+    public int QuestionType { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questionid")]
+    public Guid QuestionId { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_choicetype")]
+    public int QuestionChoiceType { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questionchoices")]
+    public string QuestionChoices { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questiontext")]
+    public string QuestionText { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_name")]
+    public string QuestionName { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_subtitle")]
+    public string QuestionSubtitle { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sourcesurveyidentifier")]
+    public string QuestionSourceSurveyIdentifier { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_responserequired")]
+    public bool QuestionresponseRequired { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sourcequestionidentifier")]
+
+    public string QuestionSourcequestionIdentifier { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_multiline")]
+
+    public bool QuestionMultiline { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_survey")]
+     public Guid QuestionSurveyId { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sequence")]
+    public int QuestionSequence { get; set; }
+
+    [property: JsonPropertyName("section.msfp_project")]
+    public Guid SectionProject { get; set; }
+
+    [property: JsonPropertyName("section.msfp_surveyid")]
+    public Guid SectionSurveyId { get; set; }
+
+    [property: JsonPropertyName("section.msfp_name")]
+    public string CVSectionName { get; set; }
+
+    [property: JsonPropertyName("section.msfp_sourcesurveyidentifier")]
+    public string SectionSourceSurveyIdentifier { get; set; }
+    public int? OrderNumber { get; set; }
+    public string? SectionName { get; set; }
+
+}
+
+
 
 public record Payment_File_Exchange
 {
@@ -316,6 +418,12 @@ public class Payment_Line : ofm_payment
     public  string accountname { get; set; }
   
 }
+public record D365ReportSection
+{
+    public int? OrderNumber { get; set; }
+    public string? SectionName { get; set; }
+}
+
 
 #region External Parameters
 
