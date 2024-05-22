@@ -80,10 +80,10 @@ public static class Setup
         public static class FundingReports
         {
             public const Int16 CloneFundingReportResponseId = 600;
-            public const string CloneFundingReportResponseName = "Clone Funding Report Response";
+            public const string CloneFundingReportResponseName = "Clone Provider Report Responses";
 
-            public const Int16 GeneratePaymentLinesId = 505;
-            public const string GeneratePaymentLinesName = "Generate Payment Lines";
+            public const Int16 CloseDuedReportsId = 605;
+            public const string CloseDuedReportsName = "Automatically Close Provider Reports at the Due Date";
         }
         public static class Reporting
         {

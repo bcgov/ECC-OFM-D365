@@ -54794,7 +54794,8 @@ namespace ECC.Core.DataContext
 			public const string ofm_contactyominame = "ofm_contactyominame";
 			public const string ofm_current_version = "ofm_current_version";
 			public const string ofm_current_versionname = "ofm_current_versionname";
-			public const string ofm_duration = "ofm_duration";
+            public const string ofm_duedate = "ofm_duedate";
+            public const string ofm_duration = "ofm_duration";
 			public const string ofm_end_date = "ofm_end_date";
 			public const string ofm_facility = "ofm_facility";
 			public const string ofm_facility_survey_response = "ofm_facility_survey_response";
@@ -55220,8 +55221,24 @@ namespace ECC.Core.DataContext
 				}
 			}
 		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_duration")]
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_duedate")]
+        public System.Nullable<System.DateTime> ofm_duedate
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_duedate");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_duedate", value);
+            }
+        }
+
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_duration")]
 		public string ofm_duration
 		{
 			[System.Diagnostics.DebuggerNonUserCode()]
