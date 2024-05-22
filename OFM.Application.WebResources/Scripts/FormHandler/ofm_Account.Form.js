@@ -20,6 +20,7 @@ OFM.Account.OrgFacility.Form = {
                 formContext.getAttribute("address1_stateorprovince").setValue("BC");
                 this.setRequiredFieldsOrgFacility(executionContext);
                 this.setVisibilityMailingAddress(executionContext);
+                this.setVisibilityAdditionalAddress(executionContext);
                 formContext.getAttribute("address1_stateorprovince").addOnChange(this.setRequiredFieldsOrgFacility);
                 break;
 
@@ -28,6 +29,7 @@ OFM.Account.OrgFacility.Form = {
                 formContext.getControl("ccof_accounttype").setDisabled(true);    // readonly
                 this.setRequiredFieldsOrgFacility(executionContext);
                 this.setVisibilityMailingAddress(executionContext);
+                this.setVisibilityAdditionalAddress(executionContext);
                 this.filterfacilityPrimaryContactLookup(executionContext);
                 this.filterPrimaryContactLookup(executionContext);
                 formContext.getAttribute("address1_stateorprovince").addOnChange(this.setRequiredFieldsOrgFacility);
@@ -39,9 +41,10 @@ OFM.Account.OrgFacility.Form = {
 
             case 3: //readonly
                 this.getTypeOfForm(executionContext);
-                formContext.getControl("ccof_accounttype").setDisabled(true);
+                formContext.getControl("ccof_accounttype").setDisabled(true);    // readonly
                 this.setRequiredFieldsOrgFacility(executionContext);
-                this.setVisibilityMailingAddress(executionContext); 
+                this.setVisibilityMailingAddress(executionContext);
+                this.setVisibilityAdditionalAddress(executionContext);
                 break;
 
             case 4: //disable
@@ -61,7 +64,7 @@ OFM.Account.OrgFacility.Form = {
 
     //A function called onLoad to navigate the related main form (based on Account Type)
     getTypeOfForm: function (executionContext) {
-        //debugger;
+        debugger;
         var formContext = executionContext.getFormContext();
         var typeOfInfo = formContext.getAttribute("ccof_accounttype").getValue();  // 100000000 = Organization, 100000001 = Facility
         console.log("typeOfInfo" + typeOfInfo);
@@ -116,7 +119,7 @@ OFM.Account.OrgFacility.Form = {
             formContext.getAttribute("parentaccountid").setValue(null);
             // set NULL when AccounType = Organization
             formContext.getAttribute("name").setRequiredLevel("required");
-              formContext.getAttribute("ofm_business_type").setRequiredLevel("required");
+            formContext.getAttribute("ofm_business_type").setRequiredLevel("required");
 
         }
 
@@ -225,7 +228,7 @@ OFM.Account.OrgFacility.Form = {
             {
                 formContext.getAttribute("primarycontactid").setRequiredLevel("required");
                 formContext.getAttribute("name").setRequiredLevel("required");
-                 formContext.getAttribute("ofm_business_type").setRequiredLevel("required");
+                formContext.getAttribute("ofm_business_type").setRequiredLevel("required");
 
             }
         }
@@ -381,6 +384,46 @@ OFM.Account.OrgFacility.Form = {
                 }
             }
         }
-    }
+    },
 
+    //A function called on change of "Additional Address" two option to toggle the visibility of "Additional Address" section
+    setVisibilityAdditionalAddress: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        for (var i = 3; i < 14; i++) {
+            var additionalAddress = "ofm_additional_address" + i;
+            if (formContext.getAttribute(additionalAddress) != null) {
+                if (formContext.getAttribute(additionalAddress).getValue()) {
+                    var physicalAddressSchemaName = "section_PhysicalAddress" + i;
+                    var additionalAddressSchemaName = "section_AdditionalAddress" + i;
+                    formContext.ui.tabs.get("tab_Overview").sections.get(physicalAddressSchemaName).setVisible(true);
+                    formContext.ui.tabs.get("tab_Overview").sections.get(additionalAddressSchemaName) != null ?
+                        formContext.ui.tabs.get("tab_Overview").sections.get(additionalAddressSchemaName).setVisible(true) : null;
+                }
+                else {
+                    for (var j = i; j < 14; j++) {
+                        var physicalAddressSchemaName = "section_PhysicalAddress" + j;
+                        var additionalAddressSchemaName = "section_AdditionalAddress" + j;
+                        if (formContext.ui.tabs.get("tab_Overview").sections.get(additionalAddressSchemaName) != null) {
+                            formContext.ui.tabs.get("tab_Overview").sections.get(additionalAddressSchemaName).setVisible(false);
+                            formContext.ui.tabs.get("tab_Overview").sections.get(additionalAddressSchemaName).controls.get().forEach(function (control) {
+                                control.getAttribute().setValue(false);
+                            })
+                        }
+                        var section = formContext.ui.tabs.get("tab_Overview").sections.get(physicalAddressSchemaName);
+                        section.setVisible(false);
+                        var controls = section.controls.get();
+                        // set the fields to null
+                        controls.forEach(function (control) {
+                            if (control.getAttribute() != null)
+                                control.getAttribute().setValue(null);
+                        });
+                    }
+                    break;
+                }
+            }
+            else
+                break;
+        }
+    },
 }
