@@ -45,7 +45,7 @@ fi
 readonly D365_LOG_LEVEL
 
 D365_EMAIL_SAFE_LIST_ENABLE=true
-if [ "$ENV_VAL" != "prod" ]; then
+if [ "$ENV_VAL" = "prod" ]; then
   D365_EMAIL_SAFE_LIST_ENABLE=false
 fi
 readonly D365_EMAIL_SAFE_LIST_ENABLE
