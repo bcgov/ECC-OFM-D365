@@ -148,7 +148,7 @@ jobs:
           oc project ${{ env.OPENSHIFT_NAMESPACE }}
           # Cancel any rollouts in progress
           oc rollout cancel dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
-          || true && echo "No rollout in progress"
+            || true && echo "No rollout in progress"
 
           # Create the image stream if it doesn't exist
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
@@ -174,41 +174,38 @@ jobs:
             | oc apply -f -
 
           # Process update-configmap
-          D365_API_KEY_SCHEME=$(jq -c << JSON
+          cat << JSON > /tmp/key_scheme
             ${{ secrets.D365_API_KEY_SCHEME }}
           JSON
-          )
 
-          D365_API_AUTH_SETTINGS=$(jc -c << JSON
+          cat << JSON > /tmp/api_auth_settings
             ${{ secrets.D365_API_AUTH_SETTINGS }}
           JSON
-          )
 
-          D365_RECIPIENTS=$(jc -c << JSON
+          cat << JSON > /tmp/recipients
             ${{ secrets.D365_RECIPIENTS }}
           JSON
-          )
 
-          D365_BC_REGISTRY_API=$(jc -c << JSON
-            ${{ secrets.D365_BC_REGISTRY_API }}
+          cat << JSON > /tmp/bc_registry_api
+           ${{ secrets.D365_BC_REGISTRY_API }}
           JSON
-          )
+
           curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh \
             | bash /dev/stdin \
                 dev \
                 ${{ env.APP_NAME }} \
                 ${{ env.OPENSHIFT_NAMESPACE }} \
-                "$D365_API_KEY_SCHEME" \
-                "$D365_API_AUTH_SETTINGS" \
+                /tmp/key_scheme \
+                /tmp/api_auth_settings \
                 ${{ secrets.D365_DEFAULT_SENDER_ID }} \
                 ${{ secrets.D365_DEFAULT_CONTACT_ID }} \
-                "$D365_RECIPIENTS" \
-                "$D365_BC_REGISTRY_API" \
+                /tmp/recipients \
+                /tmp/bc_registry_api \
                 ${{ secrets.D365_BCCAS_API_URL }}
 
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
-          || true && echo "Rollout in progress"
+            || true && echo "Rollout in progress"
 
           # Get status, returns 0 if rollout is successful
           oc rollout status dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }}
