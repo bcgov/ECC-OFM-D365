@@ -43,6 +43,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
     {
         get
         {
+            // this query is just for info,payment file data is coming from requesturl
             var fetchXml = $"""
                     <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                       <entity name="ofm_payment_file_exchange">
@@ -50,16 +51,15 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                         <attribute name="ofm_name" />
                         <attribute name="createdon" />
                         <order attribute="ofm_name" descending="false" />
-                        <filter type="and">                          
-                        <condition attribute="modifiedon" operator="on-or-after" value="{DateTime.UtcNow.AddDays(-1)}" />
-                         <condition attribute="ofm_feedback_file_name" operator="like" value="%{DateTime.UtcNow.AddDays(-1).ToString("yyyyMMdd")}%" />
-                       </filter>
+                        <filter type="and">    
+                          <condition attribute="ofm_payment_file_exchangeid" operator="eq" value="{_processParams?.paymentfile?.paymentfileId}" />
+                        </filter>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_payment_file_exchanges?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_payment_file_exchanges({_processParams?.paymentfile?.paymentfileId})/ofm_feedback_document_memo
                          """;
 
             return requestUri;
@@ -139,10 +139,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
             JsonNode d365Result = string.Empty;
             if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
             {
-                if (currentValue?.AsArray().Count == 0)
-                {
-                    _logger.LogInformation(CustomLogEvent.Process, "No records found");
-                }
+                
                 d365Result = currentValue!;
             }
 
@@ -203,20 +200,9 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         var startTime = _timeProvider.GetTimestamp();
 
         var localData = await GetDataAsync();
-        var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
-
-        HttpResponseMessage response1 = await _d365webapiservice.GetDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(serializedData[0].ofm_payment_file_exchangeid));
-        if (!response1.IsSuccessStatusCode)
-        {
-            var responseBody = await response1.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to download file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
-            return await Task.FromResult<JsonObject>(new JsonObject() { });
-
-        }
-        byte[] file1 = response1.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
-
-
-        listfeedback = System.Text.Encoding.UTF8.GetString(file1).Replace("APBG", "APBG#APBG").Split("APBG#").ToList();
+        var downloadfile = Convert.FromBase64String(localData.Data.ToString());
+        
+        listfeedback = System.Text.Encoding.UTF8.GetString(downloadfile).Replace("APBG", "APBG#APBG").Split("APBG#").ToList();
         listfeedback.RemoveAll(item => string.IsNullOrWhiteSpace(item));
         batchfeedback = listfeedback.Select(g => g.Replace("APBH", "APBH#APBH")).SelectMany(group => group.Split("APBH#")).ToList();
         headerfeedback = listfeedback.Select(g => g.Replace("APIH", "APIH#APIH")).SelectMany(group => group.Split("APIH#")).ToList();

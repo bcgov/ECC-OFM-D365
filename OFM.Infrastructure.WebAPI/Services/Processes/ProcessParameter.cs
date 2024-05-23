@@ -40,12 +40,23 @@ public record ProcessParameter
     [property: JsonPropertyName("fundingReport")]
     public FundingReportParameter? FundingReport { get; set; }
 
+
     [property: JsonPropertyName("project")]
     public ProjectParameter? Project { get; set; }
     
     [property: JsonPropertyName("ReportSections")]
     public string? ReportSections { get; set; }
-    
+
+    [property: JsonPropertyName("paymentfile")]
+    public PaymentParameter? paymentfile { get; set; }
+
+    public record PaymentParameter
+    {
+       
+        [property: JsonPropertyName("paymentfileid")]
+        public string? paymentfileId { get; set; }
+    }
+
 
     public record EmailParameter
     {
