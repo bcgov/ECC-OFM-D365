@@ -1,5 +1,6 @@
 ﻿using ECC.Core.DataContext;
 using Microsoft.Extensions.Options;
+using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
@@ -46,6 +47,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                 <attribute name="createdon" />
                                                 <attribute name="statuscode" />
                                                 <attribute name="ofm_funding" />
+                                                <attribute name="ofm_payment_type" />
                                                 <order attribute="ofm_name" descending="false" />
                                                 <filter type="and">
                                                   <condition attribute="ofm_application" operator="eq"  value="{{application}}" />
@@ -160,14 +162,14 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         <attribute name="ofm_renewal_term" />
                         <order attribute="ofm_allowance_number" descending="false" />
                         <filter type="and">
-                          <condition attribute="ofm_application" operator="eq" uiname="APP-23000010" uitype="ofm_application" value="{E4B5E2F2-ED8E-EE11-8179-000D3A09D132}" />
+                          <condition attribute="ofm_application" operator="eq"  value="{{application}}" />
                         </filter>
                       </entity>
                     </fetch>
                     """;
-
+                
                 var requestUri = $"""
-                         ofm_fundings?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_allowances?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
                 return requestUri;
@@ -360,37 +362,50 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         {
                             createPaymentTasks.Add(CreatePaymentLines(facility, organization, startdate, enddate, fundingid, application, appUserService, d365WebApiService, _processParams));
                         }
+                        // PAYMENT CREATION FOR SUPPORT or INDIGENIOUS PROGRAMMING APPS
                         //Check if supplementary application exists.
-                        if (supplementaryApplicationDeserializedData.Count == 0)
+                        if (supplementaryApplicationDeserializedData.Count > 0)
                         {
-                            // Filter entries with ofm_allowance_type as "supportprogramming" or "indigenous"
-                            var saSupportProgrammingOrIndigenous = supplementaryApplicationDeserializedData
+                            // Filter entries with ofm_allowance_type as "supportneedservice" or "indigenous"
+                            var saSupportOrIndigenous = supplementaryApplicationDeserializedData
                                 .Where(entry => entry.ofm_allowance_type == 1 || entry.ofm_allowance_type == 2)
                                 .ToList();
-                            var transportationApplications = supplementaryApplicationDeserializedData
-                                .Where(entry => entry.ofm_allowance_type == 3)
-                                .ToList();
-                            if (saSupportProgrammingOrIndigenous.Any())
+                            
+                            if (saSupportOrIndigenous.Any())
                             {
-                                
-                                foreach(var supplementaryApp in saSupportProgrammingOrIndigenous)
+                                foreach (var supplementaryApp in saSupportOrIndigenous)
                                 {
-                                    decimal? fundingAmount = supplementaryApp.ofm_funding_amount;
-                                    int allowanceType = supplementaryApp.ofm_allowance_type;
-                                    createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, startdate, enddate, fundingid, application, allowanceType == 1 ? (int)ecc_payment_type.SupportNeedsFunding : (int)ecc_payment_type.IndigenousProgramming, fundingAmount, appUserService, d365WebApiService, processParams));
+                                    //Retrieve payments of this allowance type.
+                                    List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
+                                    .Where(r =>
+                                     (supplementaryApp.ofm_allowance_type == 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.SupportNeedsFunding) ||
+                                     (supplementaryApp.ofm_allowance_type != 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.IndigenousProgramming))
+                                     .ToList();
+                                    //Check if payment record already exist for this supplementary app.
+                                    if (saSupportOrIndigenousPayments.Count == 0)
+                                    {
+                                        decimal? fundingAmount = supplementaryApp.ofm_funding_amount;
+                                        int allowanceType = supplementaryApp.ofm_allowance_type;
+                                        createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, startdate, enddate, fundingid, application, allowanceType == 1 ? (int)ecc_payment_type.SupportNeedsFunding : (int)ecc_payment_type.IndigenousProgramming, fundingAmount, appUserService, d365WebApiService, processParams));
+                                    }
+                                    
                                 }
                                 
 
                             }
-                           // Deserialize transportationApplications JSON array
-                            var transportationApps = JsonSerializer.Deserialize<List<SupplementaryApplication>>(transportationApplications.ToString());
-                            if (transportationApps.Any()) {
-                                var firstTransportationApp = transportationApps[0];
+                            //payment creation for TRANSPORTATION APPS
+                            var transportationApplications = supplementaryApplicationDeserializedData
+                                .Where(entry => entry.ofm_allowance_type == 3)
+                                .ToList();
+                           
+                            //Check if transportation application exists.
+                            if (transportationApplications.Any()) {
+                                var firstTransportationApp = transportationApplications[0];
                                 //Sum the amounts of all transportation applications
-                                decimal? totalAmount = transportationApps.Sum(app => app.ofm_funding_amount);
+                                decimal? totalAmount = transportationApplications.Sum(app => app.ofm_funding_amount);
 
                                 // Calculate number of months between start date and end date
-                                int numberOfMonths = (enddate.Year - startdate.Year) * 12 + enddate.Month - startdate.Month + 1;
+                                int numberOfMonths = (firstTransportationApp.ofm_end_date.Year - firstTransportationApp.ofm_start_date.Year) * 12 + firstTransportationApp.ofm_end_date.Month - firstTransportationApp.ofm_start_date.Month + 1;
 
                                 //Calculate the funding amount
                                 decimal? fundingAmountPerPayment = totalAmount / numberOfMonths;
@@ -546,7 +561,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         { "ofm_facility@odata.bind", $"/accounts({Facility})" },
         { "ofm_organization@odata.bind", $"/accounts({_processParams?.Organization?.organizationId})" },
         { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },
-        { "ofm_description", "payment" },
+        { "ofm_description", "supplementary application payment" },
         { "ofm_application@odata.bind",$"/ofm_applications({application})" },
         { "ofm_invoice_date", invoicedate },
         { "ofm_invoice_received_date", invoiceReceivedDate },
