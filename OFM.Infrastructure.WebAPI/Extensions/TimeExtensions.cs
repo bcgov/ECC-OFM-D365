@@ -100,8 +100,7 @@ public static class TimeExtensions
             return potentialDates.First();
         }
         else
-        {
-          
+        {      
             throw new InvalidOperationException("No valid invoice dates found.");
         }
     }
@@ -144,9 +143,9 @@ public static class TimeExtensions
                 .ElementAt(3);
     }
 
-    private static DateTime IsBusinessDay(int days, DateTime invoiceDate, List<DateTime> holidays)
+    private static DateTime IsBusinessDay(int days, DateTime checkingDate, List<DateTime> holidays)
     {
-        var dateToCheck = invoiceDate.AddDays(days);
+        var dateToCheck = checkingDate.AddDays(days);
         var isNonBusinessDay =
             dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
             dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
