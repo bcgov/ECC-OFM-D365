@@ -461,7 +461,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             for (DateTime paymentdate = startdate; paymentdate <= enddate; paymentdate = paymentdate.AddMonths(1))
             {
                 Guid? fiscalYear = AssignFiscalYear(paymentdate, fiscalYears);
-                DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(paymentdate.AddDays(-1), holidaysList);
+                DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(paymentdate, holidaysList);
                 DateTime invoiceReceivedDate = invoicedate.AddDays(-4);
                 DateTime effectiveDate = TimeExtensions.GetCFSEffectiveDate(invoicedate, holidaysList);
 
