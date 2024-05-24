@@ -35,6 +35,8 @@ public record ProcessParameter
     public EmailParameter? Notification { get; set; }
     [property: JsonPropertyName("organization")]
     public OrganizationParameter? Organization { get; set; }
+    [property: JsonPropertyName("application")]
+    public ApplicationParameter? Application { get; set; }
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
     [property: JsonPropertyName("fundingReport")]
@@ -77,6 +79,14 @@ public record ProcessParameter
 
         [property: JsonPropertyName("incorporationNumber")]
         public string? incorporationNumber { get; set; }
+    }
+
+    public record ApplicationParameter
+    {
+        [property: JsonPropertyName("applicationId")]
+        public Guid? applicationId { get; set; }
+
+        
     }
 
     public record FundingParameter

@@ -93,6 +93,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 return requestUri;
             }
         }
+
+        //Retrieve Business Closures.
         public string BusinessClosuresRequestUri
         {
             get
@@ -112,6 +114,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 return requestUri;
             }
         }
+        //Retrieve funding Information.
         public string FundingRequestURI
         {
             get
@@ -144,6 +147,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 return requestUri;
             }
         }
+        //Retrieve Supplementary Applications that are approved.
         public string SupplementaryApplicationsRequestURI
         {
             get
@@ -163,6 +167,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         <order attribute="ofm_allowance_number" descending="false" />
                         <filter type="and">
                           <condition attribute="ofm_application" operator="eq"  value="{{application}}" />
+                          <condition attribute="statuscode" operator="eq" value="6" />
                         </filter>
                       </entity>
                     </fetch>
@@ -348,7 +353,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     DateTime enddate = fundingInfo.ofm_end_date.Value;
                     int fundingStatus = fundingInfo.statuscode.Value;
                     string facility = fundingInfo._ofm_facility_value.ToString();
-                    application = fundingInfo._ofm_application_value.ToString();
+                    application = _processParams?.Application?.applicationId.ToString();
                     Guid? organization = _processParams?.Organization.organizationId;
 
                     if (fundingStatus == (int)ofm_funding_StatusCode.Active)
@@ -375,7 +380,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             {
                                 foreach (var supplementaryApp in saSupportOrIndigenous)
                                 {
-                                    //Retrieve payments of this allowance type.
+                                    //Check if payments of this allowance type created.
                                     List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
                                     .Where(r =>
                                      (supplementaryApp.ofm_allowance_type == 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.SupportNeedsFunding) ||
