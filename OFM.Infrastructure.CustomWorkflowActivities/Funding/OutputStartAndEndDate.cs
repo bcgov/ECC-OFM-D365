@@ -21,6 +21,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
 
         [Output("End Date")]
         public OutArgument<DateTime> endDate { get; set; }
+
         [Output("Room Split")]
         public OutArgument<bool> roomSplit { get; set; }
 
@@ -33,7 +34,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
             IOrganizationServiceFactory serviceFactory = executionContext.GetExtension<IOrganizationServiceFactory>();
             IOrganizationService service = serviceFactory.CreateOrganizationService(context.InitiatingUserId);
             tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: OutputStartAndEndDate", DateTime.Now.ToLongTimeString());
-            var recordId = application.Get(executionContext);
+            var application = this.application.Get(executionContext);
             try
             {
                 var fetchXMLLicenceDetails = $@"<?xml version=""1.0"" encoding=""utf-16""?>
@@ -42,7 +43,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                     <attribute name=""ofm_applicationid"" />
                                                     <order attribute=""ofm_application"" descending=""false"" />
                                                     <filter type=""and"">
-                                                      <condition attribute=""ofm_applicationid"" operator=""eq"" uitype=""ofm_application"" value=""{recordId.Id.ToString()}"" />
+                                                      <condition attribute=""ofm_applicationid"" operator=""eq"" uitype=""ofm_application"" value=""{application.Id}"" />
                                                     </filter>
                                                     <link-entity name=""account"" from=""accountid"" to=""ofm_facility"" link-type=""inner"" alias=""am"">
                                                       <link-entity name=""ofm_licence"" from=""ofm_facility"" to=""accountid"" link-type=""inner"" alias=""an"">
@@ -55,19 +56,23 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                     </link-entity>
                                                   </entity>
                                                 </fetch>";
+
                 EntityCollection licenceDetails = service.RetrieveMultiple(new FetchExpression(fetchXMLLicenceDetails));
-                RetrieveRequest request = new RetrieveRequest();
-                request.ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon });
-                request.Target = new EntityReference(recordId.LogicalName, recordId.Id);
-
-                Entity entity = ((RetrieveResponse)service.Execute(request)).Entity;
-                if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains(ofm_application.Fields.ofm_summary_submittedon))
+                RetrieveRequest applicationRequest = new RetrieveRequest
                 {
-                    var dateSubmittedOn = ((ofm_application)entity).ofm_summary_submittedon;
+                    ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon }),
+                    Target = new EntityReference(application.LogicalName, application.Id)
+                };
 
-                    RetrieveRequest timeZoneCode = new RetrieveRequest();
-                    timeZoneCode.ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode });
-                    timeZoneCode.Target = new EntityReference(UserSettings.EntityLogicalName, context.InitiatingUserId);
+                Entity d365Application = ((RetrieveResponse)service.Execute(applicationRequest)).Entity;
+                if (d365Application != null && d365Application.Attributes.Count > 0 && d365Application.Attributes.Contains(ofm_application.Fields.ofm_summary_submittedon))
+                {
+                    RetrieveRequest timeZoneCode = new RetrieveRequest
+                    {
+                        ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode }),
+                        Target = new EntityReference(UserSettings.EntityLogicalName, context.InitiatingUserId)
+                    };
+
                     Entity timeZoneResult = ((RetrieveResponse)service.Execute(timeZoneCode)).Entity;
 
                     var timeZoneQuery = new QueryExpression()
@@ -82,28 +87,30 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                 }
                         }
                     };
+
                     var result = service.RetrieveMultiple(timeZoneQuery);
 
-                    var convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc((DateTime)dateSubmittedOn, TimeZoneInfo
+                    var localTime = TimeZoneInfo.ConvertTimeFromUtc((DateTime)((ofm_application)d365Application)?.ofm_summary_submittedon, TimeZoneInfo
                         .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
                         .standardname)).FirstOrDefault().ToString()));
 
-                    var day = Convert.ToDateTime(convertedDateTime).Day;
-                    var finalDate = new DateTime();
+                    var day = Convert.ToDateTime(localTime).Day;
+                    var calculatedStartDate = new DateTime();
                     if (day < 15)
                     {
-                        finalDate = convertedDateTime.AddMonths(1);
-                        finalDate = new DateTime(finalDate.Year, finalDate.Month, 1, 0, 0, 0);
+                        calculatedStartDate = localTime.AddMonths(1);
+                        calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
                     }
                     else
                     {
-                        finalDate = convertedDateTime.AddMonths(2);
-                        finalDate = new DateTime(finalDate.Year, finalDate.Month, 1, 0, 0, 0);
+                        calculatedStartDate = localTime.AddMonths(2);
+                        calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
                     }
-                    var intermediateDate = finalDate.AddYears(3).AddDays(-1);
-                    var end_date = new DateTime(intermediateDate.Year, intermediateDate.Month, intermediateDate.Day, 23, 59, 0);
-                    startDate.Set(executionContext, finalDate);
-                    endDate.Set(executionContext, end_date);
+                    var tempDate = calculatedStartDate.AddYears(3).AddDays(-1);
+                    var calculatedEndDate = new DateTime(tempDate.Year, tempDate.Month, tempDate.Day, 23, 59, 0);
+                   
+                    startDate.Set(executionContext, calculatedStartDate);
+                    endDate.Set(executionContext, calculatedEndDate);
                     roomSplit.Set(executionContext, licenceDetails.Entities.Count > 0);
                 }
             }
