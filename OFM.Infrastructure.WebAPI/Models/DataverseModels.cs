@@ -29,6 +29,8 @@ public record D365Facility
     public int statecode { get; set; }
     public int statuscode { get; set; }
     public int? ofm_program { get; set; }
+    public DateTime? ofm_program_start_date { get; set; }
+    public int? ofm_ccof_requirement { get; set; }
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
 
@@ -40,6 +42,7 @@ public record D365Organization
     public string? name { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
+    public int? ofm_program { get; set; }
 }
 
 public class ProviderProfile
@@ -79,7 +82,8 @@ public class ProviderProfile
             name = firstContact.parentcustomerid_account.name,
             ccof_accounttype = firstContact.parentcustomerid_account.ccof_accounttype,
             statecode = firstContact.parentcustomerid_account.statecode,
-            statuscode = firstContact.parentcustomerid_account.statuscode
+            statuscode = firstContact.parentcustomerid_account.statuscode,
+            ofm_program = firstContact.parentcustomerid_account.ofm_program
         };
 
         role = new PortalRole
@@ -106,6 +110,8 @@ public class ProviderProfile
                         statecode = facility.statecode,
                         statuscode = facility.statuscode,
                         ofm_program = facility.ofm_program,
+                        ofm_program_start_date = facility.ofm_program_start_date,
+                        ofm_ccof_requirement = facility.ofm_ccof_requirement
                     },
                     ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
                     statecode = firstContact.ofm_facility_business_bceid[i].statecode,
@@ -148,6 +154,7 @@ public record Parentcustomerid_Account
     public string? accountid { get; set; }
     public string? accountnumber { get; set; }
     public int ccof_accounttype { get; set; }
+    public int? ofm_program { get; set; }
     public string? name { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
@@ -174,6 +181,8 @@ public record ofm_Facility
     public int statuscode { get; set; }
     public string? name { get; set; }
     public int? ofm_program { get; set; }
+    public DateTime? ofm_program_start_date { get; set; }
+    public int? ofm_ccof_requirement { get; set; }
 }
 
 public class Supplementary : ofm_allowance
