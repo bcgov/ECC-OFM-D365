@@ -199,7 +199,7 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
         */
         if (totalSpaces > 0)
         {
-            switch ((int)supplementary.ofm_allowance_type.Value)
+            switch ((int)supplementary.ofm_allowance_type)
             {
                 case 1:
                     if (totalSpaces < supplementary.ofm_supplementary_schedule.ofm_space_lower_limit)

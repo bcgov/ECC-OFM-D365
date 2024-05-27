@@ -153,6 +153,7 @@ public class PaymentLine : ofm_payment
     [JsonPropertyName("statuscode@OData.Community.Display.V1.FormattedValue")]
     public new string? statuscode_formatted { get; set; }
     public new int? statuscode { get; set; }
+    public new decimal? ofm_amount { get; set; }
 }
 public class FiscalYear
 {
@@ -167,6 +168,17 @@ public class SupplementaryApplication : ofm_allowance
     public new decimal? ofm_transport_odometer { get; set; }
     public new SupplementarySchedule? ofm_supplementary_schedule { get; set; }
     public string _ofm_application_value { get; set; }
+    public Guid ofm_allowanceid { get; set; }
+    public string ofm_allowance_number { get; set; }
+    public DateTime createdon { get; set; }
+    public int ofm_allowance_type { get; set; }
+    public DateTime ofm_end_date { get; set; }
+    public DateTime ofm_start_date { get; set; }
+    public int statuscode { get; set; }
+
+    public int ofm_renewal_term { get; set; }
+
+
 }
 public class BusinessClosure
 {
