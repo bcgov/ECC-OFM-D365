@@ -356,9 +356,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },
                     { "ofm_description", "payment" },
                     { "ofm_application@odata.bind",$"/ofm_applications({application})" },
-                    { "ofm_invoice_date", invoicedate },
-                    { "ofm_invoice_received_date", invoiceReceivedDate },
-                    { "ofm_effective_date", effectiveDate },
+                    { "ofm_invoice_date", invoicedate.ToString("yyyy-MM-dd") },
+                    { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
+                    { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
                     { "ofm_fiscal_year@odata.bind",$"/ofm_fiscal_years({fiscalYear})" }
                 };
 
