@@ -16,6 +16,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
     public class P505GeneratePaymentLinesProvider : ID365ProcessProvider
     {
         private string application;
+        private int FYYear;
+        private string saApplication;
         private readonly ID365AppUserService _appUserService;
         private readonly ID365WebApiService _d365webapiservice;
         private readonly ILogger _logger;
@@ -48,6 +50,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                 <attribute name="statuscode" />
                                                 <attribute name="ofm_funding" />
                                                 <attribute name="ofm_payment_type" />
+                                                <attribute name="ofm_effective_date" />
+                                                <attribute name="ofm_amount" />
                                                 <order attribute="ofm_name" descending="false" />
                                                 <filter type="and">
                                                   <condition attribute="ofm_application" operator="eq"  value="{{application}}" />
@@ -55,16 +59,16 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                 </filter>
                                               </entity>
                                             </fetch>
-                    """;
+                    """; 
 
                 var requestUri = $"""
                          ofm_payments?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
-                return requestUri;
+                return requestUri; 
             }
         }
-
+      
         public string FiscalYearRequestUri
         {
             get
@@ -148,6 +152,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
         }
         //Retrieve Supplementary Applications that are approved.
+       
         public string SupplementaryApplicationsRequestURI
         {
             get
@@ -172,7 +177,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                       </entity>
                     </fetch>
                     """;
-                
+
                 var requestUri = $"""
                          ofm_allowances?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
@@ -405,21 +410,58 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                            
                             //Check if transportation application exists.
                             if (transportationApplications.Any()) {
-                                var firstTransportationApp = transportationApplications[0];
-                                //Sum the amounts of all transportation applications
-                                decimal? totalAmount = transportationApplications.Sum(app => app.ofm_funding_amount);
-
+                                var minStartDate = transportationApplications.Min(app => app.ofm_start_date);
+                                var maxStartDate = transportationApplications.Max(app => app.ofm_start_date);
+                                var maxEndDate = transportationApplications.Max(app => app.ofm_end_date);
                                 // Calculate number of months between start date and end date
-                                int numberOfMonths = (firstTransportationApp.ofm_end_date.Year - firstTransportationApp.ofm_start_date.Year) * 12 + firstTransportationApp.ofm_end_date.Month - firstTransportationApp.ofm_start_date.Month + 1;
-
-                                //Calculate the funding amount
-                                decimal? fundingAmountPerPayment = totalAmount / numberOfMonths;
-
-
-                                for (DateTime paymentdate = firstTransportationApp.ofm_start_date; paymentdate <= firstTransportationApp.ofm_end_date; paymentdate = paymentdate.AddMonths(1))
+                                int numberOfMonths = (maxEndDate.Year - minStartDate.Year) * 12 + maxEndDate.Month - minStartDate.Month + 1;
+                                // Calculate total monthly payment
+                                decimal? totalMonthlyPayment = 0;
+                                foreach (var app in transportationApplications)
                                 {
-                                    createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, paymentdate, enddate, fundingid, application, (int)ecc_payment_type.Transportation, fundingAmountPerPayment, appUserService, d365WebApiService, processParams));
+                                    totalMonthlyPayment += app.ofm_funding_amount / numberOfMonths;
                                 }
+                                decimal PaymentAmountPerMonth = Math.Round(totalMonthlyPayment.Value, 2);
+                                //Check if transportation payments exists.
+                                List<PaymentLine> saTransportationPayments = paymentDeserializedData
+                                    .Where(r =>
+                                      (int)r.ofm_payment_type == (int)ecc_payment_type.Transportation).ToList();
+                                //if no payments exists for any transportationa application, then create monthly payment lines.
+                                 if(saTransportationPayments.Count == 0) {
+                                   
+                                    for (DateTime date = minStartDate; date <= maxEndDate; date = date.AddMonths(1))
+                                    {
+                                        //create payment for transportation.
+                                        createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, date, maxEndDate, fundingid, application,  (int)ecc_payment_type.Transportation, PaymentAmountPerMonth, appUserService, d365WebApiService, processParams));
+
+                                    }
+                                }
+                           //If payment already exists
+                                if (saTransportationPayments.Count > 0)
+                                {
+                                    decimal retrospectiveamount = 0;
+                                    foreach (var payment in saTransportationPayments)
+
+                                    {
+                                        if (payment.ofm_effective_date >= maxStartDate)
+                                        {
+                                            createPaymentTasks.Add(UpdatePaymentLines(payment.Id, PaymentAmountPerMonth, appUserService, d365WebApiService, processParams));
+                                        }
+                                        else if (payment.ofm_effective_date < maxStartDate)
+                                        {
+                                            retrospectiveamount += PaymentAmountPerMonth - payment.ofm_amount.Value;
+
+                                           
+                                        }
+                                    }
+                                    if (retrospectiveamount > 0)
+                                    {
+                                        //create payment with type transportation and payment amount as retrospective amount.
+                                        createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, maxStartDate, maxEndDate, fundingid, application, (int)ecc_payment_type.Transportation, retrospectiveamount, appUserService, d365WebApiService, processParams));
+                                    }
+                                }
+
+
                             }
 
                         }
@@ -480,9 +522,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },
                     { "ofm_description", "payment" },
                     { "ofm_application@odata.bind",$"/ofm_applications({application})" },
-                    { "ofm_invoice_date", invoicedate },
-                    { "ofm_invoice_received_date", invoiceReceivedDate },
-                    { "ofm_effective_date", effectiveDate },
+                    { "ofm_invoice_date", invoicedate.ToString("yyyy-MM-dd") },
+                    { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
+                    { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
                     { "ofm_fiscal_year@odata.bind",$"/ofm_fiscal_years({fiscalYear})" }
                 };
 
@@ -568,10 +610,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },
         { "ofm_description", "supplementary application payment" },
         { "ofm_application@odata.bind",$"/ofm_applications({application})" },
-        { "ofm_invoice_date", invoicedate },
-        { "ofm_invoice_received_date", invoiceReceivedDate },
-        { "ofm_effective_date", effectiveDate },
+        { "ofm_invoice_date", invoicedate.ToString("yyyy-MM-dd") },
+        { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
+        { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
         { "ofm_fiscal_year@odata.bind",$"/ofm_fiscal_years({fiscalYear})" }
+        //{ "ofm_allowance@odata.bind", $"/ofm_allowances({application})" },
     };
 
             var requestBody = JsonSerializer.Serialize(payload);
@@ -586,7 +629,29 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
+        private async Task<JsonObject> UpdatePaymentLines(Guid? paymentId,decimal? paymentAmount, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+        {
+            var statement = $"ofm_payments({paymentId})";
 
+            var payload = new JsonObject {
+                 { "ofm_amount", paymentAmount }
+                
+        };
+
+            var requestBody = JsonSerializer.Serialize(payload);
+
+            var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, statement, requestBody);
+
+            if (!patchResponse.IsSuccessStatusCode)
+            {
+                var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to patch GoodStanding status on organization with the server error {responseBody}", responseBody.CleanLog());
+
+                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+            }
+
+            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        }
     }
 }
 

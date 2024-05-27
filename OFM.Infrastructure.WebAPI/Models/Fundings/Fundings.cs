@@ -153,6 +153,7 @@ public class PaymentLine : ofm_payment
     [JsonPropertyName("statuscode@OData.Community.Display.V1.FormattedValue")]
     public new string? statuscode_formatted { get; set; }
     public new int? statuscode { get; set; }
+    public new decimal? ofm_amount { get; set; }
 }
 public class FiscalYear
 {
