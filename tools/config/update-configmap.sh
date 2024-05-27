@@ -45,12 +45,12 @@ fi
 readonly D365_LOG_LEVEL
 
 D365_EMAIL_SAFE_LIST_ENABLE=true
-if [ "$ENV_VAL" != "prod" ]; then
+if [ "$ENV_VAL" = "prod" ]; then
   D365_EMAIL_SAFE_LIST_ENABLE=false
 fi
 readonly D365_EMAIL_SAFE_LIST_ENABLE
 
-D365_CONFIGURATION=$(cat << JSON
+D365_CONFIGURATION=$(jq << JSON
 {
   "Logging": $D365_LOG_LEVEL,
   "AllowedHosts": "*",
@@ -64,10 +64,10 @@ D365_CONFIGURATION=$(cat << JSON
   },
   "AuthenticationSettings": {
     "Schemes": {
-      "ApiKeyScheme": $D365_API_KEY_SCHEME
+      "ApiKeyScheme": $(cat "$D365_API_KEY_SCHEME")
     }
   },
-  "D365AuthSettings": $D365_API_AUTH_SETTINGS,
+  "D365AuthSettings": $(cat "$D365_API_AUTH_SETTINGS"),
   "DocumentSettings": {
     "MaxFileSize": 3999999,
     "AcceptedFommat": [
@@ -133,7 +133,7 @@ D365_CONFIGURATION=$(cat << JSON
     "EmailSafeList": {
       "Enable": $D365_EMAIL_SAFE_LIST_ENABLE,
       "DefaultContactId": "$D365_DEFAULT_CONTACT_ID",
-      "Recipients": $D365_RECIPIENTS
+      "Recipients": $(cat "$D365_RECIPIENTS")
     },
     "fundingUrl": "$SERVER_FRONTEND/funding",
     "fundingTabUrl": "$SERVER_FRONTEND/funding/overview"
@@ -161,7 +161,7 @@ D365_CONFIGURATION=$(cat << JSON
     }
   },
   "ExternalServices": {
-    "BCRegistryApi": $D365_BC_REGISTRY_API,
+    "BCRegistryApi": $(cat "$D365_BC_REGISTRY_API"),
     "BCCASApi": {
       "Enable": true,
       "Url": "$D365_BCCAS_API_URL",
@@ -200,11 +200,14 @@ D365_CONFIGURATION=$(cat << JSON
 JSON
 )
 readonly D365_CONFIGURATION
+echo "$D365_CONFIGURATION" > /tmp/appsettings.json
 
 echo
 echo Creating D365 config map "$APP_NAME-d365api-$ENV_VAL-config-map"
 oc create -n "$OPENSHIFT_NAMESPACE" configmap \
-  --from-literal="appsettings.json=$D365_CONFIGURATION"
+  "$APP_NAME-d365api-$ENV_VAL-config-map" \
+  --from-file="appsettings.json=/tmp/appsettings.json" \
+  --dry-run -o yaml | oc apply -f -
 
 echo
 echo Setting environment variables for "$APP_NAME-d365api-$ENV_VAL" application

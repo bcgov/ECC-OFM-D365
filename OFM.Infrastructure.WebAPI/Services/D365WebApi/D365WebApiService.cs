@@ -3,6 +3,7 @@ using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.Processes;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -113,6 +114,7 @@ public class D365WebAPIService : ID365WebApiService
 
         Int16 processed = 0;
         List<string> errors = [];
+        List<JsonObject> results = [];
 
         if (batchResponse.IsSuccessStatusCode)
             batchResponse.HttpResponseMessages.ForEach(async res =>
@@ -120,6 +122,10 @@ public class D365WebAPIService : ID365WebApiService
                 if (res.IsSuccessStatusCode)
                 {
                     processed++;
+                    if (res.StatusCode != HttpStatusCode.NoContent)
+                    {
+                        results.Add(await res.Content.ReadFromJsonAsync<JsonObject>());
+                    }
                 }
                 else
                 {
@@ -139,7 +145,7 @@ public class D365WebAPIService : ID365WebApiService
             return batchResult;
         }
 
-        return BatchResult.Success(null, processed, requestMessages.Count); ;
+        return BatchResult.Success(results, processed, requestMessages.Count); ;
     }
 
     public async Task<HttpResponseMessage> SendBulkEmailTemplateMessageAsync(AZAppUser spn, JsonObject contentBody, Guid? callerObjectId)

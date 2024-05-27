@@ -50,7 +50,6 @@ public static class ProviderProfilesHandlers
                       <entity name="contact">
                         <attribute name="ofm_first_name" />
                         <attribute name="ofm_last_name" />
-                        <attribute name="ofm_portal_role" />
                         <attribute name="ccof_userid" />
                         <attribute name="ccof_username" />
                         <attribute name="contactid" />
@@ -83,6 +82,8 @@ public static class ProviderProfilesHandlers
                             <attribute name="statecode" />
                             <attribute name="statuscode" />
                             <attribute name="name" />
+                            <attribute name="ofm_ccof_requirement" />
+                            <attribute name="ofm_program_start_date" />
                             <filter>
                               <condition attribute="statuscode" operator="eq" value="1" />
                             </filter>
@@ -95,22 +96,23 @@ public static class ProviderProfilesHandlers
                           <attribute name="name" />
                           <attribute name="statecode" />
                           <attribute name="statuscode" />
+                          <attribute name="ofm_program" />
                           <filter>
                             <condition attribute="statuscode" operator="eq" value="1" />
                           </filter>
                         </link-entity>
-                       <link-entity name="ofm_portal_role" from="ofm_portal_roleid" to="ofm_portal_role_id" link-type="inner" alias="ab">
-                      <attribute name="ofm_portal_role_number" />
-                    </link-entity>
+                        <link-entity name="ofm_portal_role" from="ofm_portal_roleid" to="ofm_portal_role_id" link-type="inner" alias="ab">
+                          <attribute name="ofm_portal_role_number" />
+                        </link-entity>
                       </entity>
                     </fetch>
                     """;
-
+     
             var requestUri = $"""
-                         contacts?$select=ofm_first_name,ofm_last_name,ofm_portal_role,ofm_portal_role_id,ccof_userid,ccof_username,contactid,emailaddress1,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,statecode,statuscode,name,ofm_program);$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode;$filter=(statuscode eq 1)),ofm_portal_role_id($select=ofm_portal_role_number)&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1)
+                         contacts?$select=ofm_first_name,ofm_last_name,ccof_userid,ccof_username,contactid,emailaddress1,_ofm_portal_role_id_value,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,ofm_program,statecode,statuscode,name,ofm_ccof_requirement,ofm_program_start_date);$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode,ofm_program;$filter=(statuscode eq 1)),ofm_portal_role_id($select=ofm_portal_role_number)&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1) and (ofm_portal_role_id/ofm_portal_roleid ne null)
                          """;
 
-            //logger.LogDebug(CustomLogEvent.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
+            logger.LogDebug(CustomLogEvent.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
 
             var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
 

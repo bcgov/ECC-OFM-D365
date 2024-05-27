@@ -29,6 +29,8 @@ public record D365Facility
     public int statecode { get; set; }
     public int statuscode { get; set; }
     public int? ofm_program { get; set; }
+    public DateTime? ofm_program_start_date { get; set; }
+    public int? ofm_ccof_requirement { get; set; }
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
 
@@ -40,6 +42,7 @@ public record D365Organization
     public string? name { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
+    public int? ofm_program { get; set; }
 }
 
 public class ProviderProfile
@@ -53,7 +56,6 @@ public class ProviderProfile
     public string? ofm_last_name { get; set; }
     public D365Organization? organization { get; set; }
     public PortalRole? role { get; set; }
-    public int? ofm_portal_role { get; set; }
     public IList<FacilityPermission>? facility_permission { get; set; }
 
     public void MapProviderProfile(IEnumerable<D365Contact> contacts)
@@ -72,8 +74,6 @@ public class ProviderProfile
         ofm_last_name = firstContact.ofm_last_name;
         emailaddress1 = firstContact.emailaddress1;
         telephone1 = firstContact.telephone1;
-        ofm_portal_role = firstContact.ofm_portal_role;
-
 
         organization = new D365Organization
         {
@@ -82,16 +82,17 @@ public class ProviderProfile
             name = firstContact.parentcustomerid_account.name,
             ccof_accounttype = firstContact.parentcustomerid_account.ccof_accounttype,
             statecode = firstContact.parentcustomerid_account.statecode,
-            statuscode = firstContact.parentcustomerid_account.statuscode
+            statuscode = firstContact.parentcustomerid_account.statuscode,
+            ofm_program = firstContact.parentcustomerid_account.ofm_program
         };
-       
-            role = new PortalRole
-            {
-                ofm_portal_roleid = firstContact.ofm_portal_role_id?.ofm_portal_roleid,
-                ofm_portal_role_number = firstContact.ofm_portal_role_id?.ofm_portal_role_number
 
-            };
-        
+        role = new PortalRole
+        {
+            ofm_portal_roleid = firstContact.ofm_portal_role_id?.ofm_portal_roleid,
+            ofm_portal_role_number = firstContact.ofm_portal_role_id?.ofm_portal_role_number
+
+        };
+
         for (int i = 0; i < firstContact.ofm_facility_business_bceid!.Count(); i++)
         {
             if (firstContact.ofm_facility_business_bceid![i] is not null &&
@@ -108,7 +109,9 @@ public class ProviderProfile
                         name = facility.name,
                         statecode = facility.statecode,
                         statuscode = facility.statuscode,
-                        ofm_program=facility.ofm_program,
+                        ofm_program = facility.ofm_program,
+                        ofm_program_start_date = facility.ofm_program_start_date,
+                        ofm_ccof_requirement = facility.ofm_ccof_requirement
                     },
                     ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
                     statecode = firstContact.ofm_facility_business_bceid[i].statecode,
@@ -130,7 +133,6 @@ public record D365Contact
     public string? odataetag { get; set; }
     public string? ofm_first_name { get; set; }
     public string? ofm_last_name { get; set; }
-    public int? ofm_portal_role { get; set; }
     public string? ccof_userid { get; set; }
     public string? ccof_username { get; set; }
     public string? contactid { get; set; }
@@ -143,7 +145,7 @@ public record D365Contact
 
 public record PortalRole
 {
-    public Guid? ofm_portal_roleid{ get; set; }
+    public Guid? ofm_portal_roleid { get; set; }
     public string? ofm_portal_role_number { get; set; }
 }
 
@@ -152,6 +154,7 @@ public record Parentcustomerid_Account
     public string? accountid { get; set; }
     public string? accountnumber { get; set; }
     public int ccof_accounttype { get; set; }
+    public int? ofm_program { get; set; }
     public string? name { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
@@ -178,6 +181,8 @@ public record ofm_Facility
     public int statuscode { get; set; }
     public string? name { get; set; }
     public int? ofm_program { get; set; }
+    public DateTime? ofm_program_start_date { get; set; }
+    public int? ofm_ccof_requirement { get; set; }
 }
 
 public class Supplementary : ofm_allowance
@@ -204,7 +209,7 @@ public record D365Template
     public string? subjectsafehtml { get; set; }
     public string? body { get; set; }
     public string? templateid { get; set; }
-    public string? templatecode { get; set; }   
+    public string? templatecode { get; set; }
 }
 
 public record D365Email
@@ -240,12 +245,10 @@ public record D365Organization_Account
     public string? name { get; set; }
     public string? ofm_incorporation_number { get; set; }
     public string? ofm_business_number { get; set; }
-    public bool? ofm_bypass_bc_registry_good_standing { get; set; }  
+    public bool? ofm_bypass_bc_registry_good_standing { get; set; }
     public int statecode { get; set; }
     public Guid _primarycontactid_value { get; set; }
     public Guid _ofm_primarycontact_value { get; set; }
-
-
 }
 
 public record D365StandingHistory
@@ -287,14 +290,110 @@ public record D365CommunicationType
     public string? ofm_communication_typeid { get; set; }
     public Int16? ofm_communication_type_number { get; set; }
 }
+public class BRQuestion : ofm_question_business_rule
+{
+    [property: JsonPropertyName("true.ofm_source_question_id")]
+    public string? TrueSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("false.ofm_source_question_id")]
+    public string? FalseSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("child.ofm_source_question_id")]
+    public string? childSourcequestionIdentifier { get; set; }
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? survey_ofm_is_published { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? survey_statecode { get; set; }
+
+    [property: JsonPropertyName("que.ofm_source_question_id")]
+    public string? brSourceQuestion { get; set; }
+
+    public Guid _ofm_true_child_question_value { get; set; }
+    public Guid _ofm_false_child_question_value { get; set; }
+}
+public class Question : ofm_question
+{
+
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? surveyIsPublished { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? surveyStatecode { get; set; }
+}
+
+public class Section : ofm_section
+{
+
+    [property: JsonPropertyName("survey.ofm_is_published")]
+    public bool? surveyIsPublished { get; set; }
+    [property: JsonPropertyName("survey.statecode")]
+    public int? surveyStatecode { get; set; }
+
+}
+
+public record D365Reporting
+{
+    public string? msfp_name { get; set; }
+    public Guid msfp_projectid { get; set; }
+    [property: JsonPropertyName("questions.msfp_questiontype")]
+    public int QuestionType { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questionid")]
+    public Guid QuestionId { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_choicetype")]
+    public int QuestionChoiceType { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questionchoices")]
+    public string QuestionChoices { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_questiontext")]
+    public string QuestionText { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_name")]
+    public string QuestionName { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_subtitle")]
+    public string QuestionSubtitle { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sourcesurveyidentifier")]
+    public string QuestionSourceSurveyIdentifier { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_responserequired")]
+    public bool QuestionresponseRequired { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sourcequestionidentifier")]
+
+    public string QuestionSourcequestionIdentifier { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_multiline")]
+
+    public bool QuestionMultiline { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_survey")]
+    public Guid QuestionSurveyId { get; set; }
+
+    [property: JsonPropertyName("questions.msfp_sequence")]
+    public int QuestionSequence { get; set; }
+
+    [property: JsonPropertyName("section.msfp_project")]
+    public Guid SectionProject { get; set; }
+
+    [property: JsonPropertyName("section.msfp_surveyid")]
+    public Guid SectionSurveyId { get; set; }
+
+    [property: JsonPropertyName("section.msfp_name")]
+    public string CVSectionName { get; set; }
+
+    [property: JsonPropertyName("section.msfp_sourcesurveyidentifier")]
+    public string SectionSourceSurveyIdentifier { get; set; }
+    public int? OrderNumber { get; set; }
+    public string? SectionName { get; set; }
+
+}
 
 public record Payment_File_Exchange
 {
     public string ofm_batch_number { get; set; }
     public string ofm_oracle_batch_name { get; set; }
     public string ofm_payment_file_exchangeid { get; set; }
-
-
 }
 
 public class Payment_Line : ofm_payment
@@ -309,13 +408,19 @@ public class Payment_Line : ofm_payment
     public required decimal ofm_amount { get; set; }
     public required int ofm_payment_method { get; set; }
     [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
-    public  string ofm_financial_year { get; set; }
+    public string ofm_financial_year { get; set; }
     [property: JsonPropertyName("ofm_application.ofm_application")]
-    public  string ofm_application_number { get; set; }
+    public string ofm_application_number { get; set; }
     [property: JsonPropertyName("ofm_facility.name")]
-    public  string accountname { get; set; }
-  
+    public string accountname { get; set; }
+
 }
+public record D365ReportSection
+{
+    public int? OrderNumber { get; set; }
+    public string? SectionName { get; set; }
+}
+
 
 #region External Parameters
 
