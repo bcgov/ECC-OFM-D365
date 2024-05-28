@@ -37,8 +37,7 @@ public record ProcessParameter
     public OrganizationParameter? Organization { get; set; }
     [property: JsonPropertyName("application")]
     public ApplicationParameter? Application { get; set; }
-    [property: JsonPropertyName("funding")]
-
+    [property: JsonPropertyName("ofm_allowance")]
     public SupplementaryApplicationParameter? SupplementaryApplication { get; set; }
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
