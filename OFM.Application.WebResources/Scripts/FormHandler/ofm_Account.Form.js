@@ -22,6 +22,7 @@ OFM.Account.OrgFacility.Form = {
                 this.setVisibilityMailingAddress(executionContext);
                 this.setVisibilityAdditionalAddress(executionContext);
                 formContext.getAttribute("address1_stateorprovince").addOnChange(this.setRequiredFieldsOrgFacility);
+                this.manualReviewflag();
                 break;
 
             case 2: // update  
@@ -37,6 +38,7 @@ OFM.Account.OrgFacility.Form = {
                 if (formLabel == "Organization Information - OFM") {
                     formContext.data.entity.addOnSave(this.onChangePrimaryContact);
                 }
+                this.manualReviewflag();
                 break;
 
             case 3: //readonly
@@ -45,6 +47,7 @@ OFM.Account.OrgFacility.Form = {
                 this.setRequiredFieldsOrgFacility(executionContext);
                 this.setVisibilityMailingAddress(executionContext);
                 this.setVisibilityAdditionalAddress(executionContext);
+                this.manualReviewflag();
                 break;
 
             case 4: //disable
@@ -426,4 +429,23 @@ OFM.Account.OrgFacility.Form = {
                 break;
         }
     },
+    manualReviewflag: function () {
+        debugger;
+        var userId = Xrm.Utility.getGlobalContext().userSettings.userId;
+        Xrm.WebApi.retrieveRecord("systemuser", userId, "?$select=ofm_is_expense_authority").then(
+
+            function success(results) {
+                console.log(results);
+                if (results["ofm_is_expense_authority"] != null && results["ofm_is_expense_authority"]) 
+                        Xrm.Page.getControl("ofm_payment_manual_review").setDisabled(false);
+                    else 
+                        Xrm.Page.getControl("ofm_payment_manual_review").setDisabled(true);
+                
+            },
+            function (error) {
+                console.log(error.message);
+            }
+        );
+
+    }
 }
