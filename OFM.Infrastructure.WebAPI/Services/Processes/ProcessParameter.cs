@@ -38,6 +38,9 @@ public record ProcessParameter
     [property: JsonPropertyName("application")]
     public ApplicationParameter? Application { get; set; }
     [property: JsonPropertyName("funding")]
+
+    public SupplementaryApplicationParameter? SupplementaryApplication { get; set; }
+    [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
     [property: JsonPropertyName("fundingReport")]
     public FundingReportParameter? FundingReport { get; set; }
@@ -106,7 +109,12 @@ public record ProcessParameter
 
         
     }
+    public record SupplementaryApplicationParameter
+    {
+        [property: JsonPropertyName("fyYear")]
+        public string? fyYear { get; set; }
 
+    }
     public record FundingParameter
     {
         //[property: JsonPropertyName("facilityId")]
