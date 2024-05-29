@@ -16,7 +16,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
     public class P505GeneratePaymentLinesProvider : ID365ProcessProvider
     {
         private string application;
-        private int FYYear;
+        private string FYYear;
         private string saApplication;
         private readonly ID365AppUserService _appUserService;
         private readonly ID365WebApiService _d365webapiservice;
@@ -59,16 +59,16 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                 </filter>
                                               </entity>
                                             </fetch>
-                    """; 
+                    """;
 
                 var requestUri = $"""
                          ofm_payments?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
-                return requestUri; 
+                return requestUri;
             }
         }
-      
+
         public string FiscalYearRequestUri
         {
             get
@@ -152,7 +152,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
         }
         //Retrieve Supplementary Applications that are approved.
-       
+
         public string SupplementaryApplicationsRequestURI
         {
             get
@@ -173,6 +173,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         <filter type="and">
                           <condition attribute="ofm_application" operator="eq"  value="{{application}}" />
                           <condition attribute="statuscode" operator="eq" value="6" />
+                          <condition attribute="ofm_renewal_term" operator="eq" value="{{FYYear}}" />
                         </filter>
                       </entity>
                     </fetch>
@@ -360,111 +361,125 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     string facility = fundingInfo._ofm_facility_value.ToString();
                     application = _processParams?.Application?.applicationId.ToString();
                     Guid? organization = _processParams?.Organization.organizationId;
+                    FYYear = _processParams?.SupplementaryApplication?.fyYear != null ? _processParams?.SupplementaryApplication?.fyYear.ToString() : null;
+
 
                     if (fundingStatus == (int)ofm_funding_StatusCode.Active)
                     {
                         var allPayments = await GetApplicationPaymentDataAsync();
                         var paymentDeserializedData = JsonSerializer.Deserialize<List<PaymentLine>>(allPayments.Data.ToString());
-                        var supplementaryApplications = await GetSupplementaryApplicationDataAsync();
-                        var supplementaryApplicationDeserializedData = JsonSerializer.Deserialize<List<SupplementaryApplication>>(supplementaryApplications.Data.ToString());
+
                         //if application payments does not exist create payment lines.
                         if (paymentDeserializedData.Count == 0)
                         {
                             createPaymentTasks.Add(CreatePaymentLines(facility, organization, startdate, enddate, fundingid, application, appUserService, d365WebApiService, _processParams));
                         }
                         // PAYMENT CREATION FOR SUPPORT or INDIGENIOUS PROGRAMMING APPS
-                        //Check if supplementary application exists.
-                        if (supplementaryApplicationDeserializedData.Count > 0)
+                        // Checking if the trigger is for supplementary application approval based on FY year value.
+                        if (FYYear != null)
                         {
-                            // Filter entries with ofm_allowance_type as "supportneedservice" or "indigenous"
-                            var saSupportOrIndigenous = supplementaryApplicationDeserializedData
-                                .Where(entry => entry.ofm_allowance_type == 1 || entry.ofm_allowance_type == 2)
-                                .ToList();
-                            
-                            if (saSupportOrIndigenous.Any())
+
+                            //Check if supplementary application exists.
+                            var supplementaryApplications = await GetSupplementaryApplicationDataAsync();
+                            var supplementaryApplicationDeserializedData = JsonSerializer.Deserialize<List<SupplementaryApplication>>(supplementaryApplications.Data.ToString());
+                            if (supplementaryApplicationDeserializedData.Count > 0)
                             {
-                                foreach (var supplementaryApp in saSupportOrIndigenous)
-                                {
-                                    //Check if payments of this allowance type created.
-                                    List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
-                                    .Where(r =>
-                                     (supplementaryApp.ofm_allowance_type == 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.SupportNeedsFunding) ||
-                                     (supplementaryApp.ofm_allowance_type != 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.IndigenousProgramming))
-                                     .ToList();
-                                    //Check if payment record already exist for this supplementary app.
-                                    if (saSupportOrIndigenousPayments.Count == 0)
-                                    {
-                                        decimal? fundingAmount = supplementaryApp.ofm_funding_amount;
-                                        int allowanceType = supplementaryApp.ofm_allowance_type;
-                                        createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, startdate, enddate, fundingid, application, allowanceType == 1 ? (int)ecc_payment_type.SupportNeedsFunding : (int)ecc_payment_type.IndigenousProgramming, fundingAmount, appUserService, d365WebApiService, processParams));
-                                    }
-                                    
-                                }
-                                
+                                // Filter entries with ofm_allowance_type as "supportneedservice" or "indigenous"
+                                var saSupportOrIndigenous = supplementaryApplicationDeserializedData
+                                    .Where(entry => entry.ofm_allowance_type == 1 || entry.ofm_allowance_type == 2)
+                                    .ToList();
 
-                            }
-                            //payment creation for TRANSPORTATION APPS
-                            var transportationApplications = supplementaryApplicationDeserializedData
-                                .Where(entry => entry.ofm_allowance_type == 3)
-                                .ToList();
-                           
-                            //Check if transportation application exists.
-                            if (transportationApplications.Any()) {
-                                var minStartDate = transportationApplications.Min(app => app.ofm_start_date);
-                                var maxStartDate = transportationApplications.Max(app => app.ofm_start_date);
-                                var maxEndDate = transportationApplications.Max(app => app.ofm_end_date);
-                                // Calculate number of months between start date and end date
-                                int numberOfMonths = (maxEndDate.Year - minStartDate.Year) * 12 + maxEndDate.Month - minStartDate.Month + 1;
-                                // Calculate total monthly payment
-                                decimal? totalMonthlyPayment = 0;
-                                foreach (var app in transportationApplications)
+                                if (saSupportOrIndigenous.Any())
                                 {
-                                    totalMonthlyPayment += app.ofm_funding_amount / numberOfMonths;
-                                }
-                                decimal PaymentAmountPerMonth = Math.Round(totalMonthlyPayment.Value, 2);
-                                //Check if transportation payments exists.
-                                List<PaymentLine> saTransportationPayments = paymentDeserializedData
-                                    .Where(r =>
-                                      (int)r.ofm_payment_type == (int)ecc_payment_type.Transportation).ToList();
-                                //if no payments exists for any transportationa application, then create monthly payment lines.
-                                 if(saTransportationPayments.Count == 0) {
-                                   
-                                    for (DateTime date = minStartDate; date <= maxEndDate; date = date.AddMonths(1))
-                                    {
-                                        //create payment for transportation.
-                                        createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, date, maxEndDate, fundingid, application,  (int)ecc_payment_type.Transportation, PaymentAmountPerMonth, appUserService, d365WebApiService, processParams));
 
-                                    }
-                                }
-                           //If payment already exists
-                                if (saTransportationPayments.Count > 0)
-                                {
-                                    decimal retrospectiveamount = 0;
-                                    foreach (var payment in saTransportationPayments)
-
+                                    foreach (var supplementaryApp in saSupportOrIndigenous)
                                     {
-                                        if (payment.ofm_effective_date >= maxStartDate)
+                                        var saStartDate = supplementaryApp.ofm_start_date;
+                                        var saEndDate = supplementaryApp.ofm_end_date;
+                                        //Check if payments of this allowance type created.
+                                        List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
+                                        .Where(r =>
+                                         (supplementaryApp.ofm_allowance_type == 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.SupportNeedsFunding) ||
+                                         (supplementaryApp.ofm_allowance_type != 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.IndigenousProgramming))
+                                         .ToList();
+                                        //Check if payment record already exist for this supplementary app.
+                                        if (saSupportOrIndigenousPayments.Count == 0)
                                         {
-                                            createPaymentTasks.Add(UpdatePaymentLines(payment.Id, PaymentAmountPerMonth, appUserService, d365WebApiService, processParams));
+                                            decimal? fundingAmount = supplementaryApp.ofm_funding_amount;
+                                            int allowanceType = supplementaryApp.ofm_allowance_type;
+                                            createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, saStartDate, saEndDate, fundingid, application, allowanceType == 1 ? (int)ecc_payment_type.SupportNeedsFunding : (int)ecc_payment_type.IndigenousProgramming, fundingAmount, appUserService, d365WebApiService, processParams));
                                         }
-                                        else if (payment.ofm_effective_date < maxStartDate)
-                                        {
-                                            retrospectiveamount += PaymentAmountPerMonth - payment.ofm_amount.Value;
 
-                                           
+                                    }
+
+
+                                }
+                                //payment creation for TRANSPORTATION APPS
+                                var transportationApplications = supplementaryApplicationDeserializedData
+                                    .Where(entry => entry.ofm_allowance_type == 3)
+                                    .ToList();
+
+                                //Check if transportation application exists.
+                                if (transportationApplications.Any())
+                                {
+                                    var minStartDate = transportationApplications.Min(app => app.ofm_start_date);
+                                    var maxStartDate = transportationApplications.Max(app => app.ofm_start_date);
+                                    var maxEndDate = transportationApplications.Max(app => app.ofm_end_date);
+                                    // Calculate number of months between start date and end date
+                                    int numberOfMonths = (maxEndDate.Year - minStartDate.Year) * 12 + maxEndDate.Month - minStartDate.Month + 1;
+                                    // Calculate total monthly payment
+                                    decimal? totalMonthlyPayment = 0;
+                                    foreach (var app in transportationApplications)
+                                    {
+                                        totalMonthlyPayment += app.ofm_funding_amount / numberOfMonths;
+                                    }
+                                    decimal PaymentAmountPerMonth = Math.Round(totalMonthlyPayment.Value, 2);
+                                    //Check if transportation payments exists.
+                                    List<PaymentLine> saTransportationPayments = paymentDeserializedData
+                                        .Where(r =>
+                                          (int)r.ofm_payment_type == (int)ecc_payment_type.Transportation).ToList();
+                                    //if no payments exists for any transportationa application, then create monthly payment lines.
+                                    if (saTransportationPayments.Count == 0)
+                                    {
+
+                                        for (DateTime date = minStartDate; date <= maxEndDate; date = date.AddMonths(1))
+                                        {
+                                            //create payment for transportation.
+                                            createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, date, maxEndDate, fundingid, application, (int)ecc_payment_type.Transportation, PaymentAmountPerMonth, appUserService, d365WebApiService, processParams));
+
                                         }
                                     }
-                                    if (retrospectiveamount > 0)
+                                    //If payment already exists
+                                    if (saTransportationPayments.Count > 0)
                                     {
-                                        //create payment with type transportation and payment amount as retrospective amount.
-                                        createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, maxStartDate, maxEndDate, fundingid, application, (int)ecc_payment_type.Transportation, retrospectiveamount, appUserService, d365WebApiService, processParams));
+                                        decimal retrospectiveamount = 0;
+                                        foreach (var payment in saTransportationPayments)
+
+                                        {
+                                            if (payment.ofm_effective_date >= maxStartDate)
+                                            {
+                                                createPaymentTasks.Add(UpdatePaymentLines(payment.Id, PaymentAmountPerMonth, appUserService, d365WebApiService, processParams));
+                                            }
+                                            else if (payment.ofm_effective_date < maxStartDate)
+                                            {
+                                                retrospectiveamount += PaymentAmountPerMonth - payment.ofm_amount.Value;
+
+
+                                            }
+                                        }
+                                        if (retrospectiveamount > 0)
+                                        {
+                                            //create payment with type transportation and payment amount as retrospective amount.
+                                            createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, organization, maxStartDate, maxEndDate, fundingid, application, (int)ecc_payment_type.Transportation, retrospectiveamount, appUserService, d365WebApiService, processParams));
+                                        }
                                     }
+
+
                                 }
 
-
                             }
-
                         }
+
                     }
                     else if (fundingStatus == (int)ofm_funding_StatusCode.Expired ||
                             fundingStatus == (int)ofm_funding_StatusCode.Terminated ||
@@ -585,7 +600,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
             return Guid.Empty;
         }
-        
+
 
         private async Task<JsonObject> CreateSupplementaryApplicationPayment(string Facility, Guid? Organization, DateTime startdate, DateTime enddate, string fundingId, string application, int paymentType, decimal? fundingAmount, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
@@ -629,13 +644,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
-        private async Task<JsonObject> UpdatePaymentLines(Guid? paymentId,decimal? paymentAmount, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+        private async Task<JsonObject> UpdatePaymentLines(Guid? paymentId, decimal? paymentAmount, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             var statement = $"ofm_payments({paymentId})";
 
             var payload = new JsonObject {
                  { "ofm_amount", paymentAmount }
-                
+
         };
 
             var requestBody = JsonSerializer.Serialize(payload);
