@@ -11,10 +11,14 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
 {
     public sealed class OutputModStartAndEndDate : CodeActivity
     {
-        [ReferenceTarget("ofm_funding")]
+        [ReferenceTarget("ofm_application")]
         [RequiredArgument]
-        [Input("Initial Funding")]
-        public InArgument<EntityReference> initialFunding { get; set; }
+        [Input("Application")]
+        public InArgument<EntityReference> application { get; set; }
+
+        [Input("Version")]
+        [RequiredArgument]
+        public InArgument<int> version { get; set; }
 
         [Output("Start Date")]
         public OutArgument<DateTime> startDate { get; set; }
@@ -34,19 +38,28 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
             IOrganizationServiceFactory serviceFactory = executionContext.GetExtension<IOrganizationServiceFactory>();
             IOrganizationService service = serviceFactory.CreateOrganizationService(context.InitiatingUserId);
             tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: OutputMODStartAndEndDate", DateTime.Now.ToLongTimeString());
-            var funding = initialFunding.Get(executionContext);
+            var application = this.application.Get(executionContext);
+            var version = this.version.Get(executionContext);
 
             try
             {
-                RetrieveRequest fundingRequest = new RetrieveRequest
+                var fundingRequest = new QueryExpression()
                 {
+                    EntityName = ofm_funding.EntityLogicalName,
                     ColumnSet = new ColumnSet(new string[] { ofm_funding.Fields.ofm_end_date, ofm_funding.Fields.ofm_application }),
-                    Target = new EntityReference(funding.LogicalName, funding.Id)
+                    Criteria = new FilterExpression
+                    {
+                        Conditions =
+                                {
+                                    new ConditionExpression(ofm_funding.Fields.ofm_version_number, ConditionOperator.Equal, version - 1),
+                                    new ConditionExpression(ofm_funding.Fields.ofm_application, ConditionOperator.Equal, application.Id)
+                                }
+                    }
                 };
 
-                Entity d365Funding = ((RetrieveResponse)service.Execute(fundingRequest)).Entity;
+                var d365Funding = service.RetrieveMultiple(fundingRequest);
 
-                if (d365Funding != null && d365Funding.Attributes.Count > 0 && d365Funding.Attributes.Contains(ofm_funding.Fields.ofm_end_date))
+                if (d365Funding != null && d365Funding.Entities.Count > 0 && d365Funding[0].Attributes.Contains(ofm_funding.Fields.ofm_end_date))
                 {
                     RetrieveRequest timeZoneCode = new RetrieveRequest
                     {
@@ -88,7 +101,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                     }
 
                     startDate.Set(executionContext, calculatedStartDate);
-                    endDate.Set(executionContext, ((ofm_funding)d365Funding).ofm_end_date);
+                    endDate.Set(executionContext, d365Funding[0].Attributes[ofm_funding.Fields.ofm_end_date]);
 
                     #region Room Split: Also returns the room split condition to follow-up with the room-split setup the funding record
 
@@ -98,13 +111,27 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                     <attribute name=""ofm_applicationid"" />
                                                     <order attribute=""ofm_application"" descending=""false"" />
                                                     <filter type=""and"">
-                                                      <condition attribute=""ofm_applicationid"" operator=""eq"" uitype=""ofm_application"" value=""{((ofm_funding)d365Funding)?.ofm_application.Id}"" />
+                                                      <condition attribute=""ofm_applicationid"" operator=""eq"" uitype=""ofm_application"" value=""{application.Id}"" />
                                                     </filter>
                                                     <link-entity name=""account"" from=""accountid"" to=""ofm_facility"" link-type=""inner"" alias=""am"">
                                                       <link-entity name=""ofm_licence"" from=""ofm_facility"" to=""accountid"" link-type=""inner"" alias=""an"">
+                                                        <filter type=""and"">
+                                                            <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                                                            <filter type=""or"">
+                                                                <filter type=""and"">
+                                                                    <condition attribute=""ofm_end_date"" operator=""null"" />
+                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" />
+                                                                </filter>
+                                                                <filter type=""and"">
+                                                                    <condition attribute=""ofm_end_date"" operator=""on-or-after"" />
+                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" />
+                                                                </filter>
+                                                            </filter>
+                                                        </filter>
                                                         <link-entity name=""ofm_licence_detail"" from=""ofm_licence"" to=""ofm_licenceid"" link-type=""inner"" alias=""ao"">
                                                           <filter type=""and"">
                                                             <condition attribute=""ofm_apply_room_split_condition"" operator=""eq"" value=""1"" />
+                                                            <condition attribute=""statecode"" operator=""eq"" value=""0"" />
                                                           </filter>
                                                         </link-entity>
                                                       </link-entity>
