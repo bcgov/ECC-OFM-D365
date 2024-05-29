@@ -69,7 +69,7 @@ D365_CONFIGURATION=$(jq << JSON
     "LogLevel": {
       "Default": "Critical"
     }
-  }
+  },
   "AllowedHosts": "*",
   "AppSettings": {
     "PageSize": 50,
