@@ -611,7 +611,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
 
             Guid? fiscalYear = AssignFiscalYear(startdate, fiscalYears);
-            DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(startdate.AddDays(-1), holidaysList);
+            DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(startdate, holidaysList);
             DateTime invoiceReceivedDate = invoicedate.AddDays(-4);
             DateTime effectiveDate = TimeExtensions.GetCFSEffectiveDate(invoicedate, holidaysList);
 

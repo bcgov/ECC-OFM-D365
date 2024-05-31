@@ -42631,7 +42631,10 @@ namespace ECC.Core.DataContext
 			public const string ofm_funding = "ofm_funding";
 			public const string ofm_fundingname = "ofm_fundingname";
 			public const string ofm_invoice_date = "ofm_invoice_date";
-			public const string ofm_invoice_line_number = "ofm_invoice_line_number";
+            public const string ofm_revised_effective_date = "ofm_revised_effective_date";
+            public const string ofm_revised_invoice_date = "ofm_revised_invoice_date";
+            public const string ofm_revised_invoice_received_date = "ofm_revised_invoice_received_date";
+            public const string ofm_invoice_line_number = "ofm_invoice_line_number";
 			public const string ofm_invoice_number = "ofm_invoice_number";
 			public const string ofm_invoice_received_date = "ofm_invoice_received_date";
 			public const string ofm_name = "ofm_name";

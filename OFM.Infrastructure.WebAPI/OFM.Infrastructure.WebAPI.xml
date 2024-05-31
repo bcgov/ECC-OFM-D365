@@ -15138,5 +15138,10 @@
             September
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.IntegrationLog_Category">
+            <summary>
+            Category for integration log.
+            </summary>
+        </member>
     </members>
 </doc>

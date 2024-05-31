@@ -416,6 +416,7 @@ public class Payment_Line : ofm_payment
     public string ofm_application_number { get; set; }
     [property: JsonPropertyName("ofm_facility.name")]
     public string accountname { get; set; }
+    public Guid _ofm_application_value { get; set; }
 
 }
 public record D365ReportSection
@@ -423,7 +424,17 @@ public record D365ReportSection
     public int? OrderNumber { get; set; }
     public string? SectionName { get; set; }
 }
+public class IntegrationLogs : ofm_integration_log
+{
+    public Guid ofm_integration_logid { get; set; }
+    public string ofm_caption { get; set; }
+   
+    public string ofm_subject { get; set; }
+    public Guid ofm_regardingid { get; set; }
+    public string ofm_message { get; set; }
+    public string ofm_service_name { get; set; }
 
+}
 
 #region External Parameters
 

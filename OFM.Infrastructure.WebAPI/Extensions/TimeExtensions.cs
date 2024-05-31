@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -153,4 +154,15 @@ public static class TimeExtensions
 
         return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
     }
+    //Adding 3 days from current date as revised invoice date.
+    public static DateTime GetRevisedInvoiceDate(DateTime currentDate, int daysToAdd, List<DateTime> holidays)
+    {
+        DateTime futureDate = currentDate.AddDays(daysToAdd);
+        while (futureDate.DayOfWeek == DayOfWeek.Saturday || futureDate.DayOfWeek == DayOfWeek.Sunday || holidays.Exists(excludedDate => excludedDate.Date.Equals(futureDate.Date)))
+        {
+            futureDate = futureDate.AddDays(1);
+        }
+        return futureDate;
+    }
+
 }
