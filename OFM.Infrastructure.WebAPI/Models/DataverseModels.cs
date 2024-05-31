@@ -15,6 +15,7 @@ public record FacilityPermission
 {
     public required string ofm_bceid_facilityid { get; set; }
     public bool? ofm_portal_access { get; set; }
+    public bool? ofm_is_expense_authority { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
     public required D365Facility facility { get; set; }
@@ -114,6 +115,7 @@ public class ProviderProfile
                         ofm_ccof_requirement = facility.ofm_ccof_requirement
                     },
                     ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
+                    ofm_is_expense_authority = firstContact.ofm_facility_business_bceid[i].ofm_is_expense_authority,
                     statecode = firstContact.ofm_facility_business_bceid[i].statecode,
                     statuscode = firstContact.ofm_facility_business_bceid[i].statuscode
                 });
@@ -166,6 +168,7 @@ public record ofm_Facility_Business_Bceid
     public string? _ofm_facility_value { get; set; }
     public string? ofm_name { get; set; }
     public bool? ofm_portal_access { get; set; }
+    public bool? ofm_is_expense_authority { get; set; }
     public string? ofm_bceid_facilityid { get; set; }
     public int statecode { get; set; }
     public int statuscode { get; set; }
