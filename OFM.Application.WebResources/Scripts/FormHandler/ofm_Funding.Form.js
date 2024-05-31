@@ -463,74 +463,74 @@ OFM.Funding.Form = {
 				var rolesArray = roles.split(';');
 				var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
 
-				for (var i = 0; i < userRoles.getLength(); i++) {
-					for (var j = 0; j < rolesArray.length; j++)
-						if (userRoles.get()[i].name == rolesArray[j]) {
-							executionContext.getFormContext().getControl("ofm_agreement_file").setDisabled(false);
-						}
-				}
-				//TODO: Add code here to process the Environment Variable value
-			},
-			function (error) {
-				Xrm.Navigation.openErrorDialog({ details: error.message, message: 'A problem occurred while retrieving an Environment Variable value. Please contact support.' });
-			}
-		)
-	},
-	lockfieldsPCM: function (executionContext) {
-		debugger; //PCM Access Role
-		let formContext = executionContext.getFormContext();
-		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
-		if (userRoles.getLength() > 1) { }
+                for (var i = 0; i < userRoles.getLength(); i++) {
+                    for (var j = 0; j < rolesArray.length; j++)
+                        if (userRoles.get()[i].name == rolesArray[j]) {
+                            executionContext.getFormContext().getControl("ofm_agreement_file").setDisabled(false);
+                        }
+                }
+                //TODO: Add code here to process the Environment Variable value
+            },
+            function (error) {
+                Xrm.Navigation.openErrorDialog({ details: error.message, message: 'A problem occurred while retrieving an Environment Variable value. Please contact support.' });
+            }
+        )
+    },
+    lockfieldsPCM: function (executionContext) {
+        debugger; //PCM Access Role
+        let formContext = executionContext.getFormContext();
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        if (userRoles.getLength() > 1) { }
 
-		else if (userRoles.get()[0].name == "OFM - PCM") {
-			formContext.data.entity.attributes.forEach(function (attribute, index) {
-				let control = formContext.getControl(attribute.getName());
-				if (control) {
-					control.setDisabled(true);
-				}
-				executionContext.getFormContext().getControl("ofm_start_date").setDisabled(false);
-				executionContext.getFormContext().getControl("ofm_end_date").setDisabled(false);
-				executionContext.getFormContext().getControl("statuscode").setDisabled(false);
+        else if (userRoles.get()[0].name == "OFM - PCM") {
+            formContext.data.entity.attributes.forEach(function (attribute, index) {
+                let control = formContext.getControl(attribute.getName());
+                if (control) {
+                    control.setDisabled(true);
+                }
+                executionContext.getFormContext().getControl("ofm_start_date").setDisabled(false);
+                executionContext.getFormContext().getControl("ofm_end_date").setDisabled(false);
+                executionContext.getFormContext().getControl("statuscode").setDisabled(false);
 
-			});
+            });
 
-		}
+        }
 
-	},
+    },
 
-	showHideGenerateFAPDF: function (primaryControl) {
-		debugger;
-		var formContext = primaryControl;
-		var statusReason = formContext.getAttribute("statuscode").getValue();
+    showHideGenerateFAPDF: function (primaryControl) {
+        debugger;
+        var formContext = primaryControl;
+        var statusReason = formContext.getAttribute("statuscode").getValue();
 
-		var visable = false;
-		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
-		userRoles.forEach(function hasRole(item, index) {
-			if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC") {
-				visable = true;
-			}
-		});
+        var visable = false;
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        userRoles.forEach(function hasRole(item, index) {
+            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC") {
+                visable = true;
+            }
+        });
 
-		var showButton = false;
-		//FA review, FA Signature Pending, FA Submitted, In Review with Ministry EA
-		if (statusReason == 3 || statusReason == 5 || statusReason == 6 || statusReason == 4) {
-			showButton = true;
-		}
+        var showButton = false;
+        //FA review, FA Signature Pending, FA Submitted, In Review with Ministry EA
+        if (statusReason == 3 || statusReason == 5 || statusReason == 6 || statusReason == 4) {
+            showButton = true;
+        }
 
-		return showButton && visable;
-	},
+        return showButton && visable;
+    },
 
-	showHideRecalculate: function (primaryControl) {
-		debugger;
-		var formContext = primaryControl;
-		var visable = false;
-		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
-		userRoles.forEach(function hasRole(item, index) {
-			if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - PCM" || item.name === "OFM - CRC" || item.name === "OFM - Program Policy Analyst") {
-				visable = true;
-			}
-		});
+    showHideRecalculate: function (primaryControl) {
+        debugger;
+        var formContext = primaryControl;
+        var visable = false;
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        userRoles.forEach(function hasRole(item, index) {
+            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - PCM" || item.name === "OFM - CRC" || item.name === "OFM - Program Policy Analyst") {
+                visable = true;
+            }
+        });
 
-		return visable;
-	},
+        return visable;
+    },
 }

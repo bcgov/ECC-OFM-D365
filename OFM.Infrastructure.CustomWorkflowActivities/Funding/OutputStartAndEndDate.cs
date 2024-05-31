@@ -47,9 +47,23 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                     </filter>
                                                     <link-entity name=""account"" from=""accountid"" to=""ofm_facility"" link-type=""inner"" alias=""am"">
                                                       <link-entity name=""ofm_licence"" from=""ofm_facility"" to=""accountid"" link-type=""inner"" alias=""an"">
+                                                        <filter type=""and"">
+                                                            <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                                                            <filter type=""or"">
+                                                                <filter type=""and"">
+                                                                    <condition attribute=""ofm_end_date"" operator=""null"" />
+                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" />
+                                                                </filter>
+                                                                <filter type=""and"">
+                                                                    <condition attribute=""ofm_end_date"" operator=""on-or-after"" />
+                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" />
+                                                                </filter>
+                                                            </filter>
+                                                        </filter>
                                                         <link-entity name=""ofm_licence_detail"" from=""ofm_licence"" to=""ofm_licenceid"" link-type=""inner"" alias=""ao"">
                                                           <filter type=""and"">
                                                             <condition attribute=""ofm_apply_room_split_condition"" operator=""eq"" value=""1"" />
+                                                            <condition attribute=""statecode"" operator=""eq"" value=""0"" />
                                                           </filter>
                                                         </link-entity>
                                                       </link-entity>
