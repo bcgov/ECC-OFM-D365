@@ -305,9 +305,9 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                 {ofm_payment.Fields.ofm_cas_response, casResponse},
                 {ofm_payment.Fields.statecode,(int)((line?.ILCode=="0000" &&header?.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
                 {ofm_payment.Fields.statuscode,(int)((line?.ILCode=="0000" && header?.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingERROR)},
-                {ofm_payment.Fields.ofm_revised_invoice_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceDate: null},
-                {ofm_payment.Fields.ofm_revised_invoice_received_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceReceivedDate:null },
-                {ofm_payment.Fields.ofm_revised_effective_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedEffectiveDate:null }
+                {ofm_payment.Fields.ofm_revised_invoice_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceDate.ToString("yyyy-MM-dd"): null},
+                {ofm_payment.Fields.ofm_revised_invoice_received_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceReceivedDate.ToString("yyyy-MM-dd"):null },
+                {ofm_payment.Fields.ofm_revised_effective_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedEffectiveDate.ToString("yyyy-MM-dd"):null }
                };
                 
                 updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName, new Guid(pay.ofm_paymentid)), payToUpdate));
