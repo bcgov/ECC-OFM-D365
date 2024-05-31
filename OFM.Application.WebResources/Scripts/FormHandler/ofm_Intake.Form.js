@@ -7,7 +7,7 @@ OFM.Intake.Form = OFM.Intake.Form || {};
 OFM.Intake.Form = {
     //Hide or show dynamic query section based on Intake type
     HideShowCategoryandFacilitiesSection: function (executionContext) {
-       
+
         var formContext = executionContext.getFormContext();
         var intakeType = formContext.getAttribute("ofm_intake_type").getValue();
         var intakeQueryType = formContext.getAttribute("ofm_intake_query_type").getValue();
@@ -23,7 +23,7 @@ OFM.Intake.Form = {
                 //  alert("Successfully Saved!");
             },
             function () {
-               // alert("Failed while saving!");
+                // alert("Failed while saving!");
             });
 
         // if intake type is close ended
@@ -95,24 +95,24 @@ OFM.Intake.Form = {
     ValidateStartDateAndEndDate: function (executionContext) {
 
         var formContext = executionContext.getFormContext();
-        
+
         var startDate = formContext.getAttribute("ofm_start_date").getValue();
         var endDate = formContext.getAttribute("ofm_end_date").getValue();
 
-            // Check if both start date and end date are provided
-            if (startDate != null && endDate != null) {
-                // Compare start date and end date
-                if (startDate >= endDate) {
-                    // End date is before start date, show an error message
-                    formContext.ui.setFormNotification("End date cannot be before start date.", "ERROR", "enddate");
-                    // Clear end date field
-                    formContext.getAttribute("ofm_end_date").setValue(null);
-                } else {
-                    // Remove any existing error message
-                    formContext.ui.clearFormNotification("enddate");
-                }
+        // Check if both start date and end date are provided
+        if (startDate != null && endDate != null) {
+            // Compare start date and end date
+            if (startDate >= endDate) {
+                // End date is before start date, show an error message
+                formContext.ui.setFormNotification("End date cannot be before start date.", "ERROR", "enddate");
+                // Clear end date field
+                formContext.getAttribute("ofm_end_date").setValue(null);
+            } else {
+                // Remove any existing error message
+                formContext.ui.clearFormNotification("enddate");
             }
-        },
+        }
+    },
     // Trigger on click of Add Existing Facility button on Intake Facilities subgrid.
     RunOnSelectedIntaketoAddExistingfacility: function (primaryControl) {
 
@@ -146,4 +146,34 @@ OFM.Intake.Form = {
             }
         );
     },
+
+    showHideAssociateFailities: function (primaryControl) {
+        debugger;
+        var formContext = primaryControl;
+        var visable = false;
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        userRoles.forEach(function hasRole(item, index) {
+            if (item.name === "OFM - System Administrator") {
+                visable = true;
+            }
+        });
+
+        var intakeType = formContext.getAttribute('ofm_intake_type').getValue();
+
+        return (intakeType == 2) && visable;
+    },
+
+    showHideAddExistingFacility: function (primaryControl) {
+        debugger;
+        var formContext = primaryControl;
+        var visable = false;
+        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+        userRoles.forEach(function hasRole(item, index) {
+            if (item.name === "OFM - System Administrator") {
+                visable = true;
+            }
+        });
+
+        return visable;
+    }
 };
