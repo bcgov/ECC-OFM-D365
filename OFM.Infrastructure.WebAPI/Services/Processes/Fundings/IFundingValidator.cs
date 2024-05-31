@@ -10,15 +10,16 @@ public interface IFundingValidator<T> where T : class
     IFundingValidator<T> NextValidator(IFundingValidator<T> next);
 }
 
-public static class GeneralValidation {
+public static class GeneralValidation
+{
     public static bool HasValidApplicationStatus(ofm_application_StatusCode? applicationStatus) => applicationStatus switch
-                                                                                                  {
-                                                                                                      ofm_application_StatusCode.Submitted => true,
-                                                                                                      ofm_application_StatusCode.InReview => true,
-                                                                                                      ofm_application_StatusCode.Verified => true,
-                                                                                                      ofm_application_StatusCode.Approved => true,
-                                                                                                      _ => false
-                                                                                                  };
+    {
+        ofm_application_StatusCode.Submitted => true,
+        ofm_application_StatusCode.InReview => true,
+        ofm_application_StatusCode.Verified => true,
+        ofm_application_StatusCode.Approved => true,
+        _ => false
+    };
 
     public static bool IsValidCalculation(CalculatorDecision decision) =>
                         decision switch
@@ -153,6 +154,11 @@ public class MustHaveValidLicenceRule : IFundingValidator<Funding>
                 new ValidationResult("Associated facility must have a valid licence", new List<string>() { "Associated Facility" }), null, null);
         }
 
+        var licenceCount = funding.ofm_facility?.ofm_facility_licence.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active).Count();
+        if (licenceCount == 0)
+            throw new ValidationException(
+                new ValidationResult("Associated facility must have at least one valid and active licence", new List<string>() { "Associated Facility" }), null, null);
+
         _next?.Validate(funding);
 
         return true;
@@ -171,12 +177,17 @@ public class MustHaveAtLeastOneValidLicenceDetailRule : IFundingValidator<Fundin
 
     public bool Validate(Funding funding)
     {
-        var licenceDetails = funding.ofm_facility?.ofm_facility_licence?.SelectMany(ld => ld.ofm_licence_licencedetail);
+        var licenceDetails = funding.ofm_facility?.ofm_facility_licence?.SelectMany(ld => ld.ofm_licence_licencedetail!);
         if (licenceDetails is null || !licenceDetails.Any())
         {
             throw new ValidationException(
                 new ValidationResult("Associated facility must have at least one valid core service(licence detail)", new List<string>() { "Associated Facility's Core Services" }), null, null);
         }
+
+        var licenceDetailCount = licenceDetails.Where(licenceDetail => licenceDetail.statuscode == ofm_licence_detail_StatusCode.Active).Count();
+        if (licenceDetailCount == 0)
+            throw new ValidationException(
+                new ValidationResult("Associated facility must have at least one valid and active licence detail", new List<string>() { "Associated Facility" }), null, null);
 
         _next?.Validate(funding);
 
