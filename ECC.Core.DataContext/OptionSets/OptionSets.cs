@@ -16778,5 +16778,30 @@ namespace ECC.Core.DataContext
 		[OptionSetMetadataAttribute("September", 8, "#0000ff", "September")]
 		September = 9,
 	}
+
+    /// <summary>
+    /// Category for integration log.
+    /// </summary>
+    [System.Runtime.Serialization.DataContractAttribute()]
+    public enum IntegrationLog_Category
+    {
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        [OptionSetMetadataAttribute("Information", 1)]
+        Information = 1,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        [OptionSetMetadataAttribute("Warning", 2)]
+        Warning = 2,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        [OptionSetMetadataAttribute("Error", 3)]
+        Error = 3,
+
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        [OptionSetMetadataAttribute("Critical", 4)]
+        Critical = 4,
+    }
+
 }
 #pragma warning restore CS1591

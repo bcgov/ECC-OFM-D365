@@ -11,6 +11,8 @@ using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 using FixedWidthParserWriter;
 using ECC.Core.DataContext;
 using EntityReference = OFM.Infrastructure.WebAPI.Messages.EntityReference;
+using System.Text.Json;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 
 
 
@@ -65,7 +67,26 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
             return requestUri;
         }
     }
+    //Retrieve Business Closures.
+    public string BusinessClosuresRequestUri
+    {
+        get
+        {
+            var fetchXml = $$"""
+                    <fetch>
+                      <entity name="msdyn_businessclosure">
+                        <attribute name="msdyn_starttime" />
+                      </entity>
+                    </fetch>
+                    """;
 
+            var requestUri = $"""
+                         msdyn_businessclosures?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         """;
+
+            return requestUri;
+        }
+    }
     public string PaymentInProcessUri
     {
         get
@@ -87,6 +108,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                         <attribute name="ofm_remittance_message" />
                         <attribute name="statuscode" />
                         <attribute name="ofm_invoice_number" />
+                        <attribute name="ofm_cas_response" />
                         <attribute name="ofm_application" />
                         <attribute name="ofm_siteid" />
                         <attribute name="ofm_payment_method" />
@@ -118,6 +140,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
             return requestUri;
         }
     }
+
 
     public async Task<ProcessData> GetDataAsync()
     {
@@ -152,7 +175,36 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
 
 
     }
+    public async Task<ProcessData> GetBusinessClosuresDataAsync()
+    {
+        _logger.LogDebug(CustomLogEvent.Process, nameof(GetBusinessClosuresDataAsync));
 
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query Funding record information with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No Funding records found with query {requestUri}", BusinessClosuresRequestUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
     public async Task<ProcessData> GetPaylinesAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P510ReadPaymentResponseProvider));
@@ -196,7 +248,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         List<string> listfeedback = new List<string>();
         List<string> linefeedback = new List<string>();
         List<feedbackHeader> headers = new List<feedbackHeader>();
-
+        var createIntregrationLogTasks = new List<Task>();
         var startTime = _timeProvider.GetTimestamp();
 
         var localData = await GetDataAsync();
@@ -224,21 +276,40 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         var localPayData = await GetPaylinesAsync();
         var serializedPayData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(localPayData.Data.ToString());
         var updatePayRequests = new List<HttpRequestMessage>() { };
-
-        serializedPayData?.ForEach(pay =>
+        
+        var businessclosuresdata = await GetBusinessClosuresDataAsync();
+        serializedPayData?.ForEach(async pay =>
         {
             var line = headers.SelectMany(p => p.feedbackLine).SingleOrDefault(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.StartsWith(string.Concat(pay.ofm_application_number, " ", pay.ofm_payment_type)));
             var header = headers.Where(p => p.IHInvoice == pay.ofm_invoice_number).FirstOrDefault();
+           
+          
+            List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
+            DateTime revisedInvoiceDate = TimeExtensions.GetRevisedInvoiceDate(DateTime.Today, 3,holidaysList);
+            DateTime revisedInvoiceReceivedDate = revisedInvoiceDate.AddDays(-4);
+            DateTime revisedEffectiveDate = TimeExtensions.GetCFSEffectiveDate(revisedInvoiceReceivedDate, holidaysList);
+
             if (line != null && header != null)
             {
                 string casResponse = (line?.ILCode != "0000") ? string.Concat("Error:", line?.ILCode, " ", line?.ILError) : string.Empty;
                 casResponse += (header?.IHCode != "0000") ? string.Concat(header?.IHCode, " ", header?.IHError) : string.Empty;
-
-                var payToUpdate = new JsonObject {
+                //Check if payment faced error in previous processing.
+                if (pay.ofm_cas_response != null && pay.ofm_cas_response.Contains("Error:"))
+                {
+                    var subject = pay.ofm_name;
+                    //create Integration log with old error message.
+                    createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay._ofm_application_value , pay.ofm_cas_response, "P510 Read Response from CFS", appUserService, d365WebApiService));
+                }
+                //Update it with latest cas response.
+                var payToUpdate = new JsonObject {  
                 {ofm_payment.Fields.ofm_cas_response, casResponse},
                 {ofm_payment.Fields.statecode,(int)((line?.ILCode=="0000" &&header?.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
                 {ofm_payment.Fields.statuscode,(int)((line?.ILCode=="0000" && header?.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingERROR)},
+                {ofm_payment.Fields.ofm_revised_invoice_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceDate: null},
+                {ofm_payment.Fields.ofm_revised_invoice_received_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceReceivedDate:null },
+                {ofm_payment.Fields.ofm_revised_effective_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedEffectiveDate:null }
                };
+                
                 updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName, new Guid(pay.ofm_paymentid)), payToUpdate));
             }
         });
@@ -251,8 +322,44 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
 
             return errors.SimpleProcessResult;
         }
+        await Task.WhenAll(createIntregrationLogTasks);
+        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+    }
+
+    private async Task<JsonObject> CreateIntegrationErrorLog(string subject, Guid regardingId, string message, string serviceName, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
+    {
+        var entitySetName = "ofm_integration_logs";
+
+        var payload = new JsonObject
+    {
+        { "ofm_category", (int)IntegrationLog_Category.Error },
+        { "ofm_subject", "Payment Process Error " + subject },
+        { "ofm_regardingid_ofm_application@odata.bind",$"/ofm_applications({regardingId.ToString()})"  },
+        { "ofm_message", message },
+        { "ofm_service_name", serviceName }
+    };
+
+        var requestBody = JsonSerializer.Serialize(payload);
+
+        var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to create integration error log with the server error {responseBody}", responseBody.CleanLog());
+
+            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+        }
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+    }
+    private static List<DateTime> GetStartTimes(string jsonData)
+    {
+        var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(jsonData);
+
+        List<DateTime> startTimeList = closures.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
+
+        return startTimeList;
     }
 
 
