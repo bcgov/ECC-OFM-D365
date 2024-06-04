@@ -84,6 +84,10 @@ public static class Setup
 
             public const Int16 CloseDuedReportsId = 605;
             public const string CloseDuedReportsName = "Automatically Close Provider Reports at the Due Date";
+
+            public const Int16 CreateMonthlyReportId = 615;
+            public const string CreateMonthlyReportName = "Automatically Create Monthly Reports";
+
         }
         public static class Reporting
         {
