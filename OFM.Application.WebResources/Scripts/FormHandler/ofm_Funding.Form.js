@@ -532,5 +532,21 @@ OFM.Funding.Form = {
         });
 
         return visable;
-    },
+	},
+	RemoveOptionFromPaymentFrequency: function (executionContext) {
+		var formContext = executionContext.getFormContext();
+		var retroActivePaymentDateField = formContext.getAttribute("ofm_retroactive_payment_date");
+		var retroActivePaymentFrequencyField = formContext.getControl("ofm_retroactive_payment");
+		var noneOption = formContext.getAttribute("ofm_retroactive_payment").getOption(1);
+
+			var retroActivePaymentDate = retroActivePaymentDateField.getValue();
+			if (retroActivePaymentDate != null) {
+				retroActivePaymentFrequencyField.removeOption(1); 
+				formContext.getAttribute("ofm_retroactive_payment").setRequiredLevel("required");
+			} else {
+				formContext.getAttribute("ofm_retroactive_payment").setRequiredLevel("none");
+				retroActivePaymentFrequencyField.addOption(noneOption); 
+				formContext.getAttribute("ofm_retroactive_payment").setValue(1);
+			}
+	},
 }
