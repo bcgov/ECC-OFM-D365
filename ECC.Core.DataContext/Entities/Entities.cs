@@ -42866,9 +42866,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_paymentid = "ofm_paymentid";
 			public const string Id = "ofm_paymentid";
 			public const string ofm_remittance_message = "ofm_remittance_message";
-			public const string ofm_revised_effective_date = "ofm_revised_effective_date";
-			public const string ofm_revised_invoice_date = "ofm_revised_invoice_date";
-			public const string ofm_revised_invoice_received_date = "ofm_revised_invoice_received_date";
 			public const string ofm_siteid = "ofm_siteid";
 			public const string ofm_sourceid = "ofm_sourceid";
 			public const string ofm_supplierid = "ofm_supplierid";
