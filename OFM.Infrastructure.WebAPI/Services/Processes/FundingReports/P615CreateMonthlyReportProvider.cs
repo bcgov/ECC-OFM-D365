@@ -215,7 +215,7 @@ public class P615CreateMonthlyReportProvider : ID365ProcessProvider
 
             // april report
             //Run at PST May 1 1AM -> Min 1 month -> April 1 1AM
-            monthEndDate = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(currentUTC, "Pacific Standard Time").AddMonths(-1);
+            monthEndDate = TimeZoneInfo.ConvertTimeFromUtc(currentUTC, PSTZone).AddMonths(-1);
         }
         else
         {
