@@ -167,6 +167,7 @@ public class P615CreateMonthlyReportProvider : ID365ProcessProvider
 
         var currentUTC = DateTime.UtcNow;
         DateTime monthEndDate = new DateTime();
+        TimeZoneInfo PSTZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
 
         //batch create the monthly report
         if (batchFlag)
@@ -199,11 +200,10 @@ public class P615CreateMonthlyReportProvider : ID365ProcessProvider
             facilities.Add(facilityId);
 
             //when funding is expired or terminated -> create the report for current month
-            monthEndDate = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(currentUTC, "Pacific Standard Time");
+            monthEndDate = TimeZoneInfo.ConvertTimeFromUtc(currentUTC, PSTZone);
         }
 
         var monthEndDateInPST = new DateTime(monthEndDate.Year, monthEndDate.Month, DateTime.DaysInMonth(monthEndDate.Year, monthEndDate.Month), 23, 59, 00);
-        TimeZoneInfo PSTZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
         var monthEndDateInUTC = TimeZoneInfo.ConvertTimeToUtc(monthEndDateInPST, PSTZone);
 
         //Set the fiscal year and duedate
