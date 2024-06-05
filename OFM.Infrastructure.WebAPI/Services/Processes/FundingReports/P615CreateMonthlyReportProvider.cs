@@ -147,6 +147,34 @@ public class P615CreateMonthlyReportProvider : ID365ProcessProvider
         return fiscalMonth;
     }
 
+    public TimeZoneInfo GetPSTTimeZoneInfo(string timezoneId1, string timezoneId2)
+    {
+        try
+        {
+            TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(timezoneId1);
+
+            return info;
+        }
+        catch (System.TimeZoneNotFoundException)
+        {
+            try
+            {
+                TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(timezoneId2);
+
+                return info;
+            }
+            catch (System.TimeZoneNotFoundException)
+            {
+                _logger.LogError(CustomLogEvent.Process, "Could not find timezone by Id");
+                return null;
+            }
+        }
+        catch (System.Exception)
+        {
+            return null;
+        }
+    }
+
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
@@ -167,8 +195,10 @@ public class P615CreateMonthlyReportProvider : ID365ProcessProvider
 
         var currentUTC = DateTime.UtcNow;
         DateTime monthEndDate = new DateTime();
-        TimeZoneInfo PSTZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
 
+        
+       TimeZoneInfo PSTZone = GetPSTTimeZoneInfo("Pacific Standard Time", "America/Los_Angeles");
+        
         //batch create the monthly report
         if (batchFlag)
         {
