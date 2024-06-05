@@ -1686,7 +1686,7 @@ VoiceMail</TokenCapitalizationOverrides>
   <Namespace>ECC.Core.DataContext</Namespace>
   <ServiceContextName>DataverseContext</ServiceContextName>
   <SuppressGeneratedCodeAttribute>true</SuppressGeneratedCodeAttribute>
-  <SettingsVersion>2.2023.5.13</SettingsVersion>
+  <SettingsVersion>2.2024.2.1</SettingsVersion>
   <UpdateBuilderSettingsJson>true</UpdateBuilderSettingsJson>
   <Version>2.2024.2.1</Version>
 </Config>
