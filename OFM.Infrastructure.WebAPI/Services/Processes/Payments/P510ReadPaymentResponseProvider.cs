@@ -293,12 +293,12 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
             {
                 string casResponse = (line?.ILCode != "0000") ? string.Concat("Error:", line?.ILCode, " ", line?.ILError) : string.Empty;
                 casResponse += (header?.IHCode != "0000") ? string.Concat(header?.IHCode, " ", header?.IHError) : string.Empty;
-                //Check if payment faced error in previous processing.
-                if (pay.ofm_cas_response != null && pay.ofm_cas_response.Contains("Error:"))
+                //Check if payment faced error in processing.
+                if (line?.ILCode != "0000" || header?.IHCode != "0000")
                 {
                     var subject = pay.ofm_name;
-                    //create Integration log with old error message.
-                    createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay._ofm_application_value , pay.ofm_cas_response, "P510 Read Response from CFS", appUserService, d365WebApiService));
+                    //create Integration log with error message.
+                    createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay._ofm_application_value , casResponse, "CFS Integration", appUserService, d365WebApiService));
                 }
                 //Update it with latest cas response.
                 var payToUpdate = new JsonObject {  
