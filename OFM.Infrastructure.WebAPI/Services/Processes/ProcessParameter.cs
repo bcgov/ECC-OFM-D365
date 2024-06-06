@@ -78,6 +78,8 @@ public record ProcessParameter
 
         [property: JsonPropertyName("communicationTypeId")]
         public Guid? CommunicationTypeId { get; set; }
+        [property: JsonPropertyName("rateofIncrease")]
+        public decimal? RateofIncrease { get; set; }
 
         [property: JsonPropertyName("communicationTypeNum")]
         public int? CommunicationTypeNum { get; set; }

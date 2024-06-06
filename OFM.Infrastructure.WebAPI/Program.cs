@@ -57,6 +57,7 @@ services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P210CreateFundingNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P215SendSupplementaryRemindersProvider>();
 services.AddScoped<ID365ProcessProvider, P220CreateSuppletaryRemindersProvider>();
+services.AddScoped<ID365ProcessProvider, P225AnnualIncreaseMessaging>();
 services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>();
