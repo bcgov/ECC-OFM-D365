@@ -332,7 +332,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
 
         var payload = new JsonObject
     {
-        { "ofm_category", (int)IntegrationLog_Category.Error },
+        { "ofm_category", (int)ecc_integration_log_category.Error },
         { "ofm_subject", "Payment Process Error " + subject },
         { "ofm_regardingid_ofm_application@odata.bind",$"/ofm_applications({regardingId.ToString()})"  },
         { "ofm_message", message },
