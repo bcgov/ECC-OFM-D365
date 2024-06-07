@@ -127,6 +127,12 @@ public record ProcessParameter
         
         [property: JsonPropertyName("ofm_monthly_province_base_funding_y1")]
         public string? ofm_monthly_province_base_funding_y1 { get; set; }
+
+        [property: JsonPropertyName("previous_monthly_province_base_funding_y1")]
+        public string? previous_monthly_province_base_funding_y1 { get; set; }
+
+        [property: JsonPropertyName("isMod")]
+        public bool? isMod { get; set; }
     }
 
     public record ProjectParameter
