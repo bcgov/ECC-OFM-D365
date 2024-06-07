@@ -57,7 +57,10 @@ public class FundingCalculator : IFundingCalculator
     {
         get
         {
-            var licenceDetails = _funding?.ofm_facility?.ofm_facility_licence?.SelectMany(licence => licence?.ofm_licence_licencedetail);
+            IEnumerable<Licence>? activeLicences = _funding?.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active);
+            IEnumerable<LicenceDetail>? licenceDetails = activeLicences?
+                                .SelectMany(licence => licence?.ofm_licence_licencedetail!)
+                                .Where(licenceDetail => licenceDetail.statuscode == ofm_licence_detail_StatusCode.Active);
 
             // NOTE: If a facility has duplicate care types/licence types with the same address (e.g. seasonal schedules),
             // the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
@@ -399,7 +402,7 @@ public class FundingCalculator : IFundingCalculator
             .. _rateSchedule?.ofm_rateschedule_fundingrate?
                         .Where(rate => rate.ofm_ownership == ownershipType
                                 && rate.ofm_nonhr_funding_envelope == envelope
-                                && rate.ofm_spaces_min <= adjustedSpacesNonHR)
+                                && rate.ofm_spaces_min <= Math.Ceiling(adjustedSpacesNonHR))
                         .OrderBy(rate => rate.ofm_step)
         ];
 

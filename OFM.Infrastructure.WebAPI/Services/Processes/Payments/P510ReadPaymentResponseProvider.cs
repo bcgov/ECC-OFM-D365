@@ -297,8 +297,8 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                 if (line?.ILCode != "0000" || header?.IHCode != "0000")
                 {
                     var subject = pay.ofm_name;
-                    //create Integration log with error message.
-                    createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay._ofm_application_value , casResponse, "CFS Integration", appUserService, d365WebApiService));
+                    //create Integration log with an error message.
+                    createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay._ofm_application_value , casResponse, "CFS Integration Error", appUserService, d365WebApiService));
                 }
                 //Update it with latest cas response.
                 var payToUpdate = new JsonObject {  

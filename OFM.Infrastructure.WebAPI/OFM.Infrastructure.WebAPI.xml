@@ -1637,6 +1637,16 @@
             Vendor Number
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_ccof_requirement">
+            <summary>
+            If the facility is with CCOF for at least 1 year, the value is Yes, otherwise it is No. Blank if this is an organization record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_enrollment_date">
+            <summary>
+            The Date that the facility enrolled into the current program
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_good_standing_indicator">
             <summary>
             Good Standing Indicator and Message
@@ -1667,6 +1677,11 @@
             Indigenous Led
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_manualreviewcomments">
+            <summary>
+            Show the field if the manual review is set to false
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_ownership">
             <summary>
             Ownership
@@ -1687,14 +1702,19 @@
             Unique identifier for Contact associated with Organization-Facility for OFM.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_program">
+            <summary>
+            The current program that a facility enrolled in
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_program_start_date">
+            <summary>
+            The date that the Funding Agreement is ACTIVE.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_provider_type">
             <summary>
             Provider Type
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_source">
-            <summary>
-            original 
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_tdad_funding_agreement_number">
@@ -4472,6 +4492,11 @@
             Unique identifier for Inspection Template associated with Survey.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.msfp_survey.msdyn_mcsbotstatus">
+            <summary>
+            MCS Bot Status
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.msfp_survey.msfp_acceptanonymousresponses">
             <summary>
             Specifies if responses can be accepted from anonymous respondents.
@@ -7069,6 +7094,11 @@
             Unique identifier for entity instances
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_is_approval_required">
+            <summary>
+            Funding Approval/Adjudication is required by default except for inflation increase
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_licence_review_declaration">
             <summary>
             Licence Review Declaration
@@ -7097,6 +7127,16 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_rate_schedule">
             <summary>
             The associated Rate Schedule
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_retroactive_payment">
+            <summary>
+            Retroactive Payment
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_retroactive_payment_date">
+            <summary>
+            Retroactive Payment Date
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_start_date">
@@ -7825,7 +7865,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_Licence_Detail">
             <summary>
-            Licence Details
+            Service Delivery Details
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_licence_detailid">
@@ -7876,6 +7916,11 @@
         <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_start_date">
             <summary>
             Start Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_version_number">
+            <summary>
+            Version Number
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_licence_detail.ofm_week_days">
@@ -8094,11 +8139,6 @@
             1:N ofm_reporting_month_survey_response
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.ofm_submitted_month_survey_response">
-            <summary>
-            1:N ofm_submitted_month_survey_response
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_month.team_ofm_month">
             <summary>
             N:1 team_ofm_month
@@ -8190,6 +8230,16 @@
             The associated Fiscal Year record
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_funding_year">
+            <summary>
+            Indicate the funding agreement year (1->3)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_inflation_rate">
+            <summary>
+            The associated Inflation Rate record
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_invoice_date">
             <summary>
             Invoice Date
@@ -8228,6 +8278,21 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_remittance_message">
             <summary>
             Remittance Message
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_revised_effective_date">
+            <summary>
+            Revised Effective Date. Typically, 2 days after Invoice Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_revised_invoice_date">
+            <summary>
+            Revised Invoice Date. CFS only accepts working days (No weekends or BC holidays)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_revised_invoice_received_date">
+            <summary>
+            Revised Invoice Received Date. Typically, 4 days after the Effective Date
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.overriddencreatedon">
@@ -8916,7 +8981,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_name">
             <summary>
-            The name of the custom entity.
+            Record Id
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_question">
@@ -8994,9 +9059,9 @@
             Version Number
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_response.Referencedofm_question_response_current_version">
+        <member name="P:ECC.Core.DataContext.ofm_question_response.Referencedofm_question_response_current_version_ofm_question_response">
             <summary>
-            1:N ofm_question_response_current_version
+            1:N ofm_question_response_current_version_ofm_question_response
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_header_question_response">
@@ -9009,9 +9074,9 @@
             N:1 ofm_question_question_response
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_question_response.Referencingofm_question_response_current_version">
+        <member name="P:ECC.Core.DataContext.ofm_question_response.Referencingofm_question_response_current_version_ofm_question_response">
             <summary>
-            N:1 ofm_question_response_current_version
+            N:1 ofm_question_response_current_version_ofm_question_response
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_question_response.ofm_survey_response_question_response">
@@ -10205,15 +10270,15 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_name">
             <summary>
-            The name of the custom entity.
+            The provider report Id.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_report_month">
+            <summary>
+            The month of the provider report
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_reporting_month">
-            <summary>
-            Unique identifier for Month associated with Survey Response.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_submitted_month">
             <summary>
             Unique identifier for Month associated with Survey Response.
             </summary>
@@ -10316,11 +10381,6 @@
         <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_reporting_month_survey_response">
             <summary>
             N:1 ofm_reporting_month_survey_response
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_submitted_month_survey_response">
-            <summary>
-            N:1 ofm_submitted_month_survey_response
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_survey_response.Referencingofm_survey_response_current_version">
@@ -11713,6 +11773,11 @@
             Discount % and Price List
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.applicationaccess">
+            <summary>
+            Application Access.
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.applicationbasedaccesslist_cloud">
             <summary>
             Cloud name for which Application Based Access List is provided. 0 is Prod, 1 is PPE , 2 is Mooncake, 3 is Arington
@@ -12203,6 +12268,11 @@
             Licence Choice
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ecc_month">
+            <summary>
+            ECC Month
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ecc_Ownership">
             <summary>
             Ownership
@@ -12226,6 +12296,11 @@
         <member name="T:ECC.Core.DataContext.ecc_request_subcategory_response">
             <summary>
             Request Subcategory Responses
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ecc_retroactive_payment">
+            <summary>
+            Retroactive Payment
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ecc_support_needs_expenses">

@@ -148,6 +148,12 @@ public record ProcessParameter
     {
         [property: JsonPropertyName("fundingReportId")]
         public string? FundingReportId { get; set; }
+
+        [property: JsonPropertyName("batchFlag")]
+        public bool? BatchFlag { get; set; }
+
+        [property: JsonPropertyName("facilityId")]
+        public string? FacilityId { get; set; }
     }
 }
 
