@@ -45,10 +45,13 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                                     <attribute name=""ofm_rate_scheduleid"" />
                                     <attribute name=""ofm_start_date"" />
                                     <attribute name=""statecode"" />
-                                    <filter>
-                                      <condition attribute=""ofm_end_date"" operator=""gt"" value=""{currentDate}"" />
-                                      <condition attribute=""ofm_start_date"" operator=""lt"" value=""{currentDate}"" />
+                                    <filter type=""and"">
+                                      <condition attribute=""ofm_start_date"" operator=""le"" value=""{currentDate}"" />
                                       <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                                      <filter type=""or"">
+                                        <condition attribute=""ofm_end_date"" operator=""null"" />
+                                        <condition attribute=""ofm_end_date"" operator=""ge"" value=""{currentDate}"" />
+                                      </filter>
                                     </filter>
                                   </entity>
                                 </fetch>";
