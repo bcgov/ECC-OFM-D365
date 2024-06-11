@@ -3048,11 +3048,6 @@
             Unique identifier for Portal Role associated with Contact.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Contact.ofm_protam">
-            <summary>
-            For ofm contact migration
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Contact.onholdtime">
             <summary>
             Shows how long, in minutes, that the record was on hold.
@@ -15226,11 +15221,6 @@
         <member name="F:ECC.Core.DataContext.yearlyMonth_options.September">
             <summary>
             September
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.IntegrationLog_Category">
-            <summary>
-            Category for integration log.
             </summary>
         </member>
     </members>
