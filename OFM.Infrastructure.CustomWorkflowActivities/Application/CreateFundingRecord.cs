@@ -32,7 +32,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                 OptionSetValue statusReason = entity.GetAttributeValue<OptionSetValue>("statuscode");
                 int statusReasonValue = statusReason.Value;
                 tracingService.Trace("Checking condtions StatusReason value:{0}, ofmFundingNumberBase:{1} ", statusReasonValue, ofmFundingNumberBase);
-                if (entity != null && entity.Attributes.Count > 0 && statusReasonValue == 3)
+                if (entity != null && entity.Attributes.Count > 0)
                 // if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm_funding_number_base") && statusReasonValue == 3)
                 {
                     // get Rate Schedual
