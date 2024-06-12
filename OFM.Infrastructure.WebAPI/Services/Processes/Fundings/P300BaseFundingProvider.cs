@@ -13,7 +13,7 @@ using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
-public class P700ProviderCertificateProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IFundingRepository fundingRepository, TimeProvider timeProvider) : ID365ProcessProvider
+public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IFundingRepository fundingRepository, TimeProvider timeProvider) : ID365ProcessProvider
 {
     private readonly ID365AppUserService _appUserService = appUserService;
     private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
@@ -55,7 +55,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
 
     public async Task<ProcessData> GetDataAsync()
     {
-        _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P700ProviderCertificateProvider));
+        _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P300BaseFundingProvider));
 
         if (_data is null)
         {

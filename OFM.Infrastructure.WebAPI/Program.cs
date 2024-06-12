@@ -17,6 +17,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using OFM.Infrastructure.WebAPI.Services.Processes.Reporting;
 using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
+using OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -57,7 +58,7 @@ services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P210CreateFundingNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P215SendSupplementaryRemindersProvider>();
 services.AddScoped<ID365ProcessProvider, P220CreateSuppletaryRemindersProvider>();
-services.AddScoped<ID365ProcessProvider, P700ProviderCertificateProvider>();
+services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>();
 services.AddScoped<ID365ProcessProvider, P400VerifyGoodStandingProvider>();
