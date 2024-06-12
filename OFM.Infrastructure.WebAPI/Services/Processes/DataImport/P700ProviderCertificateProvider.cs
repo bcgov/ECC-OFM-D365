@@ -1,29 +1,22 @@
-﻿using ECC.Core.DataContext;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Models;
+﻿using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using System.Net;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
+namespace OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
 
-public class P700ProviderCertificateProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IFundingRepository fundingRepository, TimeProvider timeProvider) : ID365ProcessProvider
+public class P700ProviderCertificateProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
     private readonly ID365AppUserService _appUserService = appUserService;
     private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
-    private readonly IFundingRepository _fundingRepository = fundingRepository;
     private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
     private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
 
-    public short ProcessId => Setup.Process.Fundings.CalculateBaseFundingId;
-    public string ProcessName => Setup.Process.Fundings.CalculateBaseFundingName;
+    public short ProcessId => Setup.Process.DataImports.ProcessProviderCertificatesId;
+    public string ProcessName => Setup.Process.DataImports.ProcessProviderCertificatesName;
 
     public string RequestUri
     {
@@ -90,14 +83,6 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
-        Funding? _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
-        IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
-
-        var calculator = new FundingCalculator(_fundingRepository, _funding, _rateSchedules, _logger);
-        _ = await calculator.CalculateAsync();
-        _ = await calculator.ProcessFundingResultAsync();
-        await calculator.LogProgressAsync(_d365webapiservice!, _appUserService!, _logger!); // This line should always be at the end to avoid impact to the calculator's main functionalities
-
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
 }
