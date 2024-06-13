@@ -105,6 +105,13 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
 
                     #region Room Split: Also returns the room split condition to follow-up with the room-split setup the funding record
 
+                    RetrieveRequest applicationRequest = new RetrieveRequest
+                    {
+                        ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon }),
+                        Target = new EntityReference(application.LogicalName, application.Id)
+                    };
+
+                    Entity d365Application = ((RetrieveResponse)service.Execute(applicationRequest)).Entity;
                     var fetchXMLLicenceDetails = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                                 <fetch>
                                                   <entity name=""ofm_application"">
@@ -120,11 +127,11 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                             <filter type=""or"">
                                                                 <filter type=""and"">
                                                                     <condition attribute=""ofm_end_date"" operator=""null"" />
-                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" />
+                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{d365Application.Attributes[ofm_application.Fields.ofm_summary_submittedon]}"" />
                                                                 </filter>
                                                                 <filter type=""and"">
-                                                                    <condition attribute=""ofm_end_date"" operator=""on-or-after"" />
-                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" />
+                                                                    <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{d365Application.Attributes[ofm_application.Fields.ofm_summary_submittedon]}"" />
+                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{d365Application.Attributes[ofm_application.Fields.ofm_summary_submittedon]}"" />
                                                                 </filter>
                                                             </filter>
                                                         </filter>

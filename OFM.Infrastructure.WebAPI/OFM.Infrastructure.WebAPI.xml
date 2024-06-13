@@ -1629,7 +1629,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_cas_location_number">
             <summary>
-            Location Number
+            Site ID
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_cas_vendor_number">
@@ -1645,6 +1645,11 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_enrollment_date">
             <summary>
             The Date that the facility enrolled into the current program
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_facility_review_complete">
+            <summary>
+            Provider Review Complete
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_good_standing_indicator">
@@ -4982,6 +4987,11 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_Application">
             <summary>
             OFM Application for both new and renewals
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_application_review_complete">
+            <summary>
+            Provider Review Complete
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_application_type">
@@ -15211,11 +15221,6 @@
         <member name="F:ECC.Core.DataContext.yearlyMonth_options.September">
             <summary>
             September
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.IntegrationLog_Category">
-            <summary>
-            Category for integration log.
             </summary>
         </member>
     </members>

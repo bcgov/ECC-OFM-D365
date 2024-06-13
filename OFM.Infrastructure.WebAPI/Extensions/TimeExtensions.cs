@@ -117,11 +117,10 @@ public static class TimeExtensions
     public static DateTime GetCFSEffectiveDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysAfter = 2, int trailingTotalDays = 3)
     {
         var potentialDates = Enumerable.Range(defaultDaysAfter, defaultDaysAfter + trailingTotalDays).Select(day => IsBusinessDay(day, invoiceDate, holidays));
-
+        potentialDates = potentialDates.Where(d => d != DateTime.MinValue).ToList();
         return potentialDates
-                .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
+                .Distinct()
                 .OrderBy(d => d.Date)
-                .Skip(1)
                 .First();
     }
 

@@ -46,22 +46,21 @@ namespace OFM.Infrastructure.Plugins.Supplementary
                     var query_statecode = 0;
 
                     // Instantiate QueryExpression query
-                    var query = new QueryExpression("ofm_supplementary_schedule")
-                    {
-                        // Add all columns to ofm_supplementary_schedule
-                        ColumnSet = new ColumnSet(true),
-                        // Add filter to ofm_supplementary_schedule with 3 conditions
-                        Criteria =
-                            {
-                                // Add 3 conditions to ofm_supplementary_schedule
-                                Conditions =
-                                {
-                                    new ConditionExpression("statecode", ConditionOperator.Equal, query_statecode),
-                                    new ConditionExpression("ofm_start_date", ConditionOperator.OnOrBefore, currentDate),
-                                    new ConditionExpression("ofm_end_date", ConditionOperator.OnOrAfter, currentDate)
-                                }
-                            }
-                    };
+                    QueryExpression query = new QueryExpression("ofm_supplementary_schedule");
+                    query.ColumnSet.AllColumns = true;
+                    FilterExpression filter = new FilterExpression(LogicalOperator.And);
+
+                    FilterExpression filter1 = new FilterExpression(LogicalOperator.And);
+                    filter1.Conditions.Add(new ConditionExpression("statecode", ConditionOperator.Equal, query_statecode));
+                    filter1.Conditions.Add(new ConditionExpression("ofm_start_date", ConditionOperator.OnOrBefore, currentDate));
+
+                    FilterExpression filter2 = new FilterExpression(LogicalOperator.Or);
+                    filter2.Conditions.Add(new ConditionExpression("ofm_end_date", ConditionOperator.OnOrAfter, currentDate));
+                    filter2.Conditions.Add(new ConditionExpression("ofm_end_date", ConditionOperator.Null));
+
+                    filter.AddFilter(filter1);
+                    filter.AddFilter(filter2);
+                    query.Criteria = filter;
 
                     var result = localPluginContext.PluginUserService.RetrieveMultiple(query);
                     var supplementaryScheduleId = result.Entities.FirstOrDefault().Id;

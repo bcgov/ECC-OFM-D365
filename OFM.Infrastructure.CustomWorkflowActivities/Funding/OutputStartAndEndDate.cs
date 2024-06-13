@@ -37,7 +37,16 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
             var application = this.application.Get(executionContext);
             try
             {
-                var fetchXMLLicenceDetails = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                RetrieveRequest applicationRequest = new RetrieveRequest
+                {
+                    ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon }),
+                    Target = new EntityReference(application.LogicalName, application.Id)
+                };
+
+                Entity d365Application = ((RetrieveResponse)service.Execute(applicationRequest)).Entity;
+                if (d365Application != null && d365Application.Attributes.Count > 0 && d365Application.Attributes.Contains(ofm_application.Fields.ofm_summary_submittedon))
+                {
+                    var fetchXMLLicenceDetails = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                                 <fetch>
                                                   <entity name=""ofm_application"">
                                                     <attribute name=""ofm_applicationid"" />
@@ -52,11 +61,11 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                             <filter type=""or"">
                                                                 <filter type=""and"">
                                                                     <condition attribute=""ofm_end_date"" operator=""null"" />
-                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" />
+                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{d365Application.Attributes[ofm_application.Fields.ofm_summary_submittedon]}"" />
                                                                 </filter>
                                                                 <filter type=""and"">
-                                                                    <condition attribute=""ofm_end_date"" operator=""on-or-after"" />
-                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" />
+                                                                    <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{d365Application.Attributes[ofm_application.Fields.ofm_summary_submittedon]}"" />
+                                                                    <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{d365Application.Attributes[ofm_application.Fields.ofm_summary_submittedon]}"" />
                                                                 </filter>
                                                             </filter>
                                                         </filter>
@@ -71,16 +80,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                   </entity>
                                                 </fetch>";
 
-                EntityCollection licenceDetails = service.RetrieveMultiple(new FetchExpression(fetchXMLLicenceDetails));
-                RetrieveRequest applicationRequest = new RetrieveRequest
-                {
-                    ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon }),
-                    Target = new EntityReference(application.LogicalName, application.Id)
-                };
-
-                Entity d365Application = ((RetrieveResponse)service.Execute(applicationRequest)).Entity;
-                if (d365Application != null && d365Application.Attributes.Count > 0 && d365Application.Attributes.Contains(ofm_application.Fields.ofm_summary_submittedon))
-                {
+                    EntityCollection licenceDetails = service.RetrieveMultiple(new FetchExpression(fetchXMLLicenceDetails));
                     RetrieveRequest timeZoneCode = new RetrieveRequest
                     {
                         ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode }),
