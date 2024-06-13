@@ -138,13 +138,13 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                         if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null)
                         {
                             var id = fundingRecords[0].Id;
-                            tracingService.Trace("\nResubminssion deactive previous record: " + id);
-                            //deactive the current funding record
-                            Entity fundingRecordTable = new Entity("ofm_funding");
-                            fundingRecordTable.Id = id;
-                            fundingRecordTable["statecode"] = new OptionSetValue(1); //Inactive
-                            fundingRecordTable["statuscode"] = new OptionSetValue(2);
-                            service.Update(fundingRecordTable);
+                            //tracingService.Trace("\nResubminssion deactive previous record: " + id);
+                            ////deactive the current funding record
+                            //Entity fundingRecordTable = new Entity("ofm_funding");
+                            //fundingRecordTable.Id = id;
+                            //fundingRecordTable["statecode"] = new OptionSetValue(1); //Inactive
+                            //fundingRecordTable["statuscode"] = new OptionSetValue(2);
+                            //service.Update(fundingRecordTable);
                             //create a new funding record
                             tracingService.Trace("\nResubmission, create new funding records:" + id);
                             Entity newFundingRecord = new Entity("ofm_funding");
