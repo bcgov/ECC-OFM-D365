@@ -50,7 +50,7 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
                 localPluginContext.Trace("OptionSet Value"+selectedText);
                 if ((localPluginContext.PluginExecutionContext.MessageName == "Create" && localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_from)
                     && localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_to)) || localPluginContext.PluginExecutionContext.MessageName == "Update"
-                    && (localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_from) || localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_to)|| localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_week_days) 
+                    && (localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_from) || localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_to)
                     || localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_licence_type)))
                 {
                     var operationHoursFrom = localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_from) ? localPluginContext.Target.GetAttributeValue<DateTime?>(ofm_licence_detail.Fields.ofm_operation_hours_from) : null;
@@ -78,7 +78,7 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
                         var operations_To_Hours = operationHoursTo != null ? ConvertTimeIntoSpecificTimeZone(operationHoursTo, result) :
                             ConvertTimeIntoSpecificTimeZone(licence_details.GetAttributeValue<DateTime>(ofm_licence_detail.Fields.ofm_operation_hours_to), result);
 
-                        var isFullTime = (operations_From_Hours != null && operations_To_Hours != null) ? (Convert.ToDateTime(operations_From_Hours).AddHours(4) <= Convert.ToDateTime(operations_To_Hours) ? true : false) : false;
+                        var isFullTime = (operations_From_Hours != null && operations_To_Hours != null) ? (Convert.ToDateTime(operations_From_Hours).AddHours(4) < Convert.ToDateTime(operations_To_Hours) ? true : false) : false;
                         var entity = new ofm_licence_detail
                         {
                             Id = localPluginContext.Target.Id,
@@ -105,7 +105,7 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
                         Convert.ToDateTime(localPluginContext.Target.GetAttributeValue<string>(ofm_licence_detail.Fields.ofm_operations_to_time)) :
                         Convert.ToDateTime(licence_details.GetAttributeValue<string>(ofm_licence_detail.Fields.ofm_operations_to_time));
 
-                    var timeSpan = (operationHoursFrom != null && operationHoursTo != null) ? operationHoursFrom.AddHours(4) <= operationHoursTo ? true : false : false;
+                    var timeSpan = (operationHoursFrom != null && operationHoursTo != null) ? operationHoursFrom.AddHours(4) < operationHoursTo ? true : false : false;
                     using (var crmContext = new DataverseContext(localPluginContext.PluginUserService))
                     {
                         var entity = new ofm_licence_detail
