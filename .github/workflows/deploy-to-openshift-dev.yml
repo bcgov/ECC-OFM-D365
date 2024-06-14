@@ -170,7 +170,7 @@ jobs:
             -p MIN_MEM=${{ env.MIN_MEM }} \
             -p MAX_MEM=${{ env.MAX_MEM }} \
             -p ENVIRONMENT=${{ env.APP_ENVIRONMENT }} \
-            -p HAPROXY_IP_WHITELIST=${{ env.HAPROXY_IP_WHITELIST }} \
+            -p HAPROXY_IP_WHITELIST='${{ env.HAPROXY_IP_WHITELIST }}' \
             | oc apply -f -
 
           # Process update-configmap
