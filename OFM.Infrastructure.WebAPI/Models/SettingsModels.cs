@@ -34,7 +34,7 @@ public record NotificationSettings
     public required SafeList EmailSafeList { get; set; }
     public required string fundingUrl { get; set; }
     public required string fundingTabUrl { get; set; }
-
+   
 
     public record SafeList
     {

@@ -1,6 +1,7 @@
 ﻿using ECC.Core.DataContext;
 using OFM.Infrastructure.WebAPI.Models;
 using System.Text.Json.Serialization;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
@@ -207,4 +208,18 @@ public class SupplementarySchedule : ofm_supplementary_schedule
     public new decimal? ofm_transport_reimbursement_rate_per_km { get; set; }
 }
 
+public class ProviderStaff
+{
+    [JsonPropertyName("ofm_initials")]
+    public string Initials { get; set; }
+    [JsonPropertyName("ofm_certificate_number")]
+    public string CertificateNumber { get; set; }
+    [JsonPropertyName("application.ofm_application")]
+    public string ApplicationId { get; set; }
+    [JsonPropertyName("application.ofm_contact")]
+    public Guid ProviderId { get; set; }
+    [JsonPropertyName("application.ofm_contact@OData.Community.Display.V1.FormattedValue")]
+    public string ProviderName { get; set; }
+   
+}
 public record NonHRStepAction(int Step, decimal AllocatedSpaces, decimal Rate, decimal Cost, string Envelope, int MinSpaces, int MaxSpaces, ecc_Ownership Ownership);
