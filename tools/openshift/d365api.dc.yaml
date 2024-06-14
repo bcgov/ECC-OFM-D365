@@ -122,7 +122,7 @@ objects:
       annotations:
         openshift.io/host.generated: 'true'
         haproxy.router.openshift.io/ip_whitelist: >-
-          '${HAPROXY_IP_WHITELIST}'
+          ${HAPROXY_IP_WHITELIST}
     spec:
       to:
         kind: Service
