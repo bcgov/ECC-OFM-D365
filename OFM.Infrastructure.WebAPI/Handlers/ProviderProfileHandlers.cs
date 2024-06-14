@@ -154,6 +154,12 @@ public static class ProviderProfilesHandlers
 
                     return TypedResults.NotFound($"User not found.");
                 }
+                if (currentValue?.AsArray().Count > 1)
+                {
+                    logger.LogDebug(CustomLogEvent.ProviderProfile, "Multiple profiles found.");
+
+                    return TypedResults.Unauthorized();
+                }
                 d365Result = currentValue!;
             }
 

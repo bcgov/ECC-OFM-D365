@@ -1,8 +1,10 @@
 ﻿using ECC.Core.DataContext;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Sdk.Query;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -26,9 +28,26 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
             }
             if (localPluginContext.PluginExecutionContext.Depth == 1)
             {
+                string selectedText = string.Empty;
                 var licence_details = localPluginContext.PluginUserService.Retrieve(ofm_licence_detail.EntityLogicalName, localPluginContext.Target.Id, new ColumnSet(true));
                 localPluginContext.Trace("Start CopyTimeFieldsIntoTextField Plug-in");
+                 // add week days into text field
+                if (licence_details.Contains(ofm_licence_detail.Fields.ofm_week_days))
+                {
+                    OptionSetValueCollection multiSelectValueCollection = (OptionSetValueCollection)licence_details[ofm_licence_detail.Fields.ofm_week_days];
 
+                    foreach (var relationshipType in multiSelectValueCollection)
+                    {
+                        if (selectedText.Equals(string.Empty))
+                        {
+                            selectedText = ((ecc_weekday_options)relationshipType.Value).ToString();   }
+                        else
+                        {
+                            selectedText = selectedText + ", " + ((ecc_weekday_options)relationshipType.Value).ToString();
+                        }
+                    }
+                }
+                localPluginContext.Trace("OptionSet Value"+selectedText);
                 if ((localPluginContext.PluginExecutionContext.MessageName == "Create" && localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_from)
                     && localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_to)) || localPluginContext.PluginExecutionContext.MessageName == "Update"
                     && (localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_from) || localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_hours_to)
@@ -65,7 +84,8 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
                             Id = localPluginContext.Target.Id,
                             ofm_operation_from_time = operations_From_Hours,
                             ofm_operations_to_time = operations_To_Hours,
-                            ofm_care_type = isFullTime ? ecc_care_types.FullTime : ecc_care_types.PartTime
+                            ofm_care_type = isFullTime ? ecc_care_types.FullTime : ecc_care_types.PartTime,
+                            ofm_week_days_text=selectedText
                         };
 
                         UpdateRequest updateRequest = new UpdateRequest { Target = entity };
@@ -74,7 +94,7 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
                 }
                 else if ((localPluginContext.PluginExecutionContext.MessageName == "Create" && localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_from_time)
                     && localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operations_to_time)) || localPluginContext.PluginExecutionContext.MessageName == "Update"
-                    && (localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_from_time) || localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operations_to_time)
+                    && (localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_from_time) || localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operations_to_time)||localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_week_days)
                     || localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_care_type)))
                 {
                     var operationHoursFrom = localPluginContext.Target.Contains(ofm_licence_detail.Fields.ofm_operation_from_time) ?
@@ -93,7 +113,8 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
                             Id = localPluginContext.Target.Id,
                             ofm_operation_hours_from = operationHoursFrom,
                             ofm_operation_hours_to = operationHoursTo,
-                            ofm_care_type = timeSpan ? ecc_care_types.FullTime : ecc_care_types.PartTime
+                            ofm_care_type = timeSpan ? ecc_care_types.FullTime : ecc_care_types.PartTime,
+                            ofm_week_days_text = selectedText
                         };
 
                         UpdateRequest updateRequest = new UpdateRequest { Target = entity };
@@ -107,5 +128,6 @@ namespace OFM.Infrastructure.Plugins.Licence_Details
             return string.Format("{0:hh:mm tt}", TimeZoneInfo.ConvertTimeFromUtc((DateTime)operationHoursFrom,
                             TimeZoneInfo.FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields.standardname)).FirstOrDefault().ToString())));
         }
-    }
+
+           }
 }
