@@ -13,7 +13,7 @@ public class ContactEditProvider : ID365BatchProvider
 {
     public Int16 BatchTypeId { get => 101; }
 
-    public async Task<string> PrepareDataAsync(JsonDocument jsonDocument, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
+    public async Task<JsonObject> PrepareDataAsync(JsonDocument jsonDocument, ID365AppUserService appUserService, ID365WebApiService d365WebApiService)
     {
         throw new NotImplementedException();
     }
