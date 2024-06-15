@@ -57,6 +57,7 @@ services.AddScoped<ID365ProcessProvider, P205SendNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P210CreateFundingNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P215SendSupplementaryRemindersProvider>();
 services.AddScoped<ID365ProcessProvider, P220CreateSuppletaryRemindersProvider>();
+services.AddScoped<ID365ProcessProvider, P225SendCertificateNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>();
@@ -66,10 +67,10 @@ services.AddScoped<ID365ProcessProvider, P500SendPaymentRequestProvider>();
 services.AddScoped<ID365ProcessProvider, P505GeneratePaymentLinesProvider>();
 services.AddScoped<ID365ProcessProvider, P510ReadPaymentResponseProvider>();
 services.AddScoped<ID365ProcessProvider, P600CloneFundingReportResponse>();
-services.AddScoped<ID365ProcessProvider, P610CreateQuestionProvider>();
 services.AddScoped<ID365ProcessProvider, P605CloseDuedReportsProvider>();
+services.AddScoped<ID365ProcessProvider, P610CreateQuestionProvider>();
 services.AddScoped<ID365ProcessProvider, P615CreateMonthlyReportProvider>();
-services.AddScoped<ID365ProcessProvider, P225SendECENotificationProvider>();
+
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
 
