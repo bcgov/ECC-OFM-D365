@@ -77,6 +77,7 @@ services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>(
 services.AddScoped<ID365BatchService, D365BatchService>();
 services.AddScoped<ID365BatchProvider, BatchProvider>();
 services.AddScoped<ID365BatchProvider, ContactEditProvider>();
+services.AddScoped<ID365BatchProvider, ProviderReportResetProvider>();
 services.AddScoped<IFundingRepository, FundingRepository>();
 services.AddScoped<IEmailRepository, EmailRepository>();
 
