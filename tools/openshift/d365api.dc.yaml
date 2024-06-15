@@ -121,7 +121,8 @@ objects:
         app: '${APP_NAME}-${BRANCH}'
       annotations:
         openshift.io/host.generated: 'true'
-        haproxy.router.openshift.io/ip_whitelist: '${HAPROXY_IP_WHITELIST}'
+        haproxy.router.openshift.io/ip_whitelist: >-
+          ${HAPROXY_IP_WHITELIST}
     spec:
       to:
         kind: Service

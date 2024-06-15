@@ -285,9 +285,9 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
            
           
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
-            DateTime revisedInvoiceDate = TimeExtensions.GetRevisedInvoiceDate(DateTime.Today, 3,holidaysList);
+            DateTime revisedInvoiceDate = TimeExtensions.GetRevisedInvoiceDate(DateTime.Today.Date, 3,holidaysList);
             DateTime revisedInvoiceReceivedDate = revisedInvoiceDate.AddDays(-4);
-            DateTime revisedEffectiveDate = TimeExtensions.GetCFSEffectiveDate(revisedInvoiceReceivedDate, holidaysList);
+            DateTime revisedEffectiveDate = TimeExtensions.GetCFSEffectiveDate(revisedInvoiceDate, holidaysList);
 
             if (line != null && header != null)
             {
