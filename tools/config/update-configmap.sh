@@ -159,6 +159,10 @@ D365_CONFIGURATION=$(jq << JSON
       {
         "TemplateNumber": 235,
         "Description": "Direct Deposit Enrollment Template"
+      },
+      {
+        "TemplateNumber": 245,
+        "Description": "ECE Certification Template"
       }
     ],
     "CommunicationTypes": {

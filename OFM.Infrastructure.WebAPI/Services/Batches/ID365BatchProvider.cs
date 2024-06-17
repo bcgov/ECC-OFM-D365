@@ -8,9 +8,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Batches;
 
 public interface ID365BatchProvider
 {
-    Int16 BatchTypeId { get; } //e.g. 1
+    /// <summary>
+    /// e.g. 1
+    /// </summary>
+    short BatchTypeId { get; } 
 
-    Task<string> PrepareDataAsync(JsonDocument jsonDocument, ID365AppUserService appUserService, ID365WebApiService d365WebApiService);
+    Task<JsonObject> PrepareDataAsync(JsonDocument jsonDocument, ID365AppUserService appUserService, ID365WebApiService d365WebApiService);
 
     Task<JsonObject> ExecuteAsync(JsonDocument jsonDocument, ID365AppUserService appUserService, ID365WebApiService d365WebApiService);
 }
