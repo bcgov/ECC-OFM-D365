@@ -5,6 +5,7 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Globalization;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -72,6 +73,27 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                                 ofm_employee_certificates?$select=ofm_expiry_date,ofm_certificate_number,ofm_effective_date,ofm_first_name,ofm_is_active,ofm_last_name,ofm_middle_name&$orderby=ofm_certificate_number asc&$filter=(statecode eq 0)
                                 """;
             return requestUri;
+        }
+    }
+    private string DataImportActiveRequestUri
+    {
+        get
+        {
+            var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                    <fetch>
+                      <entity name=""ofm_data_import"">
+                        <attribute name=""ofm_name"" />
+                        <attribute name=""statecode"" />
+                        <filter>
+                          <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                        </filter>
+                      </entity>
+                    </fetch>";
+            var requestUri = $"""
+                            ofm_data_imports?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """;
+
+            return requestUri.CleanCRLF();
         }
     }
     public class Record
@@ -230,10 +252,6 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             .GroupBy(r => r.CLIENTID)
             .Select(g => g.OrderByDescending(r => r.EFFDATE).First())
             .ToList();
-            HashSet<string> csvClientIds = new HashSet<string>(distinctRecords.Select(r => r.CLIENTID));
-            List<JsonNode> missingInCsv = oldECECertData
-            .Where(cert => !csvClientIds.Contains((string)cert["ofm_certificate_number"]))
-             .ToList();
             List<Record> differenceCsvRecords = new List<Record>();
             foreach (var csvRecord in distinctRecords)
             {
@@ -314,6 +332,11 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                 dataImportMessages += dataImportMessages + "Upsert records Failed \r\n";
             }
             // deal with missing record in CRM and deactive them
+            HashSet<string> csvClientIds = new HashSet<string>(distinctRecords.Select(r => r.CLIENTID));
+            List<JsonNode> missingInCsv = oldECECertData
+            .Where(cert => !csvClientIds.Contains((string)cert["ofm_certificate_number"]))
+             .ToList();
+
             for (int i = 0; i < missingInCsv.Count; i += batchSize)
             {
                 var updateMissingECERequests = new List<HttpRequestMessage>() { };
@@ -364,6 +387,24 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     var responseBody = await patchResponse.Content.ReadAsStringAsync();
                     _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
                     return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                }
+                // Deactive Previous Data Imports 
+                List<JsonNode> allActiveDataImports = await FetchAllRecordsFromCRMAsync(DataImportActiveRequestUri);
+                allActiveDataImports = allActiveDataImports.Where(item => !item["ofm_data_importid"].ToString().Equals(_processParams.DataImportId.ToString())).ToList();
+                foreach (var dataImport in allActiveDataImports)
+                {
+                    var deactiveDataImport = $"ofm_data_imports({dataImport["ofm_data_importid"].ToString()})";
+                    payload = new JsonObject {
+                        { "statecode", 1 }
+                    };
+                    requestBody = JsonSerializer.Serialize(payload);
+                    patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, deactiveDataImport, requestBody);
+                    if (!patchResponse.IsSuccessStatusCode)
+                    {
+                        var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                        _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+                        return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                    }
                 }
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
