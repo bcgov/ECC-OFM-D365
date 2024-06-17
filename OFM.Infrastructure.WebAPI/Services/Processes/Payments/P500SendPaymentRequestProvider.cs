@@ -324,7 +324,8 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             // for each set of transaction create and upload inbox file in payment file exchange
             foreach (List<InvoiceHeader> headeritem in headerList)
             {
-
+                _controlAmount = (Double)headeritem.SelectMany(x => x.invoiceLines).ToList().Sum(x => Convert.ToDecimal(x.lineAmount));
+                _controlCount = headeritem.SelectMany(x => x.invoiceLines).ToList().Count + headeritem.Count;
                 var data = new
                 {
                     feederNumber = _BCCASApi.feederNumber,// Static value:3540

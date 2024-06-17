@@ -365,7 +365,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     FYYear = _processParams?.SupplementaryApplication?.fyYear != null ? _processParams?.SupplementaryApplication?.fyYear.ToString() : null;
                     decimal monthlyFundingAmount = decimal.Parse(_processParams?.Funding?.ofm_monthly_province_base_funding_y1);
                     DateTime retroActivePaymentDate;
-                    int retroActiveCreditMonths = 0;
+                    int retroActiveCreditOrDebitMonths = 0;
 
 
 
@@ -387,45 +387,41 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             if (fundingInfo.ofm_retroactive_payment_date.HasValue)
                             {
                                 retroActivePaymentDate = fundingInfo.ofm_retroactive_payment_date.Value;
-                                retroActiveCreditMonths = (startdate.Year - retroActivePaymentDate.Year) * 12 + startdate.Month - retroActivePaymentDate.Month;
+                                retroActiveCreditOrDebitMonths = (startdate.Year - retroActivePaymentDate.Year) * 12 + startdate.Month - retroActivePaymentDate.Month;
                             }
                             
                             int differenceInMonths = (enddate.Year - startdate.Year) * 12 + (enddate.Month - startdate.Month);
-                            bool retroActiveCreditYesOrNo = false;
+                            bool retroActiveCreditOrDebitYesOrNo = false;
                             // Check if the difference is greater than 0 months
-                            if (retroActiveCreditMonths > 0)
+                            if (retroActiveCreditOrDebitMonths > 0)
                             {
-                                retroActiveCreditYesOrNo = true;
+                                retroActiveCreditOrDebitYesOrNo = true;
                             }
                             //To find adjusted amount.
                             decimal modIncreaseMonthlyAmount = monthlyFundingAmount - previousMonthlyFundingAmount;//15000
-                            if (retroActiveCreditYesOrNo == true)
+                            if (retroActiveCreditOrDebitYesOrNo == true)
                             {
-                                decimal retroActiveCreditLumpSumAmount = modIncreaseMonthlyAmount * retroActiveCreditMonths;
-                                decimal retroActiveCreditMonthlyAmount = retroActiveCreditLumpSumAmount / differenceInMonths;
-                                // if it is positive.
-                                if (retroActiveCreditLumpSumAmount > 0)
+                                decimal retroActiveCreditOrDebitLumpSumAmount = modIncreaseMonthlyAmount * retroActiveCreditOrDebitMonths;
+                                decimal retroActiveCreditOrDebitMonthlyAmount = retroActiveCreditOrDebitLumpSumAmount / differenceInMonths;
+                                // if it is positive or negative.
+                                if (retroActiveCreditOrDebitLumpSumAmount > 0)
                                 {
-                                    
                                     //lumpsum
                                     if (paymentFrequency == 2)
                                     {
-                                        
                                         //create lumpsum payment for starting month only.
-                                        createPaymentTasks.Add(CreatePaymentLines(facility, retroActiveCreditLumpSumAmount, startdate, startdate, true, application, appUserService, d365WebApiService, _processParams));
+                                        createPaymentTasks.Add(CreatePaymentLines(facility, retroActiveCreditOrDebitLumpSumAmount, startdate, startdate, true, application, appUserService, d365WebApiService, _processParams));
 
                                     }
                                     //monthly
                                     else if (paymentFrequency == 3)
                                     {
-                                       
                                         //create monthly retroactive credit.
-                                        createPaymentTasks.Add(CreatePaymentLines(facility, retroActiveCreditMonthlyAmount, startdate, enddate, true,application, appUserService, d365WebApiService, _processParams));
+                                        createPaymentTasks.Add(CreatePaymentLines(facility, retroActiveCreditOrDebitMonthlyAmount, startdate, enddate, true,application, appUserService, d365WebApiService, _processParams));
                                     }
 
                                     //create payment lines for the increase or decrease from mod start date to end date.
-                                    
-                                        createPaymentTasks.Add(CreatePaymentLines(facility, modIncreaseMonthlyAmount, startdate, enddate, false, application, appUserService, d365WebApiService, _processParams));
+                                    createPaymentTasks.Add(CreatePaymentLines(facility, modIncreaseMonthlyAmount, startdate, enddate, false, application, appUserService, d365WebApiService, _processParams));
                                  
                                 }
 
