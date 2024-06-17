@@ -155,5 +155,8 @@ public record ProcessParameter
         [property: JsonPropertyName("facilityId")]
         public string? FacilityId { get; set; }
     }
+
+    [property: JsonPropertyName("dataImportId")]
+    public Guid? DataImportId { get; set; }
 }
 
