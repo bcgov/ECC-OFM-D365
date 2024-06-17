@@ -401,15 +401,15 @@ public record Payment_File_Exchange
 
 public class Payment_Line : ofm_payment
 {
-    public required string ofm_paymentid { get; set; }
-    public required DateTime ofm_effective_date { get; set; }
-    public required DateTime ofm_invoice_date { get; set; }
-    public required DateTime ofm_invoice_received_date { get; set; }
-    public required string ofm_supplierid { get; set; }
-    public required string ofm_siteid { get; set; }
-    public required string ofm_invoice_number { get; set; }
-    public required decimal ofm_amount { get; set; }
-    public required int ofm_payment_method { get; set; }
+    public  string ofm_paymentid { get; set; }
+    public  DateTime ofm_effective_date { get; set; }
+    public  DateTime ofm_invoice_date { get; set; }
+    public  DateTime ofm_invoice_received_date { get; set; }
+    public  string ofm_supplierid { get; set; }
+    public  string ofm_siteid { get; set; }
+    public  string ofm_invoice_number { get; set; }
+    public  decimal ofm_amount { get; set; }
+    public  int ofm_payment_method { get; set; }
     [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
     public string ofm_financial_year { get; set; }
     [property: JsonPropertyName("ofm_application.ofm_application")]
@@ -417,7 +417,7 @@ public class Payment_Line : ofm_payment
     [property: JsonPropertyName("ofm_facility.name")]
     public string accountname { get; set; }
     public Guid _ofm_application_value { get; set; }
-
+    public Guid _ofm_supplementary_value { get; set; }
 }
 public record D365ReportSection
 {

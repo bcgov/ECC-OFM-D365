@@ -96,25 +96,12 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                       <entity name="ofm_payment">
                         <attribute name="ofm_paymentid" />
                         <attribute name="ofm_name" />
-                        <attribute name="createdon" />
-                        <attribute name="ofm_amount" />
-                        <attribute name="ofm_description" />
-                        <attribute name="ofm_effective_date" />
                         <attribute name="ofm_fiscal_year" />
-                        <attribute name="ofm_funding" />
-                        <attribute name="ofm_invoice_line_number" />
-                        <attribute name="owningbusinessunit" />
                         <attribute name="ofm_payment_type" />
-                        <attribute name="ofm_remittance_message" />
                         <attribute name="statuscode" />
                         <attribute name="ofm_invoice_number" />
                         <attribute name="ofm_cas_response" />
                         <attribute name="ofm_application" />
-                        <attribute name="ofm_siteid" />
-                        <attribute name="ofm_payment_method" />
-                        <attribute name="ofm_supplierid" />
-                       <attribute name="ofm_invoice_received_date" />
-                       <attribute name="ofm_invoice_date" />
                         <order attribute="ofm_name" descending="false" />
                      <filter type="and">
                     <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ProcessingPayment}" />
