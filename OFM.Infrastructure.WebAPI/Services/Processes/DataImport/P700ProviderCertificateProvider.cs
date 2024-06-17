@@ -373,7 +373,9 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             // update Data Import  message field
             if (upsertSucessfully && deactiveSucessfully)
             {
-                dataImportMessages = "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive all " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+                TimeZoneInfo pstZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+                DateTime pstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, pstZone);
+                dataImportMessages = pstTime.ToString("yyyy-MM-dd HH:mm:ss") +"\r\n"+"Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive all " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
                 var ECECertStatement = $"ofm_data_imports({_processParams.DataImportId})";
                 var payload = new JsonObject {
                         { "ofm_message", dataImportMessages},
@@ -406,6 +408,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
                     }
                 }
+                Console.WriteLine("End Upsert Data Import ");
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
             else
@@ -429,6 +432,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             var returnObject = ProcessResult.Failure(ProcessId, new String[] { "Critical error", ex.StackTrace }, 0, 0).ODProcessResult;
             return returnObject;
         }
