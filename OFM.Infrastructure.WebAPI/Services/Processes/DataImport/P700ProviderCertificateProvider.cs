@@ -373,9 +373,8 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             // update Data Import  message field
             if (upsertSucessfully && deactiveSucessfully)
             {
-                TimeZoneInfo pstZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
-                DateTime pstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, pstZone);
-                dataImportMessages = pstTime.ToString("yyyy-MM-dd HH:mm:ss") +"\r\n"+"Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive all " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+                var localtime = _timeProvider.GetLocalNow();
+                dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + "\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive all " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
                 var ECECertStatement = $"ofm_data_imports({_processParams.DataImportId})";
                 var payload = new JsonObject {
                         { "ofm_message", dataImportMessages},
