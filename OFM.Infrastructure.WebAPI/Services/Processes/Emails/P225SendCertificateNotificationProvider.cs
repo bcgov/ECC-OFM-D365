@@ -120,7 +120,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     staffdetails += "<li>" + staff.Initials + " : " + staff.CertificateNumber + "</li><br/>";
                 }
                 staffdetails += "</ul>";
-                var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 226).TemplateNumber);
+                var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 245).TemplateNumber);
                 var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
                 string? subject = templateobj?.title;
