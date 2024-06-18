@@ -42,6 +42,10 @@ public static class Setup
 
             public const Int16 CreateEmailRemindersId = 220;
             public const string CreateEmailRemindersName = "Create Email Reminders for Supplementary Application";
+
+            public const Int16 CreateECENotificationsId = 225;
+            public const string CreateECENotificationsName = "Create Email Reminders for Not Good ECE";
+
         }
 
         public static class Fundings
@@ -93,6 +97,12 @@ public static class Setup
         {
             public const Int16 CreateUpdateQuestionId = 610;
             public const string CreateUpdateQuestionName = "Create/Update Question from Customer Voice to Reporting Custom Tables.";
+        }
+
+        public static class DataImports
+        {
+            public const Int16 ProcessProviderCertificatesId = 700;
+            public const string ProcessProviderCertificatesName = "Process and update Provider Certificates";
         }
     }
 

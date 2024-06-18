@@ -38,7 +38,7 @@ public static class BatchOperationsHandlers
     ///            "entityNameSet":"contacts",
     ///            "entityID":"00000000-0000-0000-0000-000000000000",
     ///            "emailaddress1": "test.user@cgi.com",
-    ///            "ofm_portal_role": "1,2,3,4",
+    ///            "ofm_portal_role": "/ofm_portal_roles(00000000-0000-0000-0000-000000000000)",
     ///            "actionMode":"Update"
     ///        },
     ///        "ofm_bceid_facility":[

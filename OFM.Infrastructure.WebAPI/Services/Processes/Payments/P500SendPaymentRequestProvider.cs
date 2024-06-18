@@ -296,7 +296,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                     grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - (invoiceamount < 0 ? 1 : 0), '0'), // invoice amount come from OFM total base value.
                     
                     CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
-                    termsName = _BCCASApi.InvoiceHeader.termsName.PadRight(header.FieldLength("termsName")),//getting from supplier 
+                    termsName = "Immediate".PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
                     goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
                     invoiceRecDate = headeritem.First().ofm_invoice_received_date?.ToString("yyyyMMdd"),//ideally is is 4 days before current date
                     oracleBatchName = (_BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header

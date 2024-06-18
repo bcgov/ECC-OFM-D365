@@ -159,22 +159,6 @@ public class D365WebAPIService : ID365WebApiService
         return await client.SendAsync(request);
     }
 
-    public async Task<HttpResponseMessage> GetDocumentRequestAsync(AZAppUser spn, string entityNameSet, Guid id)
-    {
-        DownloadFileRequest request;
-        if (entityNameSet.Equals("ofm_payment_file_exchanges"))
-        {
-            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_feedback_document_memo", false);
-        }
-        else
-        {
-            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_file", false);
-        }
-        HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
-
-        return await client.SendAsync(request);
-    }
-
     #region Helpers
 
     public async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpClient client)
@@ -296,6 +280,22 @@ public class D365WebAPIService : ID365WebApiService
             };
             return exception;
         }
+    }
+
+    public async Task<HttpResponseMessage> GetRecordTemplateForClone(AZAppUser spn, Guid recordId, string targetEntityName, string targetEntityNameSet)
+    {
+        string entityMoniker = $$"""
+                                {"@odata.id": "{{targetEntityNameSet}}({{recordId}})"}
+                                """;
+        var requestUri = $"""                                
+                            InitializeFrom(EntityMoniker=@p1,TargetEntityName=@p2,TargetFieldType=@p3)?@p1={entityMoniker}&@p2='{targetEntityName}'&@p3=Microsoft.Dynamics.CRM.TargetFieldType'ValidForCreate'
+                            """;
+
+        HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+
+        HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
+
+        return await client.SendAsync(request);
     }
 
     #endregion
