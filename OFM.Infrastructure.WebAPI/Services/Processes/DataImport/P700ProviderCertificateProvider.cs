@@ -323,7 +323,8 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     _logger.LogError(CustomLogEvent.Process, "Failed to Upsert ECE Certification: {error}", JsonValue.Create(errorInfos)!.ToString());
                     upsertMessages += "Batch Upsert errors: " + JsonValue.Create(errorInfos) + "\n\r";
                 }
-                Console.WriteLine("Upsert Batch process record index:{0}", i);
+                //Console.WriteLine("Upsert Batch process record index:{0}", i);
+                _logger.LogDebug(CustomLogEvent.Process, "Upsert Batch process record index:{index}", i);
             }
 
             if (string.IsNullOrEmpty(upsertMessages))
@@ -361,7 +362,8 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     _logger.LogError(CustomLogEvent.Process, "Failed to Upsert ECE Certification: {error}", JsonValue.Create(errorInfos)!.ToString());
                     deactiveMessages += "Batch Upsert errors: " + JsonValue.Create(errorInfos) + "\n\r";
                 }
-                Console.WriteLine("Batch Deactive CRM records not existing in CSV file index:{0}", i);
+                //Console.WriteLine("Batch Deactive CRM records not existing in CSV file index:{0}", i);
+                _logger.LogDebug(CustomLogEvent.Process, "Batch Deactive CRM records not existing in CSV file index:{index}", i);
             }
 
             if (string.IsNullOrEmpty(deactiveMessages))
