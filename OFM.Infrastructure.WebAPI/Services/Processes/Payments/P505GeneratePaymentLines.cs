@@ -405,7 +405,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                 decimal retroActiveCreditOrDebitLumpSumAmount = modIncreaseMonthlyAmount * retroActiveCreditOrDebitMonths;
                                 decimal retroActiveCreditOrDebitMonthlyAmount = retroActiveCreditOrDebitLumpSumAmount / differenceInMonths;
                                 // if it is positive or negative.
-                                if (retroActiveCreditOrDebitLumpSumAmount > 0)
+                                if (retroActiveCreditOrDebitLumpSumAmount != null)
                                 {
                                     //lumpsum
                                     if (paymentFrequency == 2)
@@ -467,7 +467,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                         {
                                             decimal? fundingAmount = supplementaryApp.ofm_funding_amount;
                                             int allowanceType = supplementaryApp.ofm_allowance_type;
-                                            createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, saStartDate, saEndDate,false, fundingid, application, supplementaryApp.ofm_allowanceid.ToString(), allowanceType == 1 ? (int)ecc_payment_type.SupportNeedsFunding : (int)ecc_payment_type.IndigenousProgramming, fundingAmount, appUserService, d365WebApiService, processParams));
+                                            createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, saStartDate, saStartDate, false, fundingid, application, supplementaryApp.ofm_allowanceid.ToString(), allowanceType == 1 ? (int)ecc_payment_type.SupportNeedsFunding : (int)ecc_payment_type.IndigenousProgramming, fundingAmount, appUserService, d365WebApiService, processParams));
                                         }
 
                                     }
@@ -515,7 +515,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                 {
                                                     decimal retroActiveCreditAmount = PaymentAmountPerMonth * retroActiveMonths;
                                                     //create payment with type transportation and payment amount as retrospective amount.
-                                                    createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, maxStartDate, maxEndDate, true, fundingid, application,transportationApp.ofm_allowanceid.ToString(), (int)ecc_payment_type.Transportation, retroActiveCreditAmount, appUserService, d365WebApiService, processParams));
+                                                    createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, maxStartDate, maxStartDate, true, fundingid, application,transportationApp.ofm_allowanceid.ToString(), (int)ecc_payment_type.Transportation, retroActiveCreditAmount, appUserService, d365WebApiService, processParams));
                                                 }
                                             }
                                             // create payment lines for standard submission transportation applications.

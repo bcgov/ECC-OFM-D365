@@ -10,6 +10,7 @@ using System.Text.Json.Nodes;
 using System.Text;
 using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 using ECC.Core.DataContext;
+using System.Globalization;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
@@ -250,7 +251,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
                 foreach (var lineitem in headeritem.Select((item, i) => (item, i)))
                 {
-
+                   
                     invoiceamount = invoiceamount + Convert.ToDouble(lineitem.item.ofm_amount);//line amount should come from funding
                     var paytype = lineitem.item.ofm_payment_typename;
                     invoiceLines.Add(new InvoiceLines
@@ -264,7 +265,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                         supplierNumber = lineitem.item.ofm_supplierid.PadRight(line.FieldLength("supplierNumber")),// Populate from Organization Supplier info
                         supplierSiteNumber = lineitem.item.ofm_siteid.PadLeft(line.FieldLength("supplierSiteNumber"), '0'),// Populate from Organization Supplier info
                         committmentLine = _BCCASApi.InvoiceLines.committmentLine,//Static value:0000
-                        lineAmount = Convert.ToDouble(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount"), '0'),// come from split funding amount per facility
+                        lineAmount = (lineitem.item.ofm_amount < 0 ? "-" : "") + Math.Abs(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount") - (lineitem.item.ofm_amount < 0 ? 1 : 0), '0'),// come from split funding amount per facility
                         lineCode = _BCCASApi.InvoiceLines.lineCode,//Static Value:D (debit)
                         distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
                         lineDescription = string.Concat(lineitem.item.ofm_application_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
@@ -273,7 +274,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                         unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder
                         optionalData = string.Empty.PadRight(line.FieldLength("optionalData")),// PO ship to asset tracking values are set to blank as it is optional
                         distributionSupplierNumber = lineitem.item.ofm_supplierid.PadRight(line.FieldLength("distributionSupplierNumber")),// Supplier number from Organization
-                        flow = string.Empty.PadRight(line.FieldLength("flow")), //can be use to pass additinal info from facility or application
+                        flow = string.Empty.PadRight(line.FieldLength("flow")), //can be use to pass additional info from facility or application
                     });
 
                     _controlCount++;
@@ -292,7 +293,8 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                     invoiceType = _BCCASApi.InvoiceHeader.invoiceType,// static to ST (standard invoice)
                     payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
                     remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
-                    grossInvoiceAmount = invoiceamount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount"), '0'), // invoice amount come from OFM total base value.
+                    grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - (invoiceamount < 0 ? 1 : 0), '0'), // invoice amount come from OFM total base value.
+                    
                     CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
                     termsName = _BCCASApi.InvoiceHeader.termsName.PadRight(header.FieldLength("termsName")),//getting from supplier 
                     goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
