@@ -458,10 +458,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                         var saEndDate = supplementaryApp.ofm_end_date;
                                         //Check if payments of this allowance type created.
                                         List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
-                                        .Where(r =>
-                                         (supplementaryApp.ofm_allowance_type == 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.SupportNeedsFunding) ||
-                                         (supplementaryApp.ofm_allowance_type != 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.IndigenousProgramming))
-                                         .ToList();
+                                        .Where(r => r._ofm_supplementary_value == supplementaryApp.Id).ToList();
                                         //Check if payment record already exist for this supplementary app.
                                         if (saSupportOrIndigenousPayments.Count == 0)
                                         {
