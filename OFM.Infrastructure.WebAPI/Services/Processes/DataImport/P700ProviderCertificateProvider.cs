@@ -9,6 +9,8 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using String = System.String;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
 
@@ -321,7 +323,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     _logger.LogError(CustomLogEvent.Process, "Failed to Upsert ECE Certification: {error}", JsonValue.Create(errorInfos)!.ToString());
                     upsertMessages += "Batch Upsert errors: " + JsonValue.Create(errorInfos) + "\n\r";
                 }
-                Console.WriteLine("Upsert Batch process record index:", i.ToString());
+                Console.WriteLine("Upsert Batch process record index:{0}", i);
             }
 
             if (string.IsNullOrEmpty(upsertMessages))
@@ -359,7 +361,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     _logger.LogError(CustomLogEvent.Process, "Failed to Upsert ECE Certification: {error}", JsonValue.Create(errorInfos)!.ToString());
                     deactiveMessages += "Batch Upsert errors: " + JsonValue.Create(errorInfos) + "\n\r";
                 }
-                Console.WriteLine("Batch Deactive missing process record index:", i.ToString());
+                Console.WriteLine("Batch Deactive CRM records not existing in CSV file index:{0}", i);
             }
 
             if (string.IsNullOrEmpty(deactiveMessages))
