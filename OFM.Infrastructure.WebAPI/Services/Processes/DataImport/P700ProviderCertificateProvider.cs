@@ -294,7 +294,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             }
             // Batch processing
             int batchSize = 1000;
-            for (int i = 0; i < differenceCsvRecords.Count; i += batchSize)
+            for(int i = 0; i < differenceCsvRecords.Count; i += batchSize)
             {
                 var upsertECERequests = new List<HttpRequestMessage>() { };
                 var batch = differenceCsvRecords.Skip(i).Take(batchSize).ToList();
@@ -323,6 +323,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                 }
                 Console.WriteLine("Upsert Batch process record index:", i.ToString());
             }
+
             if (string.IsNullOrEmpty(upsertMessages))
             {
                 upsertSucessfully = true;
@@ -376,7 +377,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                 var localtime = _timeProvider.GetLocalNow();
                 var endtime = _timeProvider.GetTimestamp();
                 var timediff = _timeProvider.GetElapsedTime(startTime, endtime).TotalSeconds;
-                dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ timediff + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+                dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ Math.Round(timediff,2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
                 var ECECertStatement = $"ofm_data_imports({_processParams.DataImportId})";
                 var payload = new JsonObject {
                         { "ofm_message", dataImportMessages},
