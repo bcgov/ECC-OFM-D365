@@ -261,7 +261,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
             headers.Add(header);
         }
         var localPayData = await GetPaylinesAsync();
-        var serializedPayData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(localPayData.Data.ToString());
+        var serializedPayData = System.Text.Json.JsonSerializer.Deserialize<List<Models.D365PaymentLine>>(localPayData.Data.ToString());
         var updatePayRequests = new List<HttpRequestMessage>() { };
         
         var businessclosuresdata = await GetBusinessClosuresDataAsync();
@@ -297,7 +297,7 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                 {ofm_payment.Fields.ofm_revised_effective_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedEffectiveDate.ToString("yyyy-MM-dd"):null }
                };
                 
-                updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName, new Guid(pay.ofm_paymentid)), payToUpdate));
+                updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName,pay.ofm_paymentid), payToUpdate));
             }
         });
 
