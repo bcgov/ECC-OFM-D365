@@ -374,7 +374,9 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             if (upsertSucessfully && deactiveSucessfully)
             {
                 var localtime = _timeProvider.GetLocalNow();
-                dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + "\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+                var endtime = _timeProvider.GetTimestamp();
+                var timediff = _timeProvider.GetElapsedTime(startTime, endtime).TotalSeconds;
+                dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ timediff + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
                 var ECECertStatement = $"ofm_data_imports({_processParams.DataImportId})";
                 var payload = new JsonObject {
                         { "ofm_message", dataImportMessages},
