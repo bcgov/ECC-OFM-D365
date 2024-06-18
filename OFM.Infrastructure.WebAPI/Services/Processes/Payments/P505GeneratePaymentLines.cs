@@ -405,7 +405,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                 decimal retroActiveCreditOrDebitLumpSumAmount = modIncreaseMonthlyAmount * retroActiveCreditOrDebitMonths;
                                 decimal retroActiveCreditOrDebitMonthlyAmount = retroActiveCreditOrDebitLumpSumAmount / differenceInMonths;
                                 // if it is positive or negative.
-                                if (retroActiveCreditOrDebitLumpSumAmount != null)
+                                if (retroActiveCreditOrDebitLumpSumAmount != 0)
                                 {
                                     //lumpsum
                                     if (paymentFrequency == 2)
