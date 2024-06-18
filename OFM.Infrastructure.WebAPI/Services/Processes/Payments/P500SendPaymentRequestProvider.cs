@@ -206,11 +206,11 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         string oracleBatchName;
 
         var paymentData = await GetPaymentLineData();
-        List<Payment_Line> paymentserializedData = new List<Payment_Line>();
+        List<D365PaymentLine> paymentserializedData = new List<D365PaymentLine>();
         try
         {
 
-            paymentserializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_Line>>(paymentData.Data.ToString());
+            paymentserializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365PaymentLine>>(paymentData.Data.ToString());
 
 
             var grouppayment = paymentserializedData?.GroupBy(p => p.ofm_invoice_number).ToList();
@@ -219,7 +219,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             var _fiscalyear = paymentserializedData?.FirstOrDefault()?.ofm_financial_year;
 
             var localData = await GetDataAsync();
-            var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<Payment_File_Exchange>>(localData.Data.ToString());
+            var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<PaymentFileExchange>>(localData.Data.ToString());
 
             if (serializedData != null && serializedData[0].ofm_batch_number != null)
             {
@@ -251,7 +251,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
                 foreach (var lineitem in headeritem.Select((item, i) => (item, i)))
                 {
-
+                   
                     invoiceamount = invoiceamount + Convert.ToDouble(lineitem.item.ofm_amount);//line amount should come from funding
                     var paytype = lineitem.item.ofm_payment_typename;
                     invoiceLines.Add(new InvoiceLines
@@ -265,16 +265,16 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                         supplierNumber = lineitem.item.ofm_supplierid.PadRight(line.FieldLength("supplierNumber")),// Populate from Organization Supplier info
                         supplierSiteNumber = lineitem.item.ofm_siteid.PadLeft(line.FieldLength("supplierSiteNumber"), '0'),// Populate from Organization Supplier info
                         committmentLine = _BCCASApi.InvoiceLines.committmentLine,//Static value:0000
-                        lineAmount = (lineitem.item.ofm_amount < 0 ? "-" : "") + Math.Abs(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount") - 1, '0'),//comes from payment amount.
-                        lineCode = (lineitem.item.ofm_amount > 0 ? "D" : "C"),//if it is positive then line code is Debit otherwise credit
+                        lineAmount = (lineitem.item.ofm_amount < 0 ? "-" : "") + Math.Abs(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount") - (lineitem.item.ofm_amount < 0 ? 1 : 0), '0'),// come from split funding amount per facility
+                        lineCode = _BCCASApi.InvoiceLines.lineCode,//Static Value:D (debit)
                         distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
                         lineDescription = string.Concat(lineitem.item.ofm_application_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
-                        effectiveDate = lineitem.item.ofm_effective_date.ToString("yyyyMMdd"), //2 days after invoice posting
+                        effectiveDate = lineitem.item.ofm_effective_date?.ToString("yyyyMMdd"), //2 days after invoice posting
                         quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
                         unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder
                         optionalData = string.Empty.PadRight(line.FieldLength("optionalData")),// PO ship to asset tracking values are set to blank as it is optional
                         distributionSupplierNumber = lineitem.item.ofm_supplierid.PadRight(line.FieldLength("distributionSupplierNumber")),// Supplier number from Organization
-                        flow = string.Empty.PadRight(line.FieldLength("flow")), //can be use to pass additinal info from facility or application
+                        flow = string.Empty.PadRight(line.FieldLength("flow")), //can be use to pass additional info from facility or application
                     });
 
                     _controlCount++;
@@ -289,15 +289,16 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                     supplierSiteNumber = headeritem.First().ofm_siteid.PadLeft(header.FieldLength("supplierSiteNumber"), '0'),// Populate from Organization Supplier info
                     invoiceNumber = headeritem.First().ofm_invoice_number.PadRight(header.FieldLength("invoiceNumber")),// Autogenerated and unique for supplier transaction
                     PONumber = string.Empty.PadRight(header.FieldLength("PONumber")),// sending blank as not used by feeder
-                    invoiceDate = headeritem.First().ofm_invoice_date.ToString("yyyyMMdd"), // set to current date
-                    invoiceType = invoiceamount < 0 ? "CM" : "ST",// static to ST (standard invoice)
+                    invoiceDate = headeritem.First().ofm_invoice_date?.ToString("yyyyMMdd"), // set to current date
+                    invoiceType = _BCCASApi.InvoiceHeader.invoiceType,// static to ST (standard invoice)
                     payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
                     remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
-                    grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - 1, '0'),
+                    grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - (invoiceamount < 0 ? 1 : 0), '0'), // invoice amount come from OFM total base value.
+                    
                     CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
                     termsName = "Immediate".PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
                     goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
-                    invoiceRecDate = headeritem.First().ofm_invoice_received_date.ToString("yyyyMMdd"),//ideally is is 4 days before current date
+                    invoiceRecDate = headeritem.First().ofm_invoice_received_date?.ToString("yyyyMMdd"),//ideally is is 4 days before current date
                     oracleBatchName = (_BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                     SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                     payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
@@ -325,7 +326,8 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
             // for each set of transaction create and upload inbox file in payment file exchange
             foreach (List<InvoiceHeader> headeritem in headerList)
             {
-
+                //_controlAmount = (Double)headeritem.SelectMany(x => x.invoiceLines).ToList().Sum(x => Convert.ToDecimal(x.lineAmount));
+                //_controlCount = headeritem.SelectMany(x => x.invoiceLines).ToList().Count + headeritem.Count;
                 var data = new
                 {
                     feederNumber = _BCCASApi.feederNumber,// Static value:3540
@@ -367,7 +369,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
     }
 
-    private async Task<JsonObject> MarkPayAsProcessed(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, List<Payment_Line> payment)
+    private async Task<JsonObject> MarkPayAsProcessed(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, List<D365PaymentLine> payment)
     {
         var updatePayRequests = new List<HttpRequestMessage>() { };
         payment.ForEach(pay =>
@@ -377,7 +379,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
              };
 
-            updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName, new Guid(pay.ofm_paymentid)), payToUpdate));
+            updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName, pay.ofm_paymentid), payToUpdate));
         });
 
         var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updatePayRequests, null);
@@ -392,7 +394,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         return step2BatchResult.SimpleBatchResult;
     }
 
-    private async Task<JsonObject> CreatePaymentFile(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string feederNumber, string result, List<Payment_Line> payment)
+    private async Task<JsonObject> CreatePaymentFile(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string feederNumber, string result, List<D365PaymentLine> payment)
     {
         var filename = ("INBOX.F" + feederNumber + "." + DateTime.Now.ToString("yyyyMMddHHMMss"));
         var requestBody = new JsonObject()
