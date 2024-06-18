@@ -107,6 +107,33 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         public DateTime EXPDATE { get; set; }
         public string ISACTIVE { get; set; }
     }
+    public TimeZoneInfo GetPSTTimeZoneInfo(string timezoneId1, string timezoneId2)
+    {
+        try
+        {
+            TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(timezoneId1);
+
+            return info;
+        }
+        catch (System.TimeZoneNotFoundException)
+        {
+            try
+            {
+                TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(timezoneId2);
+
+                return info;
+            }
+            catch (System.TimeZoneNotFoundException)
+            {
+                _logger.LogError(CustomLogEvent.Process, "Could not find timezone by Id");
+                return null;
+            }
+        }
+        catch (System.Exception)
+        {
+            return null;
+        }
+    }
     public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P700ProviderCertificateProvider));
@@ -375,9 +402,13 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             if (upsertSucessfully && deactiveSucessfully)
             {
                 var localtime = _timeProvider.GetLocalNow();
+                TimeZoneInfo PSTZone = GetPSTTimeZoneInfo("Pacific Standard Time", "America/Los_Angeles");
+                var pstTime=TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, PSTZone);
                 var endtime = _timeProvider.GetTimestamp();
                 var timediff = _timeProvider.GetElapsedTime(startTime, endtime).TotalSeconds;
-                dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ Math.Round(timediff,2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+                //dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ Math.Round(timediff,2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+                dataImportMessages = pstTime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:" + Math.Round(timediff, 2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+
                 var ECECertStatement = $"ofm_data_imports({_processParams.DataImportId})";
                 var payload = new JsonObject {
                         { "ofm_message", dataImportMessages},
