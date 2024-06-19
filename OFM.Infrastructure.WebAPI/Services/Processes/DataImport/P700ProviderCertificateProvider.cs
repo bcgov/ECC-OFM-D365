@@ -225,8 +225,14 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         {
             // retrieve csv file from crm and parse 
             var localData = await GetDataAsync();
-            var downloadfile = Convert.FromBase64String(localData.Data.ToString());
-            var downloadfileUTF8 = Encoding.UTF8.GetString(downloadfile);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            //var downloadfile = Convert.FromBase64String(localData.Data.ToString());
+            byte[] downloadfile = Convert.FromBase64String(localData.Data.ToString());
+            // Convert to ANSI format first as the file business provided is ANSI
+            string ansiText = Encoding.GetEncoding("Windows-1252").GetString(downloadfile);
+            byte[] utf8Bytes = Encoding.UTF8.GetBytes(ansiText);
+            var downloadfileUTF8  = Encoding.UTF8.GetString(utf8Bytes);
+            // var downloadfileUTF8 = Encoding.UTF8.GetString(downloadfile);
             List<Record> csvRecords;
             // Validate csv file
             using (var reader = new StringReader(downloadfileUTF8))
@@ -322,7 +328,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             }
             // Batch processing
             int batchSize = 1000;
-            for(int i = 0; i < differenceCsvRecords.Count; i += batchSize)
+            for (int i = 0; i < differenceCsvRecords.Count; i += batchSize)
             {
                 var upsertECERequests = new List<HttpRequestMessage>() { };
                 var batch = differenceCsvRecords.Skip(i).Take(batchSize).ToList();
@@ -406,7 +412,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             {
                 var localtime = _timeProvider.GetLocalNow();
                 TimeZoneInfo PSTZone = GetPSTTimeZoneInfo("Pacific Standard Time", "America/Los_Angeles");
-                var pstTime=TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, PSTZone);
+                var pstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, PSTZone);
                 var endtime = _timeProvider.GetTimestamp();
                 var timediff = _timeProvider.GetElapsedTime(startTime, endtime).TotalSeconds;
                 //dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ Math.Round(timediff,2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
