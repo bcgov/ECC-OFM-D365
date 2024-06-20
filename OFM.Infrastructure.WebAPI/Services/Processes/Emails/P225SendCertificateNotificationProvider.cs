@@ -84,7 +84,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     <attribute name="ofm_certificate_status" />
                     <order attribute="ofm_caption" descending="false" />
                     <filter type="and">
-                    <condition attribute="ofm_survey_response" operator="eq"  value="{_processParams?.ProviderReport?.providerreportId}"/>
+                    <condition attribute="ofm_survey_response" operator="eq"  value="{_processParams?.FundingReport?.FundingReportId}"/>
                    <condition attribute="ofm_certificate_status" operator="in">
                   <value>2</value>
                   <value>3</value>
@@ -114,7 +114,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             HttpResponseMessage response = new HttpResponseMessage();
 
             _logger.LogDebug(CustomLogEvent.Process, "Calling GetSupplementaryApplicationDataAsync");
-            if(!String.IsNullOrEmpty(_processParams?.ProviderReport?.providerreportId))
+            if(!String.IsNullOrEmpty(_processParams?.FundingReport?.FundingReportId))
              response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveReportStaff, formatted: true, isProcess: true);
             else
              response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveApplications, formatted: true, isProcess: true);
