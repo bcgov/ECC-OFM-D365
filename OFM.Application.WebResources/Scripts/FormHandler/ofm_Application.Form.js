@@ -23,7 +23,7 @@ OFM.Application.Form = {
                 this.UpdateOrganizationdetails(executionContext);
                 this.showBanner(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
-                this.filterSubmittedBySPLookup(executionContext);
+                this.filterSubmittedByLookup(executionContext);
                 break;
 
             case 2: // update
@@ -35,7 +35,7 @@ OFM.Application.Form = {
                 this.lockStatusReason(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
                 this.hideVerificationTab(executionContext);
-                this.filterSubmittedBySPLookup(executionContext);
+                this.filterSubmittedByLookup(executionContext);
                 break;
 
             case 3: //readonly
@@ -226,7 +226,7 @@ OFM.Application.Form = {
         // perform operations on record retrieval
     },
 
-    filterSubmittedBySPLookup: function (executionContext) {
+    filterSubmittedByLookup: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
         var facility = formContext.getAttribute("ofm_facility").getValue();
@@ -258,11 +258,11 @@ OFM.Application.Form = {
                 "<cell name='parentcustomerid' width='150' />" +
                 "</row></grid>";
 
-            formContext.getControl("ofm_submittedby").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
+            formContext.getControl("ofm_summary_submittedby").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
 
         }
         else {
-            formContext.getAttribute("ofm_submittedby").setValue(null);
+            formContext.getAttribute("ofm_summary_submittedby").setValue(null);
         }
         // perform operations on record retrieval
     },
