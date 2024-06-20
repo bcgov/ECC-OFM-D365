@@ -1,11 +1,6 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.Xrm.Sdk;
-using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
-using System;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Models;
 
@@ -419,11 +414,13 @@ public class Payment_Line : ofm_payment
     public Guid _ofm_application_value { get; set; }
 
 }
+
 public record D365ReportSection
 {
     public int? OrderNumber { get; set; }
     public string? SectionName { get; set; }
 }
+
 public class IntegrationLogs : ofm_integration_log
 {
     public Guid ofm_integration_logid { get; set; }
@@ -434,6 +431,39 @@ public class IntegrationLogs : ofm_integration_log
     public string ofm_message { get; set; }
     public string ofm_service_name { get; set; }
 
+}
+
+public class ProviderStaff
+{
+    [JsonPropertyName("ofm_initials")]
+    public string Initials { get; set; }
+
+    [JsonPropertyName("ofm_certificate_number")]
+    public string CertificateNumber { get; set; }
+
+    [JsonPropertyName("application.ofm_application")]
+    public string Name { get; set; }
+
+    [property: JsonPropertyName("application.ofm_contact")]
+    public Guid ProviderId { get; set; }
+
+    [property: JsonPropertyName("application.ofm_contact@OData.Community.Display.V1.FormattedValue")]
+    public string ProviderName { get; set; }
+
+    [property: JsonPropertyName("report.ofm_contact")]
+    public Guid ProviderId_Report { get { return ProviderId; } set { ProviderId = value; } }
+
+    [property: JsonPropertyName("report.ofm_contact@OData.Community.Display.V1.FormattedValue")]
+    public string ProviderName_Report { get { return ProviderName; } set { ProviderName = value; } }
+
+    [property: JsonPropertyName("facility.ofm_primarycontact")]
+    public Guid FacilityContactId { get; set; }
+
+    [property: JsonPropertyName("report.ofm_name")]
+    public string ProviderReport_Name { get { return Name; } set { Name = value; } }
+
+    [JsonPropertyName("facility.ofm_primarycontact@OData.Community.Display.V1.FormattedValue")]
+    public string FacilityContact_Name { get; set; }
 }
 
 #region External Parameters

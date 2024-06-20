@@ -207,40 +207,6 @@ public class SupplementarySchedule : ofm_supplementary_schedule
     public new decimal? ofm_transport_ge_20_spaces_lease_cap_month { get; set; }
     public new decimal? ofm_transport_less_20_spaces_lease_cap_month { get; set; }
     public new decimal? ofm_transport_reimbursement_rate_per_km { get; set; }
-}
+} 
 
-public class ProviderStaff
-{
-    [JsonPropertyName("ofm_initials")]
-    public string Initials { get; set; }
-
-    [JsonPropertyName("ofm_certificate_number")]
-    public string CertificateNumber { get; set; }
-
-    [JsonPropertyName("application.ofm_application")]
-    public string Name { get; set; }
-
-    [property: JsonPropertyName("application.ofm_contact")]
-    public Guid ProviderId { get; set; }
-
-    [property: JsonPropertyName("application.ofm_contact@OData.Community.Display.V1.FormattedValue")]
-    public string ProviderName { get; set; }
-
-    [property: JsonPropertyName("report.ofm_contact")]
-    public Guid ProviderId_Report { get { return ProviderId; } set { ProviderId = value; } }
-
-    [property: JsonPropertyName("report.ofm_contact@OData.Community.Display.V1.FormattedValue")]
-    public string ProviderName_Report { get { return ProviderName; } set { ProviderName = value; } }
-
-    [property: JsonPropertyName("facility.ofm_primarycontact")]
-    public Guid FacilityContactId { get; set; }
-
-    [property: JsonPropertyName("report.ofm_name")]
-    public string ProviderReport_Name { get { return Name; } set { Name = value; } }
-
-    [JsonPropertyName("facility.ofm_primarycontact@OData.Community.Display.V1.FormattedValue")]
-    public string FacilityContact_Name { get; set; }
-
-
-}
 public record NonHRStepAction(int Step, decimal AllocatedSpaces, decimal Rate, decimal Cost, string Envelope, int MinSpaces, int MaxSpaces, ecc_Ownership Ownership);

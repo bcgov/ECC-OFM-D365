@@ -7,8 +7,6 @@ using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Net;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
