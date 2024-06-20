@@ -10,6 +10,7 @@ using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -31,6 +32,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
     private Guid? _sectionId;
     private string[] _questionIdentifier;
     private string[] _surveyIdentifier;
+    private string? newReportTemplateId; 
 
     public P610CreateQuestionProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -361,12 +363,16 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
 
 
             #region Create Customer Voice Project as Report Template in CE Custom
+            var startDate = _processParams?.Project.StartDate;
+            var endDate = _processParams?.Project?.EndDate;
             if (deserializedData.Count > 0)
             {
                 var payloadReportTemplate = new JsonObject
             {
                 {ofm_survey.Fields.ofm_customervoiceprojectid,deserializedData.First().msfp_projectid },
-                {ofm_survey.Fields.ofm_name,deserializedData.First().msfp_name }
+                {ofm_survey.Fields.ofm_name,deserializedData.First().msfp_name },
+                    {ofm_survey.Fields.ofm_start_date,startDate },
+                    {ofm_survey.Fields.ofm_end_date,endDate }
 
             };
 
@@ -381,7 +387,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                 }
 
                 var newReportTemplate = await CreateResponserequestBodyReportTemplate.Content.ReadFromJsonAsync<JsonObject>();
-                var newReportTemplateId = newReportTemplate?["ofm_surveyid"];
+                 newReportTemplateId = (string?)newReportTemplate?["ofm_surveyid"];
 
                 #endregion Create Customer Voice Project as Report Template in CE Custom
 
@@ -537,13 +543,26 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
         }
 
         catch (ValidationException exp)
-        {
+        { 
+
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block RunProcessAsync", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+            var response = await RemoveAsync(newReportTemplateId);
+
+            if (response.IsSuccessStatusCode)
+                _logger.LogError(CustomLogEvent.Process, "Failed under catch block RunProcessAsync.Record was removed successfully", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+          
+            else
+                _logger.LogError(CustomLogEvent.Process, $"Failed under catch block RunProcessAsync.Failed to Delete record: {response.ReasonPhrase}", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+           
 
         }
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
+    }
+    public async Task<HttpResponseMessage> RemoveAsync(string documentId)
+    {
+        return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, $"annotations({documentId})");
     }
     public JsonObject CreateJsonObject(D365Reporting question)
     {
@@ -608,7 +627,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                                        {
                                             {ofm_question.Fields.ofm_default_rows, getLatestPublishedVersion.ofm_default_rows ?? null},
                                             {ofm_question.Fields.ofm_maximum_rows, getLatestPublishedVersion.ofm_maximum_rows ?? null},
-                                            {ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
+                                            //{ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
                                             {ofm_question.Fields.ofm_fixed_response, getLatestPublishedVersion.ofm_fixed_response }
                                        }));
                 }
@@ -638,6 +657,13 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
         {
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block UpdateQuestionwithManualData", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             ProcessResult.Failure(ProcessId, new[] { exp.Message, exp.StackTrace ?? string.Empty }, 0, 0);
+            var response = await RemoveAsync(newReportTemplateId);
+
+            if (response.IsSuccessStatusCode)
+                _logger.LogError(CustomLogEvent.Process, "Failed under catch block UpdateQuestionwithManualData.Report Template Record was removed successfully", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+
+            else
+                _logger.LogError(CustomLogEvent.Process, $"Failed under catch block UpdateQuestionwithManualData.Failed to Delete Report Template record: {response.ReasonPhrase}", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             return await Task.FromResult(false);
         }
         return await Task.FromResult(true);
@@ -699,6 +725,13 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
         {
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block CreateBusinessRule", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             ProcessResult.Failure(ProcessId, new[] { exp.Message, exp.StackTrace ?? string.Empty }, 0, 0);
+            var response = await RemoveAsync(newReportTemplateId);
+
+            if (response.IsSuccessStatusCode)
+                _logger.LogError(CustomLogEvent.Process, "Failed under catch block CreateBusinessRule.Report Template Record was removed successfully", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+
+            else
+                _logger.LogError(CustomLogEvent.Process, $"Failed under catch block CreateBusinessRule.Failed to Delete Report Template record: {response.ReasonPhrase}", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             return await Task.FromResult(false);
         }
         return await Task.FromResult(true);
