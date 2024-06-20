@@ -54,6 +54,9 @@ public record ProcessParameter
     [property: JsonPropertyName("paymentfile")]
     public PaymentParameter? paymentfile { get; set; }
 
+    [property: JsonPropertyName("providerreport")]
+    public ProviderReportParameter? ProviderReport { get; set; }
+
     public record PaymentParameter
     {
        
@@ -61,7 +64,12 @@ public record ProcessParameter
         public string? paymentfileId { get; set; }
     }
 
+    public record ProviderReportParameter
+    {
 
+        [property: JsonPropertyName("providerreportId")]
+        public string? providerreportId { get; set; }
+    }
     public record EmailParameter
     {
         [property: JsonPropertyName("templateId")]

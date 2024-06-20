@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Net;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
@@ -66,11 +67,57 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             }
         }
 
+        //To retrieve submitted report
+        private string RetrieveReportStaff
+        {
+            get
+            {
+                // Note: FetchXMl limit is 5000 records per request
+                var fetchXml = $"""
+                <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+                  <entity name="ofm_employee_certificate_status">
+                    <attribute name="ofm_employee_certificate_statusid" />
+                    <attribute name="ofm_caption" />
+                    <attribute name="createdon" />
+                    <attribute name="ofm_initials" />
+                    <attribute name="ofm_certificate_number" />
+                    <attribute name="ofm_certificate_status" />
+                    <order attribute="ofm_caption" descending="false" />
+                    <filter type="and">
+                    <condition attribute="ofm_survey_response" operator="eq"  value="{_processParams?.ProviderReport?.providerreportId}"/>
+                   <condition attribute="ofm_certificate_status" operator="in">
+                  <value>2</value>
+                  <value>3</value>
+                </condition>
+                    </filter>
+                    <link-entity name="ofm_survey_response" from="ofm_survey_responseid" to="ofm_survey_response" visible="false" link-type="outer" alias="report">
+                      <attribute name="ofm_contact" />
+                       <attribute name="ofm_facility" />
+                        <attribute name="ofm_name" />
+                 <link-entity name="account" from="accountid" to="ofm_facility" alias="facility">
+                  <attribute name="ofm_primarycontact" />
+                </link-entity>
+                    </link-entity>
+                  </entity>
+                </fetch>
+                """;
+
+                var requestUri = $"""
+                         ofm_employee_certificate_statuses?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         """;
+                return requestUri.CleanCRLF();
+            }
+        }
+
         public async Task<ProcessData> GetDataAsync()
         {
-            _logger.LogDebug(CustomLogEvent.Process, "Calling GetSupplementaryApplicationDataAsync");
+            HttpResponseMessage response = new HttpResponseMessage();
 
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveApplications, formatted: true, isProcess: true);
+            _logger.LogDebug(CustomLogEvent.Process, "Calling GetSupplementaryApplicationDataAsync");
+            if(!String.IsNullOrEmpty(_processParams?.ProviderReport?.providerreportId))
+             response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveReportStaff, formatted: true, isProcess: true);
+            else
+             response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveApplications, formatted: true, isProcess: true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -100,6 +147,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             _processParams = processParams;
+
             var localData = await GetDataAsync();
 
             string staffdetails = "<ul>";
@@ -115,23 +163,27 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             // Get template details to create emails.
             if (_staffs?.Count > 0)
             {
+                Guid facility_primarycontact = (Guid)_staffs?[0].FacilityContactId;
+                Guid report_provider = (Guid)_staffs?[0].ProviderId; ;
                 foreach (var staff in _staffs)
                 {
-                    staffdetails += "<li>" + staff.Initials + " : " + staff.CertificateNumber + "</li><br/>";
+                    staffdetails += "<li>" + staff.Initials + " : " + staff.CertificateNumber + "</li>";
                 }
                 staffdetails += "</ul>";
-                var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 226).TemplateNumber);
+                var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 245).TemplateNumber);
                 var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
                 string? subject = templateobj?.title;
                 string? emaildescription = templateobj?.safehtml;
-                emaildescription = emaildescription?.Replace("{Application_No}", _staffs?[0].ApplicationId);
+                emaildescription = emaildescription?.Replace("{Record_Name}", _staffs?[0].Name);
                 emaildescription = emaildescription?.Replace("{Provider_Name}", _staffs?[0].ProviderName);
                 emaildescription = emaildescription?.Replace("{Staff}", staffdetails);
                 List<Guid> recipientsList = new List<Guid>();
-                recipientsList.Add(_staffs[0].ProviderId);
+                recipientsList.Add(report_provider);
+                if(facility_primarycontact != report_provider)
+                   recipientsList.Add(facility_primarycontact);
 
-                await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 225);
+                await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams?.Notification?.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 225);
 
             }
 
