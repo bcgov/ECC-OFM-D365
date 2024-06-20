@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Models;
 using System.Text.Json.Serialization;
 using static System.Net.Mime.MediaTypeNames;
@@ -207,20 +208,6 @@ public class SupplementarySchedule : ofm_supplementary_schedule
     public new decimal? ofm_transport_ge_20_spaces_lease_cap_month { get; set; }
     public new decimal? ofm_transport_less_20_spaces_lease_cap_month { get; set; }
     public new decimal? ofm_transport_reimbursement_rate_per_km { get; set; }
-}
+} 
 
-public class ProviderStaff
-{
-    [JsonPropertyName("ofm_initials")]
-    public string Initials { get; set; }
-    [JsonPropertyName("ofm_certificate_number")]
-    public string CertificateNumber { get; set; }
-    [JsonPropertyName("application.ofm_application")]
-    public string ApplicationId { get; set; }
-    [JsonPropertyName("application.ofm_contact")]
-    public Guid ProviderId { get; set; }
-    [JsonPropertyName("application.ofm_contact@OData.Community.Display.V1.FormattedValue")]
-    public string ProviderName { get; set; }
-   
-}
 public record NonHRStepAction(int Step, decimal AllocatedSpaces, decimal Rate, decimal Cost, string Envelope, int MinSpaces, int MaxSpaces, ecc_Ownership Ownership);

@@ -54,6 +54,7 @@ public record ProcessParameter
     [property: JsonPropertyName("paymentfile")]
     public PaymentParameter? paymentfile { get; set; }
 
+
     public record PaymentParameter
     {
        
@@ -61,7 +62,7 @@ public record ProcessParameter
         public string? paymentfileId { get; set; }
     }
 
-
+ 
     public record EmailParameter
     {
         [property: JsonPropertyName("templateId")]
