@@ -458,10 +458,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                         var saEndDate = supplementaryApp.ofm_end_date;
                                         //Check if payments of this allowance type created.
                                         List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
-                                        .Where(r =>
-                                         (supplementaryApp.ofm_allowance_type == 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.SupportNeedsFunding) ||
-                                         (supplementaryApp.ofm_allowance_type != 1 && (int)r.ofm_payment_type == (int)ecc_payment_type.IndigenousProgramming))
-                                         .ToList();
+                                        .Where(r => r._ofm_supplementary_value == supplementaryApp.ofm_allowanceid).ToList();
                                         //Check if payment record already exist for this supplementary app.
                                         if (saSupportOrIndigenousPayments.Count == 0)
                                         {
@@ -496,7 +493,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                         //Check if payments exists for this app.
                                         List<PaymentLine> saTransportationPayments = paymentDeserializedData
                                             .Where(r =>
-                                              (int)r.ofm_payment_type == (int)ecc_payment_type.Transportation && r._ofm_supplementary_value == transportationApp.Id).ToList();
+                                              (int)r.ofm_payment_type == (int)ecc_payment_type.Transportation && r._ofm_supplementary_value == transportationApp.ofm_allowanceid).ToList();
                                         //if no payments exists for any transportationa application, then create monthly payment lines.
                                         if (saTransportationPayments.Count == 0)
                                         {

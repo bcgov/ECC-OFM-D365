@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+
 namespace OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
 
 public class P700ProviderCertificateProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
@@ -107,6 +108,33 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         public DateTime EXPDATE { get; set; }
         public string ISACTIVE { get; set; }
     }
+    public TimeZoneInfo GetPSTTimeZoneInfo(string timezoneId1, string timezoneId2)
+    {
+        try
+        {
+            TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(timezoneId1);
+
+            return info;
+        }
+        catch (System.TimeZoneNotFoundException)
+        {
+            try
+            {
+                TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(timezoneId2);
+
+                return info;
+            }
+            catch (System.TimeZoneNotFoundException)
+            {
+                _logger.LogError(CustomLogEvent.Process, "Could not find timezone by Id");
+                return null;
+            }
+        }
+        catch (System.Exception)
+        {
+            return null;
+        }
+    }
     public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P700ProviderCertificateProvider));
@@ -197,8 +225,14 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         {
             // retrieve csv file from crm and parse 
             var localData = await GetDataAsync();
-            var downloadfile = Convert.FromBase64String(localData.Data.ToString());
-            var downloadfileUTF8 = Encoding.UTF8.GetString(downloadfile);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            //var downloadfile = Convert.FromBase64String(localData.Data.ToString());
+            byte[] downloadfile = Convert.FromBase64String(localData.Data.ToString());
+            // Convert to ANSI format first as the file business provided is ANSI
+            string ansiText = Encoding.GetEncoding("Windows-1252").GetString(downloadfile);
+            byte[] utf8Bytes = Encoding.UTF8.GetBytes(ansiText);
+            var downloadfileUTF8  = Encoding.UTF8.GetString(utf8Bytes);
+            // var downloadfileUTF8 = Encoding.UTF8.GetString(downloadfile);
             List<Record> csvRecords;
             // Validate csv file
             using (var reader = new StringReader(downloadfileUTF8))
@@ -294,7 +328,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             }
             // Batch processing
             int batchSize = 1000;
-            for(int i = 0; i < differenceCsvRecords.Count; i += batchSize)
+            for (int i = 0; i < differenceCsvRecords.Count; i += batchSize)
             {
                 var upsertECERequests = new List<HttpRequestMessage>() { };
                 var batch = differenceCsvRecords.Skip(i).Take(batchSize).ToList();
@@ -321,7 +355,8 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     _logger.LogError(CustomLogEvent.Process, "Failed to Upsert ECE Certification: {error}", JsonValue.Create(errorInfos)!.ToString());
                     upsertMessages += "Batch Upsert errors: " + JsonValue.Create(errorInfos) + "\n\r";
                 }
-                Console.WriteLine("Upsert Batch process record index:", i.ToString());
+                //Console.WriteLine("Upsert Batch process record index:{0}", i);
+                _logger.LogDebug(CustomLogEvent.Process, "Upsert Batch process record index:{index}", i);
             }
 
             if (string.IsNullOrEmpty(upsertMessages))
@@ -359,7 +394,8 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     _logger.LogError(CustomLogEvent.Process, "Failed to Upsert ECE Certification: {error}", JsonValue.Create(errorInfos)!.ToString());
                     deactiveMessages += "Batch Upsert errors: " + JsonValue.Create(errorInfos) + "\n\r";
                 }
-                Console.WriteLine("Batch Deactive missing process record index:", i.ToString());
+                //Console.WriteLine("Batch Deactive CRM records not existing in CSV file index:{0}", i);
+                _logger.LogDebug(CustomLogEvent.Process, "Batch Deactive CRM records not existing in CSV file index:{index}", i);
             }
 
             if (string.IsNullOrEmpty(deactiveMessages))
@@ -375,9 +411,13 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             if (upsertSucessfully && deactiveSucessfully)
             {
                 var localtime = _timeProvider.GetLocalNow();
+                TimeZoneInfo PSTZone = GetPSTTimeZoneInfo("Pacific Standard Time", "America/Los_Angeles");
+                var pstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, PSTZone);
                 var endtime = _timeProvider.GetTimestamp();
                 var timediff = _timeProvider.GetElapsedTime(startTime, endtime).TotalSeconds;
-                dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ Math.Round(timediff,2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+                //dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ Math.Round(timediff,2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+                dataImportMessages = pstTime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:" + Math.Round(timediff, 2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";
+
                 var ECECertStatement = $"ofm_data_imports({_processParams.DataImportId})";
                 var payload = new JsonObject {
                         { "ofm_message", dataImportMessages},
