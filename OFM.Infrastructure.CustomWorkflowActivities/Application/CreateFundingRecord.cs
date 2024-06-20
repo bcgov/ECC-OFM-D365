@@ -35,8 +35,9 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                 if (entity != null && entity.Attributes.Count > 0)
                 // if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm_funding_number_base") && statusReasonValue == 3)
                 {
-                    // get Rate Schedual
                     DateTime currentDate = DateTime.UtcNow;
+
+                    // get Rate Schedual
                     var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                 <fetch>
                                   <entity name=""ofm_rate_schedule"">
@@ -56,8 +57,37 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                                   </entity>
                                 </fetch>";
                     EntityCollection rateSchedual = service.RetrieveMultiple(new FetchExpression(fetchXml));
-                    Guid rateSchualId = Guid.Empty;
-                    if (rateSchedual.Entities.Count>0) { rateSchualId = rateSchedual[0].Id; }
+                    Guid rateSchedualId = Guid.Empty;
+                    if (rateSchedual.Entities.Count > 0) { rateSchedualId = rateSchedual[0].Id; }
+
+                    // get Intake
+                    fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                                <fetch>
+                                  <entity name=""ofm_intake"">
+                                    <attribute name=""ofm_intakeid"" />
+                                    <attribute name=""ofm_intake_number"" />
+                                    <attribute name=""ofm_caption"" />
+                                    <attribute name=""ofm_start_date"" />
+                                    <attribute name=""ofm_end_date"" />
+                                    <attribute name=""ofm_intake_type"" />
+                                    <attribute name=""ofm_description"" />
+                                    <attribute name=""ofm_completed_date"" />
+                                    <attribute name=""statecode"" />
+                                    <order attribute=""ofm_start_date"" descending=""true"" />
+                                    <filter type=""and"">
+                                      <condition attribute=""ofm_start_date"" operator=""le"" value=""{currentDate}"" />
+                                      <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                                      <filter type=""or"">
+                                        <condition attribute=""ofm_end_date"" operator=""null"" />
+                                        <condition attribute=""ofm_end_date"" operator=""ge"" value=""{currentDate}"" />
+                                      </filter>
+                                    </filter>
+                                  </entity>
+                                </fetch>";
+                    EntityCollection intake = service.RetrieveMultiple(new FetchExpression(fetchXml));
+                    Guid intakeId = Guid.Empty;
+                    if (intake.Entities.Count > 0) { intakeId = intake[0].Id; }
+
                     if (string.IsNullOrEmpty(ofmFundingNumberBase))
                     {
                         //First submission, use seed to generate the funding agreement number
@@ -66,7 +96,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                         {
                             statuscode = "1"
                         };
-                         fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                        fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                         <fetch>
                                           <entity name=""ofm_fiscal_year"">
                                             <attribute name=""ofm_agreement_number_seed"" />
@@ -107,7 +137,8 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                         newFundingRecord["ofm_version_number"] = 0;
                         newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-00"; // Primary coloumn
                         newFundingRecord["ofm_application"] = new EntityReference("ofm_application", recordId);
-                        newFundingRecord["ofm_rate_schedule"] = (rateSchualId==null||rateSchualId==Guid.Empty)?null:new EntityReference("ofm_rate_schedule", rateSchualId);
+                        newFundingRecord["ofm_rate_schedule"] = (rateSchedualId == null || rateSchedualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchedualId);
+                        newFundingRecord["ofm_intake"] = (intakeId == null || intakeId == Guid.Empty) ? null : new EntityReference("ofm_intake", intakeId);
                         service.Create(newFundingRecord);
                         tracingService.Trace("\nUpdate Agreement Num Base and create fist Funding records sucessfully.");
                     }
@@ -119,7 +150,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                             ofm_application = recordId.ToString(),
                             statecode = "0"
                         };
-                         fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                        fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                         <fetch>
                                           <entity name=""ofm_funding"">
                                             <attribute name=""ofm_application"" />
@@ -151,7 +182,8 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                             newFundingRecord["ofm_version_number"] = fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1;
                             newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-" + (fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1).ToString("00"); // Primary coloumn
                             newFundingRecord["ofm_application"] = new EntityReference("ofm_application", recordId);
-                            newFundingRecord["ofm_rate_schedule"] = (rateSchualId == null || rateSchualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchualId);
+                            newFundingRecord["ofm_rate_schedule"] = (rateSchedualId == null || rateSchedualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchedualId);
+                            newFundingRecord["ofm_intake"] = (intakeId == null || intakeId == Guid.Empty) ? null : new EntityReference("ofm_intake", intakeId);
                             service.Create(newFundingRecord);
                             tracingService.Trace("\nThis is resubmisstion.Create Funding records sucessfully.");
                         }
