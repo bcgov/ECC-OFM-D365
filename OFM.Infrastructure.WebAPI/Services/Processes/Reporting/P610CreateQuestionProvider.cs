@@ -1,5 +1,6 @@
 ﻿using ECC.Core.DataContext;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
@@ -382,6 +383,15 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                 {
                     var responseBody = await CreateResponserequestBodyReportTemplate.Content.ReadAsStringAsync();
                     _logger.LogError(CustomLogEvent.Process, "Failed to create the Report Template record with the server error {responseBody}", responseBody.CleanLog());
+                    var response = await RemoveAsync(newReportTemplateId);
+                    var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                    if (response.IsSuccessStatusCode)
+                        _logger.LogError(CustomLogEvent.Process, "Failed under if (!CreateResponserequestBodyReportTemplate.IsSuccessStatusCode).Record was removed successfully", responseBodyDeleteRequest);
+
+                    else
+                        
+                    _logger.LogError(CustomLogEvent.Operation, "Failed under if (!CreateResponserequestBodyReportTemplate.IsSuccessStatusCode).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
+                    
 
                     return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
                 }
@@ -409,7 +419,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                     var payloadSurvey = new JsonObject
                         {
                             {ofm_section.Fields.ofm_name,survey.First().CVSectionName },
-                             {ofm_section.Fields.ofm_section_order,reportSectionOrder.Where(x => x.SectionName == survey.First().CVSectionName).Select(x => x.OrderNumber).First() },
+                             {ofm_section.Fields.ofm_section_order,reportSectionOrder.Where(x => x.SectionName == survey.First()?.CVSectionName).Select(x => x.OrderNumber).First() },
                             {ofm_section.Fields.ofm_section_title,survey.First().CVSectionName },
                             {ofm_section.Fields.ofm_source_section_id,survey.First().SectionSourceSurveyIdentifier },
                             {ofm_section.Fields.ofm_customer_voice_survey_id,survey.First().SectionSurveyId },
@@ -422,6 +432,14 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                         var responseBody = await CreateResponseSection.Content.ReadAsStringAsync();
                         _logger.LogError(CustomLogEvent.Process, "Failed to create the Section record with the server error {responseBody}", responseBody.CleanLog());
                         _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
+                        var response = await RemoveAsync(newReportTemplateId);
+                        var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                        if (response.IsSuccessStatusCode)
+                            _logger.LogError(CustomLogEvent.Process, "Failed under if (!CreateResponseSection.IsSuccessStatusCode).Record was removed successfully", responseBodyDeleteRequest);
+
+                        else
+
+                            _logger.LogError(CustomLogEvent.Operation, "Failed under if (!CreateResponseSection.IsSuccessStatusCode).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
                         return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
                     }
 
@@ -462,6 +480,14 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                             _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionError)!.ToString());
                             _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
                             _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                            var response = await RemoveAsync(newReportTemplateId);
+                            var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                            if (response.IsSuccessStatusCode)
+                                _logger.LogError(CustomLogEvent.Process, "Failed under if (createQuestionBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
+
+                            else
+
+                                _logger.LogError(CustomLogEvent.Operation, "Failed under if (createQuestionBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
                             return createQuestionError.SimpleProcessResult;
 
                         }
@@ -486,6 +512,14 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                             _logger.LogError(CustomLogEvent.Process, "Failed to create Table type Question with an error: {error}", JsonValue.Create(createQuestionTableError)!.ToString());
                             _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
                             _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                            var response = await RemoveAsync(newReportTemplateId);
+                            var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                            if (response.IsSuccessStatusCode)
+                                _logger.LogError(CustomLogEvent.Process, "Failed under if (createTableQuestionBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
+
+                            else
+
+                                _logger.LogError(CustomLogEvent.Operation, "Failed under if (createTableQuestionBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
                             return createQuestionTableError.SimpleProcessResult;
 
 
@@ -526,7 +560,15 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                             _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionColumnError)!.ToString());
                             _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
                             _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                           // return createQuestionColumnError.SimpleProcessResult;
+                            var response = await RemoveAsync(newReportTemplateId);
+                            var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                            if (response.IsSuccessStatusCode)
+                                _logger.LogError(CustomLogEvent.Process, "Failed under if (createTableQuestionBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
+
+                            else
+
+                                _logger.LogError(CustomLogEvent.Operation, "Failed under if (createTableQuestionBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
+                            return createQuestionColumnError.SimpleProcessResult;
 
 
                         }
@@ -542,7 +584,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
             }
         }
 
-        catch (ValidationException exp)
+        catch (Exception exp)
         { 
 
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block RunProcessAsync", new[] { exp.Message, exp.StackTrace ?? string.Empty });
@@ -560,9 +602,9 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
     }
-    public async Task<HttpResponseMessage> RemoveAsync(string documentId)
+    public async Task<HttpResponseMessage> RemoveAsync(string reportTemplateId)
     {
-        return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, $"annotations({documentId})");
+        return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, $"ofm_surveies({reportTemplateId})");
     }
     public JsonObject CreateJsonObject(D365Reporting question)
     {
@@ -653,7 +695,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                 await CreateBusinessRule(_sectionId, appUserService, d365WebApiService, deserializedQuestion);
             }
         }
-        catch (ValidationException exp)
+        catch (Exception exp)
         {
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block UpdateQuestionwithManualData", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             ProcessResult.Failure(ProcessId, new[] { exp.Message, exp.StackTrace ?? string.Empty }, 0, 0);
@@ -721,7 +763,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
 
 
         }
-        catch (ValidationException exp)
+        catch (Exception exp)
         {
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block CreateBusinessRule", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             ProcessResult.Failure(ProcessId, new[] { exp.Message, exp.StackTrace ?? string.Empty }, 0, 0);
