@@ -37,8 +37,7 @@ public record ProcessParameter
     public OrganizationParameter? Organization { get; set; }
     [property: JsonPropertyName("application")]
     public ApplicationParameter? Application { get; set; }
-    [property: JsonPropertyName("ofm_allowance")]
-    public SupplementaryApplicationParameter? SupplementaryApplication { get; set; }
+    
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
     [property: JsonPropertyName("fundingReport")]
@@ -111,12 +110,7 @@ public record ProcessParameter
 
         
     }
-    public record SupplementaryApplicationParameter
-    {
-        [property: JsonPropertyName("fyYear")]
-        public string? fyYear { get; set; }
-
-    }
+    
     public record FundingParameter
     {
         //[property: JsonPropertyName("facilityId")]
