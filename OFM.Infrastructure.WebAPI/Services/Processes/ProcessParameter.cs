@@ -50,6 +50,8 @@ public record ProcessParameter
     [property: JsonPropertyName("ReportSections")]
     public string? ReportSections { get; set; }
 
+   
+
     [property: JsonPropertyName("paymentfile")]
     public PaymentParameter? paymentfile { get; set; }
 
@@ -137,6 +139,12 @@ public record ProcessParameter
 
         [property: JsonPropertyName("Project_Guid")]
         public string? ProjectId { get; set; }
+
+        [property: JsonPropertyName("StartDate")]
+        public DateTime? StartDate { get; set; }
+
+        [property: JsonPropertyName("EndDate")]
+        public DateTime? EndDate { get; set; }
     }
 
     public record FundingReportParameter

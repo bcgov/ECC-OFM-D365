@@ -45,10 +45,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                         <value>1</value>
                         <value>2</value>
                       </condition>
-                     <condition attribute="ofm_certificate_status" operator="in">
-                  <value>2</value>
-                  <value>3</value>
-                </condition>
+                     <condition attribute="ofm_certificate_status" operator="eq" value="0" />
                     </filter>
                     <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" visible="false" link-type="outer" alias="application">
                       <attribute name="ofm_contact" />
@@ -83,10 +80,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     <order attribute="ofm_caption" descending="false" />
                     <filter type="and">
                     <condition attribute="ofm_survey_response" operator="eq"  value="{_processParams?.FundingReport?.FundingReportId}"/>
-                   <condition attribute="ofm_certificate_status" operator="in">
-                  <value>2</value>
-                  <value>3</value>
-                </condition>
+                   <condition attribute="ofm_certificate_status" operator="eq" value="0" />
                     </filter>
                     <link-entity name="ofm_survey_response" from="ofm_survey_responseid" to="ofm_survey_response" visible="false" link-type="outer" alias="report">
                       <attribute name="ofm_contact" />

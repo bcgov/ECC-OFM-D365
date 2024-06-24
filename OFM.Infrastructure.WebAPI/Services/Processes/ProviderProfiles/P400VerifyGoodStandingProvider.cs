@@ -320,7 +320,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
 
 
-        deserializedData?.Where(c => c.ofm_bypass_bc_registry_good_standing == false).ToList().ForEach(async organization =>
+        deserializedData?.Where(c => c.ofm_bypass_bc_registry_good_standing != true).ToList().ForEach(async organization =>
         {
             string organizationId = organization.accountid;
             string legalName = organization.name;
