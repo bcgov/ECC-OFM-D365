@@ -87,6 +87,12 @@
              }
              </remarks>
         </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.DocumentsHandlers.GetAsync(OFM.Infrastructure.WebAPI.Services.Documents.ID365DocumentService,System.String)">
+            <summary>
+            ToDo
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.DocumentsHandlers.PostAsync(OFM.Infrastructure.WebAPI.Services.Documents.ID365DocumentService,Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.AspNetCore.Http.IFormFileCollection,System.String)">
              <summary>
              Upload multiple documents "<see cref="T:OFM.Infrastructure.WebAPI.Models.FileMapping"/>".
@@ -330,7 +336,8 @@
             <summary>
             1. Split Room condition is a specific scenario where a facility has a smaller room capacity than normal. It requires more staff for the additional rooms.
                The provider can claim more FTEs than the efficient space allocation ratio from the funding calculator.
-            2. Duplicate Care Type condition happens when a facility operates with multiple locations. The capacity and hours may differ at each location hence there are duplicate licence details.
+            2. Duplicate Care Type condition happens when a facility operates with multiple locations. The capacity and hours may differ at each location hence there are duplicate licence details. 
+               Additionally, a facility could have seasonal scehdules, which result in duplicate care types with different open hours.
             </summary>
         </member>
         <member name="P:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail.AnnualAvailableHoursPerFTE">
