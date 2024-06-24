@@ -9,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
@@ -21,6 +22,9 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
     private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessParameter? _processParams;
     private ProcessData? _data;
+    private int certificateStatus = 0;  // 1 Passed, 0 Failed
+    private string CertificateNumber = string.Empty;
+    private string reportID = string.Empty;
 
     public Int16 ProcessId => Setup.Process.DataImports.ProcessProviderCertificatesId;
     public string ProcessName => Setup.Process.DataImports.ProcessProviderCertificatesName;
@@ -97,6 +101,138 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             return requestUri.CleanCRLF();
         }
     }
+    private string providerEmployeeRequestUri
+    {
+        // Provider Employee of Applicaiton
+        get
+        {
+            // Application StatusReason 3 Submitted, 4, 5
+            var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                <fetch>
+                  <entity name=""ofm_provider_employee"">
+                    <attribute name=""ofm_application"" />
+                    <attribute name=""ofm_caption"" />
+                    <attribute name=""ofm_certificate_number"" />
+                    <attribute name=""ofm_certificate_status"" />
+                    <attribute name=""statecode"" />
+                    <filter>
+                      <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                      <condition attribute=""ofm_certificate_number"" operator=""eq"" value=""{CertificateNumber}"" />
+                          <filter type=""or"">
+                            <condition attribute=""ofm_certificate_status"" operator=""eq"" value=""{certificateStatus}"" />
+                            <condition attribute=""ofm_certificate_status"" operator=""null"" value="""" />
+                          </filter>
+                    </filter>
+                    <link-entity name=""ofm_application"" from=""ofm_applicationid"" to=""ofm_application"" link-type=""inner"" alias=""app"">
+                      <filter>
+                        <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                        <condition attribute=""statuscode"" operator=""in"">
+                          <value>5</value>
+                          <value>3</value>
+                          <value>4</value>
+                        </condition>
+                      </filter>
+                    </link-entity>
+                  </entity>
+                </fetch>";
+            var requestUri = $"""
+                            ofm_provider_employees?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """;
+
+            return requestUri.CleanCRLF();
+        }
+    }
+    private string questionResponseRequestUri
+    {
+        // Question Response of Report
+        get
+        {
+            var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                <fetch>
+                  <entity name=""ofm_question_response"">
+                    <attribute name=""ofm_name"" />
+                    <attribute name=""ofm_question"" />
+                    <attribute name=""ofm_response_text"" />
+                    <attribute name=""ofm_survey_response"" />
+                    <filter>
+                      <condition attribute=""ofm_response_text"" operator=""eq"" value=""{CertificateNumber}"" />
+                    </filter>
+                    <link-entity name=""ofm_question"" from=""ofm_questionid"" to=""ofm_question"">
+                      <filter>
+                        <condition attribute=""ofm_question_id"" operator=""eq"" value=""QID104_1_4_1"" />
+                      </filter>
+                    </link-entity>
+                    <link-entity name=""ofm_survey_response"" from=""ofm_survey_responseid"" to=""ofm_survey_response"" link-type=""inner"" alias=""monthlyReport"">
+                      <attribute name=""ofm_certificate_status"" />
+                      <attribute name=""ofm_survey_responseid"" />
+                      <filter>
+                        <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                      </filter>
+                    </link-entity>
+                  </entity>
+                </fetch>";
+            var requestUri = $"""
+                            ofm_question_responses?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """;
+
+            return requestUri.CleanCRLF();
+        }
+    }
+    private string allQuestionsResponseonReportRequestUri
+    {
+        // Question Response of Report
+        get
+        {
+            var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                <fetch>
+                  <entity name=""ofm_question_response"">
+                    <attribute name=""ofm_name"" />
+                    <attribute name=""ofm_question"" />
+                    <attribute name=""ofm_response_text"" />
+                    <filter>
+                      <condition attribute=""ofm_survey_response"" operator=""eq"" value=""{reportID}"" />
+                    </filter>
+                    <link-entity name=""ofm_question"" from=""ofm_questionid"" to=""ofm_question"">
+                      <filter>
+                        <condition attribute=""ofm_question_id"" operator=""eq"" value=""QID104_1_4_1"" />
+                      </filter>
+                    </link-entity>
+                  </entity>
+                </fetch>";
+            var requestUri = $"""
+                            ofm_question_responses?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """;
+
+            return requestUri.CleanCRLF();
+        }
+    }
+    private string employeeCertificateRequestUri
+    {
+        // Question Response of Report
+        get
+        {
+            var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                <fetch>
+                  <entity name=""ofm_employee_certificate"">
+                    <attribute name=""ofm_certificate_number"" />
+                    <attribute name=""ofm_effective_date"" />
+                    <attribute name=""ofm_expiry_date"" />
+                    <attribute name=""ofm_is_active"" />
+                    <filter>
+                      <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                      <condition attribute=""ofm_is_active"" operator=""eq"" value=""1"" />
+                      <condition attribute=""ofm_certificate_number"" operator=""eq"" value=""{CertificateNumber}"" />
+                      <condition attribute=""ofm_effective_date"" operator=""le"" value=""{DateTime.UtcNow.ToString("MM/dd yyyy")}"" />
+                      <condition attribute=""ofm_expiry_date"" operator=""ge"" value=""{DateTime.UtcNow.ToString("MM/dd,yyyy")}"" />
+                    </filter>
+                  </entity>
+                </fetch>";
+            var requestUri = $"""
+                            ofm_employee_certificates?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """;
+            return requestUri.CleanCRLF();
+        }
+    }
     public class Record
     {
         public string CLIENTID { get; set; }
@@ -107,6 +243,13 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         public DateTime EFFDATE { get; set; }
         public DateTime EXPDATE { get; set; }
         public string ISACTIVE { get; set; }
+    }
+    private class MonthlyReport
+    {
+        public Guid ReportID { get; set; }
+        public string CLIENTID { get; set; }
+        public int CertStatus { get; set; }
+        public int CRMCertStatus { get; set; }
     }
     public TimeZoneInfo GetPSTTimeZoneInfo(string timezoneId1, string timezoneId2)
     {
@@ -134,6 +277,16 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         {
             return null;
         }
+    }
+    private bool validateCertStatus(Record cert)
+    {
+        DateTime today = DateTime.Today;
+
+        if (cert.ISACTIVE?.Trim().ToLower() == "yes" && today >= cert.EFFDATE && today <= cert.EXPDATE)
+        {
+            return true;
+        }
+        return false;
     }
     public async Task<ProcessData> GetDataAsync()
     {
@@ -212,6 +365,34 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         _logger.LogDebug(CustomLogEvent.Process, "Total records fetched: {totalRecords}", allRecords.Count);
         return allRecords;
     }
+    private async void MonthlyReportCertStatusValidation(string reportid, int crmcertstatus)
+    {
+        reportID = reportid.ToString();
+        int CertStatusPassednum = 0;
+        int certStatus = 0; // 0 Failed 1 Passed
+        List<JsonNode> questionResponses = await FetchAllRecordsFromCRMAsync(allQuestionsResponseonReportRequestUri);
+        foreach (var item in questionResponses)
+        {
+            CertificateNumber = ((string)item["ofm_response_text"]).Trim();
+            List<JsonNode> employeeCerts = await FetchAllRecordsFromCRMAsync(employeeCertificateRequestUri);
+            if (employeeCerts.Count > 0) { CertStatusPassednum++; }
+        }
+        if (CertStatusPassednum == questionResponses.Count()) { certStatus = 1; } else { certStatus = 0; };
+        if (certStatus != crmcertstatus)
+        {
+            var updateString = $"ofm_survey_responses({reportid})";
+            var payload = new JsonObject {
+                              { "ofm_certificate_status", certStatus}
+                               };
+            var requestBody = JsonSerializer.Serialize(payload);
+            var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
+            if (!patchResponse.IsSuccessStatusCode)
+            {
+                var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+            }
+        }
+    }
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
@@ -231,7 +412,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             // Convert to ANSI format first as the file business provided is ANSI
             string ansiText = Encoding.GetEncoding("Windows-1252").GetString(downloadfile);
             byte[] utf8Bytes = Encoding.UTF8.GetBytes(ansiText);
-            var downloadfileUTF8  = Encoding.UTF8.GetString(utf8Bytes);
+            var downloadfileUTF8 = Encoding.UTF8.GetString(utf8Bytes);
             // var downloadfileUTF8 = Encoding.UTF8.GetString(downloadfile);
             List<Record> csvRecords;
             // Validate csv file
@@ -287,6 +468,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             .Select(g => g.OrderByDescending(r => r.EFFDATE).First())
             .ToList();
             List<Record> differenceCsvRecords = new List<Record>();
+            List<Record> impactCertStatusRecords = new List<Record>();
             foreach (var csvRecord in distinctRecords)
             {
                 // var crmRecord = oldECECertData.FirstOrDefault(cr => (string)cr["ofm_certificate_number"] == csvRecord.CLIENTID);
@@ -311,20 +493,27 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     if ((bool)crmRecord["ofm_is_active"] != (csvRecord.ISACTIVE?.ToLower() == "yes"))
                     {
                         differenceCsvRecords.Add(csvRecord);
+                        impactCertStatusRecords.Add(csvRecord);
                         continue;
                     }
                     if (((DateTime)crmRecord["ofm_expiry_date"]).Date != csvRecord.EXPDATE)
                     {
                         differenceCsvRecords.Add(csvRecord);
+                        impactCertStatusRecords.Add(csvRecord);
                         continue;
                     }
                     if (((DateTime)crmRecord["ofm_effective_date"]).Date != csvRecord.EFFDATE)
                     {
                         differenceCsvRecords.Add(csvRecord);
+                        impactCertStatusRecords.Add(csvRecord);
                         continue;
                     }
                 }
-                else { differenceCsvRecords.Add(csvRecord); }
+                else
+                {
+                    differenceCsvRecords.Add(csvRecord);
+                    impactCertStatusRecords.Add(csvRecord);
+                }
             }
             // Batch processing
             int batchSize = 1000;
@@ -451,6 +640,111 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     }
                 }
                 Console.WriteLine("End Upsert Data Import ");
+                // Update existing Cert status of Provider Employee of Applicaton 
+                // 1. Update EFFDate,EXPIREDATE,ISACTIVE changed records 
+                List<MonthlyReport> monthlyReportRecords = new List<MonthlyReport>();
+                foreach (var impactCertStatusRecord in impactCertStatusRecords)
+                {
+                    bool certStatus = validateCertStatus(impactCertStatusRecord);
+                    certificateStatus = certStatus ? 0 : 1; // 1 Passed 0 Failed
+                    CertificateNumber = impactCertStatusRecord.CLIENTID;
+                    List<JsonNode> providerEmployees = await FetchAllRecordsFromCRMAsync(providerEmployeeRequestUri);
+                    foreach (var providerEmployee in providerEmployees)
+                    {
+                        var updateString = $"ofm_provider_employees({providerEmployee["ofm_provider_employeeid"].ToString()})";
+                        payload = new JsonObject {
+                        { "ofm_certificate_status", certStatus?1:0 }
+                    };
+                        requestBody = JsonSerializer.Serialize(payload);
+                        patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
+                        if (!patchResponse.IsSuccessStatusCode)
+                        {
+                            var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                            _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+                            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                        }
+                    }
+                    // Prepare Monthly Report records to update
+                    List<JsonNode> questionResponses = await FetchAllRecordsFromCRMAsync(questionResponseRequestUri);
+                    foreach (var item in questionResponses)
+                    {
+                        MonthlyReport monthlyReport = new MonthlyReport();
+                        monthlyReport.ReportID = (Guid)item["monthlyReport.ofm_survey_responseid"];
+                        monthlyReport.CLIENTID = CertificateNumber;
+                        monthlyReport.CertStatus = certStatus ? 1 : 0;
+                        monthlyReport.CRMCertStatus = (int)item["monthlyReport.ofm_certificate_status"];
+                        monthlyReportRecords.Add(monthlyReport);
+                    }
+                }
+                // 2. Update all Deactive Records
+                foreach (var missinginCSVRecord in missingInCsv)
+                {
+                    certificateStatus = 1; // 1 Passed 0 Failed
+                    CertificateNumber = (string)missinginCSVRecord["ofm_certificate_number"];
+                    List<JsonNode> providerEmployees = await FetchAllRecordsFromCRMAsync(providerEmployeeRequestUri);
+                    foreach (var providerEmployee in providerEmployees)
+                    {
+                        var updateString = $"ofm_provider_employees({providerEmployee["ofm_provider_employeeid"].ToString()})";
+                        payload = new JsonObject {
+                        { "ofm_certificate_status", 0 }
+                        };
+                        requestBody = JsonSerializer.Serialize(payload);
+                        patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
+                        if (!patchResponse.IsSuccessStatusCode)
+                        {
+                            var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                            _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+                            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                        }
+                    }
+                    // Prepare Monthly Report records to update
+                    List<JsonNode> questionResponses = await FetchAllRecordsFromCRMAsync(questionResponseRequestUri);
+                    foreach (var item in questionResponses)
+                    {
+                        MonthlyReport monthlyReport = new MonthlyReport();
+                        monthlyReport.ReportID = (Guid)item["monthlyReport.ofm_survey_responseid"];
+                        monthlyReport.CLIENTID = CertificateNumber;
+                        monthlyReport.CertStatus = 0;
+                        monthlyReport.CRMCertStatus = (int)item["monthlyReport.ofm_certificate_status"];
+                        monthlyReportRecords.Add(monthlyReport);
+                    }
+                }
+                Console.WriteLine("End update Cert Status of Provider Employee of Applicaiton");
+
+                // Update Cert Status of Report
+                List<MonthlyReport> distinctMonthlyReportRecords = monthlyReportRecords
+                    .GroupBy(r => r.ReportID)
+                    .Select(g => g.First())
+                    .OrderBy(r => r.CertStatus)
+                    .ToList();
+                foreach (var item in distinctMonthlyReportRecords)
+                {
+                    if (item.CertStatus == 0)
+                    {
+                        if (item.CRMCertStatus == 0) { continue; }
+                        else
+                        {
+                            var updateString = $"ofm_survey_responses({item.ReportID.ToString()})";
+                            payload = new JsonObject {
+                              { "ofm_certificate_status", 0 }
+                               };
+                            requestBody = JsonSerializer.Serialize(payload);
+                            patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
+                            if (!patchResponse.IsSuccessStatusCode)
+                            {
+                                var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                                _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+                                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        MonthlyReportCertStatusValidation(item.ReportID.ToString(),item.CRMCertStatus);
+                    }
+                }
+                Console.WriteLine("End update Cert Status of Report");
+
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
             else
