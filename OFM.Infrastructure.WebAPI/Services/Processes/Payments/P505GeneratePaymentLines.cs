@@ -16,7 +16,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
     public class P505GeneratePaymentLinesProvider : ID365ProcessProvider
     {
         private string application;
-        private string FYYear;
         private string saApplication;
         private readonly ID365AppUserService _appUserService;
         private readonly ID365WebApiService _d365webapiservice;
@@ -176,7 +175,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         <filter type="and">
                           <condition attribute="ofm_application" operator="eq"  value="{{application}}" />
                           <condition attribute="statuscode" operator="eq" value="6" />
-                          <condition attribute="ofm_renewal_term" operator="eq" value="{{FYYear}}" />
                         </filter>
                       </entity>
                     </fetch>
@@ -363,7 +361,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     int fundingStatus = fundingInfo.statuscode.Value;
                     string facility = fundingInfo._ofm_facility_value.ToString();
                     application = _processParams?.Application?.applicationId.ToString();
-                    FYYear = _processParams?.SupplementaryApplication?.fyYear != null ? _processParams?.SupplementaryApplication?.fyYear.ToString() : null;
                     decimal monthlyFundingAmount = decimal.Parse(_processParams?.Funding?.ofm_monthly_province_base_funding_y1);
                     DateTime retroActivePaymentDate;
                     int retroActiveCreditOrDebitMonths = 0;
@@ -436,9 +433,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         }
                         // PAYMENT CREATION FOR SUPPORT or INDIGENIOUS PROGRAMMING APPS
                         // Checking if the trigger is for supplementary application approval based on FY year value.
-                        if (FYYear != null)
-                        {
-
+                       
                             //Check if supplementary application exists.
                             var supplementaryApplications = await GetSupplementaryApplicationDataAsync();
                             var supplementaryApplicationDeserializedData = JsonSerializer.Deserialize<List<SupplementaryApplication>>(supplementaryApplications.Data.ToString());
@@ -536,7 +531,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             }
                         }
 
-                    }
+                 //For cancellation or termination of funding.
                     else if (fundingStatus == (int)ofm_funding_StatusCode.Terminated || fundingStatus == (int)ofm_funding_StatusCode.Cancelled || fundingStatus == (int)ofm_funding_StatusCode.Expired)
                     {
                         var allPayments = await GetApplicationPaymentDataAsync();
