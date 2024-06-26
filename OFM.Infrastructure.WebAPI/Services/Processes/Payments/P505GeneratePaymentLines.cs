@@ -644,7 +644,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 {
                     { "ofm_invoice_line_number", lineNumber++ },
                     { "ofm_amount", fundingAmount},
-                    { "ofm_payment_type", (int) ecc_payment_type.CORE },
+                    { "ofm_payment_type", (int) ecc_payment_type.Base },
                     { "ofm_facility@odata.bind", $"/accounts({Facility})" },
                     { "ofm_organization@odata.bind", $"/accounts({_processParams?.Organization?.organizationId})" },
                     { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },

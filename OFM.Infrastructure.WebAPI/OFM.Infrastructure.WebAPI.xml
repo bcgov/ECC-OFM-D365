@@ -542,9 +542,39 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_conversation"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_data_importSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_data_import"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_documentSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_document"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_employee_certificateSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_employee_certificate"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_employee_certificate_statusSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_employee_certificate_status"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_expenseSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_expense"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_facility_intakeSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_facility_intake"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_facility_operating_costSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_facility_operating_cost"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_facility_requestSet">
@@ -567,6 +597,11 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_funding_rate"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_intakeSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_intake"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_integration_logSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_integration_log"/> entities.
@@ -582,19 +617,49 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_licence_detail"/> entities.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_monthSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_month"/> entities.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_paymentSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_payment"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_payment_file_exchangeSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_payment_file_exchange"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_payment_requestSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_payment_request"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_pcm_reviewSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_pcm_review"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_portal_permissionSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_portal_permission"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_portal_privilegeSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_portal_privilege"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_portal_roleSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_portal_role"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_progress_trackerSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_progress_tracker"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_provider_employeeSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_provider_employee"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_questionSet">
@@ -617,6 +682,11 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_rate_schedule"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_reminderSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_reminder"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_request_categorySet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_request_category"/> entities.
@@ -630,6 +700,16 @@
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_space_allocationSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_space_allocation"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_standing_historySet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_standing_history"/> entities.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_subcategorySet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_subcategory"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_supplementary_scheduleSet">
@@ -2070,6 +2150,11 @@
             1:N ofm_facility_application
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_facility_facilityintake">
+            <summary>
+            1:N ofm_facility_facilityintake
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_facility_licence">
             <summary>
             1:N ofm_facility_licence
@@ -2103,6 +2188,11 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_organization_payment">
             <summary>
             1:N ofm_organization_payment
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_organization_standing_history">
+            <summary>
+            1:N ofm_organization_standing_history
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_payment_facility_account">
@@ -3371,6 +3461,11 @@
             1:N ofm_secondary_contact_application
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Contact.ofm_submittedby_application">
+            <summary>
+            1:N ofm_submittedby_application
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Contact.contact_customer_accounts">
             <summary>
             N:1 contact_customer_accounts
@@ -3394,6 +3489,11 @@
         <member name="P:ECC.Core.DataContext.Contact.msa_contact_managingpartner">
             <summary>
             N:1 msa_contact_managingpartner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Contact.ofm_portal_role_contact">
+            <summary>
+            N:1 ofm_portal_role_contact
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Contact.team_contacts">
@@ -3985,6 +4085,11 @@
         <member name="P:ECC.Core.DataContext.Email.Referencedemail_email_parentactivityid">
             <summary>
             1:N email_email_parentactivityid
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Email.ofm_email_reminder">
+            <summary>
+            1:N ofm_email_reminder
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Email.Account_Email_EmailSender">
@@ -4921,9 +5026,19 @@
             1:N ofm_document_allowance
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_supplementary_payment">
+            <summary>
+            1:N ofm_supplementary_payment
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_application_allowance">
             <summary>
             N:1 ofm_application_allowance
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_reminder_allowance">
+            <summary>
+            N:1 ofm_reminder_allowance
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_supplementaryschedule_allowance">
@@ -5172,6 +5287,11 @@
             The base funding agreement number without the version
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_last_funding_mod">
+            <summary>
+            The date a new funding modification was created
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_licence_declaration">
             <summary>
             I confirm that my licence information is correct
@@ -5255,6 +5375,11 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_summary_signing_authority">
             <summary>
             Signing Authority
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_summary_submittedby">
+            <summary>
+            The associated Submitted By on the application
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_summary_submittedon">
@@ -5342,9 +5467,29 @@
             1:N ofm_application_allowance
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_application_expense">
+            <summary>
+            1:N ofm_application_expense
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_application_funding">
             <summary>
             1:N ofm_application_funding
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_application_paymentrequest">
+            <summary>
+            1:N ofm_application_paymentrequest
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_application_provideremployee">
+            <summary>
+            1:N ofm_application_provideremployee
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_application_reminder">
+            <summary>
+            1:N ofm_application_reminder
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_document_application">
@@ -5360,6 +5505,11 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_payment_application">
             <summary>
             1:N ofm_payment_application
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_pcmreview_application">
+            <summary>
+            1:N ofm_pcmreview_application
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_request_application">
@@ -5395,6 +5545,11 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_secondary_contact_application">
             <summary>
             N:1 ofm_secondary_contact_application
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_submittedby_application">
+            <summary>
+            N:1 ofm_submittedby_application
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.team_ofm_application">
@@ -5636,6 +5791,11 @@
         <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_assistance_request_Emails">
             <summary>
             1:N ofm_assistance_request_Emails
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_assistancerequest_expense">
+            <summary>
+            1:N ofm_assistancerequest_expense
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_assistance_request.ofm_conversation_request">
@@ -6268,6 +6428,147 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_data_import">
+            <summary>
+            Data Import Record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_data_import.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_data_import entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_data_import.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.ofm_data_file">
+            <summary>
+            Data File
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.ofm_data_importid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.ofm_import_type">
+            <summary>
+            Import Type
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.ofm_name">
+            <summary>
+            Data Import record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.statecode">
+            <summary>
+            Status of the Data Import
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.statuscode">
+            <summary>
+            Reason for the status of the Data Import
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_data_import.team_ofm_data_import">
+            <summary>
+            N:1 team_ofm_data_import
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_data_import.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ofm_document.Fields">
             <summary>
             Available fields, a the time of codegen, for the ofm_document entity
@@ -6409,6 +6710,931 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_document.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_employee_certificate">
+            <summary>
+            New and renewal Employee Certificate record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_employee_certificate.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_employee_certificate entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_employee_certificate.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_certificate_number">
+            <summary>
+            Provider Employee Certificate record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_effective_date">
+            <summary>
+            Effective Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_employee_certificateid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_expiry_date">
+            <summary>
+            Certificate Expiry Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_first_name">
+            <summary>
+            First Name
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_is_active">
+            <summary>
+            Is Active?
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_last_name">
+            <summary>
+            Last Name
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_middle_name">
+            <summary>
+            Middle Name
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.statecode">
+            <summary>
+            Status of the Employee Certificate
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.statuscode">
+            <summary>
+            Reason for the status of the Employee Certificate
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.ofm_employeecertificate_employeecertificatestatus">
+            <summary>
+            1:N ofm_employeecertificate_employeecertificatestatus
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate.team_ofm_employee_certificate">
+            <summary>
+            N:1 team_ofm_employee_certificate
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_employee_certificate.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_employee_certificate_status">
+            <summary>
+            Employee Certificate Report record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_employee_certificate_status.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_employee_certificate_status entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_employee_certificate_status.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ofm_caption">
+            <summary>
+            Employee Certificate Status record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ofm_certificate_number">
+            <summary>
+            Certification Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ofm_employee_certificate">
+            <summary>
+            The associated Employee Certificate record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ofm_employee_certificate_statusid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ofm_initials">
+            <summary>
+            Initials
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ofm_survey_response">
+            <summary>
+            The associated Provider Report record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.statecode">
+            <summary>
+            Status of the Employee Certificate Status
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.statuscode">
+            <summary>
+            Reason for the status of the Employee Certificate Status
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ofm_employeecertificate_employeecertificatestatus">
+            <summary>
+            N:1 ofm_employeecertificate_employeecertificatestatus
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.ofm_providerreport_employeecertificatestatus">
+            <summary>
+            N:1 ofm_providerreport_employeecertificatestatus
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_employee_certificate_status.team_ofm_employee_certificate_status">
+            <summary>
+            N:1 team_ofm_employee_certificate_status
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_employee_certificate_status.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_expense">
+            <summary>
+            An Unexpected Expense Application record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_expense.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_expense entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_expense.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.exchangerate">
+            <summary>
+            Exchange rate for the currency associated with the entity with respect to the base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_amount">
+            <summary>
+            Funding Amount
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_amount_base">
+            <summary>
+            Value of the Funding Amount in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_application">
+            <summary>
+            The associated Base application record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_assistance_request">
+            <summary>
+            The associated Assistance Request record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_caption">
+            <summary>
+            OFM Expense record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_end_date">
+            <summary>
+            End Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_expenseid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_request_summary">
+            <summary>
+            Request Summary
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_start_date">
+            <summary>
+            Start Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.statecode">
+            <summary>
+            Status of the Expense
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.statuscode">
+            <summary>
+            Reason for the status of the Expense
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.transactioncurrencyid">
+            <summary>
+            Unique identifier of the currency associated with the entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_application_expense">
+            <summary>
+            N:1 ofm_application_expense
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_assistancerequest_expense">
+            <summary>
+            N:1 ofm_assistancerequest_expense
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.team_ofm_expense">
+            <summary>
+            N:1 team_ofm_expense
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_expense.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_facility_intake">
+            <summary>
+            OFM Facility Intake Record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_facility_intake.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_facility_intake entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_facility_intake.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.ofm_caption">
+            <summary>
+            OFM Facility Intake record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.ofm_description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.ofm_facility">
+            <summary>
+            The associated facility record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.ofm_facility_intakeid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.ofm_intake">
+            <summary>
+            The associated Intake record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.statecode">
+            <summary>
+            Status of the Facility Intake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.statuscode">
+            <summary>
+            Reason for the status of the Facility Intake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.ofm_facility_facilityintake">
+            <summary>
+            N:1 ofm_facility_facilityintake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.ofm_intake_facilityintake">
+            <summary>
+            N:1 ofm_intake_facilityintake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_intake.team_ofm_facility_intake">
+            <summary>
+            N:1 team_ofm_facility_intake
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_facility_intake.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_facility_operating_cost.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_facility_operating_cost entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_facility_operating_cost.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.exchangerate">
+            <summary>
+            Exchange rate for the currency associated with the entity with respect to the base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_applicable_fee">
+            <summary>
+            Fee (If Applicable)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_applicable_fee_base">
+            <summary>
+            Value of the Fee (If Applicable) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_facility_type">
+            <summary>
+            Facility Type
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_furniture_equipment">
+            <summary>
+            Furniture and Equipment
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_furniture_equipment_base">
+            <summary>
+            Value of the Furniture and Equipment in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_maintenance_repairs">
+            <summary>
+            Maintenance and Repairs
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_maintenance_repairs_base">
+            <summary>
+            Value of the Maintenance and Repairs in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_mortgage">
+            <summary>
+            Mortgage
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_mortgage_base">
+            <summary>
+            Value of the Mortgage in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_property_insurance">
+            <summary>
+            Insurance (formerly 'Property Insurance')
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_property_insurance_base">
+            <summary>
+            Value of the Insurance in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_property_municipal_tax">
+            <summary>
+            Property/Municipal Tax
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_property_municipal_tax_base">
+            <summary>
+            Value of the Property/Municipal Tax in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_rent_lease">
+            <summary>
+            Rent/Lease
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_rent_lease_base">
+            <summary>
+            Value of the Rent/Lease in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_strata_fee">
+            <summary>
+            Strata Fees
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_strata_fee_base">
+            <summary>
+            Value of the Strata Fees in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_supplies">
+            <summary>
+            Supplies
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_supplies_base">
+            <summary>
+            Value of the Supplies in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_upkeep_labour">
+            <summary>
+            Upkeep and Labour
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_upkeep_labour_base">
+            <summary>
+            Value of the Upkeep and Labour in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_utilities">
+            <summary>
+            Utilities
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_utilities_base">
+            <summary>
+            Value of the Utilities in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_yearly_facility_costs">
+            <summary>
+            Yearly Facility Costs
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_yearly_operating_costs">
+            <summary>
+            Yearly Operating Costs
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_facility_operating_costid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.statecode">
+            <summary>
+            Status of the Facility/Operating Cost
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.statuscode">
+            <summary>
+            Reason for the status of the Facility/Operating Cost
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.transactioncurrencyid">
+            <summary>
+            Unique identifier of the currency associated with the entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.team_ofm_facility_operating_cost">
+            <summary>
+            N:1 team_ofm_facility_operating_cost
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_facility_operating_cost.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -7117,6 +8343,11 @@
             Unique identifier for entity instances
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_intake">
+            <summary>
+            The associated Intake on the funding record
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_is_approval_required">
             <summary>
             Funding Approval/Adjudication is required by default except for inflation increase
@@ -7135,6 +8366,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_ministry_approver">
             <summary>
             The associated systemuser
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_modifications">
+            <summary>
+            Funding Modification Details
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_new_allocation_date">
@@ -7280,6 +8516,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_facility_account">
             <summary>
             N:1 ofm_funding_facility_account
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_intake_funding">
+            <summary>
+            N:1 ofm_intake_funding
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_rateschedule_funding">
@@ -7479,6 +8720,187 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_funding_rate.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_intake">
+            <summary>
+            OFM Intake Record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_intake.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_intake entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_intake.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_caption">
+            <summary>
+            OFM Intake record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_completed_date">
+            <summary>
+            Completed On
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_criteria">
+            <summary>
+            Criteria
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_end_date">
+            <summary>
+            End Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intake_number">
+            <summary>
+            Intake Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intake_query_type">
+            <summary>
+            Query Type
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intake_type">
+            <summary>
+            Intake Type
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intakeid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_start_date">
+            <summary>
+            Start Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.statecode">
+            <summary>
+            Status of the Intake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.statuscode">
+            <summary>
+            Reason for the status of the Intake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intake_facilityintake">
+            <summary>
+            1:N ofm_intake_facilityintake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intake_funding">
+            <summary>
+            1:N ofm_intake_funding
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_intake.team_ofm_intake">
+            <summary>
+            N:1 team_ofm_intake
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_intake.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -8037,142 +9459,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_month">
-            <summary>
-            The specific month of the report
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_month.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_month entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_month.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.ofm_monthid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.ofm_name">
-            <summary>
-            The name of the custom entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.statecode">
-            <summary>
-            Status of the Month
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.statuscode">
-            <summary>
-            Reason for the status of the Month
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.ofm_reporting_month_survey_response">
-            <summary>
-            1:N ofm_reporting_month_survey_response
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_month.team_ofm_month">
-            <summary>
-            N:1 team_ofm_month
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_month.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_payment">
             <summary>
             Represents payment records that must be submitted to CAS to trigger payments to contractors.
@@ -8318,6 +9604,11 @@
             Revised Invoice Received Date. Typically, 4 days after the Effective Date
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_supplementary">
+            <summary>
+            The associated supplementary application record
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.overriddencreatedon">
             <summary>
             Date and time that the record was migrated.
@@ -8408,12 +9699,899 @@
             N:1 ofm_payment_funding
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_supplementary_payment">
+            <summary>
+            N:1 ofm_supplementary_payment
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.team_ofm_payment">
             <summary>
             N:1 team_ofm_payment
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_payment.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_file_exchange.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_payment_file_exchange entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_payment_file_exchange.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ofm_name">
+            <summary>
+            The name of the custom entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ofm_payment_file_exchangeid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.statecode">
+            <summary>
+            Status of the Payment File Exchange
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.statuscode">
+            <summary>
+            Reason for the status of the Payment File Exchange
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.team_ofm_payment_file_exchange">
+            <summary>
+            N:1 team_ofm_payment_file_exchange
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_payment_file_exchange.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_request">
+            <summary>
+            OFM Payment Request Record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_request.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_payment_request entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_payment_request.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_application">
+            <summary>
+            The associated application record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_caption">
+            <summary>
+            OFM Payment Request record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_effective_date">
+            <summary>
+            Effective Date. Typically, 2 days after Invoice Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_invoice_date">
+            <summary>
+            Invoice Date. CFS only accepts working days (No weekends or BC holidays)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_invoice_line_number">
+            <summary>
+            Invoice Line #
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_invoice_received_date">
+            <summary>
+            Invoice Received Date. Typically, 4 days after the Effective Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_payment_method">
+            <summary>
+            Payment Method
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_payment_requestid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_remittance_message">
+            <summary>
+            Remittance Message
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_revised_effective_date">
+            <summary>
+            Revised Effective Date. Typically, 2 days after Invoice Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_revised_invoice_date">
+            <summary>
+            Revised Invoice Date. CFS only accepts working days (No weekends or BC holidays)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_revised_invoice_received_date">
+            <summary>
+            Revised Invoice Received Date. Typically, 4 days after the Effective Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_siteid">
+            <summary>
+            Supplier Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_vendor_number">
+             <summary>
+             Vendor Number
+            
+             </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.statecode">
+            <summary>
+            Status of the Payment Request
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.statuscode">
+            <summary>
+            Reason for the status of the Payment Request
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.ofm_application_paymentrequest">
+            <summary>
+            N:1 ofm_application_paymentrequest
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_request.team_ofm_payment_request">
+            <summary>
+            N:1 team_ofm_payment_request
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_payment_request.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_pcm_review">
+            <summary>
+            A tracking record for PCM group
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_pcm_review.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_pcm_review entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_pcm_review.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.ofm_application">
+            <summary>
+            The associated application
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.ofm_pcm_reviewid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.ofm_reason">
+            <summary>
+            PCM Review Reason when it is failed
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.statecode">
+            <summary>
+            Status of the PCM Review
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.statuscode">
+            <summary>
+            Reason for the status of the PCM Review
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.ofm_pcmreview_application">
+            <summary>
+            N:1 ofm_pcmreview_application
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_pcm_review.team_ofm_pcm_review">
+            <summary>
+            N:1 team_ofm_pcm_review
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_pcm_review.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_permission.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_portal_permission entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_portal_permission.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.ofm_name">
+            <summary>
+            The name of the custom entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.ofm_portal_permissionid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.ofm_portal_privilege">
+            <summary>
+            Unique identifier for Portal Privilege associated with Portal Permission.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.ofm_portal_role">
+            <summary>
+            Unique identifier for Portal Role associated with Portal Permission.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.statecode">
+            <summary>
+            Status of the Portal Permission
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.statuscode">
+            <summary>
+            Reason for the status of the Portal Permission
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.ofm_portal_privilege_permission">
+            <summary>
+            N:1 ofm_portal_privilege_permission
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.ofm_portal_role_permission">
+            <summary>
+            N:1 ofm_portal_role_permission
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_permission.team_ofm_portal_permission">
+            <summary>
+            N:1 team_ofm_portal_permission
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_portal_permission.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_privilege.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_portal_privilege entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_portal_privilege.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.ofm_name">
+            <summary>
+            The name of the custom entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.ofm_portal_privilegeid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.statecode">
+            <summary>
+            Status of the Portal Privilege
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.statuscode">
+            <summary>
+            Reason for the status of the Portal Privilege
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.ofm_portal_privilege_permission">
+            <summary>
+            1:N ofm_portal_privilege_permission
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_privilege.team_ofm_portal_privilege">
+            <summary>
+            N:1 team_ofm_portal_privilege
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_portal_privilege.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_role.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_portal_role entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_portal_role.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.ofm_name">
+            <summary>
+            The name of the custom entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.ofm_portal_roleid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.statecode">
+            <summary>
+            Status of the Portal Role
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.statuscode">
+            <summary>
+            Reason for the status of the Portal Role
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.ofm_portal_role_contact">
+            <summary>
+            1:N ofm_portal_role_contact
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.ofm_portal_role_permission">
+            <summary>
+            1:N ofm_portal_role_permission
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_portal_role.team_ofm_portal_role">
+            <summary>
+            N:1 team_ofm_portal_role
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_portal_role.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -8570,6 +10748,162 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_progress_tracker.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_provider_employee">
+            <summary>
+            OFM Provider Employee Record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_provider_employee.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_provider_employee entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_provider_employee.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.ofm_application">
+            <summary>
+            The associated application record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.ofm_caption">
+            <summary>
+            OFM Provider Employee record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.ofm_certificate_number">
+            <summary>
+            Certification Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.ofm_employee_type">
+            <summary>
+            Employee Type
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.ofm_initials">
+            <summary>
+            Initials
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.ofm_provider_employeeid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.statecode">
+            <summary>
+            Status of the Provider Employee
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.statuscode">
+            <summary>
+            Reason for the status of the Provider Employee
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.ofm_application_provideremployee">
+            <summary>
+            N:1 ofm_application_provideremployee
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_provider_employee.team_ofm_provider_employee">
+            <summary>
+            N:1 team_ofm_provider_employee
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_provider_employee.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -9379,6 +11713,182 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_reminder">
+            <summary>
+            OFM Reminder Record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_reminder.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_reminder entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_reminder.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_application">
+            <summary>
+            The associated application record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_caption">
+            <summary>
+            OFM Reminder record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_completed_on">
+            <summary>
+            Completed On
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_due_date">
+            <summary>
+            Due Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_email">
+            <summary>
+            The associated Email record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_reminderid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_template_number">
+            <summary>
+            Template Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_year_number">
+            <summary>
+            Year Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.statecode">
+            <summary>
+            Status of the Reminder
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.statuscode">
+            <summary>
+            Reason for the status of the Reminder
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_reminder_allowance">
+            <summary>
+            1:N ofm_reminder_allowance
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_application_reminder">
+            <summary>
+            N:1 ofm_application_reminder
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.ofm_email_reminder">
+            <summary>
+            N:1 ofm_email_reminder
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_reminder.team_ofm_reminder">
+            <summary>
+            N:1 team_ofm_reminder
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_reminder.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ofm_request_category.Fields">
             <summary>
             Available fields, a the time of codegen, for the ofm_request_category entity
@@ -9812,6 +12322,288 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_space_allocation.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_standing_history">
+            <summary>
+            Standing History
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_standing_history.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_standing_history entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_standing_history.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ofm_caption">
+            <summary>
+            ID
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ofm_end_date">
+            <summary>
+            End Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ofm_good_standing_status">
+            <summary>
+            Good Standing Status
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ofm_organization">
+            <summary>
+            The associated organization
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ofm_standing_historyid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ofm_start_date">
+            <summary>
+            Start Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ofm_validated_on">
+            <summary>
+            Validated On
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.statecode">
+            <summary>
+            Status of the Standing History
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.statuscode">
+            <summary>
+            Reason for the status of the Standing History
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.ofm_organization_standing_history">
+            <summary>
+            N:1 ofm_organization_standing_history
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_standing_history.team_ofm_standing_history">
+            <summary>
+            N:1 team_ofm_standing_history
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_standing_history.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_subcategory.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_subcategory entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_subcategory.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.ofm_subcategoryid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.statecode">
+            <summary>
+            Status of the Sub-Category
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.statuscode">
+            <summary>
+            Reason for the status of the Sub-Category
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_subcategory.team_ofm_subcategory">
+            <summary>
+            N:1 team_ofm_subcategory
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_subcategory.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -10276,6 +13068,11 @@
             Unique identifier of the delegate user who modified the record.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_certificate_status">
+            <summary>
+            Certificate Status
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_contact">
             <summary>
             Unique identifier for Contact associated with Survey Response.
@@ -10299,11 +13096,6 @@
         <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_report_month">
             <summary>
             The month of the provider report
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_reporting_month">
-            <summary>
-            Unique identifier for Month associated with Survey Response.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_survey">
@@ -10376,6 +13168,11 @@
             Version Number
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_providerreport_employeecertificatestatus">
+            <summary>
+            1:N ofm_providerreport_employeecertificatestatus
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_survey_response.Referencedofm_survey_response_current_version">
             <summary>
             1:N ofm_survey_response_current_version
@@ -10399,11 +13196,6 @@
         <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_fiscal_year_survey_response">
             <summary>
             N:1 ofm_fiscal_year_survey_response
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_reporting_month_survey_response">
-            <summary>
-            N:1 ofm_reporting_month_survey_response
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_survey_response.Referencingofm_survey_response_current_version">
@@ -10783,9 +13575,39 @@
             1:N team_ofm_conversation
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_data_import">
+            <summary>
+            1:N team_ofm_data_import
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_document">
             <summary>
             1:N team_ofm_document
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_employee_certificate">
+            <summary>
+            1:N team_ofm_employee_certificate
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_employee_certificate_status">
+            <summary>
+            1:N team_ofm_employee_certificate_status
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_expense">
+            <summary>
+            1:N team_ofm_expense
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_facility_intake">
+            <summary>
+            1:N team_ofm_facility_intake
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_facility_operating_cost">
+            <summary>
+            1:N team_ofm_facility_operating_cost
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_facility_request">
@@ -10808,6 +13630,11 @@
             1:N team_ofm_funding_rate
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_intake">
+            <summary>
+            1:N team_ofm_intake
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_integration_log">
             <summary>
             1:N team_ofm_integration_log
@@ -10823,19 +13650,49 @@
             1:N team_ofm_licence_detail
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_month">
-            <summary>
-            1:N team_ofm_month
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_payment">
             <summary>
             1:N team_ofm_payment
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_payment_file_exchange">
+            <summary>
+            1:N team_ofm_payment_file_exchange
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_payment_request">
+            <summary>
+            1:N team_ofm_payment_request
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_pcm_review">
+            <summary>
+            1:N team_ofm_pcm_review
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_portal_permission">
+            <summary>
+            1:N team_ofm_portal_permission
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_portal_privilege">
+            <summary>
+            1:N team_ofm_portal_privilege
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_portal_role">
+            <summary>
+            1:N team_ofm_portal_role
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_progress_tracker">
             <summary>
             1:N team_ofm_progress_tracker
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_provider_employee">
+            <summary>
+            1:N team_ofm_provider_employee
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_question">
@@ -10858,6 +13715,11 @@
             1:N team_ofm_rate_schedule
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_reminder">
+            <summary>
+            1:N team_ofm_reminder
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_request_category">
             <summary>
             1:N team_ofm_request_category
@@ -10871,6 +13733,16 @@
         <member name="P:ECC.Core.DataContext.Team.team_ofm_space_allocation">
             <summary>
             1:N team_ofm_space_allocation
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_standing_history">
+            <summary>
+            1:N team_ofm_standing_history
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_subcategory">
+            <summary>
+            1:N team_ofm_subcategory
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_supplementary_schedule">
@@ -12231,6 +15103,11 @@
             Care Types
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ecc_data_import_type">
+            <summary>
+            Data Import Type
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ecc_employee_cert_status">
             <summary>
             Certificate Status
@@ -12299,6 +15176,11 @@
         <member name="T:ECC.Core.DataContext.ecc_Ownership">
             <summary>
             Ownership
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ecc_pass_fail_empty">
+            <summary>
+            A Passed or Failed with a default blank value
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ecc_payment_method">
@@ -14241,6 +17123,16 @@
             Reason for the status of the Conversation
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_data_import_statecode">
+            <summary>
+            Status of the Data Import
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_data_import_StatusCode">
+            <summary>
+            Reason for the status of the Data Import
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ofm_document_statecode">
             <summary>
             Status of the Document
@@ -14249,6 +17141,56 @@
         <member name="T:ECC.Core.DataContext.ofm_document_StatusCode">
             <summary>
             Reason for the status of the Document
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_employee_certificate_statecode">
+            <summary>
+            Status of the Employee Certificate
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_employee_certificate_Status_statecode">
+            <summary>
+            Status of the Employee Certificate Status
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_employee_certificate_status_StatusCode">
+            <summary>
+            Reason for the status of the Employee Certificate Status
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_employee_certificate_StatusCode">
+            <summary>
+            Reason for the status of the Employee Certificate
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_expense_statecode">
+            <summary>
+            Status of the Expense
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_expense_StatusCode">
+            <summary>
+            Reason for the status of the Expense
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_facility_intake_statecode">
+            <summary>
+            Status of the Facility Intake
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_facility_intake_StatusCode">
+            <summary>
+            Reason for the status of the Facility Intake
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_facility_operating_cost_statecode">
+            <summary>
+            Status of the Facility/Operating Cost
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_facility_operating_cost_StatusCode">
+            <summary>
+            Reason for the status of the Facility/Operating Cost
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_facility_request_statecode">
@@ -14296,6 +17238,16 @@
             Reason for the status of the Funding
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_intake_statecode">
+            <summary>
+            Status of the Intake
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_intake_StatusCode">
+            <summary>
+            Reason for the status of the Intake
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ofm_integration_log_statecode">
             <summary>
             Status of the Integration Log
@@ -14326,19 +17278,29 @@
             Reason for the status of the Licence
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_month_statecode">
-            <summary>
-            Status of the Month
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_month_StatusCode">
-            <summary>
-            Reason for the status of the Month
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_ops_manager_approval_status">
             <summary>
             Operations Manager Approval Status
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_file_exchange_statecode">
+            <summary>
+            Status of the Payment File Exchange
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_file_exchange_StatusCode">
+            <summary>
+            Reason for the status of the Payment File Exchange
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_request_statecode">
+            <summary>
+            Status of the Payment Request
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_payment_request_StatusCode">
+            <summary>
+            Reason for the status of the Payment Request
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_payment_statecode">
@@ -14349,6 +17311,46 @@
         <member name="T:ECC.Core.DataContext.ofm_payment_StatusCode">
             <summary>
             Reason for the status of the Payment
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_pcm_review_statecode">
+            <summary>
+            Status of the PCM Review
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_pcm_review_StatusCode">
+            <summary>
+            Reason for the status of the PCM Review
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_permission_statecode">
+            <summary>
+            Status of the Portal Permission
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_permission_StatusCode">
+            <summary>
+            Reason for the status of the Portal Permission
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_privilege_statecode">
+            <summary>
+            Status of the Portal Privilege
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_privilege_StatusCode">
+            <summary>
+            Reason for the status of the Portal Privilege
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_role_statecode">
+            <summary>
+            Status of the Portal Role
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_portal_role_StatusCode">
+            <summary>
+            Reason for the status of the Portal Role
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_program_type">
@@ -14364,6 +17366,16 @@
         <member name="T:ECC.Core.DataContext.ofm_progress_tracker_StatusCode">
             <summary>
             Reason for the status of the Progress Tracker
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_provider_employee_statecode">
+            <summary>
+            Status of the Provider Employee
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_provider_employee_StatusCode">
+            <summary>
+            Reason for the status of the Provider Employee
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_question_business_rule_statecode">
@@ -14406,6 +17418,16 @@
             Reason for the status of the Rate Schedule
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_reminder_statecode">
+            <summary>
+            Status of the Reminder
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_reminder_StatusCode">
+            <summary>
+            Reason for the status of the Reminder
+            </summary>
+        </member>
         <member name="F:ECC.Core.DataContext.ofm_ReportingQuestionType.Choice">
             <summary>
             647,390,000
@@ -14439,6 +17461,26 @@
         <member name="T:ECC.Core.DataContext.ofm_space_allocation_StatusCode">
             <summary>
             Reason for the status of the Space Allocation
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_standing_history_statecode">
+            <summary>
+            Status of the Standing History
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_standing_history_StatusCode">
+            <summary>
+            Reason for the status of the Standing History
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_subcategory_statecode">
+            <summary>
+            Status of the Sub-Category
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_subcategory_StatusCode">
+            <summary>
+            Reason for the status of the Sub-Category
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_supplementary_schedule_statecode">
