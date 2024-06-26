@@ -544,13 +544,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         //Check if payment record already exist for this supplementary app.
                         if (saSupportOrIndigenousPayments.Count == 0)
                         {
-                            if(saAppApproved.ofm_allowance_type == (int)ecc_payment_type.SupportNeedsFunding || saAppApproved.ofm_allowance_type == (int)ecc_payment_type.IndigenousProgramming)
+                            if(saAppApproved.ofm_allowance_type == (int)ecc_allowance_type.SupportNeedsProgramming || saAppApproved.ofm_allowance_type == (int)ecc_allowance_type .IndigenousProgramming)
                             {
                                 decimal? fundingAmount = saAppApproved.ofm_funding_amount;
                                 int allowanceType = saAppApproved.ofm_allowance_type;
                                 createPaymentTasks.Add(CreateSupplementaryApplicationPayment(facility, saStartDate, saStartDate, false, fundingid, application, saAppApproved.ofm_allowanceid.ToString(), allowanceType == 1 ? (int)ecc_payment_type.SupportNeedsFunding : (int)ecc_payment_type.IndigenousProgramming, fundingAmount, appUserService, d365WebApiService, processParams));
                             }
-                            else if (saAppApproved.ofm_allowance_type == (int)ecc_payment_type.Transportation)
+                            else if (saAppApproved.ofm_allowance_type == (int)ecc_allowance_type.Transportation)
                             {
                                 //payment creation for TRANSPORTATION APPS
                                 var transportationApplications = supplementaryApplicationDeserializedData
