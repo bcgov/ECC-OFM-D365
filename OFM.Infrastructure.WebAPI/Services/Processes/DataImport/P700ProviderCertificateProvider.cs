@@ -106,35 +106,30 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         // Provider Employee of Applicaiton
         get
         {
-            // Application StatusReason 3 Submitted, 4, 5
+            // Application StatusReason 3 Submitted, 4 In Review, 5, Awaiting Provider
             var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
-                <fetch>
-                  <entity name=""ofm_provider_employee"">
-                    <attribute name=""ofm_application"" />
-                    <attribute name=""ofm_caption"" />
-                    <attribute name=""ofm_certificate_number"" />
-                    <attribute name=""ofm_certificate_status"" />
-                    <attribute name=""statecode"" />
-                    <filter>
-                      <condition attribute=""statecode"" operator=""eq"" value=""0"" />
-                      <condition attribute=""ofm_certificate_number"" operator=""eq"" value=""{CertificateNumber}"" />
-                          <filter type=""or"">
-                            <condition attribute=""ofm_certificate_status"" operator=""eq"" value=""{certificateStatus}"" />
-                            <condition attribute=""ofm_certificate_status"" operator=""null"" value="""" />
+                    <fetch>
+                      <entity name=""ofm_provider_employee"">
+                        <attribute name=""ofm_application"" />
+                        <attribute name=""ofm_caption"" />
+                        <attribute name=""ofm_certificate_number"" />
+                        <attribute name=""ofm_certificate_status"" />
+                        <attribute name=""statecode"" />
+                        <filter>
+                          <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                        </filter>
+                        <link-entity name=""ofm_application"" from=""ofm_applicationid"" to=""ofm_application"" link-type=""inner"" alias=""app"">
+                          <filter>
+                            <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                            <condition attribute=""statuscode"" operator=""in"">
+                              <value>5</value>
+                              <value>3</value>
+                              <value>4</value>
+                            </condition>
                           </filter>
-                    </filter>
-                    <link-entity name=""ofm_application"" from=""ofm_applicationid"" to=""ofm_application"" link-type=""inner"" alias=""app"">
-                      <filter>
-                        <condition attribute=""statecode"" operator=""eq"" value=""0"" />
-                        <condition attribute=""statuscode"" operator=""in"">
-                          <value>5</value>
-                          <value>3</value>
-                          <value>4</value>
-                        </condition>
-                      </filter>
-                    </link-entity>
-                  </entity>
-                </fetch>";
+                        </link-entity>
+                      </entity>
+                    </fetch>";
             var requestUri = $"""
                             ofm_provider_employees?fetchXml={WebUtility.UrlEncode(fetchXml)}
                             """;
@@ -395,6 +390,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
     }
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
+        _logger.LogInformation(CustomLogEvent.Process, "Beging to P700 Data process");
         _processParams = processParams;
         var startTime = _timeProvider.GetTimestamp();
         string dataImportMessages = string.Empty;
@@ -406,6 +402,25 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         {
             // retrieve csv file from crm and parse 
             var localData = await GetDataAsync();
+            if (string.IsNullOrEmpty(localData.Data.ToString()))
+            {
+                _logger.LogError(CustomLogEvent.Process, "There is no file or content");
+                var dataImportStatement = $"ofm_data_imports({_processParams.DataImportId})";
+                var payload = new JsonObject {
+                        { "ofm_message", "There is no file or content"},
+                        { "statuscode", 5},
+                        { "statecode", 0 }
+                    };
+                var requestBody = JsonSerializer.Serialize(payload);
+                var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, dataImportStatement, requestBody);
+                if (!patchResponse.IsSuccessStatusCode)
+                {
+                    var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                    _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+                    return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                }
+                return ProcessResult.Failure(ProcessId, new String[] { "There is no file or content" }, 0, 0).SimpleProcessResult;
+            }
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             //var downloadfile = Convert.FromBase64String(localData.Data.ToString());
             byte[] downloadfile = Convert.FromBase64String(localData.Data.ToString());
@@ -640,111 +655,148 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     }
                 }
                 Console.WriteLine("End Upsert Data Import ");
+                #region Update all Provider Employees of Application
                 // Update existing Cert status of Provider Employee of Applicaton 
                 // 1. Update EFFDate,EXPIREDATE,ISACTIVE changed records 
-                List<MonthlyReport> monthlyReportRecords = new List<MonthlyReport>();
-                foreach (var impactCertStatusRecord in impactCertStatusRecords)
+                List<JsonNode> providerEmployees = await FetchAllRecordsFromCRMAsync(providerEmployeeRequestUri);
+                List<JsonNode> providerEmployeesUpdateForChanged = providerEmployees
+                .Where(employee => impactCertStatusRecords.Any(record =>
+                    record.CLIENTID.Trim() == employee["ofm_certificate_number"]?.ToString().Trim()))
+                .ToList();
+                for (int i = 0; i < providerEmployeesUpdateForChanged.Count; i += batchSize)
                 {
-                    bool certStatus = validateCertStatus(impactCertStatusRecord);
-                    certificateStatus = certStatus ? 0 : 1; // 1 Passed 0 Failed
-                    CertificateNumber = impactCertStatusRecord.CLIENTID;
-                    List<JsonNode> providerEmployees = await FetchAllRecordsFromCRMAsync(providerEmployeeRequestUri);
-                    foreach (var providerEmployee in providerEmployees)
+                    var updateRequests = new List<HttpRequestMessage>() { };
+                    var batchs = providerEmployeesUpdateForChanged.Skip(i).Take(batchSize).ToList();
+                    foreach (var batch in batchs)
                     {
-                        var updateString = $"ofm_provider_employees({providerEmployee["ofm_provider_employeeid"].ToString()})";
-                        payload = new JsonObject {
-                        { "ofm_certificate_status", certStatus?1:0 }
-                    };
-                        requestBody = JsonSerializer.Serialize(payload);
-                        patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
-                        if (!patchResponse.IsSuccessStatusCode)
+                        Record firstUniqueRecord = distinctRecords
+                            .Where(s => s.CLIENTID.Trim() == batch["ofm_certificate_number"].ToString().Trim())
+                            .FirstOrDefault();
+                        bool certStatus = validateCertStatus(firstUniqueRecord);
+                        if (batch["ofm_certificate_status"] != null)
                         {
-                            var responseBody = await patchResponse.Content.ReadAsStringAsync();
-                            _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
-                            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                            if ((certStatus ? 1 : 0) == (int)batch["ofm_certificate_status"]) continue;
                         }
-                    }
-                    // Prepare Monthly Report records to update
-                    List<JsonNode> questionResponses = await FetchAllRecordsFromCRMAsync(questionResponseRequestUri);
-                    foreach (var item in questionResponses)
-                    {
-                        MonthlyReport monthlyReport = new MonthlyReport();
-                        monthlyReport.ReportID = (Guid)item["monthlyReport.ofm_survey_responseid"];
-                        monthlyReport.CLIENTID = CertificateNumber;
-                        monthlyReport.CertStatus = certStatus ? 1 : 0;
-                        monthlyReport.CRMCertStatus = (int)item["monthlyReport.ofm_certificate_status"];
-                        monthlyReportRecords.Add(monthlyReport);
-                    }
-                }
-                // 2. Update all Deactive Records
-                foreach (var missinginCSVRecord in missingInCsv)
-                {
-                    certificateStatus = 1; // 1 Passed 0 Failed
-                    CertificateNumber = (string)missinginCSVRecord["ofm_certificate_number"];
-                    List<JsonNode> providerEmployees = await FetchAllRecordsFromCRMAsync(providerEmployeeRequestUri);
-                    foreach (var providerEmployee in providerEmployees)
-                    {
-                        var updateString = $"ofm_provider_employees({providerEmployee["ofm_provider_employeeid"].ToString()})";
-                        payload = new JsonObject {
-                        { "ofm_certificate_status", 0 }
+                        var tempObject = new JsonObject
+                        {
+                            { "ofm_certificate_status", certStatus?1:0 }
                         };
-                        requestBody = JsonSerializer.Serialize(payload);
-                        patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
-                        if (!patchResponse.IsSuccessStatusCode)
-                        {
-                            var responseBody = await patchResponse.Content.ReadAsStringAsync();
-                            _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
-                            return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
-                        }
+                        updateRequests.Add(new D365UpdateRequest(new EntityReference("ofm_provider_employees", (Guid)batch["ofm_provider_employeeid"]), tempObject));
                     }
-                    // Prepare Monthly Report records to update
-                    List<JsonNode> questionResponses = await FetchAllRecordsFromCRMAsync(questionResponseRequestUri);
-                    foreach (var item in questionResponses)
+                    if (updateRequests.Count == 0) continue;
+                    var updateResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRequests, null);
+                    if (updateResults.Errors.Any())
                     {
-                        MonthlyReport monthlyReport = new MonthlyReport();
-                        monthlyReport.ReportID = (Guid)item["monthlyReport.ofm_survey_responseid"];
-                        monthlyReport.CLIENTID = CertificateNumber;
-                        monthlyReport.CertStatus = 0;
-                        monthlyReport.CRMCertStatus = (int)item["monthlyReport.ofm_certificate_status"];
-                        monthlyReportRecords.Add(monthlyReport);
+                        var errorInfos = ProcessResult.Failure(ProcessId, updateResults.Errors, updateResults.TotalProcessed, updateResults.TotalRecords);
+                        _logger.LogError(CustomLogEvent.Process, "Failed to providerEmployeesUpdateForChanged : {error}", JsonValue.Create(errorInfos)!.ToString());
+                        // deactiveMessages += "Batch Upsert errors: " + JsonValue.Create(errorInfos) + "\n\r";
                     }
+                    // Console.WriteLine("providerEmployeesUpdateForChanged index:{0}",i);
+                    _logger.LogDebug(CustomLogEvent.Process, "Batch providerEmployeesUpdateForChanged index:{0}", i);
                 }
-                Console.WriteLine("End update Cert Status of Provider Employee of Applicaiton");
-
-                // Update Cert Status of Report
-                List<MonthlyReport> distinctMonthlyReportRecords = monthlyReportRecords
-                    .GroupBy(r => r.ReportID)
-                    .Select(g => g.First())
-                    .OrderBy(r => r.CertStatus)
-                    .ToList();
-                foreach (var item in distinctMonthlyReportRecords)
+                List<JsonNode> providerEmployeesUpdateForMissed = providerEmployees
+                .Where(employee => missingInCsv.Any(record =>
+                    record["ofm_certificate_number"]?.ToString().Trim() == employee["ofm_certificate_number"]?.ToString().Trim()))
+                .ToList();
+                for (int i = 0; i < providerEmployeesUpdateForMissed.Count; i += batchSize)
                 {
-                    if (item.CertStatus == 0)
+                    var updateRequests = new List<HttpRequestMessage>() { };
+                    var batchs = providerEmployeesUpdateForMissed.Skip(i).Take(batchSize).ToList();
+                    foreach (var batch in batchs)
                     {
-                        if (item.CRMCertStatus == 0) { continue; }
-                        else
+                        if (batch["ofm_certificate_status"] != null)
                         {
-                            var updateString = $"ofm_survey_responses({item.ReportID.ToString()})";
-                            payload = new JsonObject {
-                              { "ofm_certificate_status", 0 }
-                               };
-                            requestBody = JsonSerializer.Serialize(payload);
-                            patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
-                            if (!patchResponse.IsSuccessStatusCode)
-                            {
-                                var responseBody = await patchResponse.Content.ReadAsStringAsync();
-                                _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
-                                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
-                            }
+                            if ((int)batch["ofm_certificate_status"]==0) continue;  // 0 Certificate Status Failed
                         }
+                        var tempObject = new JsonObject
+                        {
+                            { "ofm_certificate_status", 0 }
+                        };
+                        updateRequests.Add(new D365UpdateRequest(new EntityReference("ofm_provider_employees", (Guid)batch["ofm_provider_employeeid"]), tempObject));
                     }
-                    else
+                    if (updateRequests.Count == 0) continue;
+                    var updateResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRequests, null);
+                    if (updateResults.Errors.Any())
                     {
-                        MonthlyReportCertStatusValidation(item.ReportID.ToString(),item.CRMCertStatus);
+                        var errorInfos = ProcessResult.Failure(ProcessId, updateResults.Errors, updateResults.TotalProcessed, updateResults.TotalRecords);
+                        _logger.LogError(CustomLogEvent.Process, "Failed to providerEmployeesUpdateForMissed : {error}", JsonValue.Create(errorInfos)!.ToString());
+                        // deactiveMessages += "Batch Upsert errors: " + JsonValue.Create(errorInfos) + "\n\r";
                     }
+                    // Console.WriteLine("providerEmployeesUpdateForMissed index:{0}", i);
+                    _logger.LogDebug(CustomLogEvent.Process, "Batch providerEmployeesUpdateForMissed index:{0}", i);
                 }
-                Console.WriteLine("End update Cert Status of Report");
+                #endregion Update all Provider Employees of Application
 
+                //#region Update all MonthlyReport
+                //List<MonthlyReport> monthlyReportRecords = new List<MonthlyReport>();
+                //foreach (var impactCertStatusRecord in impactCertStatusRecords)
+                //{
+                //    bool certStatus = validateCertStatus(impactCertStatusRecord);
+                //    CertificateNumber = impactCertStatusRecord.CLIENTID;
+                //    // Prepare Monthly Report records to update
+                //    List<JsonNode> questionResponses = await FetchAllRecordsFromCRMAsync(questionResponseRequestUri);
+                //    foreach (var item in questionResponses)
+                //    {
+                //        MonthlyReport monthlyReport = new MonthlyReport();
+                //        monthlyReport.ReportID = (Guid)item["monthlyReport.ofm_survey_responseid"];
+                //        monthlyReport.CLIENTID = CertificateNumber;
+                //        monthlyReport.CertStatus = certStatus ? 1 : 0;
+                //        monthlyReport.CRMCertStatus = (int)item["monthlyReport.ofm_certificate_status"];
+                //        monthlyReportRecords.Add(monthlyReport);
+                //    }
+                //}
+                //// 2. Update all Deactive Records
+                //foreach (var missinginCSVRecord in missingInCsv)
+                //{
+                //    CertificateNumber = (string)missinginCSVRecord["ofm_certificate_number"];
+                //    // Prepare Monthly Report records to update
+                //    List<JsonNode> questionResponses = await FetchAllRecordsFromCRMAsync(questionResponseRequestUri);
+                //    foreach (var item in questionResponses)
+                //    {
+                //        MonthlyReport monthlyReport = new MonthlyReport();
+                //        monthlyReport.ReportID = (Guid)item["monthlyReport.ofm_survey_responseid"];
+                //        monthlyReport.CLIENTID = CertificateNumber;
+                //        monthlyReport.CertStatus = 0;
+                //        monthlyReport.CRMCertStatus = (int)item["monthlyReport.ofm_certificate_status"];
+                //        monthlyReportRecords.Add(monthlyReport);
+                //    }
+                //}
+                //Console.WriteLine("End update Cert Status of Provider Employee of Applicaiton");
+
+                //// Update Cert Status of Report
+                //List<MonthlyReport> distinctMonthlyReportRecords = monthlyReportRecords
+                //    .GroupBy(r => r.ReportID)
+                //    .Select(g => g.First())
+                //    .OrderBy(r => r.CertStatus)
+                //    .ToList();
+                //foreach (var item in distinctMonthlyReportRecords)
+                //{
+                //    if (item.CertStatus == 0)
+                //    {
+                //        if (item.CRMCertStatus == 0) { continue; }
+                //        else
+                //        {
+                //            var updateString = $"ofm_survey_responses({item.ReportID.ToString()})";
+                //            payload = new JsonObject {
+                //              { "ofm_certificate_status", 0 }
+                //               };
+                //            requestBody = JsonSerializer.Serialize(payload);
+                //            patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
+                //            if (!patchResponse.IsSuccessStatusCode)
+                //            {
+                //                var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                //                _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+                //                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                //            }
+                //        }
+                //    }
+                //    else
+                //    {
+                //        MonthlyReportCertStatusValidation(item.ReportID.ToString(), item.CRMCertStatus);
+                //    }
+                //}
+                //Console.WriteLine("End update Cert Status of Report");
+                //#endregion Update all Monthly Report
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
             else
