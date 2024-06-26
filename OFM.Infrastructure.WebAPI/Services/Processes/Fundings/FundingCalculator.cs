@@ -56,10 +56,10 @@ public class FundingCalculator : IFundingCalculator
     {
         get
         {
-            IEnumerable<Licence>? activeLicences = _funding?.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active  &&
-                                                                                                        licence.ofm_start_date.GetValueOrDefault().Date <= TimeProvider.System.GetLocalNow().Date &&
-                                                                                                        (licence.ofm_end_date is null ||
-                                                                                                        licence.ofm_end_date.Value.Date >= TimeProvider.System.GetLocalNow().Date));
+            IEnumerable<Licence>? activeLicences = _funding?.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
+                                                                                                         licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= DateTime.UtcNow.ToLocalPST().Date &&
+                                                                                                         (licence.ofm_end_date is null ||
+                                                                                                         licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= DateTime.UtcNow.ToLocalPST().Date));
 
             IEnumerable<LicenceDetail>? licenceDetails = activeLicences?
                                 .SelectMany(licence => licence?.ofm_licence_licencedetail!)
@@ -108,10 +108,15 @@ public class FundingCalculator : IFundingCalculator
 
     #region HR: Step 03 - Adjust Staffing Required by Hrs of Child Care
 
-    private decimal TotalAdjustedITE => LicenceDetails.Sum(ld => ld.AdjustedITE) > 0 ? Math.Max(LicenceDetails.Sum(ld => ld.AdjustedITE), 0.5m) : 0m;
-    private decimal TotalAdjustedECE => LicenceDetails.Sum(ld => ld.AdjustedECE) > 0 ? Math.Max(LicenceDetails.Sum(ld => ld.AdjustedECE), 0.5m) : 0m;
-    private decimal TotalAdjustedECEA => LicenceDetails.Sum(ld => ld.AdjustedECEA) > 0 ? Math.Max(LicenceDetails.Sum(ld => ld.AdjustedECEA), 0.5m) : 0m;
-    private decimal TotalAdjustedRA => LicenceDetails.Sum(ld => ld.AdjustedRA) > 0 ? Math.Max(LicenceDetails.Sum(ld => ld.AdjustedRA), 0.5m) : 0m;
+    private decimal SumOfAdjustedITE => LicenceDetails.Sum(ld => ld.AdjustedITE);
+    private decimal SumOfAdjustedECE => LicenceDetails.Sum(ld => ld.AdjustedECE);
+    private decimal SumOfAdjustedECEA => LicenceDetails.Sum(ld => ld.AdjustedECEA);
+    private decimal SumOfAdjustedRA => LicenceDetails.Sum(ld => ld.AdjustedRA);
+
+    private decimal TotalAdjustedITE => SumOfAdjustedITE > 0 ? Math.Max(SumOfAdjustedITE, 0.5m) : 0m;
+    private decimal TotalAdjustedECE => SumOfAdjustedECE > 0 ? Math.Max(SumOfAdjustedECE, 0.5m) : 0m;
+    private decimal TotalAdjustedECEA => SumOfAdjustedECEA > 0 ? Math.Max(SumOfAdjustedECEA, 0.5m) : 0m;
+    private decimal TotalAdjustedRA => SumOfAdjustedRA > 0 ? Math.Max(SumOfAdjustedRA, 0.5m) : 0m;
     private decimal TotalAdjustedFTEs => TotalAdjustedITE + TotalAdjustedECE + TotalAdjustedECEA + TotalAdjustedRA;
 
     #endregion
@@ -180,7 +185,7 @@ public class FundingCalculator : IFundingCalculator
     #region HR Costs & Rates
 
     private decimal TotalStaffingCost => LicenceDetails.Sum(ld => ld.StaffingCost);
-    private decimal TotalBenefitsCostPerYear => LicenceDetails.Sum(ld => ld.BenefitsCostPerYear);
+    private decimal TotalBenefitsCostPerYear => LicenceDetails.Sum(ld => ld.ProjectedBenefitsCostPerYear);
     private decimal TotalHRRenumeration => LicenceDetails.Sum(ld => ld.HRRenumeration);
 
     private decimal TotalProfessionalDevelopmentHours => LicenceDetails.Sum(ld => ld.ProfessionalDevelopmentHours);
@@ -331,7 +336,7 @@ public class FundingCalculator : IFundingCalculator
         }
         catch (ValidationException exp)
         {
-            _fundingResult = FundingResult.InvalidData(_funding?.ofm_funding_number ?? string.Empty, new[] { exp.Message, exp.StackTrace ?? string.Empty });
+            _fundingResult = FundingResult.InvalidData(_funding?.ofm_funding_number ?? string.Empty, [exp.Message, exp.StackTrace ?? string.Empty]);
         }
 
         return await Task.FromResult(true);

@@ -45,49 +45,49 @@ namespace OFM.Infrastructure.Plugins.Provider_Reports
                     //Set the duedate base on fiscal year and report month
 
                     var fiscal_year_ref = localPluginContext.Target.GetAttributeValue<EntityReference>(ofm_survey_response.Fields.ofm_fiscal_year);
-                    var report_month_ref = localPluginContext.Target.GetAttributeValue<EntityReference>(ofm_survey_response.Fields.ofm_reporting_month);
+                    //var report_month_ref = localPluginContext.Target.GetAttributeValue<EntityReference>(ofm_survey_response.Fields.ofm_reporting_month);
 
      
-                    if (fiscal_year_ref != null && report_month_ref != null)
-                    {
-                        var fiscal_year = crmContext.ofm_fiscal_yearSet.Where(year => year.Id == fiscal_year_ref.Id).FirstOrDefault();
-                        var fiscal_year_start = fiscal_year.GetAttributeValue<DateTime>(ofm_fiscal_year.Fields.ofm_start_date);
-                        var fiscal_year_end = fiscal_year.GetAttributeValue<DateTime>(ofm_fiscal_year.Fields.ofm_end_date);
+                    //if (fiscal_year_ref != null && report_month_ref != null)
+                    //{
+                        //var fiscal_year = crmContext.ofm_fiscal_yearSet.Where(year => year.Id == fiscal_year_ref.Id).FirstOrDefault();
+                        //var fiscal_year_start = fiscal_year.GetAttributeValue<DateTime>(ofm_fiscal_year.Fields.ofm_start_date);
+                        //var fiscal_year_end = fiscal_year.GetAttributeValue<DateTime>(ofm_fiscal_year.Fields.ofm_end_date);
 
-                        //converted to PST to compare
-                        var fiscal_year_start_in_PST = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(fiscal_year_start, "Pacific Standard Time");
-                        var fiscal_year_end_in_PST = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(fiscal_year_end, "Pacific Standard Time");
+                        ////converted to PST to compare
+                        //var fiscal_year_start_in_PST = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(fiscal_year_start, "Pacific Standard Time");
+                        //var fiscal_year_end_in_PST = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(fiscal_year_end, "Pacific Standard Time");
 
-                        localPluginContext.Trace($"fiscal_year_start_in_PST {fiscal_year_start_in_PST}");
-                        localPluginContext.Trace($"fiscal_year_end_in_PST {fiscal_year_end_in_PST}");
+                        //localPluginContext.Trace($"fiscal_year_start_in_PST {fiscal_year_start_in_PST}");
+                        //localPluginContext.Trace($"fiscal_year_end_in_PST {fiscal_year_end_in_PST}");
 
-                        var report_month = crmContext.ofm_monthSet.Where(month => month.Id == report_month_ref.Id).FirstOrDefault();
-                        var report_month_name = report_month.GetAttributeValue<string>(ofm_month.Fields.ofm_name);
+                        //var report_month = crmContext.ofm_monthSet.Where(month => month.Id == report_month_ref.Id).FirstOrDefault();
+                        //var report_month_name = report_month.GetAttributeValue<string>(ofm_month.Fields.ofm_name);
 
-                        localPluginContext.Trace($"report_month_name {report_month_name}");
+                        //localPluginContext.Trace($"report_month_name {report_month_name}");
 
-                        int month_num = DateTime.ParseExact(report_month_name, "MMMM", CultureInfo.CurrentCulture).Month;
-                        var report_month_date = (fiscal_year_start_in_PST <= new DateTime(fiscal_year_start.Year, month_num, 01, 0, 0, 0) && fiscal_year_end_in_PST >= new DateTime(fiscal_year_start.Year, month_num, 01, 0, 0, 0)) ? new DateTime(fiscal_year_start.Year, month_num, 01, 23, 59, 0): new DateTime(fiscal_year_end.Year, month_num, 01, 23, 59, 0);
-                        localPluginContext.Trace($"report_month_date {report_month_date}");
+                        //int month_num = DateTime.ParseExact(report_month_name, "MMMM", CultureInfo.CurrentCulture).Month;
+                        //var report_month_date = (fiscal_year_start_in_PST <= new DateTime(fiscal_year_start.Year, month_num, 01, 0, 0, 0) && fiscal_year_end_in_PST >= new DateTime(fiscal_year_start.Year, month_num, 01, 0, 0, 0)) ? new DateTime(fiscal_year_start.Year, month_num, 01, 23, 59, 0): new DateTime(fiscal_year_end.Year, month_num, 01, 23, 59, 0);
+                        //localPluginContext.Trace($"report_month_date {report_month_date}");
 
-                        var duedateInPST = report_month_date.AddMonths(2).AddDays(-1);
+                        //var duedateInPST = report_month_date.AddMonths(2).AddDays(-1);
 
-                        TimeZoneInfo PSTZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+                        //TimeZoneInfo PSTZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
 
-                        var duedateInUTC = TimeZoneInfo.ConvertTimeToUtc(duedateInPST, PSTZone);
+                        //var duedateInUTC = TimeZoneInfo.ConvertTimeToUtc(duedateInPST, PSTZone);
 
-                        localPluginContext.Trace($"duedateInPST {duedateInPST}");
-                        localPluginContext.Trace($"duedateInUTC {duedateInUTC}");
+                        //localPluginContext.Trace($"duedateInPST {duedateInPST}");
+                        //localPluginContext.Trace($"duedateInUTC {duedateInUTC}");
 
-                        //Update the duedate
-                        var entity = new ofm_survey_response
-                        {
-                            Id = localPluginContext.Target.Id,
-                            ofm_duedate = duedateInUTC
-                        };
-                        UpdateRequest updateRequest = new UpdateRequest { Target = entity };
-                        crmContext.Execute(updateRequest);
-                    }
+                        ////Update the duedate
+                        //var entity = new ofm_survey_response
+                        //{
+                        //    Id = localPluginContext.Target.Id,
+                        //    ofm_duedate = duedateInUTC
+                        //};
+                        //UpdateRequest updateRequest = new UpdateRequest { Target = entity };
+                        //crmContext.Execute(updateRequest);
+                    //}
                   
                     localPluginContext.Trace("Completed with no errors.");
                 }

@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -64,9 +63,9 @@ public static class TimeExtensions
 
     public static DateTime GetCurrentPSTdateTime()
     {
-
-        TimeZoneInfo timeZone = TimeZoneInfo.Local;
-        bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        _ = TimeZoneInfo.Local;
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        TimeZoneInfo timeZone;
         if (isWindows)
         {
             timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
@@ -77,6 +76,30 @@ public static class TimeExtensions
         }
 
         DateTime pacificTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+
+        return pacificTime;
+    }
+
+    /// <summary>
+    /// Convert a UTC datetime to local PST date & time
+    /// </summary>
+    /// <param name="utcDate"></param>
+    /// <returns></returns>
+    public static DateTime ToLocalPST(this DateTime utcDate)
+    {
+        _ = TimeZoneInfo.Local;
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        TimeZoneInfo timeZone;
+        if (isWindows)
+        {
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+        }
+        else
+        {
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver");
+        }
+
+        DateTime pacificTime = TimeZoneInfo.ConvertTimeFromUtc(utcDate, timeZone);
 
         return pacificTime;
     }
