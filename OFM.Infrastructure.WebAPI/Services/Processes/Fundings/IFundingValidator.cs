@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System.ComponentModel.DataAnnotations;
 
@@ -159,11 +160,10 @@ public class MustHaveValidLicenceRule : IFundingValidator<Funding>
         }
 
         var licenceCount = funding.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
-                                                                                             licence.ofm_start_date.GetValueOrDefault().Date <= TimeProvider.System.GetLocalNow().Date &&
+                                                                                             licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= DateTime.UtcNow.ToLocalPST().Date &&
                                                                                              (licence.ofm_end_date is null ||
-                                                                                             licence.ofm_end_date.Value.Date >= TimeProvider.System.GetLocalNow().Date))?.
+                                                                                             licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= DateTime.UtcNow.ToLocalPST().Date))?.
                                                                                              Count();
-
 
         if (licenceCount == 0)
             throw new ValidationException(
