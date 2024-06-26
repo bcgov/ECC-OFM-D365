@@ -55,7 +55,7 @@ D365_LOG_LEVEL=$(cat << JSON
   "LogLevel": {
     "Default": "Warning",
     "OFM.Portal.ProviderProfile": "Error",
-    "OFM.D365.Process": "Warning",
+    "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Warning",
     "Microsoft.AspNetCore": "Warning"
   },
