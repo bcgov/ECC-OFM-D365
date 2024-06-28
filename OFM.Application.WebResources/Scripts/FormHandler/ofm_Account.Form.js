@@ -39,6 +39,7 @@ OFM.Account.OrgFacility.Form = {
                     formContext.data.entity.addOnSave(this.onChangePrimaryContact);
                 }
                 this.manualReviewflag();
+                this.showUnionList(executionContext);
                 break;
 
             case 3: //readonly
@@ -48,6 +49,7 @@ OFM.Account.OrgFacility.Form = {
                 this.setVisibilityMailingAddress(executionContext);
                 this.setVisibilityAdditionalAddress(executionContext);
                 this.manualReviewflag();
+                this.showUnionList(executionContext);
                 break;
 
             case 4: //disable
@@ -436,16 +438,31 @@ OFM.Account.OrgFacility.Form = {
 
             function success(results) {
                 console.log(results);
-                if (results["ofm_is_expense_authority"] != null && results["ofm_is_expense_authority"]) 
-                        Xrm.Page.getControl("ofm_payment_manual_review").setDisabled(false);
-                    else 
-                        Xrm.Page.getControl("ofm_payment_manual_review").setDisabled(true);
-                
+                if (results["ofm_is_expense_authority"] != null && results["ofm_is_expense_authority"])
+                    Xrm.Page.getControl("ofm_payment_manual_review").setDisabled(false);
+                else
+                    Xrm.Page.getControl("ofm_payment_manual_review").setDisabled(true);
+
             },
             function (error) {
                 console.log(error.message);
             }
         );
 
+    },
+
+    showUnionList: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var unionized = formContext.getAttribute("ofm_unionized").getValue();
+        if (unionized == 1) {
+            formContext.getControl("ofm_union_list").setVisible(true);
+            formContext.getAttribute("ofm_union_list").setRequiredLevel("required");
+        }
+        else {
+            formContext.getControl("ofm_union_list").setVisible(false);
+            formContext.getAttribute("ofm_union_list").setRequiredLevel("none");
+            formContext.getAttribute("ofm_union_list").setValue(null);
+        }
     }
 }
