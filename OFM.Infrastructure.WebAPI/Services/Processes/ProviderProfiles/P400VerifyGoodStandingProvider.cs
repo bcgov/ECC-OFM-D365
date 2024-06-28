@@ -150,23 +150,34 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
 
     public string RecordstoSendNotificationUri
     {
+        // get all Facilities which  Funding Status is Active 
         get
         {
-            var fetchXml = $"""
-                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
-                      <entity name="account">
-                        <attribute name="name" />
-                         <attribute name="telephone1" />
-                        <attribute name="accountid" />
-                        <attribute name="ofm_primarycontact" />
-                        <order attribute="name" descending="false" />
-                        <filter type="and">
-                          <condition attribute="parentaccountid" operator="eq" uitype="account" value="{_processParams?.Organization?.organizationId}" />
+            var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
+                <fetch version=""1.0"" output-format=""xml-platform"" mapping=""logical"" distinct=""false"">
+                  <entity name=""account"">
+                    <attribute name=""name"" />
+                    <attribute name=""telephone1"" />
+                    <attribute name=""accountid"" />
+                    <attribute name=""ofm_primarycontact"" />
+                    <order attribute=""name"" descending=""false"" />
+                    <filter type=""and"">
+                      <condition attribute=""parentaccountid"" operator=""eq"" value=""{_processParams?.Organization?.organizationId}"" />
+                    </filter>
+                    <link-entity name=""ofm_application"" from=""ofm_facility"" to=""accountid"" link-type=""inner"" alias=""ofm_app"">
+                      <attribute name=""ofm_application"" />
+                      <attribute name=""ofm_applicationid"" />
+                      <link-entity name=""ofm_funding"" from=""ofm_application"" to=""ofm_applicationid"" link-type=""inner"" alias=""funding"">
+                        <attribute name=""ofm_funding_number"" />
+                        <attribute name=""ofm_fundingid"" />
+                        <filter>
+                          <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                          <condition attribute=""statuscode"" operator=""eq"" value=""8"" />
                         </filter>
-                      </entity>
-                    </fetch>
-                    """;
-
+                      </link-entity>
+                    </link-entity>
+                  </entity>
+                </fetch>";
             var requestUri = $"""
                          accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
@@ -174,6 +185,33 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
             return requestUri;
         }
     }
+    // OFM ticket 4631
+    //public string RecordstoSendNotificationUri
+    //{
+    //    get
+    //    {
+    //        var fetchXml = $"""
+    //                <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+    //                  <entity name="account">
+    //                    <attribute name="name" />
+    //                     <attribute name="telephone1" />
+    //                    <attribute name="accountid" />
+    //                    <attribute name="ofm_primarycontact" />
+    //                    <order attribute="name" descending="false" />
+    //                    <filter type="and">
+    //                      <condition attribute="parentaccountid" operator="eq" uitype="account" value="{_processParams?.Organization?.organizationId}" />
+    //                    </filter>
+    //                  </entity>
+    //                </fetch>
+    //                """;
+
+    //        var requestUri = $"""
+    //                     accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
+    //                     """;
+
+    //        return requestUri;
+    //    }
+    //}
     #endregion
 
     #region Get data from fetchxml Uri
@@ -490,7 +528,13 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                
                 if (goodStandingStatusYN == 0 && noduration.Days >= _BCRegistrySettings.NoDuration)
                 {   //Handling task creation if rcord is in not good standing fro 90 days
-                    await CreateTask(_appUserService, _d365webapiservice, organization, standingHistoryId);
+                    // Tikcet 4631 add condition should have Active Funding
+                     var facilitiesWithActiveFunding = await GetRecordsDataAsync(RecordstoSendNotificationUri);
+                     var deserializedFacilities = JsonSerializer.Deserialize<List<D365Organization_Account>>(facilitiesWithActiveFunding.Data.ToString());
+                     if (deserializedFacilities.Count > 0)
+                    {
+                        await CreateTask(_appUserService, _d365webapiservice, organization, standingHistoryId);
+                    }
                 }
             }
             else
@@ -570,13 +614,19 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         // _organizationId = organizationId;
 
         var localData = await GetRecordsDataAsync(RecordstoSendNotificationUri);
+        var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
+        if (deserializedData == null || deserializedData.Count == 0)
+        {
+            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        }
         IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
         _GScommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _NotificationSettings.CommunicationTypes.ActionRequired)
                                                                      .Select(s => s.ofm_communication_typeid).FirstOrDefault();
-
-        
-        var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
-
+ 
+        var distinctDeserializedData = deserializedData
+            .GroupBy(g=>g.accountid)
+            .Select(s=>s.First())
+            .ToList();
         var templateData = await _emailRepository.GetTemplateDataAsync(_NotificationSettings.EmailTemplates.First(t => t.TemplateNumber == 400).TemplateNumber);
         var serializedtemplateData = JsonSerializer.Deserialize<List<D365Template>>(templateData.Data.ToString());
         string? subject = serializedtemplateData?.Select(s => s.title).FirstOrDefault();
@@ -585,7 +635,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         List<Guid> recipientsList = new List<Guid>();
         recipientsList.Add(new Guid($"{organization?._primarycontactid_value}"));
 
-        deserializedData?.Where(c=> c._ofm_primarycontact_value != organization?._primarycontactid_value).ToList().ForEach(recipient =>
+        distinctDeserializedData?.Where(c=> c._ofm_primarycontact_value != organization?._primarycontactid_value).ToList().ForEach(recipient =>
         {
             recipientsList.Add(new Guid($"{recipient?._ofm_primarycontact_value}"));
         });
