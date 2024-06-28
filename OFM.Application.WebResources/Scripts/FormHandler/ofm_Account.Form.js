@@ -454,15 +454,17 @@ OFM.Account.OrgFacility.Form = {
     showUnionList: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
-        var unionized = formContext.getAttribute("ofm_unionized").getValue();
-        if (unionized == 1) {
-            formContext.getControl("ofm_union_list").setVisible(true);
-            formContext.getAttribute("ofm_union_list").setRequiredLevel("required");
-        }
-        else {
-            formContext.getControl("ofm_union_list").setVisible(false);
-            formContext.getAttribute("ofm_union_list").setRequiredLevel("none");
-            formContext.getAttribute("ofm_union_list").setValue(null);
+        if (formContext.getAttribute("ofm_unionized") != null) {
+            var unionized = formContext.getAttribute("ofm_unionized").getValue();
+            if (unionized == 1) {
+                formContext.getControl("ofm_union_list").setVisible(true);
+                formContext.getAttribute("ofm_union_list").setRequiredLevel("required");
+            }
+            else {
+                formContext.getControl("ofm_union_list").setVisible(false);
+                formContext.getAttribute("ofm_union_list").setRequiredLevel("none");
+                formContext.getAttribute("ofm_union_list").setValue(null);
+            }
         }
     }
 }
