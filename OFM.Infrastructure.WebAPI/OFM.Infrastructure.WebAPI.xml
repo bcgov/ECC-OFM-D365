@@ -22,7 +22,7 @@
             <returns></returns>
         </member>
         <!-- Badly formed XML comment ignored for member "M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.ToLocalPST(System.DateTime)" -->
-        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32)">
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceDate(System.DateTime,System.Collections.Generic.List{System.DateTime})">
             <summary>
             A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
             </summary>
@@ -41,9 +41,10 @@
             <param name="trailingTotalDays"></param>
             <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceReceivedDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceReceivedDate(System.DateTime,System.Collections.Generic.List{System.DateTime})">
             <summary>
-             A pre-determined CFS Invoice Received Date. The recommended default is 4 days before the Invoice Date.
+             A pre-determined CFS Invoice Received Date. Last business day of previous month so for following month it is paid in advance.
+             For first month payment, it is always same as start date of funding.
             </summary>
             <param name="invoiceDate"></param>
             <param name="holidays"></param>

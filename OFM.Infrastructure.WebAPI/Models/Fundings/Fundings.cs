@@ -53,7 +53,7 @@ public class Funding : ofm_funding
     public new int? statuscode { get; set; }
     public new Guid? _ofm_facility_value { get; set; }
     
-    public new int? ofm_retroactive_payment { get; set; }
+    public new int? ofm_retroactive_payment_frequency { get; set; }
     public new SpaceAllocation[]? ofm_funding_spaceallocation { get; set; }
     public new Facility? ofm_facility { get; set; }
     public new Application? ofm_application { get; set; }

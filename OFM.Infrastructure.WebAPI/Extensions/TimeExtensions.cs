@@ -111,23 +111,27 @@ public static class TimeExtensions
     /// <param name="holidays"></param>
     /// <param name="totalTrailingDays"></param>
     /// <returns></returns>
-    public static DateTime GetCFSInvoiceDate(this DateTime candidate, List<DateTime> holidays, int totalTrailingDays = -5)
-    {
-        var potentialDates = Enumerable.Range(totalTrailingDays, Math.Abs(totalTrailingDays))
-                                   .Select(day => IsBusinessDay(day, candidate, holidays))
-                                   .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
-                                   .OrderByDescending(d => d.Date);
 
-       
-        if (potentialDates.Any())
+
+    public static DateTime GetCFSInvoiceDate(DateTime InvoiceReceivedDate, List<DateTime> holidays)
+    {
+        int businessDaysToSubtract = 5;
+        int businessDaysCount = 0;
+        DateTime InvoiceDate = InvoiceReceivedDate;
+
+        while (businessDaysCount < businessDaysToSubtract)
         {
-            return potentialDates.First();
+            InvoiceDate = InvoiceDate.AddDays(-1);
+
+            if (InvoiceDate.DayOfWeek != DayOfWeek.Saturday && InvoiceDate.DayOfWeek != DayOfWeek.Sunday && !holidays.Exists(holiday => holiday.Date == InvoiceDate.Date))
+            {
+                businessDaysCount++;
+            }
         }
-        else
-        {      
-            throw new InvalidOperationException("No valid invoice dates found.");
-        }
+
+        return InvoiceDate;
     }
+
 
     /// <summary>
     /// A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
@@ -148,23 +152,32 @@ public static class TimeExtensions
     }
 
     /// <summary>
-    ///  A pre-determined CFS Invoice Received Date. The recommended default is 4 days before the Invoice Date.
+    ///  A pre-determined CFS Invoice Received Date. Last business day of previous month so for following month it is paid in advance.
+    ///  For first month payment, it is always same as start date of funding.
     /// </summary>
     /// <param name="invoiceDate"></param>
     /// <param name="holidays"></param>
     /// <param name="defaultDaysBefore"></param>
     /// <param name="trailingTotalDays"></param>
     /// <returns></returns>
-    public static DateTime GetCFSInvoiceReceivedDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysBefore = -4, int trailingTotalDays = -3)
-    {
-        var totalDaysBefore = defaultDaysBefore + trailingTotalDays;
-        var potentialDates = Enumerable.Range(totalDaysBefore, Math.Abs(totalDaysBefore)).Select(day => IsBusinessDay(day, invoiceDate, holidays));
 
-        return potentialDates
-                .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
-                .OrderByDescending(d => d.Date)
-                .ElementAt(3);
+    public static DateTime GetCFSInvoiceReceivedDate(DateTime anyDate, List<DateTime> holidays)
+    {
+        // Get the first day of the current month
+        DateTime firstDayOfMonth = new DateTime(anyDate.Year, anyDate.Month, 1);
+
+        // Get the last day of the previous month
+        DateTime lastDayOfPreviousMonth = firstDayOfMonth.AddDays(-1);
+
+        // Iterate backward to find the last business day
+        while (lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Saturday || lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Sunday || holidays.Exists(excludedDate => excludedDate.Date.Equals(lastDayOfPreviousMonth.Date)))
+        {
+            lastDayOfPreviousMonth = lastDayOfPreviousMonth.AddDays(-1);
+        }
+
+        return lastDayOfPreviousMonth;
     }
+
 
     private static DateTime IsBusinessDay(int days, DateTime checkingDate, List<DateTime> holidays)
     {
