@@ -140,15 +140,12 @@ public class FacilityLicence : ofm_licence
 }
 public class PaymentLine : ofm_payment
 {
-    [JsonPropertyName("statuscode@OData.Community.Display.V1.FormattedValue")]
-    public new string? statuscode_formatted { get; set; }
     public new int? statuscode { get; set; }
-    public new decimal? ofm_amount { get; set; }
     public Guid _ofm_supplementary_value { get; set; }
 }
 public class FiscalYear
 {
-    public new Guid? ofm_fiscal_yearid { get; set; }
+    public Guid? ofm_fiscal_yearid { get; set; }
     public DateTime ofm_start_date { get; set; }
     public DateTime ofm_end_date { get; set; }
 }

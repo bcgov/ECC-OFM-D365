@@ -111,8 +111,6 @@ public static class TimeExtensions
     /// <param name="holidays"></param>
     /// <param name="totalTrailingDays"></param>
     /// <returns></returns>
-
-
     public static DateTime GetCFSInvoiceDate(DateTime InvoiceReceivedDate, List<DateTime> holidays)
     {
         int businessDaysToSubtract = 5;
@@ -152,21 +150,15 @@ public static class TimeExtensions
     }
 
     /// <summary>
-    ///  A pre-determined CFS Invoice Received Date. Last business day of previous month so for following month it is paid in advance.
-    ///  For first month payment, it is always same as start date of funding.
+    ///  A pre-determined CFS Invoice Received Date. For monthly payments, it is typically the last day of previous month for following month it is paid in advance.
+    ///  For the first month payment of the term, it is always the same as the start date of funding term.
     /// </summary>
-    /// <param name="invoiceDate"></param>
+    /// <param name="paymentDate"></param>
     /// <param name="holidays"></param>
-    /// <param name="defaultDaysBefore"></param>
-    /// <param name="trailingTotalDays"></param>
     /// <returns></returns>
-
-    public static DateTime GetCFSInvoiceReceivedDate(DateTime anyDate, List<DateTime> holidays)
+    public static DateTime GetCFSInvoiceReceivedDate(DateTime paymentDate, List<DateTime> holidays)
     {
-        // Get the first day of the current month
-        DateTime firstDayOfMonth = new DateTime(anyDate.Year, anyDate.Month, 1);
-
-        // Get the last day of the previous month
+        DateTime firstDayOfMonth = new DateTime(paymentDate.Year, paymentDate.Month, 1);
         DateTime lastDayOfPreviousMonth = firstDayOfMonth.AddDays(-1);
 
         // Iterate backward to find the last business day
@@ -178,7 +170,6 @@ public static class TimeExtensions
         return lastDayOfPreviousMonth;
     }
 
-
     private static DateTime IsBusinessDay(int days, DateTime checkingDate, List<DateTime> holidays)
     {
         var dateToCheck = checkingDate.AddDays(days);
@@ -189,6 +180,7 @@ public static class TimeExtensions
 
         return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
     }
+    
     //Adding 3 days from current date as revised invoice date.
     public static DateTime GetRevisedInvoiceDate(DateTime currentDate, int daysToAdd, List<DateTime> holidays)
     {

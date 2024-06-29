@@ -175,7 +175,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 return requestUri;
             }
         }
-       
+
         public async Task<ProcessData> GetApplicationPaymentDataAsync()
         {
             _logger.LogDebug(CustomLogEvent.Process, nameof(GetApplicationPaymentDataAsync));
@@ -333,7 +333,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
-            _processParams = processParams;           
+            _processParams = processParams;
             var startTime = _timeProvider.GetTimestamp();
             //Get funding Info
             var localData = await GetDataAsync();
@@ -452,8 +452,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                     }
 
                                 }
-
-
                             }
                             //payment creation for TRANSPORTATION APPS
                             var transportationApplications = supplementaryApplicationDeserializedData
@@ -554,7 +552,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                 int midYearAppMonths = (maxEndDate.Year - maxStartDate.Year) * 12 + maxEndDate.Month - maxStartDate.Month + 1;
                                 int retroActiveMonths = numberOfMonths - midYearAppMonths;
                                 decimal? totalMonthlyPayment = 0;
-                               
+
                                 //create payment lines for mid year transportation applications.
                                 if (saAppApproved.ofm_start_date > minStartDate)
                                 {
@@ -614,9 +612,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
         private async Task<JsonObject> CreatePaymentLines(string Facility, decimal fundingAmount, DateTime startdate, DateTime enddate, bool manualReview, string application, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
-            var entitySetName = "ofm_payments";
             var fiscalYearData = await GetFiscalYearDataAsync();
-            List<FiscalYear> fiscalYears = JsonSerializer.Deserialize<List<FiscalYear>>(fiscalYearData.Data.ToString());
+            List<FiscalYear> fiscalYears = JsonSerializer.Deserialize<List<FiscalYear>>(fiscalYearData.Data);
             var businessclosuresdata = await GetBusinessClosuresDataAsync();
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
 
@@ -648,7 +645,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 };
 
                 var requestBody = JsonSerializer.Serialize(payload);
-                var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
+                var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, ofm_payment.EntitySetName, requestBody);
+               
                 if (!response.IsSuccessStatusCode)
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
@@ -657,6 +655,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     return ProcessResult.Failure(ProcessId, [responseBody], 0, 0).SimpleProcessResult;
                 }
             }
+
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
@@ -668,7 +667,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             var payload = new JsonObject {
                 { "statuscode", 7},
                 { "statecode",(int) ofm_payment_statecode.Inactive }
-        };
+            };
 
             var requestBody = JsonSerializer.Serialize(payload);
 
@@ -705,48 +704,46 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return Guid.Empty;
         }
 
-
         private async Task<JsonObject> CreateSupplementaryApplicationPayment(string Facility, DateTime startdate, DateTime firstpaymentDate, bool manualReview, string fundingId, string application, string saApplication, int paymentType, decimal? fundingAmount, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
-            var entitySetName = "ofm_payments";
             var fiscalYearData = await GetFiscalYearDataAsync();
             List<FiscalYear> fiscalYears = JsonSerializer.Deserialize<List<FiscalYear>>(fiscalYearData.Data.ToString());
             var businessclosuresdata = await GetBusinessClosuresDataAsync();
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
 
             Guid? fiscalYear = AssignFiscalYear(startdate, fiscalYears);
+
             //invoice received date is always last day of previous month. But for first payment it is start date of supplementary application
             DateTime invoiceReceivedDate = firstpaymentDate == startdate && firstpaymentDate != null ? startdate : TimeExtensions.GetCFSInvoiceReceivedDate(startdate, holidaysList);
             DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(invoiceReceivedDate, holidaysList);
             DateTime effectiveDate = invoicedate;
 
-
             var payload = new JsonObject()
-    {
-        { "ofm_invoice_line_number", 1 },
-        { "ofm_amount", fundingAmount },
-        { "ofm_payment_type", paymentType },
-        { "ofm_facility@odata.bind", $"/accounts({Facility})" },
-        { "ofm_organization@odata.bind", $"/accounts({_processParams?.Organization?.organizationId})" },
-        { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },
-        { "ofm_description", "supplementary application payment" },
-        { "ofm_application@odata.bind",$"/ofm_applications({application})" },
-        { "ofm_invoice_date", invoicedate.ToString("yyyy-MM-dd") },
-        { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
-        { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
-        { "ofm_fiscal_year@odata.bind",$"/ofm_fiscal_years({fiscalYear})" },
-        { "ofm_payment_manual_review", manualReview },
-        { "ofm_supplementary@odata.bind", $"/ofm_allowances({saApplication})" },
-    };
+            {
+                { "ofm_invoice_line_number", 1 },
+                { "ofm_amount", fundingAmount },
+                { "ofm_payment_type", paymentType },
+                { "ofm_facility@odata.bind", $"/accounts({Facility})" },
+                { "ofm_organization@odata.bind", $"/accounts({_processParams?.Organization?.organizationId})" },
+                { "ofm_funding@odata.bind", $"/ofm_fundings({_processParams?.Funding?.FundingId})" },
+                { "ofm_description", "supplementary application payment" },
+                { "ofm_application@odata.bind",$"/ofm_applications({application})" },
+                { "ofm_invoice_date", invoicedate.ToString("yyyy-MM-dd") },
+                { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
+                { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
+                { "ofm_fiscal_year@odata.bind",$"/ofm_fiscal_years({fiscalYear})" },
+                { "ofm_payment_manual_review", manualReview },
+                { "ofm_supplementary@odata.bind", $"/ofm_allowances({saApplication})" },
+            };
 
             var requestBody = JsonSerializer.Serialize(payload);
-            var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
+            var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, ofm_payment.EntitySetName, requestBody);
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Failed to create payments for application with the server error {responseBody}", responseBody.CleanLog());
 
-                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+                return ProcessResult.Failure(ProcessId, [responseBody], 0, 0).SimpleProcessResult;
             }
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
@@ -774,7 +771,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
-
     }
 }
 
