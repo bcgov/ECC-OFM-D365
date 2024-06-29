@@ -122,9 +122,6 @@ public record ProcessParameter
 
     public record FundingParameter
     {
-        //[property: JsonPropertyName("facilityId")]
-        //public string? FacilityId { get; set; }
-
         [property: JsonPropertyName("fundingId")]
         public string? FundingId { get; set; }
 

@@ -238,17 +238,6 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
-		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_facility_operating_cost"/> entities.
-		/// </summary>
-		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_facility_operating_cost> ofm_facility_operating_costSet
-		{
-			get
-			{
-				return this.CreateQuery<ECC.Core.DataContext.ofm_facility_operating_cost>();
-			}
-		}
-		
-		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_facility_request"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_facility_request> ofm_facility_requestSet
