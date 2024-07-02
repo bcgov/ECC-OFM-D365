@@ -29,6 +29,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             get
             {
+                // For reference only
                 var fetchXml = $$"""
                     <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                                               <entity name="ofm_payment">
@@ -50,7 +51,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                         ofm_payments?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_supplementary_value&$filter=(_ofm_application_value eq {_applicationId})&$orderby=ofm_name asc
                          """;
 
                 return requestUri;
@@ -61,6 +62,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             get
             {
+                // For reference only
                 var fetchXml = $$"""
                     <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                       <entity name="ofm_fiscal_year">
@@ -79,7 +81,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                         ofm_fiscal_years?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_fiscal_years?$select=ofm_caption,createdon,ofm_agreement_number_seed,ofm_end_date,ofm_fiscal_year_number,_owningbusinessunit_value,ofm_start_date,statuscode,ofm_fiscal_yearid&$orderby=ofm_caption asc
                          """;
 
                 return requestUri;
@@ -169,8 +171,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                         ofm_allowances?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                         """;
+                        ofm_allowances?$select=ofm_allowanceid,ofm_allowance_number,createdon,ofm_allowance_type,ofm_end_date,ofm_start_date,statuscode,ofm_funding_amount,ofm_renewal_term&$filter=(_ofm_application_value eq {_applicationId} and statuscode eq {(int)ofm_allowance_StatusCode.Approved})&$orderby=ofm_allowance_number asc
+                        """;
 
                 return requestUri;
             }
@@ -355,7 +357,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     DateTime retroActivePaymentDate;
                     int retroActiveCreditOrDebitMonths = 0;
                     var allPayments = await GetApplicationPaymentDataAsync();
-                    var paymentDeserializedData = JsonSerializer.Deserialize<List<PaymentLine>>(allPayments.Data.ToString());
+                    var paymentDeserializedData = JsonSerializer.Deserialize<List<ofm_payment>>(allPayments.Data.ToString());
                     var supplementaryApplications = await GetSupplementaryApplicationDataAsync();
                     var supplementaryApplicationDeserializedData = JsonSerializer.Deserialize<List<SupplementaryApplication>>(supplementaryApplications.Data.ToString());
 
@@ -439,8 +441,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                     var saStartDate = supplementaryApp.ofm_start_date;
                                     var saEndDate = supplementaryApp.ofm_end_date;
                                     //Check if payments of this allowance type created.
-                                    List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
-                                    .Where(r => r._ofm_supplementary_value == supplementaryApp.ofm_allowanceid).ToList();
+                                    List<ofm_payment> saSupportOrIndigenousPayments = paymentDeserializedData
+                                    .Where(payment => payment.ofm_regardingid.Id == supplementaryApp.ofm_allowanceid).ToList();
                                     //Check if payment record already exist for this supplementary app.
                                     if (saSupportOrIndigenousPayments.Count == 0)
                                     {
@@ -471,9 +473,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                 foreach (var transportationApp in transportationApplications)
                                 {
                                     //Check if payments exists for this app.
-                                    List<PaymentLine> saTransportationPayments = paymentDeserializedData
-                                        .Where(r =>
-                                          (int)r.ofm_payment_type == (int)ecc_payment_type.Transportation && r._ofm_supplementary_value == transportationApp.ofm_allowanceid).ToList();
+                                    List<ofm_payment> saTransportationPayments = paymentDeserializedData
+                                        .Where(payment =>
+                                                payment.ofm_payment_type == ecc_payment_type.Transportation && payment.ofm_regardingid.Id == transportationApp.ofm_allowanceid).ToList();
                                     //if no payments exists for any transportationa application, then create monthly payment lines.
                                     if (saTransportationPayments.Count == 0)
                                     {
@@ -525,8 +527,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         var saStartDate = saAppApproved.ofm_start_date;
                         var saEndDate = saAppApproved.ofm_end_date;
                         //Check if payments of this allowance type created.
-                        List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
-                        .Where(r => r._ofm_supplementary_value == processParams.SupplementaryApplication.allowanceId).ToList();
+                        List<ofm_payment> saSupportOrIndigenousPayments = paymentDeserializedData
+                        .Where(payment => payment.ofm_regardingid.Id == processParams.SupplementaryApplication.allowanceId).ToList();
                         //Check if payment record already exist for this supplementary app.
                         if (saSupportOrIndigenousPayments.Count == 0)
                         {
@@ -590,7 +592,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     //For cancellation or termination of funding.
                     else if (fundingStatus == (int)ofm_funding_StatusCode.Terminated || fundingStatus == (int)ofm_funding_StatusCode.Cancelled || fundingStatus == (int)ofm_funding_StatusCode.Expired)
                     {
-                        List<PaymentLine> notPaidPayments = paymentDeserializedData.Where(r => r.statuscode != (int)ofm_payment_StatusCode.Paid || r.statuscode != (int)ofm_payment_StatusCode.Cancelled).ToList();
+                        List<ofm_payment> notPaidPayments = paymentDeserializedData.Where(r => r.statuscode != ofm_payment_StatusCode.Paid || r.statuscode != ofm_payment_StatusCode.Cancelled).ToList();
                         if (notPaidPayments != null)
                         {
                             foreach (var payment in notPaidPayments)
@@ -611,7 +613,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private async Task<JsonObject> CreatePaymentLines(string Facility, decimal fundingAmount, DateTime startdate, DateTime enddate, bool manualReview, string application, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             var fiscalYearData = await GetFiscalYearDataAsync();
-            List<FiscalYear> fiscalYears = JsonSerializer.Deserialize<List<FiscalYear>>(fiscalYearData.Data);
+            List<ofm_fiscal_year> fiscalYears = JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearData.Data);
             var businessclosuresdata = await GetBusinessClosuresDataAsync();
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
 
@@ -694,7 +696,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return startTimeList;
         }
 
-        private static Guid? AssignFiscalYear(DateTime paymentDate, List<FiscalYear> fiscalYears)
+        private static Guid? AssignFiscalYear(DateTime paymentDate, List<ofm_fiscal_year> fiscalYears)
         {
             var matchingFiscalYear = fiscalYears.FirstOrDefault(fiscalYear => paymentDate >= fiscalYear.ofm_start_date && paymentDate <= fiscalYear.ofm_end_date);
 
@@ -708,15 +710,15 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private async Task<JsonObject> CreateSupplementaryApplicationPayment(string Facility, DateTime startdate, DateTime firstpaymentDate, bool manualReview, string fundingId, string application, string saApplication, int paymentType, decimal? fundingAmount, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             var fiscalYearData = await GetFiscalYearDataAsync();
-            List<FiscalYear> fiscalYears = JsonSerializer.Deserialize<List<FiscalYear>>(fiscalYearData.Data.ToString());
+            List<ofm_fiscal_year> fiscalYears = JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearData.Data.ToString());
             var businessclosuresdata = await GetBusinessClosuresDataAsync();
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
 
             Guid? fiscalYear = AssignFiscalYear(startdate, fiscalYears);
 
             //invoice received date is always last day of previous month. But for first payment it is start date of supplementary application
-            DateTime invoiceReceivedDate = firstpaymentDate == startdate && firstpaymentDate != null ? startdate : TimeExtensions.GetLastBusinessDayOfThePreviousMonth(startdate, holidaysList);
-            DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(invoiceReceivedDate, holidaysList);
+            DateTime invoiceReceivedDate = firstpaymentDate == startdate && firstpaymentDate != null ? startdate : startdate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
+            DateTime invoicedate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList);
             DateTime effectiveDate = invoicedate;
 
             var payload = new JsonObject()
@@ -775,4 +777,3 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         }
     }
 }
-
