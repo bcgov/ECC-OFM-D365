@@ -86,33 +86,33 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                        <attribute name="ofm_invoice_received_date" />
                        <attribute name="ofm_invoice_date" />
                         <order attribute="ofm_name" descending="false" />
-                     <filter type="and">
-                    <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ApprovedforPayment}" />
-                    <condition attribute="ofm_supplierid" operator="not-null" />
-                    <condition attribute="ofm_siteid" operator="not-null" />
-                    <condition attribute="ofm_payment_method" operator="not-null" />
-                    <condition attribute="ofm_amount" operator="not-null" />
-                    <filter type="or">
-                      <condition attribute="ofm_invoice_date" operator="today" />
-                      <condition attribute="ofm_revised_invoice_date" operator="today" />
-                    </filter>
-                      </filter>
-                        <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
-                      <attribute name="ofm_financial_year" />                      
-                    </link-entity>
-                    <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="ofm_application">
-                      <attribute name="ofm_application" />
-                    </link-entity>
-                     <link-entity name="account" from="accountid" to="ofm_facility" visible="false" link-type="outer" alias="ofm_facility">
-                       <attribute name="accountnumber" />                     
-                     <attribute name="name" />
-                    </link-entity>
+                         <filter type="and">
+                        <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ApprovedforPayment}" />
+                        <condition attribute="ofm_supplierid" operator="not-null" />
+                        <condition attribute="ofm_siteid" operator="not-null" />
+                        <condition attribute="ofm_payment_method" operator="not-null" />
+                        <condition attribute="ofm_amount" operator="not-null" />
+                        <filter type="or">
+                          <condition attribute="ofm_invoice_date" operator="today" />
+                          <condition attribute="ofm_revised_invoice_date" operator="today" />
+                        </filter>
+                          </filter>
+                            <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
+                          <attribute name="ofm_financial_year" />                      
+                        </link-entity>
+                        <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="ofm_application">
+                          <attribute name="ofm_application" />
+                        </link-entity>
+                         <link-entity name="account" from="accountid" to="ofm_facility" visible="false" link-type="outer" alias="ofm_facility">
+                           <attribute name="accountnumber" />                     
+                         <attribute name="name" />
+                        </link-entity>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_payments?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,ofm_amount,ofm_description,ofm_effective_date,_ofm_fiscal_year_value,_ofm_funding_value,ofm_invoice_line_number,_owningbusinessunit_value,ofm_payment_type,ofm_remittance_message,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_received_date,ofm_invoice_date&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ApprovedforPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (Microsoft.Dynamics.CRM.Today(PropertyName='ofm_invoice_date') or Microsoft.Dynamics.CRM.Today(PropertyName='ofm_revised_invoice_date'))) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
                          """;
 
             return requestUri;
@@ -188,23 +188,22 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
     {
         _processParams = processParams;
         var d = DateTime.Now;
-        List<InvoiceHeader> invoiceHeaders = new List<InvoiceHeader>();
-        List<List<InvoiceHeader>> headerList = new List<List<InvoiceHeader>>();
+        List<InvoiceHeader> invoiceHeaders = [];
+        List<List<InvoiceHeader>> headerList = [];
         var line = typeof(InvoiceLines);
         var header = typeof(InvoiceHeader);
         string result = string.Empty;
         string oracleBatchName;
 
         var paymentData = await GetPaymentLineData();
-        List<D365PaymentLine> paymentserializedData = new List<D365PaymentLine>();
+        List<D365PaymentLine> paymentserializedData = [];
         try
         {
             paymentserializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365PaymentLine>>(paymentData.Data.ToString());
 
             var grouppayment = paymentserializedData?.GroupBy(p => p.ofm_invoice_number).ToList();
 
-
-            var _fiscalyear = paymentserializedData?.FirstOrDefault()?.ofm_financial_year;
+            var _fiscalyear = paymentserializedData?.FirstOrDefault()?.ofm_fiscal_year.ofm_financial_year;
 
             var localData = await GetDataAsync();
             var serializedData = System.Text.Json.JsonSerializer.Deserialize<List<PaymentFileExchange>>(localData.Data.ToString());
@@ -256,7 +255,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                         lineAmount = (lineitem.item.ofm_amount < 0 ? "-" : "") + Math.Abs(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount") - (lineitem.item.ofm_amount < 0 ? 1 : 0), '0'),// come from split funding amount per facility
                         lineCode = (lineitem.item.ofm_amount > 0 ? "D" : "C"),//if it is positive then line code is Debit otherwise credit
                         distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
-                        lineDescription = string.Concat(lineitem.item.ofm_application_number, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
+                        lineDescription = string.Concat(lineitem.item?.ofm_application?.ofm_Application, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
                         effectiveDate = lineitem.item.ofm_effective_date?.ToString("yyyyMMdd"), //2 days after invoice posting
                         quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
                         unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder
@@ -290,7 +289,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     oracleBatchName = (_BCCASApi.clientCode + _fiscalyear?.Substring(2) + "OFM" + (_oraclebatchnumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                     SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                     payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
-                    description = string.Concat(headeritem.First().accountname).PadRight(header.FieldLength("description")),// can be used to pass extra info
+                    description = string.Concat(headeritem.First()?.ofm_facility?.name).PadRight(header.FieldLength("description")),// can be used to pass extra info
                     flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
                     invoiceLines = invoiceLines
 

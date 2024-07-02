@@ -51,7 +51,6 @@ public class Funding : ofm_funding
 public class Facility : Account
 {
     public new Licence[]? ofm_facility_licence { get; set; }
-    
 }
 
 public class Licence : ofm_licence
@@ -138,17 +137,7 @@ public class FacilityLicence : ofm_licence
 {
     public new LicenceDetail[]? ofm_licence_licencedetail { get; set; }
 }
-public class PaymentLine : ofm_payment
-{
-    public new int? statuscode { get; set; }
-    public Guid _ofm_supplementary_value { get; set; }
-}
-public class FiscalYear
-{
-    public Guid? ofm_fiscal_yearid { get; set; }
-    public DateTime ofm_start_date { get; set; }
-    public DateTime ofm_end_date { get; set; }
-}
+
 public class SupplementaryApplication : ofm_allowance
 {
     public new decimal? ofm_funding_amount { get; set; }
