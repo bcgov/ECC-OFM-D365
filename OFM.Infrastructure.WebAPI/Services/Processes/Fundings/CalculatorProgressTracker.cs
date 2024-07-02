@@ -46,7 +46,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
     private readonly ID365WebApiService _d365webapiservice = service;
     private readonly List<dynamic> _rawFTEs;
 
-    public string Title => $"Calculation Breakdowns at {TimeExtensions.GetCurrentPSTdateTime()} (PST)";
+    public string Title => $"Calculation Breakdowns at {TimeExtensions.GetCurrentPSTDateTime()} (PST)";
     public string Category => TrackerCategory.Calculator.ToString();
     public string TrackingDetails { get; set; } = string.Empty;
     public string StatusMessage { get; set; } = string.Empty;
@@ -329,7 +329,7 @@ public class CalculatorErrorTracker(ID365AppUserService appUserService, ID365Web
     private readonly ID365AppUserService _appUserService = appUserService;
     private readonly ID365WebApiService _d365webapiservice = service;
 
-    public string Title => $"*** ERROR *** - Calculator error at {TimeExtensions.GetCurrentPSTdateTime()} (PST)";
+    public string Title => $"*** ERROR *** - Calculator error at {TimeExtensions.GetCurrentPSTDateTime()} (PST)";
     public string Category => TrackerCategory.Error.ToString();
     public string TrackingDetails { get; set; } = string.Empty;
     public int Status { get; set; } = (int)ofm_progress_tracker_StatusCode.Active;
