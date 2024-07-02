@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
@@ -9,33 +8,43 @@ public interface IFundingAmounts
     decimal Base_GrandTotal { get; }
     decimal PF_GrandTotal { get; set; }
     decimal Projected_GrandTotal { get; set; }
+
     decimal Base_HRBenefits { get; }
     decimal PF_HRBenefits { get; set; }
     decimal Projected_HRBenefits { get; set; }
+
     decimal Base_HREmployerHealthTax { get; }
     decimal PF_HREmployerHealthTax { get; set; }
     decimal Projected_HREmployerHealthTax { get; set; }
+
     decimal Base_HRProfessionalDevelopmentExpenses { get; }
     decimal PF_HRProfessionalDevelopmentExpenses { get; set; }
     decimal Projected_HRProfessionalDevelopmentExpenses { get; set; }
+
     decimal Base_HRProfessionalDevelopmentHours { get; }
     decimal PF_HRProfessionalDevelopmentHours { get; set; }
     decimal Projected_HRProfessionalDevelopmentHours { get; set; }
+
     decimal Base_HRTotal { get; }
-    decimal HRTotal_PF { get; }
+    decimal PF_HRTotal { get; }
     decimal Projected_HRTotal { get; set; }
+
     decimal Base_HRWagesPaidTimeOff { get; }
     decimal PF_HRWagesPaidTimeOff { get; set; }
     decimal Projected_HRWagesPaidTimeOff { get; set; }
+
     decimal Base_NonHRAdmistrative { get; }
     decimal PF_NonHRAdmistrative { get; set; }
     decimal Projected_NonHRAdmistrative { get; set; }
+
     decimal Base_NonHRFacility { get; }
     decimal PF_NonHRFacility { get; set; }
     decimal Projected_NonHRFacility { get; set; }
+
     decimal Base_NonHROperational { get; }
     decimal PF_NonHROperational { get; set; }
     decimal Projected_NonHROperational { get; set; }
+
     decimal Base_NonHRProgramming { get; }
     decimal PF_NonHRProgramming { get; set; }
     decimal Projected_NonHRProgramming { get; set; }
@@ -83,7 +92,7 @@ public record FundingAmounts : IFundingAmounts
     public decimal Projected_NonHRFacility { get; set; } = 0m;
 
     // Parent Fees
-    public decimal HRTotal_PF => PF_HRWagesPaidTimeOff + PF_HRBenefits + PF_HREmployerHealthTax + PF_HRProfessionalDevelopmentHours + PF_HRProfessionalDevelopmentExpenses;
+    public decimal PF_HRTotal => PF_HRWagesPaidTimeOff + PF_HRBenefits + PF_HREmployerHealthTax + PF_HRProfessionalDevelopmentHours + PF_HRProfessionalDevelopmentExpenses;
     [Required(ErrorMessage = "Required")]
     [Range(LOWER_LIMIT_AMOUNT, UPPER_LIMIT_AMOUNT, ErrorMessage = "The value must be greater than or equal to 0 or less than 100_000_000")]
     public decimal PF_HRWagesPaidTimeOff { get; set; } = 0m;
@@ -114,7 +123,7 @@ public record FundingAmounts : IFundingAmounts
     public decimal PF_NonHRFacility { get; set; } = 0m;
 
     // Base Amounts (projected - parent fees)
-    public decimal Base_HRTotal => Projected_HRTotal - HRTotal_PF;
+    public decimal Base_HRTotal => Projected_HRTotal - PF_HRTotal;
     public decimal Base_HRWagesPaidTimeOff => Projected_HRWagesPaidTimeOff - PF_HRWagesPaidTimeOff;
     public decimal Base_HRBenefits => Projected_HRBenefits - PF_HRBenefits;
     public decimal Base_HREmployerHealthTax => Projected_HREmployerHealthTax - PF_HREmployerHealthTax;
@@ -152,7 +161,7 @@ public record EmptyFundingAmounts : IFundingAmounts {
     public decimal PF_HRProfessionalDevelopmentHours { get; set; } 
     public decimal Projected_HRProfessionalDevelopmentHours { get; set; } 
     public decimal Base_HRTotal { get; set; }
-    public decimal HRTotal_PF { get; set; }
+    public decimal PF_HRTotal { get; set; }
     public decimal Projected_HRTotal { get; set; } 
     public decimal Base_HRWagesPaidTimeOff { get; set; }
     public decimal PF_HRWagesPaidTimeOff { get; set; } 

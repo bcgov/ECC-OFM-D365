@@ -14,29 +14,22 @@ using System.Globalization;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
-public class P500SendPaymentRequestProvider : ID365ProcessProvider
+public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> bccasApiSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
+    private readonly BCCASApi _BCCASApi = bccasApiSettings.Value.BCCASApi;
+    private readonly IOptionsSnapshot<ExternalServices> bccasApiSettings = bccasApiSettings;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
+    private readonly ILoggerFactory loggerFactory = loggerFactory;
+    private readonly TimeProvider timeProvider = timeProvider;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
 
-    private readonly BCCASApi _BCCASApi;
-    private readonly ID365AppUserService _appUserService;
-    private readonly ID365WebApiService _d365webapiservice;
-    private readonly ILogger _logger;
-    private readonly TimeProvider _timeProvider;
     private int _controlCount;
     private double _controlAmount;
     private int _oraclebatchnumber;
-    private string _cGIBatchNumber;
+    private string _cGIBatchNumber = string.Empty;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
-
-    public P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> bccasApiSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
-    {
-        _BCCASApi = bccasApiSettings.Value.BCCASApi;
-        _appUserService = appUserService;
-        _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process);
-        _timeProvider = timeProvider;
-    }
 
     public Int16 ProcessId => Setup.Process.Payments.SendPaymentRequestId;
     public string ProcessName => Setup.Process.Payments.SendPaymentRequestName;
@@ -99,7 +92,10 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
                     <condition attribute="ofm_siteid" operator="not-null" />
                     <condition attribute="ofm_payment_method" operator="not-null" />
                     <condition attribute="ofm_amount" operator="not-null" />
-                    <condition attribute="ofm_invoice_date" operator="today" />
+                    <filter type="or">
+                      <condition attribute="ofm_invoice_date" operator="today" />
+                      <condition attribute="ofm_revised_invoice_date" operator="today" />
+                    </filter>
                       </filter>
                         <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
                       <attribute name="ofm_financial_year" />                      
@@ -152,10 +148,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
         _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString());
 
-
         return await Task.FromResult(_data);
-
-
     }
 
     public async Task<ProcessData> GetPaymentLineData()
@@ -188,10 +181,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
 
         _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data.Data.ToJsonString());
 
-
         return await Task.FromResult(_data);
-
-
     }
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
@@ -209,9 +199,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         List<D365PaymentLine> paymentserializedData = new List<D365PaymentLine>();
         try
         {
-
             paymentserializedData = System.Text.Json.JsonSerializer.Deserialize<List<D365PaymentLine>>(paymentData.Data.ToString());
-
 
             var grouppayment = paymentserializedData?.GroupBy(p => p.ofm_invoice_number).ToList();
 
@@ -365,6 +353,7 @@ public class P500SendPaymentRequestProvider : ID365ProcessProvider
         }
         catch (Exception ex) { }
         #endregion
+
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
     }

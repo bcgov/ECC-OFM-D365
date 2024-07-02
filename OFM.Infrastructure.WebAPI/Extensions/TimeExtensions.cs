@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -50,7 +49,6 @@ public class Range<T> : IRange<T> where T : IComparable<T>
 
 public static class TimeExtensions
 {
-
     public static string GetIanaTimeZoneId(TimeZoneInfo tzi)
     {
         if (tzi.HasIanaId)
@@ -62,11 +60,11 @@ public static class TimeExtensions
         throw new TimeZoneNotFoundException($"No IANA time zone found for {tzi.Id}.");
     }
 
-    public static DateTime GetCurrentPSTdateTime()
+    public static DateTime GetCurrentPSTDateTime()
     {
-
-        TimeZoneInfo timeZone = TimeZoneInfo.Local;
-        bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        _ = TimeZoneInfo.Local;
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        TimeZoneInfo timeZone;
         if (isWindows)
         {
             timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
@@ -82,28 +80,49 @@ public static class TimeExtensions
     }
 
     /// <summary>
-    /// A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
+    /// Convert a UTC datetime to local PST date & time
     /// </summary>
-    /// <param name="candidate"></param>
-    /// <param name="holidays"></param>
-    /// <param name="totalTrailingDays"></param>
+    /// <param name="utcDate"></param>
     /// <returns></returns>
-    public static DateTime GetCFSInvoiceDate(this DateTime candidate, List<DateTime> holidays, int totalTrailingDays = -5)
+    public static DateTime ToLocalPST(this DateTime utcDate)
     {
-        var potentialDates = Enumerable.Range(totalTrailingDays, Math.Abs(totalTrailingDays))
-                                   .Select(day => IsBusinessDay(day, candidate, holidays))
-                                   .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
-                                   .OrderByDescending(d => d.Date);
-
-       
-        if (potentialDates.Any())
+        _ = TimeZoneInfo.Local;
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        TimeZoneInfo timeZone;
+        if (isWindows)
         {
-            return potentialDates.First();
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
         }
         else
-        {      
-            throw new InvalidOperationException("No valid invoice dates found.");
+        {
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver");
         }
+
+        DateTime pacificTime = TimeZoneInfo.ConvertTimeFromUtc(utcDate, timeZone);
+
+        return pacificTime;
+    }
+
+    /// <summary>
+    /// A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
+    /// </summary>
+    public static DateTime GetCFSInvoiceDate(this DateTime invoiceReceivedDate, List<DateTime> holidays)
+    {
+        int businessDaysToSubtract = 5;
+        int businessDaysCount = 0;
+        DateTime invoiceDate = invoiceReceivedDate;
+
+        while (businessDaysCount < businessDaysToSubtract)
+        {
+            invoiceDate = invoiceDate.AddDays(-1);
+
+            if (invoiceDate.DayOfWeek != DayOfWeek.Saturday && invoiceDate.DayOfWeek != DayOfWeek.Sunday && !holidays.Exists(holiday => holiday.Date == invoiceDate.Date))
+            {
+                businessDaysCount++;
+            }
+        }
+
+        return invoiceDate;
     }
 
     /// <summary>
@@ -124,23 +143,20 @@ public static class TimeExtensions
                 .First();
     }
 
-    /// <summary>
-    ///  A pre-determined CFS Invoice Received Date. The recommended default is 4 days before the Invoice Date.
-    /// </summary>
-    /// <param name="invoiceDate"></param>
-    /// <param name="holidays"></param>
-    /// <param name="defaultDaysBefore"></param>
-    /// <param name="trailingTotalDays"></param>
-    /// <returns></returns>
-    public static DateTime GetCFSInvoiceReceivedDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysBefore = -4, int trailingTotalDays = -3)
+    public static DateTime GetLastBusinessDayOfThePreviousMonth(this DateTime targetDate, List<DateTime> holidays)
     {
-        var totalDaysBefore = defaultDaysBefore + trailingTotalDays;
-        var potentialDates = Enumerable.Range(totalDaysBefore, Math.Abs(totalDaysBefore)).Select(day => IsBusinessDay(day, invoiceDate, holidays));
+        DateTime firstDayOfMonth = new(targetDate.Year, targetDate.Month, 1);
+        DateTime lastDayOfPreviousMonth = firstDayOfMonth.AddDays(-1);
 
-        return potentialDates
-                .Where(d => !d.Date.Equals(DateTime.MinValue.Date))
-                .OrderByDescending(d => d.Date)
-                .ElementAt(3);
+        // Iterate backward to find the last business day
+        while (lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Saturday || 
+                lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Sunday || 
+                holidays.Exists(excludedDate => excludedDate.Date.Equals(lastDayOfPreviousMonth.Date)))
+        {
+            lastDayOfPreviousMonth = lastDayOfPreviousMonth.AddDays(-1);
+        }
+
+        return lastDayOfPreviousMonth;
     }
 
     private static DateTime IsBusinessDay(int days, DateTime checkingDate, List<DateTime> holidays)
@@ -153,8 +169,15 @@ public static class TimeExtensions
 
         return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
     }
-    //Adding 3 days from current date as revised invoice date.
-    public static DateTime GetRevisedInvoiceDate(DateTime currentDate, int daysToAdd, List<DateTime> holidays)
+
+    /// <summary>
+    /// Adding 3 days from current date as revised invoice date.
+    /// </summary>
+    /// <param name="currentDate"></param>
+    /// <param name="daysToAdd"></param>
+    /// <param name="holidays"></param>
+    /// <returns></returns>
+    public static DateTime GetRevisedInvoiceDate(this DateTime currentDate, int daysToAdd, List<DateTime> holidays)
     {
         DateTime futureDate = currentDate.AddDays(daysToAdd);
         while (futureDate.DayOfWeek == DayOfWeek.Saturday || futureDate.DayOfWeek == DayOfWeek.Sunday || holidays.Exists(excludedDate => excludedDate.Date.Equals(futureDate.Date)))
