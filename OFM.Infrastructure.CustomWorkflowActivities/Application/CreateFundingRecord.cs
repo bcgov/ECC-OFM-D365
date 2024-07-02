@@ -6,8 +6,6 @@ using Microsoft.Xrm.Sdk.Workflow;
 using System;
 using System.Activities;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Threading;
 
 namespace OFM.Infrastructure.CustomWorkflowActivities.Application
 {
@@ -16,6 +14,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
         [RequiredArgument]
         [Input("FundingNumberBase")]
         public InArgument<string> fundingnumberbase { get; set; }
+
         protected override void Execute(CodeActivityContext executionContext)
         {
             ITracingService tracingService = executionContext.GetExtension<ITracingService>();
@@ -33,11 +32,10 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                 int statusReasonValue = statusReason.Value;
                 tracingService.Trace("Checking condtions StatusReason value:{0}, ofmFundingNumberBase:{1} ", statusReasonValue, ofmFundingNumberBase);
                 if (entity != null && entity.Attributes.Count > 0)
-                // if (entity != null && entity.Attributes.Count > 0 && entity.Attributes.Contains("ofm_funding_number_base") && statusReasonValue == 3)
                 {
                     DateTime currentDate = DateTime.UtcNow;
 
-                    // get Rate Schedual
+                    // get Rate Schedule
                     var fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                 <fetch>
                                   <entity name=""ofm_rate_schedule"">
@@ -56,37 +54,10 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                                     </filter>
                                   </entity>
                                 </fetch>";
+
                     EntityCollection rateSchedual = service.RetrieveMultiple(new FetchExpression(fetchXml));
                     Guid rateSchedualId = Guid.Empty;
                     if (rateSchedual.Entities.Count > 0) { rateSchedualId = rateSchedual[0].Id; }
-
-                    // get Intake
-                    fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
-                                <fetch>
-                                  <entity name=""ofm_intake"">
-                                    <attribute name=""ofm_intakeid"" />
-                                    <attribute name=""ofm_intake_number"" />
-                                    <attribute name=""ofm_caption"" />
-                                    <attribute name=""ofm_start_date"" />
-                                    <attribute name=""ofm_end_date"" />
-                                    <attribute name=""ofm_intake_type"" />
-                                    <attribute name=""ofm_description"" />
-                                    <attribute name=""ofm_completed_date"" />
-                                    <attribute name=""statecode"" />
-                                    <order attribute=""ofm_start_date"" descending=""true"" />
-                                    <filter type=""and"">
-                                      <condition attribute=""ofm_start_date"" operator=""le"" value=""{currentDate}"" />
-                                      <condition attribute=""statecode"" operator=""eq"" value=""0"" />
-                                      <filter type=""or"">
-                                        <condition attribute=""ofm_end_date"" operator=""null"" />
-                                        <condition attribute=""ofm_end_date"" operator=""ge"" value=""{currentDate}"" />
-                                      </filter>
-                                    </filter>
-                                  </entity>
-                                </fetch>";
-                    EntityCollection intake = service.RetrieveMultiple(new FetchExpression(fetchXml));
-                    Guid intakeId = Guid.Empty;
-                    if (intake.Entities.Count > 0) { intakeId = intake[0].Id; }
 
                     if (string.IsNullOrEmpty(ofmFundingNumberBase))
                     {
@@ -132,15 +103,17 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                         newudpate["ofm_applicationid"] = entity["ofm_applicationid"];
                         newudpate["ofm_funding_number_base"] = ofmFundingNumberBase;
                         service.Update(newudpate);
-                        //  Create first Funding Detail record
+
+                        //  Create first Funding record
                         Entity newFundingRecord = new Entity("ofm_funding");
                         newFundingRecord["ofm_version_number"] = 0;
                         newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-00"; // Primary coloumn
                         newFundingRecord["ofm_application"] = new EntityReference("ofm_application", recordId);
                         newFundingRecord["ofm_rate_schedule"] = (rateSchedualId == null || rateSchedualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchedualId);
-                        newFundingRecord["ofm_intake"] = (intakeId == null || intakeId == Guid.Empty) ? null : new EntityReference("ofm_intake", intakeId);
+
                         service.Create(newFundingRecord);
-                        tracingService.Trace("\nUpdate Agreement Num Base and create fist Funding records sucessfully.");
+
+                        tracingService.Trace("\nUpdate Agreement Number Base and create first Funding record successfully.");
                     }
                     else  // resubmit
                     {
@@ -169,24 +142,16 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                         if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null)
                         {
                             var id = fundingRecords[0].Id;
-                            //tracingService.Trace("\nResubminssion deactive previous record: " + id);
-                            ////deactive the current funding record
-                            //Entity fundingRecordTable = new Entity("ofm_funding");
-                            //fundingRecordTable.Id = id;
-                            //fundingRecordTable["statecode"] = new OptionSetValue(1); //Inactive
-                            //fundingRecordTable["statuscode"] = new OptionSetValue(2);
-                            //service.Update(fundingRecordTable);
-                            //create a new funding record
                             tracingService.Trace("\nResubmission, create new funding records:" + id);
                             Entity newFundingRecord = new Entity("ofm_funding");
                             newFundingRecord["ofm_version_number"] = fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1;
                             newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-" + (fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1).ToString("00"); // Primary coloumn
                             newFundingRecord["ofm_application"] = new EntityReference("ofm_application", recordId);
                             newFundingRecord["ofm_rate_schedule"] = (rateSchedualId == null || rateSchedualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchedualId);
-                            newFundingRecord["ofm_intake"] = (intakeId == null || intakeId == Guid.Empty) ? null : new EntityReference("ofm_intake", intakeId);
-                            newFundingRecord["statuscode"] = new OptionSetValue(3);
+                            newFundingRecord["statuscode"] = new OptionSetValue((int) ofm_funding_StatusCode.FAReview);
                             service.Create(newFundingRecord);
-                            tracingService.Trace("\nThis is resubmisstion.Create Funding records sucessfully.");
+                            
+                            tracingService.Trace("\nThis is a resubmisstion.Create Funding records successfully.");
                         }
                     }
                 }
