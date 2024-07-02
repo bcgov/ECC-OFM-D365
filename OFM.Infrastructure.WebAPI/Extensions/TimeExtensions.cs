@@ -49,7 +49,6 @@ public class Range<T> : IRange<T> where T : IComparable<T>
 
 public static class TimeExtensions
 {
-
     public static string GetIanaTimeZoneId(TimeZoneInfo tzi)
     {
         if (tzi.HasIanaId)
@@ -61,7 +60,7 @@ public static class TimeExtensions
         throw new TimeZoneNotFoundException($"No IANA time zone found for {tzi.Id}.");
     }
 
-    public static DateTime GetCurrentPSTdateTime()
+    public static DateTime GetCurrentPSTDateTime()
     {
         _ = TimeZoneInfo.Local;
         bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -107,29 +106,24 @@ public static class TimeExtensions
     /// <summary>
     /// A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
     /// </summary>
-    /// <param name="candidate"></param>
-    /// <param name="holidays"></param>
-    /// <param name="totalTrailingDays"></param>
-    /// <returns></returns>
-    public static DateTime GetCFSInvoiceDate(DateTime InvoiceReceivedDate, List<DateTime> holidays)
+    public static DateTime GetCFSInvoiceDate(this DateTime invoiceReceivedDate, List<DateTime> holidays)
     {
         int businessDaysToSubtract = 5;
         int businessDaysCount = 0;
-        DateTime InvoiceDate = InvoiceReceivedDate;
+        DateTime invoiceDate = invoiceReceivedDate;
 
         while (businessDaysCount < businessDaysToSubtract)
         {
-            InvoiceDate = InvoiceDate.AddDays(-1);
+            invoiceDate = invoiceDate.AddDays(-1);
 
-            if (InvoiceDate.DayOfWeek != DayOfWeek.Saturday && InvoiceDate.DayOfWeek != DayOfWeek.Sunday && !holidays.Exists(holiday => holiday.Date == InvoiceDate.Date))
+            if (invoiceDate.DayOfWeek != DayOfWeek.Saturday && invoiceDate.DayOfWeek != DayOfWeek.Sunday && !holidays.Exists(holiday => holiday.Date == invoiceDate.Date))
             {
                 businessDaysCount++;
             }
         }
 
-        return InvoiceDate;
+        return invoiceDate;
     }
-
 
     /// <summary>
     /// A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
@@ -149,20 +143,15 @@ public static class TimeExtensions
                 .First();
     }
 
-    /// <summary>
-    ///  A pre-determined CFS Invoice Received Date. For monthly payments, it is typically the last day of previous month for following month it is paid in advance.
-    ///  For the first month payment of the term, it is always the same as the start date of funding term.
-    /// </summary>
-    /// <param name="paymentDate"></param>
-    /// <param name="holidays"></param>
-    /// <returns></returns>
-    public static DateTime GetCFSInvoiceReceivedDate(DateTime paymentDate, List<DateTime> holidays)
+    public static DateTime GetLastBusinessDayOfThePreviousMonth(this DateTime targetDate, List<DateTime> holidays)
     {
-        DateTime firstDayOfMonth = new DateTime(paymentDate.Year, paymentDate.Month, 1);
+        DateTime firstDayOfMonth = new(targetDate.Year, targetDate.Month, 1);
         DateTime lastDayOfPreviousMonth = firstDayOfMonth.AddDays(-1);
 
         // Iterate backward to find the last business day
-        while (lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Saturday || lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Sunday || holidays.Exists(excludedDate => excludedDate.Date.Equals(lastDayOfPreviousMonth.Date)))
+        while (lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Saturday || 
+                lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Sunday || 
+                holidays.Exists(excludedDate => excludedDate.Date.Equals(lastDayOfPreviousMonth.Date)))
         {
             lastDayOfPreviousMonth = lastDayOfPreviousMonth.AddDays(-1);
         }
@@ -180,9 +169,15 @@ public static class TimeExtensions
 
         return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
     }
-    
-    //Adding 3 days from current date as revised invoice date.
-    public static DateTime GetRevisedInvoiceDate(DateTime currentDate, int daysToAdd, List<DateTime> holidays)
+
+    /// <summary>
+    /// Adding 3 days from current date as revised invoice date.
+    /// </summary>
+    /// <param name="currentDate"></param>
+    /// <param name="daysToAdd"></param>
+    /// <param name="holidays"></param>
+    /// <returns></returns>
+    public static DateTime GetRevisedInvoiceDate(this DateTime currentDate, int daysToAdd, List<DateTime> holidays)
     {
         DateTime futureDate = currentDate.AddDays(daysToAdd);
         while (futureDate.DayOfWeek == DayOfWeek.Saturday || futureDate.DayOfWeek == DayOfWeek.Sunday || holidays.Exists(excludedDate => excludedDate.Date.Equals(futureDate.Date)))
