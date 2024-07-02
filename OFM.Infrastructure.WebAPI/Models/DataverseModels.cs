@@ -413,6 +413,7 @@ public class D365PaymentLine : ofm_payment
     public string accountname { get; set; }
     public Guid _ofm_application_value { get; set; }
     public Guid _ofm_supplementary_value { get; set; }
+    public new int? statuscode { get; set; }
 }
 
 public record D365ReportSection

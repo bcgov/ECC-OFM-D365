@@ -355,7 +355,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     DateTime retroActivePaymentDate;
                     int retroActiveCreditOrDebitMonths = 0;
                     var allPayments = await GetApplicationPaymentDataAsync();
-                    var paymentDeserializedData = JsonSerializer.Deserialize<List<PaymentLine>>(allPayments.Data.ToString());
+                    var paymentDeserializedData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPayments.Data.ToString());
                     var supplementaryApplications = await GetSupplementaryApplicationDataAsync();
                     var supplementaryApplicationDeserializedData = JsonSerializer.Deserialize<List<SupplementaryApplication>>(supplementaryApplications.Data.ToString());
 
@@ -439,7 +439,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                     var saStartDate = supplementaryApp.ofm_start_date;
                                     var saEndDate = supplementaryApp.ofm_end_date;
                                     //Check if payments of this allowance type created.
-                                    List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
+                                    List<D365PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
                                     .Where(r => r._ofm_supplementary_value == supplementaryApp.ofm_allowanceid).ToList();
                                     //Check if payment record already exist for this supplementary app.
                                     if (saSupportOrIndigenousPayments.Count == 0)
@@ -471,7 +471,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                 foreach (var transportationApp in transportationApplications)
                                 {
                                     //Check if payments exists for this app.
-                                    List<PaymentLine> saTransportationPayments = paymentDeserializedData
+                                    List<D365PaymentLine> saTransportationPayments = paymentDeserializedData
                                         .Where(r =>
                                           (int)r.ofm_payment_type == (int)ecc_payment_type.Transportation && r._ofm_supplementary_value == transportationApp.ofm_allowanceid).ToList();
                                     //if no payments exists for any transportationa application, then create monthly payment lines.
@@ -525,7 +525,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         var saStartDate = saAppApproved.ofm_start_date;
                         var saEndDate = saAppApproved.ofm_end_date;
                         //Check if payments of this allowance type created.
-                        List<PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
+                        List<D365PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
                         .Where(r => r._ofm_supplementary_value == processParams.SupplementaryApplication.allowanceId).ToList();
                         //Check if payment record already exist for this supplementary app.
                         if (saSupportOrIndigenousPayments.Count == 0)
@@ -590,7 +590,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     //For cancellation or termination of funding.
                     else if (fundingStatus == (int)ofm_funding_StatusCode.Terminated || fundingStatus == (int)ofm_funding_StatusCode.Cancelled || fundingStatus == (int)ofm_funding_StatusCode.Expired)
                     {
-                        List<PaymentLine> notPaidPayments = paymentDeserializedData.Where(r => r.statuscode != (int)ofm_payment_StatusCode.Paid || r.statuscode != (int)ofm_payment_StatusCode.Cancelled).ToList();
+                        List<D365PaymentLine> notPaidPayments = paymentDeserializedData.Where(r => r.statuscode != (int)ofm_payment_StatusCode.Paid || r.statuscode != (int)ofm_payment_StatusCode.Cancelled).ToList();
                         if (notPaidPayments != null)
                         {
                             foreach (var payment in notPaidPayments)
