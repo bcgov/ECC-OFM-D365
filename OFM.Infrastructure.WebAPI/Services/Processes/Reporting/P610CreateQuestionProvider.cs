@@ -50,7 +50,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
         
         get
         {
-            var projectId = _processParams?.Project?.ProjectId;
+            var projectId = _processParams?.CustomerVoiceProject?.ProjectId;
            
             var fetchXml = $"""
                     <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" >
@@ -364,8 +364,8 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
 
 
             #region Create Customer Voice Project as Report Template in CE Custom
-            var startDate = _processParams?.Project.StartDate;
-            var endDate = _processParams?.Project?.EndDate;
+            var startDate = _processParams?.CustomerVoiceProject.StartDate;
+            var endDate = _processParams?.CustomerVoiceProject?.EndDate;
             if (deserializedData.Count > 0)
             {
                 var payloadReportTemplate = new JsonObject

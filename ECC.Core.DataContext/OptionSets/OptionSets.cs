@@ -4338,6 +4338,22 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Payment Frequency
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ecc_payment_frequency
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Lump Sum", 0)]
+		LumpSum = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Monthly", 1)]
+		Monthly = 2,
+	}
+	
+	/// <summary>
 	/// Payment Method
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -4489,6 +4505,38 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Resources to proactively support inclusion of children with diverse needs", 1)]
 		Resourcestoproactivelysupportinclusionofchildrenwithdiverseneeds = 2,
+	}
+	
+	/// <summary>
+	/// Unions
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ecc_Unions
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("BCGEU", 0)]
+		BCGEU = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("CUPE", 1)]
+		CUPE = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("HEASBC", 3)]
+		HEASBC = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("HSA", 2)]
+		HSA = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Other", 5)]
+		Other = 6,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("UFCW", 4)]
+		UFCW = 5,
 	}
 	
 	/// <summary>
@@ -13605,38 +13653,6 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
-	/// Status of the Facility/Operating Cost
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_facility_operating_cost_statecode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 1,
-	}
-	
-	/// <summary>
-	/// Reason for the status of the Facility/Operating Cost
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_facility_operating_cost_StatusCode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 2,
-	}
-	
-	/// <summary>
 	/// Status of the Facility Request
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -14105,8 +14121,8 @@ namespace ECC.Core.DataContext
 		PendingPayment = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Processing ERROR", 5)]
-		ProcessingERROR = 6,
+		[OptionSetMetadataAttribute("Processing Error", 5)]
+		ProcessingError = 6,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Processing Payment", 4)]
