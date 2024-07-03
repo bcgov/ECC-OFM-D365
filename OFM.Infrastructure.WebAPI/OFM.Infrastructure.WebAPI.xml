@@ -22,14 +22,10 @@
             <returns></returns>
         </member>
         <!-- Badly formed XML comment ignored for member "M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.ToLocalPST(System.DateTime)" -->
-        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32)">
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceDate(System.DateTime,System.Collections.Generic.List{System.DateTime})">
             <summary>
             A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
             </summary>
-            <param name="candidate"></param>
-            <param name="holidays"></param>
-            <param name="totalTrailingDays"></param>
-            <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSEffectiveDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
             <summary>
@@ -41,14 +37,13 @@
             <param name="trailingTotalDays"></param>
             <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceReceivedDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32,System.Int32)">
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetRevisedInvoiceDate(System.DateTime,System.Int32,System.Collections.Generic.List{System.DateTime})">
             <summary>
-             A pre-determined CFS Invoice Received Date. The recommended default is 4 days before the Invoice Date.
+            Adding 3 days from current date as revised invoice date.
             </summary>
-            <param name="invoiceDate"></param>
+            <param name="currentDate"></param>
+            <param name="daysToAdd"></param>
             <param name="holidays"></param>
-            <param name="defaultDaysBefore"></param>
-            <param name="trailingTotalDays"></param>
             <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.BatchOperationsHandlers.BatchOperationsAsync(OFM.Infrastructure.WebAPI.Services.Batches.ID365BatchService,Microsoft.Extensions.Logging.ILoggerFactory,System.Object)">
@@ -570,11 +565,6 @@
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_facility_intakeSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_facility_intake"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_facility_operating_costSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_facility_operating_cost"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_facility_requestSet">
@@ -4931,11 +4921,6 @@
             The associated Supplementary Schedule on the allowance record
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_transport_estimated_monthly_km">
-            <summary>
-            Estimated Monthly KM
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_transport_monthly_lease">
             <summary>
             Monthly Lease
@@ -5024,6 +5009,11 @@
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_document_allowance">
             <summary>
             1:N ofm_document_allowance
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_payment_allowance">
+            <summary>
+            1:N ofm_payment_allowance
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_supplementary_payment">
@@ -7132,6 +7122,11 @@
             Unique identifier for entity instances
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_payment_frequency">
+            <summary>
+            Payment Frequency
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_expense.ofm_request_summary">
             <summary>
             Request Summary
@@ -7205,6 +7200,11 @@
         <member name="P:ECC.Core.DataContext.ofm_expense.versionnumber">
             <summary>
             Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_payment_expense">
+            <summary>
+            1:N ofm_payment_expense
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_expense.ofm_application_expense">
@@ -7379,262 +7379,6 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.ofm_facility_intake.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_facility_operating_cost.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_facility_operating_cost entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_facility_operating_cost.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.exchangerate">
-            <summary>
-            Exchange rate for the currency associated with the entity with respect to the base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_applicable_fee">
-            <summary>
-            Fee (If Applicable)
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_applicable_fee_base">
-            <summary>
-            Value of the Fee (If Applicable) in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_facility_type">
-            <summary>
-            Facility Type
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_furniture_equipment">
-            <summary>
-            Furniture and Equipment
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_furniture_equipment_base">
-            <summary>
-            Value of the Furniture and Equipment in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_maintenance_repairs">
-            <summary>
-            Maintenance and Repairs
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_maintenance_repairs_base">
-            <summary>
-            Value of the Maintenance and Repairs in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_mortgage">
-            <summary>
-            Mortgage
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_mortgage_base">
-            <summary>
-            Value of the Mortgage in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_property_insurance">
-            <summary>
-            Insurance (formerly 'Property Insurance')
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_property_insurance_base">
-            <summary>
-            Value of the Insurance in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_property_municipal_tax">
-            <summary>
-            Property/Municipal Tax
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_property_municipal_tax_base">
-            <summary>
-            Value of the Property/Municipal Tax in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_rent_lease">
-            <summary>
-            Rent/Lease
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_rent_lease_base">
-            <summary>
-            Value of the Rent/Lease in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_strata_fee">
-            <summary>
-            Strata Fees
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_strata_fee_base">
-            <summary>
-            Value of the Strata Fees in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_supplies">
-            <summary>
-            Supplies
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_supplies_base">
-            <summary>
-            Value of the Supplies in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_upkeep_labour">
-            <summary>
-            Upkeep and Labour
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_upkeep_labour_base">
-            <summary>
-            Value of the Upkeep and Labour in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_utilities">
-            <summary>
-            Utilities
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_utilities_base">
-            <summary>
-            Value of the Utilities in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_yearly_facility_costs">
-            <summary>
-            Yearly Facility Costs
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_costs_yearly_operating_costs">
-            <summary>
-            Yearly Operating Costs
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ofm_facility_operating_costid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.statecode">
-            <summary>
-            Status of the Facility/Operating Cost
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.statuscode">
-            <summary>
-            Reason for the status of the Facility/Operating Cost
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.transactioncurrencyid">
-            <summary>
-            Unique identifier of the currency associated with the entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_facility_operating_cost.team_ofm_facility_operating_cost">
-            <summary>
-            N:1 team_ofm_facility_operating_cost
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_facility_operating_cost.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -8396,6 +8140,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_retroactive_payment_date">
             <summary>
             Retroactive Payment Date
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_retroactive_payment_frequency">
+            <summary>
+            Retroactive Payment Frequency
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_start_date">
@@ -9584,6 +9333,11 @@
             Unique identifier for entity instances
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_regardingid">
+            <summary>
+            Regarding
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_remittance_message">
             <summary>
             Remittance Message
@@ -9684,9 +9438,19 @@
             N:1 ofm_organization_payment
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_allowance">
+            <summary>
+            N:1 ofm_payment_allowance
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_application">
             <summary>
             N:1 ofm_payment_application
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_expense">
+            <summary>
+            N:1 ofm_payment_expense
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_facility_account">
@@ -13605,11 +13369,6 @@
             1:N team_ofm_facility_intake
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_facility_operating_cost">
-            <summary>
-            1:N team_ofm_facility_operating_cost
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_facility_request">
             <summary>
             1:N team_ofm_facility_request
@@ -15183,6 +14942,11 @@
             A Passed or Failed with a default blank value
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ecc_payment_frequency">
+            <summary>
+            Payment Frequency
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ecc_payment_method">
             <summary>
             Payment Method
@@ -15211,6 +14975,11 @@
         <member name="T:ECC.Core.DataContext.ecc_support_needs_expenses">
             <summary>
             Support Needs Expenses
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ecc_Unions">
+            <summary>
+            Unions
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ecc_verification_result">
@@ -17181,16 +16950,6 @@
         <member name="T:ECC.Core.DataContext.ofm_facility_intake_StatusCode">
             <summary>
             Reason for the status of the Facility Intake
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_facility_operating_cost_statecode">
-            <summary>
-            Status of the Facility/Operating Cost
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_facility_operating_cost_StatusCode">
-            <summary>
-            Reason for the status of the Facility/Operating Cost
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_facility_request_statecode">

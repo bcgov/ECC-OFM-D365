@@ -396,40 +396,16 @@ public record PaymentFileExchange
 
 public class D365PaymentLine : ofm_payment
 {
-    public Guid ofm_paymentid { get; set; }
-    public DateTime? ofm_effective_date { get; set; }
-    public DateTime? ofm_invoice_date { get; set; }
-    public DateTime? ofm_invoice_received_date { get; set; }
-    public string ofm_supplierid { get; set; }
-    public string ofm_siteid { get; set; }
-    public string ofm_invoice_number { get; set; }
     public new decimal ofm_amount { get; set; }
-    public  int ofm_payment_method { get; set; }
-    [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
-    public string ofm_financial_year { get; set; }
-    [property: JsonPropertyName("ofm_application.ofm_application")]
-    public string ofm_application_number { get; set; }
-    [property: JsonPropertyName("ofm_facility.name")]
-    public string accountname { get; set; }
-    public Guid _ofm_application_value { get; set; }
-    public Guid _ofm_supplementary_value { get; set; }
+    public new Facility? ofm_facility { get; set; }
+    public new Application? ofm_application { get; set; }
+    public new ofm_fiscal_year? ofm_fiscal_year { get; set; }
 }
 
 public record D365ReportSection
 {
     public int? OrderNumber { get; set; }
     public string? SectionName { get; set; }
-}
-
-public class IntegrationLogs : ofm_integration_log
-{
-    public Guid ofm_integration_logid { get; set; }
-    public string ofm_caption { get; set; }
-    public string ofm_subject { get; set; }
-    public Guid ofm_regardingid { get; set; }
-    public string ofm_message { get; set; }
-    public string ofm_service_name { get; set; }
-
 }
 
 public class ProviderStaff

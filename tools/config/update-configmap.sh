@@ -210,6 +210,7 @@ D365_CONFIGURATION=$(jq << JSON
       "KeyName": "",
       "KeyValue": "",
       "MinsToCache": 5,
+	  "DaysToCorrectPayments": 3,
       "transactionCount": 5,
       "clientCode": "62",
       "cGIBatchNumber": "623540001",

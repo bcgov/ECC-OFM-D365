@@ -137,8 +137,8 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateNumber);
 
             var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
-            var hyperlink = _notificationSettings.fundingUrl + _funding.Id;
-            var hyperlinkFATab = _notificationSettings.fundingTabUrl;
+            var hyperlink = _notificationSettings.FundingUrl + _funding.Id;
+            var hyperlinkFATab = _notificationSettings.FundingTabUrl;
 
             var templateobj = serializedDataTemplate?.FirstOrDefault();
             string? subject = templateobj?.title;

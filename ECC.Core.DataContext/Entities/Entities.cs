@@ -352,6 +352,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_facility_review_complete = "ofm_facility_review_complete";
 			public const string ofm_facility_review_completename = "ofm_facility_review_completename";
 			public const string ofm_facility_survey_response = "ofm_facility_survey_response";
+			public const string ofm_fiscal_year_end = "ofm_fiscal_year_end";
 			public const string ofm_funding_facility_account = "ofm_funding_facility_account";
 			public const string ofm_good_standing_indicator = "ofm_good_standing_indicator";
 			public const string ofm_good_standing_status = "ofm_good_standing_status";
@@ -387,6 +388,10 @@ namespace ECC.Core.DataContext
 			public const string ofm_provider_type = "ofm_provider_type";
 			public const string ofm_provider_typename = "ofm_provider_typename";
 			public const string ofm_tdad_funding_agreement_number = "ofm_tdad_funding_agreement_number";
+			public const string ofm_union_list = "ofm_union_list";
+			public const string ofm_union_listname = "ofm_union_listname";
+			public const string ofm_unionized = "ofm_unionized";
+			public const string ofm_unionizedname = "ofm_unionizedname";
 			public const string onholdtime = "onholdtime";
 			public const string opendeals = "opendeals";
 			public const string opendeals_date = "opendeals_date";
@@ -5705,6 +5710,21 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_fiscal_year_end")]
+		public string ofm_fiscal_year_end
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_fiscal_year_end");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_fiscal_year_end", value);
+			}
+		}
+		
 		/// <summary>
 		/// Good Standing Indicator and Message
 		/// </summary>
@@ -6199,6 +6219,70 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("ofm_tdad_funding_agreement_number", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_union_list")]
+		public virtual System.Collections.Generic.IEnumerable<ecc_Unions> ofm_union_list
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return EntityOptionSetEnum.GetMultiEnum<ecc_Unions>(this, "ofm_union_list");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_union_list", EntityOptionSetEnum.GetMultiEnum(this, "ofm_union_list", value));
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_union_listname")]
+		public string ofm_union_listname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_union_list"))
+				{
+					return this.FormattedValues["ofm_union_list"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_unionized")]
+		public virtual ecc_ynempty? ofm_unionized
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((ecc_ynempty?)(EntityOptionSetEnum.GetEnum(this, "ofm_unionized")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_unionized", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_unionizedname")]
+		public string ofm_unionizedname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_unionized"))
+				{
+					return this.FormattedValues["ofm_unionized"];
+				}
+				else
+				{
+					return default(string);
+				}
 			}
 		}
 		
@@ -21968,6 +22052,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_needs_description = "ofm_needs_description";
 			public const string ofm_needs_expenses = "ofm_needs_expenses";
 			public const string ofm_needs_expensesname = "ofm_needs_expensesname";
+			public const string ofm_payment_allowance = "ofm_payment_allowance";
 			public const string ofm_picture_of_odometer_transportation = "ofm_picture_of_odometer_transportation";
 			public const string ofm_picture_of_odometer_transportationname = "ofm_picture_of_odometer_transportationname";
 			public const string ofm_reminder = "ofm_reminder";
@@ -21987,7 +22072,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_supplementaryapplicationpdf = "ofm_supplementaryapplicationpdf";
 			public const string ofm_supplementaryapplicationpdf_name = "ofm_supplementaryapplicationpdf_name";
 			public const string ofm_supplementaryschedule_allowance = "ofm_supplementaryschedule_allowance";
-			public const string ofm_transport_estimated_monthly_km = "ofm_transport_estimated_monthly_km";
 			public const string ofm_transport_estimated_yearly_km = "ofm_transport_estimated_yearly_km";
 			public const string ofm_transport_monthly_lease = "ofm_transport_monthly_lease";
 			public const string ofm_transport_monthly_lease_base = "ofm_transport_monthly_lease_base";
@@ -23059,24 +23143,6 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
-		/// <summary>
-		/// Estimated Monthly KM
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_estimated_monthly_km")]
-		public System.Nullable<int> ofm_transport_estimated_monthly_km
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<int>>("ofm_transport_estimated_monthly_km");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_transport_estimated_monthly_km", value);
-			}
-		}
-		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_transport_estimated_yearly_km")]
 		public System.Nullable<int> ofm_transport_estimated_yearly_km
 		{
@@ -23501,6 +23567,24 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// 1:N ofm_payment_allowance
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_payment_allowance")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_payment> ofm_payment_allowance
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_payment>("ofm_payment_allowance", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.ofm_payment>("ofm_payment_allowance", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// 1:N ofm_supplementary_payment
 		/// </summary>
 		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_supplementary_payment")]
@@ -23723,6 +23807,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_facility_application = "ofm_facility_application";
 			public const string ofm_facilityname = "ofm_facilityname";
 			public const string ofm_facilityyominame = "ofm_facilityyominame";
+			public const string ofm_fiscal_year_end = "ofm_fiscal_year_end";
 			public const string ofm_funding_number_base = "ofm_funding_number_base";
 			public const string ofm_integrationlog_application = "ofm_integrationlog_application";
 			public const string ofm_last_funding_mod = "ofm_last_funding_mod";
@@ -23787,6 +23872,10 @@ namespace ECC.Core.DataContext
 			public const string ofm_system_financial_good_standing = "ofm_system_financial_good_standing";
 			public const string ofm_system_financial_good_standingname = "ofm_system_financial_good_standingname";
 			public const string ofm_system_triage_rating = "ofm_system_triage_rating";
+			public const string ofm_union_list = "ofm_union_list";
+			public const string ofm_union_listname = "ofm_union_listname";
+			public const string ofm_unionized = "ofm_unionized";
+			public const string ofm_unionizedname = "ofm_unionizedname";
 			public const string ofm_verification_application_licence = "ofm_verification_application_licence";
 			public const string ofm_verification_application_licencename = "ofm_verification_application_licencename";
 			public const string ofm_verification_application_signed = "ofm_verification_application_signed";
@@ -24964,6 +25053,21 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_fiscal_year_end")]
+		public System.Nullable<System.DateTime> ofm_fiscal_year_end
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_fiscal_year_end");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_fiscal_year_end", value);
+			}
+		}
+		
 		/// <summary>
 		/// The base funding agreement number without the version
 		/// </summary>
@@ -25917,6 +26021,70 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("ofm_system_triage_rating", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_union_list")]
+		public virtual System.Collections.Generic.IEnumerable<ecc_Unions> ofm_union_list
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return EntityOptionSetEnum.GetMultiEnum<ecc_Unions>(this, "ofm_union_list");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_union_list", EntityOptionSetEnum.GetMultiEnum(this, "ofm_union_list", value));
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_union_listname")]
+		public string ofm_union_listname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_union_list"))
+				{
+					return this.FormattedValues["ofm_union_list"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_unionized")]
+		public virtual ecc_ynempty? ofm_unionized
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((ecc_ynempty?)(EntityOptionSetEnum.GetEnum(this, "ofm_unionized")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_unionized", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_unionizedname")]
+		public string ofm_unionizedname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_unionized"))
+				{
+					return this.FormattedValues["ofm_unionized"];
+				}
+				else
+				{
+					return default(string);
+				}
 			}
 		}
 		
@@ -36253,6 +36421,9 @@ namespace ECC.Core.DataContext
 			public const string ofm_end_date = "ofm_end_date";
 			public const string ofm_expenseid = "ofm_expenseid";
 			public const string Id = "ofm_expenseid";
+			public const string ofm_payment_expense = "ofm_payment_expense";
+			public const string ofm_payment_frequency = "ofm_payment_frequency";
+			public const string ofm_payment_frequencyname = "ofm_payment_frequencyname";
 			public const string ofm_request_summary = "ofm_request_summary";
 			public const string ofm_start_date = "ofm_start_date";
 			public const string overriddencreatedon = "overriddencreatedon";
@@ -36748,6 +36919,41 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Payment Frequency
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_payment_frequency")]
+		public virtual ecc_payment_frequency? ofm_payment_frequency
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((ecc_payment_frequency?)(EntityOptionSetEnum.GetEnum(this, "ofm_payment_frequency")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_payment_frequency", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_payment_frequencyname")]
+		public string ofm_payment_frequencyname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_payment_frequency"))
+				{
+					return this.FormattedValues["ofm_payment_frequency"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		/// <summary>
 		/// Request Summary
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_request_summary")]
@@ -37071,6 +37277,24 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
+			}
+		}
+		
+		/// <summary>
+		/// 1:N ofm_payment_expense
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_payment_expense")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_payment> ofm_payment_expense
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_payment>("ofm_payment_expense", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.ofm_payment>("ofm_payment_expense", null, value);
 			}
 		}
 		
@@ -38005,1181 +38229,6 @@ namespace ECC.Core.DataContext
                         Attributes["ofm_facility_intakeid"] = base.Id;
                         break;
                     case "ofm_facility_intakeid":
-                        var id = (System.Nullable<System.Guid>) value;
-                        if(id == null){ continue; }
-                        base.Id = id.Value;
-                        Attributes[name] = base.Id;
-                        break;
-                    case "formattedvalues":
-                        // Add Support for FormattedValues
-                        FormattedValues.AddRange((Microsoft.Xrm.Sdk.FormattedValueCollection)value);
-                        break;
-                    default:
-                        Attributes[name] = value;
-                        break;
-                }
-            }
-		}
-	}
-	
-	[System.Runtime.Serialization.DataContractAttribute()]
-	[Microsoft.Xrm.Sdk.Client.EntityLogicalNameAttribute("ofm_facility_operating_cost")]
-	public partial class ofm_facility_operating_cost : Microsoft.Xrm.Sdk.Entity
-	{
-		
-		/// <summary>
-		/// Available fields, a the time of codegen, for the ofm_facility_operating_cost entity
-		/// </summary>
-		public partial class Fields
-		{
-			public const string createdby = "createdby";
-			public const string createdbyname = "createdbyname";
-			public const string createdbyyominame = "createdbyyominame";
-			public const string createdon = "createdon";
-			public const string createdonbehalfby = "createdonbehalfby";
-			public const string createdonbehalfbyname = "createdonbehalfbyname";
-			public const string createdonbehalfbyyominame = "createdonbehalfbyyominame";
-			public const string exchangerate = "exchangerate";
-			public const string importsequencenumber = "importsequencenumber";
-			public const string modifiedby = "modifiedby";
-			public const string modifiedbyname = "modifiedbyname";
-			public const string modifiedbyyominame = "modifiedbyyominame";
-			public const string modifiedon = "modifiedon";
-			public const string modifiedonbehalfby = "modifiedonbehalfby";
-			public const string modifiedonbehalfbyname = "modifiedonbehalfbyname";
-			public const string modifiedonbehalfbyyominame = "modifiedonbehalfbyyominame";
-			public const string ofm_costs_applicable_fee = "ofm_costs_applicable_fee";
-			public const string ofm_costs_applicable_fee_base = "ofm_costs_applicable_fee_base";
-			public const string ofm_costs_facility_type = "ofm_costs_facility_type";
-			public const string ofm_costs_facility_typename = "ofm_costs_facility_typename";
-			public const string ofm_costs_furniture_equipment = "ofm_costs_furniture_equipment";
-			public const string ofm_costs_furniture_equipment_base = "ofm_costs_furniture_equipment_base";
-			public const string ofm_costs_maintenance_repairs = "ofm_costs_maintenance_repairs";
-			public const string ofm_costs_maintenance_repairs_base = "ofm_costs_maintenance_repairs_base";
-			public const string ofm_costs_mortgage = "ofm_costs_mortgage";
-			public const string ofm_costs_mortgage_base = "ofm_costs_mortgage_base";
-			public const string ofm_costs_property_insurance = "ofm_costs_property_insurance";
-			public const string ofm_costs_property_insurance_base = "ofm_costs_property_insurance_base";
-			public const string ofm_costs_property_municipal_tax = "ofm_costs_property_municipal_tax";
-			public const string ofm_costs_property_municipal_tax_base = "ofm_costs_property_municipal_tax_base";
-			public const string ofm_costs_rent_lease = "ofm_costs_rent_lease";
-			public const string ofm_costs_rent_lease_base = "ofm_costs_rent_lease_base";
-			public const string ofm_costs_strata_fee = "ofm_costs_strata_fee";
-			public const string ofm_costs_strata_fee_base = "ofm_costs_strata_fee_base";
-			public const string ofm_costs_supplies = "ofm_costs_supplies";
-			public const string ofm_costs_supplies_base = "ofm_costs_supplies_base";
-			public const string ofm_costs_upkeep_labour = "ofm_costs_upkeep_labour";
-			public const string ofm_costs_upkeep_labour_base = "ofm_costs_upkeep_labour_base";
-			public const string ofm_costs_utilities = "ofm_costs_utilities";
-			public const string ofm_costs_utilities_base = "ofm_costs_utilities_base";
-			public const string ofm_costs_yearly_facility_costs = "ofm_costs_yearly_facility_costs";
-			public const string ofm_costs_yearly_operating_costs = "ofm_costs_yearly_operating_costs";
-			public const string ofm_facility_operating_costid = "ofm_facility_operating_costid";
-			public const string Id = "ofm_facility_operating_costid";
-			public const string ofm_name = "ofm_name";
-			public const string overriddencreatedon = "overriddencreatedon";
-			public const string ownerid = "ownerid";
-			public const string owneridname = "owneridname";
-			public const string owneridyominame = "owneridyominame";
-			public const string owningbusinessunit = "owningbusinessunit";
-			public const string owningbusinessunitname = "owningbusinessunitname";
-			public const string owningteam = "owningteam";
-			public const string owninguser = "owninguser";
-			public const string statecode = "statecode";
-			public const string statecodename = "statecodename";
-			public const string statuscode = "statuscode";
-			public const string statuscodename = "statuscodename";
-			public const string team_ofm_facility_operating_cost = "team_ofm_facility_operating_cost";
-			public const string timezoneruleversionnumber = "timezoneruleversionnumber";
-			public const string transactioncurrencyid = "transactioncurrencyid";
-			public const string transactioncurrencyidname = "transactioncurrencyidname";
-			public const string utcconversiontimezonecode = "utcconversiontimezonecode";
-			public const string versionnumber = "versionnumber";
-		}
-		
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public ofm_facility_operating_cost(System.Guid id) : 
-				base(EntityLogicalName, id)
-		{
-		}
-		
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public ofm_facility_operating_cost(string keyName, object keyValue) : 
-				base(EntityLogicalName, keyName, keyValue)
-		{
-		}
-		
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public ofm_facility_operating_cost(Microsoft.Xrm.Sdk.KeyAttributeCollection keyAttributes) : 
-				base(EntityLogicalName, keyAttributes)
-		{
-		}
-		
-		/// <summary>
-		/// Default Constructor.
-		/// </summary>
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public ofm_facility_operating_cost() : 
-				base(EntityLogicalName)
-		{
-		}
-		
-		public const string PrimaryIdAttribute = "ofm_facility_operating_costid";
-		
-		public const string PrimaryNameAttribute = "ofm_name";
-		
-		public const string EntitySchemaName = "ofm_facility_operating_cost";
-		
-		public const string EntityLogicalName = "ofm_facility_operating_cost";
-		
-		public const string EntityLogicalCollectionName = "ofm_facility_operating_costs";
-		
-		public const string EntitySetName = "ofm_facility_operating_costs";
-		
-		/// <summary>
-		/// Unique identifier of the user who created the record.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdby")]
-		public Microsoft.Xrm.Sdk.EntityReference createdby
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdby");
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdbyname")]
-		public string createdbyname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("createdby"))
-				{
-					return this.FormattedValues["createdby"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdbyyominame")]
-		public string createdbyyominame
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("createdby"))
-				{
-					return this.FormattedValues["createdby"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Date and time when the record was created.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdon")]
-		public System.Nullable<System.DateTime> createdon
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<System.DateTime>>("createdon");
-			}
-		}
-		
-		/// <summary>
-		/// Unique identifier of the delegate user who created the record.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfby")]
-		public Microsoft.Xrm.Sdk.EntityReference createdonbehalfby
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("createdonbehalfby");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("createdonbehalfby", value);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfbyname")]
-		public string createdonbehalfbyname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("createdonbehalfby"))
-				{
-					return this.FormattedValues["createdonbehalfby"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("createdonbehalfbyyominame")]
-		public string createdonbehalfbyyominame
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("createdonbehalfby"))
-				{
-					return this.FormattedValues["createdonbehalfby"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Exchange rate for the currency associated with the entity with respect to the base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("exchangerate")]
-		public System.Nullable<decimal> exchangerate
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<decimal>>("exchangerate");
-			}
-		}
-		
-		/// <summary>
-		/// Sequence number of the import that created this record.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("importsequencenumber")]
-		public System.Nullable<int> importsequencenumber
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<int>>("importsequencenumber");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("importsequencenumber", value);
-			}
-		}
-		
-		/// <summary>
-		/// Unique identifier of the user who modified the record.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedby")]
-		public Microsoft.Xrm.Sdk.EntityReference modifiedby
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedby");
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedbyname")]
-		public string modifiedbyname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("modifiedby"))
-				{
-					return this.FormattedValues["modifiedby"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedbyyominame")]
-		public string modifiedbyyominame
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("modifiedby"))
-				{
-					return this.FormattedValues["modifiedby"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Date and time when the record was modified.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedon")]
-		public System.Nullable<System.DateTime> modifiedon
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<System.DateTime>>("modifiedon");
-			}
-		}
-		
-		/// <summary>
-		/// Unique identifier of the delegate user who modified the record.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfby")]
-		public Microsoft.Xrm.Sdk.EntityReference modifiedonbehalfby
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("modifiedonbehalfby");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("modifiedonbehalfby", value);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfbyname")]
-		public string modifiedonbehalfbyname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("modifiedonbehalfby"))
-				{
-					return this.FormattedValues["modifiedonbehalfby"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("modifiedonbehalfbyyominame")]
-		public string modifiedonbehalfbyyominame
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("modifiedonbehalfby"))
-				{
-					return this.FormattedValues["modifiedonbehalfby"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Fee (If Applicable)
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_applicable_fee")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_applicable_fee
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_applicable_fee");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_applicable_fee", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Fee (If Applicable) in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_applicable_fee_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_applicable_fee_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_applicable_fee_base");
-			}
-		}
-		
-		/// <summary>
-		/// Facility Type
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_facility_type")]
-		public virtual ofm_facility_type? ofm_costs_facility_type
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return ((ofm_facility_type?)(EntityOptionSetEnum.GetEnum(this, "ofm_costs_facility_type")));
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_facility_type", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_facility_typename")]
-		public string ofm_costs_facility_typename
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("ofm_costs_facility_type"))
-				{
-					return this.FormattedValues["ofm_costs_facility_type"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Furniture and Equipment
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_furniture_equipment")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_furniture_equipment
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_furniture_equipment");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_furniture_equipment", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Furniture and Equipment in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_furniture_equipment_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_furniture_equipment_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_furniture_equipment_base");
-			}
-		}
-		
-		/// <summary>
-		/// Maintenance and Repairs
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_maintenance_repairs")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_maintenance_repairs
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_maintenance_repairs");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_maintenance_repairs", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Maintenance and Repairs in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_maintenance_repairs_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_maintenance_repairs_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_maintenance_repairs_base");
-			}
-		}
-		
-		/// <summary>
-		/// Mortgage
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_mortgage")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_mortgage
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_mortgage");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_mortgage", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Mortgage in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_mortgage_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_mortgage_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_mortgage_base");
-			}
-		}
-		
-		/// <summary>
-		/// Insurance (formerly 'Property Insurance')
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_property_insurance")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_property_insurance
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_property_insurance");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_property_insurance", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Insurance in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_property_insurance_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_property_insurance_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_property_insurance_base");
-			}
-		}
-		
-		/// <summary>
-		/// Property/Municipal Tax
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_property_municipal_tax")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_property_municipal_tax
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_property_municipal_tax");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_property_municipal_tax", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Property/Municipal Tax in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_property_municipal_tax_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_property_municipal_tax_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_property_municipal_tax_base");
-			}
-		}
-		
-		/// <summary>
-		/// Rent/Lease
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_rent_lease")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_rent_lease
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_rent_lease");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_rent_lease", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Rent/Lease in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_rent_lease_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_rent_lease_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_rent_lease_base");
-			}
-		}
-		
-		/// <summary>
-		/// Strata Fees
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_strata_fee")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_strata_fee
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_strata_fee");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_strata_fee", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Strata Fees in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_strata_fee_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_strata_fee_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_strata_fee_base");
-			}
-		}
-		
-		/// <summary>
-		/// Supplies
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_supplies")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_supplies
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_supplies");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_supplies", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Supplies in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_supplies_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_supplies_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_supplies_base");
-			}
-		}
-		
-		/// <summary>
-		/// Upkeep and Labour
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_upkeep_labour")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_upkeep_labour
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_upkeep_labour");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_upkeep_labour", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Upkeep and Labour in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_upkeep_labour_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_upkeep_labour_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_upkeep_labour_base");
-			}
-		}
-		
-		/// <summary>
-		/// Utilities
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_utilities")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_utilities
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_utilities");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_costs_utilities", value);
-			}
-		}
-		
-		/// <summary>
-		/// Value of the Utilities in base currency.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_utilities_base")]
-		public Microsoft.Xrm.Sdk.Money ofm_costs_utilities_base
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_costs_utilities_base");
-			}
-		}
-		
-		/// <summary>
-		/// Yearly Facility Costs
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_yearly_facility_costs")]
-		public System.Nullable<decimal> ofm_costs_yearly_facility_costs
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_costs_yearly_facility_costs");
-			}
-		}
-		
-		/// <summary>
-		/// Yearly Operating Costs
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_costs_yearly_operating_costs")]
-		public System.Nullable<decimal> ofm_costs_yearly_operating_costs
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_costs_yearly_operating_costs");
-			}
-		}
-		
-		/// <summary>
-		/// Unique identifier for entity instances
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility_operating_costid")]
-		public System.Nullable<System.Guid> ofm_facility_operating_costid
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<System.Guid>>("ofm_facility_operating_costid");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_facility_operating_costid", value);
-				if (value.HasValue)
-				{
-					base.Id = value.Value;
-				}
-				else
-				{
-					base.Id = System.Guid.Empty;
-				}
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_facility_operating_costid")]
-		public override System.Guid Id
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return base.Id;
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.ofm_facility_operating_costid = value;
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_name")]
-		public string ofm_name
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<string>("ofm_name");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_name", value);
-			}
-		}
-		
-		/// <summary>
-		/// Date and time that the record was migrated.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("overriddencreatedon")]
-		public System.Nullable<System.DateTime> overriddencreatedon
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<System.DateTime>>("overriddencreatedon");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("overriddencreatedon", value);
-			}
-		}
-		
-		/// <summary>
-		/// Owner Id
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ownerid")]
-		public Microsoft.Xrm.Sdk.EntityReference ownerid
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ownerid");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ownerid", value);
-			}
-		}
-		
-		/// <summary>
-		/// Name of the owner
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owneridname")]
-		public string owneridname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("ownerid"))
-				{
-					return this.FormattedValues["ownerid"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Yomi name of the owner
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owneridyominame")]
-		public string owneridyominame
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("ownerid"))
-				{
-					return this.FormattedValues["ownerid"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Unique identifier for the business unit that owns the record
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningbusinessunit")]
-		public Microsoft.Xrm.Sdk.EntityReference owningbusinessunit
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningbusinessunit");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("owningbusinessunit", value);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningbusinessunitname")]
-		public string owningbusinessunitname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("owningbusinessunit"))
-				{
-					return this.FormattedValues["owningbusinessunit"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Unique identifier for the team that owns the record.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
-		public Microsoft.Xrm.Sdk.EntityReference owningteam
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owningteam");
-			}
-		}
-		
-		/// <summary>
-		/// Unique identifier for the user that owns the record.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owninguser")]
-		public Microsoft.Xrm.Sdk.EntityReference owninguser
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("owninguser");
-			}
-		}
-		
-		/// <summary>
-		/// Status of the Facility/Operating Cost
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statecode")]
-		public virtual ofm_facility_operating_cost_statecode? statecode
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return ((ofm_facility_operating_cost_statecode?)(EntityOptionSetEnum.GetEnum(this, "statecode")));
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("statecode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statecodename")]
-		public string statecodename
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("statecode"))
-				{
-					return this.FormattedValues["statecode"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Reason for the status of the Facility/Operating Cost
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statuscode")]
-		public virtual ofm_facility_operating_cost_StatusCode? statuscode
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return ((ofm_facility_operating_cost_StatusCode?)(EntityOptionSetEnum.GetEnum(this, "statuscode")));
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("statuscode", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("statuscodename")]
-		public string statuscodename
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("statuscode"))
-				{
-					return this.FormattedValues["statuscode"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// For internal use only.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("timezoneruleversionnumber")]
-		public System.Nullable<int> timezoneruleversionnumber
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<int>>("timezoneruleversionnumber");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("timezoneruleversionnumber", value);
-			}
-		}
-		
-		/// <summary>
-		/// Unique identifier of the currency associated with the entity.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("transactioncurrencyid")]
-		public Microsoft.Xrm.Sdk.EntityReference transactioncurrencyid
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("transactioncurrencyid");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("transactioncurrencyid", value);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("transactioncurrencyidname")]
-		public string transactioncurrencyidname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("transactioncurrencyid"))
-				{
-					return this.FormattedValues["transactioncurrencyid"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		/// <summary>
-		/// Time zone code that was in use when the record was created.
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("utcconversiontimezonecode")]
-		public System.Nullable<int> utcconversiontimezonecode
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<int>>("utcconversiontimezonecode");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("utcconversiontimezonecode", value);
-			}
-		}
-		
-		/// <summary>
-		/// Version Number
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("versionnumber")]
-		public System.Nullable<long> versionnumber
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<long>>("versionnumber");
-			}
-		}
-		
-		/// <summary>
-		/// N:1 team_ofm_facility_operating_cost
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("owningteam")]
-		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_facility_operating_cost")]
-		public ECC.Core.DataContext.Team team_ofm_facility_operating_cost
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetRelatedEntity<ECC.Core.DataContext.Team>("team_ofm_facility_operating_cost", null);
-			}
-		}
-		
-		/// <summary>
-		/// Constructor for populating via LINQ queries given a LINQ anonymous type
-		/// <param name="anonymousType">LINQ anonymous type.</param>
-		/// </summary>
-		[System.Diagnostics.DebuggerNonUserCode()]
-		public ofm_facility_operating_cost(object anonymousType) : 
-				this()
-		{
-            foreach (var p in anonymousType.GetType().GetProperties())
-            {
-                var value = p.GetValue(anonymousType, null);
-                var name = p.Name.ToLower();
-            
-                if (name.EndsWith("enum") && value.GetType().BaseType == typeof(System.Enum))
-                {
-                    value = new Microsoft.Xrm.Sdk.OptionSetValue((int) value);
-                    name = name.Remove(name.Length - "enum".Length);
-                }
-            
-                switch (name)
-                {
-                    case "id":
-                        base.Id = (System.Guid)value;
-                        Attributes["ofm_facility_operating_costid"] = base.Id;
-                        break;
-                    case "ofm_facility_operating_costid":
                         var id = (System.Nullable<System.Guid>) value;
                         if(id == null){ continue; }
                         base.Id = id.Value;
@@ -41019,6 +40068,8 @@ namespace ECC.Core.DataContext
 			public const string ofm_rateschedule_funding = "ofm_rateschedule_funding";
 			public const string ofm_retroactive_payment = "ofm_retroactive_payment";
 			public const string ofm_retroactive_payment_date = "ofm_retroactive_payment_date";
+			public const string ofm_retroactive_payment_frequency = "ofm_retroactive_payment_frequency";
+			public const string ofm_retroactive_payment_frequencyname = "ofm_retroactive_payment_frequencyname";
 			public const string ofm_retroactive_paymentname = "ofm_retroactive_paymentname";
 			public const string ofm_sourceid = "ofm_sourceid";
 			public const string ofm_start_date = "ofm_start_date";
@@ -43375,6 +42426,41 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetAttributeValue("ofm_retroactive_payment_date", value);
+			}
+		}
+		
+		/// <summary>
+		/// Retroactive Payment Frequency
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_retroactive_payment_frequency")]
+		public virtual ecc_payment_frequency? ofm_retroactive_payment_frequency
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return ((ecc_payment_frequency?)(EntityOptionSetEnum.GetEnum(this, "ofm_retroactive_payment_frequency")));
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_retroactive_payment_frequency", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_retroactive_payment_frequencyname")]
+		public string ofm_retroactive_payment_frequencyname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_retroactive_payment_frequency"))
+				{
+					return this.FormattedValues["ofm_retroactive_payment_frequency"];
+				}
+				else
+				{
+					return default(string);
+				}
 			}
 		}
 		
@@ -49077,7 +48163,9 @@ namespace ECC.Core.DataContext
 			public const string ofm_organization_payment = "ofm_organization_payment";
 			public const string ofm_organizationname = "ofm_organizationname";
 			public const string ofm_organizationyominame = "ofm_organizationyominame";
+			public const string ofm_payment_allowance = "ofm_payment_allowance";
 			public const string ofm_payment_application = "ofm_payment_application";
+			public const string ofm_payment_expense = "ofm_payment_expense";
 			public const string ofm_payment_facility_account = "ofm_payment_facility_account";
 			public const string ofm_payment_funding = "ofm_payment_funding";
 			public const string ofm_payment_manual_review = "ofm_payment_manual_review";
@@ -49088,6 +48176,9 @@ namespace ECC.Core.DataContext
 			public const string ofm_payment_typename = "ofm_payment_typename";
 			public const string ofm_paymentid = "ofm_paymentid";
 			public const string Id = "ofm_paymentid";
+			public const string ofm_regardingid = "ofm_regardingid";
+			public const string ofm_regardingidname = "ofm_regardingidname";
+			public const string ofm_regardingidyominame = "ofm_regardingidyominame";
 			public const string ofm_remittance_message = "ofm_remittance_message";
 			public const string ofm_revised_effective_date = "ofm_revised_effective_date";
 			public const string ofm_revised_invoice_date = "ofm_revised_invoice_date";
@@ -49977,6 +49068,58 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Regarding
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_regardingid")]
+		public Microsoft.Xrm.Sdk.EntityReference ofm_regardingid
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_regardingid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_regardingid", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_regardingidname")]
+		public string ofm_regardingidname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_regardingid"))
+				{
+					return this.FormattedValues["ofm_regardingid"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_regardingidyominame")]
+		public string ofm_regardingidyominame
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_regardingid"))
+				{
+					return this.FormattedValues["ofm_regardingid"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		/// <summary>
 		/// Remittance Message
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_remittance_message")]
@@ -50448,6 +49591,25 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// N:1 ofm_payment_allowance
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_regardingid")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_payment_allowance")]
+		public ECC.Core.DataContext.ofm_allowance ofm_payment_allowance
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.ofm_allowance>("ofm_payment_allowance", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.ofm_allowance>("ofm_payment_allowance", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// N:1 ofm_payment_application
 		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_application")]
@@ -50463,6 +49625,25 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntity<ECC.Core.DataContext.ofm_application>("ofm_payment_application", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_payment_expense
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_regardingid")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_payment_expense")]
+		public ECC.Core.DataContext.ofm_expense ofm_payment_expense
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.ofm_expense>("ofm_payment_expense", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.ofm_expense>("ofm_payment_expense", null, value);
 			}
 		}
 		
@@ -71915,7 +71096,6 @@ namespace ECC.Core.DataContext
 			public const string team_ofm_employee_certificate_status = "team_ofm_employee_certificate_status";
 			public const string team_ofm_expense = "team_ofm_expense";
 			public const string team_ofm_facility_intake = "team_ofm_facility_intake";
-			public const string team_ofm_facility_operating_cost = "team_ofm_facility_operating_cost";
 			public const string team_ofm_facility_request = "team_ofm_facility_request";
 			public const string team_ofm_fiscal_year = "team_ofm_fiscal_year";
 			public const string team_ofm_funding = "team_ofm_funding";
@@ -73262,24 +72442,6 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntities<ECC.Core.DataContext.ofm_facility_intake>("team_ofm_facility_intake", null, value);
-			}
-		}
-		
-		/// <summary>
-		/// 1:N team_ofm_facility_operating_cost
-		/// </summary>
-		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("team_ofm_facility_operating_cost")]
-		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_facility_operating_cost> team_ofm_facility_operating_cost
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_facility_operating_cost>("team_ofm_facility_operating_cost", null);
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetRelatedEntities<ECC.Core.DataContext.ofm_facility_operating_cost>("team_ofm_facility_operating_cost", null, value);
 			}
 		}
 		
