@@ -714,8 +714,10 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         };
                         updateRequests.Add(new D365UpdateRequest(new EntityReference("ofm_provider_employees", (Guid)batch["ofm_provider_employeeid"]), tempObject));
                     }
+
                     if (updateRequests.Count == 0) continue;
                     var updateResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRequests, null);
+                    
                     if (updateResults.Errors.Any())
                     {
                         var errorInfos = ProcessResult.Failure(ProcessId, updateResults.Errors, updateResults.TotalProcessed, updateResults.TotalRecords);
@@ -724,8 +726,8 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     }
                     // Console.WriteLine("providerEmployeesUpdateForMissed index:{0}", i);
                     _logger.LogDebug(CustomLogEvent.Process, "Batch providerEmployeesUpdateForMissed index:{0}", i);
-                }
-                Console.WriteLine("End update Cert Status of Provider Employee of Applicaiton");
+                }          
+                    _logger.LogInformation(CustomLogEvent.Process, "End update Cert Status of Provider Employee of Applicaiton");
 
                 #endregion Update all Provider Employees of Application
 
