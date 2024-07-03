@@ -490,21 +490,6 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                 // if (crmRecord != null)
                 if (crmRecordsDict.TryGetValue(csvRecord.CLIENTID, out var crmRecord))
                 {
-                    if ((!string.IsNullOrEmpty(((string)crmRecord["ofm_first_name"])?.Trim()) ? ((string)crmRecord["ofm_first_name"])?.Trim() : null) != (!string.IsNullOrEmpty(csvRecord.FIRSTNAME?.Trim()) ? csvRecord.FIRSTNAME.Trim() : null))
-                    {
-                        differenceCsvRecords.Add(csvRecord);
-                        continue;
-                    }
-                    if ((!string.IsNullOrEmpty(((string)crmRecord["ofm_last_name"])?.Trim()) ? ((string)crmRecord["ofm_last_name"])?.Trim() : null) != (!string.IsNullOrEmpty(csvRecord.LASTNAME?.Trim()) ? csvRecord.LASTNAME.Trim() : null))
-                    {
-                        differenceCsvRecords.Add(csvRecord);
-                        continue;
-                    }
-                    if ((!string.IsNullOrEmpty(((string)crmRecord["ofm_middle_name"])?.Trim()) ? ((string)crmRecord["ofm_middle_name"])?.Trim() : null) != (!string.IsNullOrEmpty(csvRecord.MIDDLENAME?.Trim()) ? csvRecord.MIDDLENAME.Trim() : null))
-                    {
-                        differenceCsvRecords.Add(csvRecord);
-                        continue;
-                    }
                     if ((bool)crmRecord["ofm_is_active"] != (csvRecord.ISACTIVE?.ToLower() == "yes"))
                     {
                         differenceCsvRecords.Add(csvRecord);
@@ -521,6 +506,21 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     {
                         differenceCsvRecords.Add(csvRecord);
                         impactCertStatusRecords.Add(csvRecord);
+                        continue;
+                    }
+                    if ((!string.IsNullOrEmpty(((string)crmRecord["ofm_first_name"])?.Trim()) ? ((string)crmRecord["ofm_first_name"])?.Trim() : null) != (!string.IsNullOrEmpty(csvRecord.FIRSTNAME?.Trim()) ? csvRecord.FIRSTNAME.Trim() : null))
+                    {
+                        differenceCsvRecords.Add(csvRecord);
+                        continue;
+                    }
+                    if ((!string.IsNullOrEmpty(((string)crmRecord["ofm_last_name"])?.Trim()) ? ((string)crmRecord["ofm_last_name"])?.Trim() : null) != (!string.IsNullOrEmpty(csvRecord.LASTNAME?.Trim()) ? csvRecord.LASTNAME.Trim() : null))
+                    {
+                        differenceCsvRecords.Add(csvRecord);
+                        continue;
+                    }
+                    if ((!string.IsNullOrEmpty(((string)crmRecord["ofm_middle_name"])?.Trim()) ? ((string)crmRecord["ofm_middle_name"])?.Trim() : null) != (!string.IsNullOrEmpty(csvRecord.MIDDLENAME?.Trim()) ? csvRecord.MIDDLENAME.Trim() : null))
+                    {
+                        differenceCsvRecords.Add(csvRecord);
                         continue;
                     }
                 }
@@ -714,8 +714,10 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         };
                         updateRequests.Add(new D365UpdateRequest(new EntityReference("ofm_provider_employees", (Guid)batch["ofm_provider_employeeid"]), tempObject));
                     }
+
                     if (updateRequests.Count == 0) continue;
                     var updateResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRequests, null);
+                    
                     if (updateResults.Errors.Any())
                     {
                         var errorInfos = ProcessResult.Failure(ProcessId, updateResults.Errors, updateResults.TotalProcessed, updateResults.TotalRecords);
@@ -724,7 +726,9 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     }
                     // Console.WriteLine("providerEmployeesUpdateForMissed index:{0}", i);
                     _logger.LogDebug(CustomLogEvent.Process, "Batch providerEmployeesUpdateForMissed index:{0}", i);
-                }
+                }          
+                    _logger.LogInformation(CustomLogEvent.Process, "End update Cert Status of Provider Employee of Applicaiton");
+
                 #endregion Update all Provider Employees of Application
 
                 //#region Update all MonthlyReport
@@ -761,7 +765,6 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                 //        monthlyReportRecords.Add(monthlyReport);
                 //    }
                 //}
-                //Console.WriteLine("End update Cert Status of Provider Employee of Applicaiton");
 
                 //// Update Cert Status of Report
                 //List<MonthlyReport> distinctMonthlyReportRecords = monthlyReportRecords
