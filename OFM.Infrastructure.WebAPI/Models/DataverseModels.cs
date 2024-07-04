@@ -301,8 +301,8 @@ public class BRQuestion : ofm_question_business_rule
     public string? FalseSourcequestionIdentifier { get; set; }
     [property: JsonPropertyName("child.ofm_source_question_id")]
     public string? childSourcequestionIdentifier { get; set; }
-    [property: JsonPropertyName("survey.ofm_is_published")]
-    public bool? survey_ofm_is_published { get; set; }
+    [property: JsonPropertyName("survey.ofm_version")]
+    public string? surveyVersion { get; set; }
     [property: JsonPropertyName("survey.statecode")]
     public int? survey_statecode { get; set; }
 
@@ -315,8 +315,8 @@ public class BRQuestion : ofm_question_business_rule
 public class Question : ofm_question
 {
 
-    [property: JsonPropertyName("survey.ofm_is_published")]
-    public bool? surveyIsPublished { get; set; }
+    [property: JsonPropertyName("survey.ofm_version")]
+    public string? surveyVersion { get; set; }
     [property: JsonPropertyName("survey.statecode")]
     public int? surveyStatecode { get; set; }
 }
