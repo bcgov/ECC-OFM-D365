@@ -100,6 +100,8 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                           <condition attribute="statecode" operator="eq" value="0" />
                           <condition attribute="ofm_bypass_bc_registry_good_standing" operator="ne" value="1" />
                           <condition attribute="ccof_accounttype" operator="eq" value="100000000" />
+                          <condition attribute="name" operator="not-null" value="" />
+                          <condition attribute="ofm_incorporation_number" operator="not-null" value="" />
                         </filter>
                         <order attribute="createdon" descending="true" />
                       </entity>
