@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
@@ -112,11 +113,11 @@ public class P605CloseDuedReportsProvider : ID365ProcessProvider
         foreach (var report in localData.Data.AsArray())
         {
             var reportId = report!["ofm_survey_responseid"]!.ToString();
-
+            
             var deactivateReportBody = new JsonObject
             {
-                {"statuscode", 2 },
-                {"statecode", 1 }
+                {"statuscode",(int)ofm_survey_response_StatusCode.Closed },
+                {"statecode",(int)ofm_survey_response_statecode.Inactive }
             };
 
             requests.Add(new D365UpdateRequest(new EntityReference("ofm_survey_responses", new Guid(reportId)), deactivateReportBody));
