@@ -336,23 +336,22 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             _processParams = processParams;
+            _applicationId = _processParams?.Application?.applicationId.ToString();
             var startTime = _timeProvider.GetTimestamp();
-            //Get funding Info
-            var localData = await GetDataAsync();
 
-            var deserializedData = JsonSerializer.Deserialize<List<Funding>>(localData.Data.ToString());
+            var fundingData = await GetDataAsync();
+            var deserializedFundingData = JsonSerializer.Deserialize<List<Funding>>(fundingData.Data.ToString());
 
-            if (deserializedData != null)
+            if (deserializedFundingData != null)
             {
                 var createPaymentTasks = new List<Task>();
-                foreach (var fundingInfo in deserializedData)
+                foreach (var fundingInfo in deserializedFundingData)
                 {
                     string fundingId = fundingInfo.ofm_fundingid.Value.ToString();
                     DateTime startdate = fundingInfo.ofm_start_date.Value;
                     DateTime enddate = fundingInfo.ofm_end_date.Value;
                     int fundingStatus = (int)(fundingInfo.statuscode ?? throw new InvalidDataException("Funding Status can't not be blank."));
                     string facilityId = fundingInfo?.ofm_facility?.accountid.ToString() ?? throw new InvalidDataException("Funding Status can't not be blank.");
-                    _applicationId = _processParams?.Application?.applicationId.ToString();
                     decimal monthlyFundingAmount = decimal.Parse(_processParams?.Funding?.MonthlyBaseFundingAmount);
                     DateTime retroActivePaymentDate;
                     int retroActiveCreditOrDebitMonths = 0;
@@ -413,7 +412,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                     createPaymentTasks.Add(CreatePaymentLines(facilityId, modIncreaseMonthlyAmount, startdate, enddate, false, _applicationId, appUserService, d365WebApiService, _processParams));
 
                                 }
-
                             }
                             else
                             {

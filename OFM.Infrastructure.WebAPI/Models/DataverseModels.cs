@@ -387,11 +387,9 @@ public record D365Reporting
 
 }
 
-public record PaymentFileExchange
+public class D365FiscalYear: ofm_fiscal_year
 {
-    public string ofm_batch_number { get; set; }
-    public string ofm_oracle_batch_name { get; set; }
-    public string ofm_payment_file_exchangeid { get; set; }
+    public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
 public class D365PaymentLine : ofm_payment
@@ -399,8 +397,18 @@ public class D365PaymentLine : ofm_payment
     public new decimal ofm_amount { get; set; }
     public new Facility? ofm_facility { get; set; }
     public new Application? ofm_application { get; set; }
-    public new ofm_fiscal_year? ofm_fiscal_year { get; set; }
+    public new D365FiscalYear? ofm_fiscal_year { get; set; }
+    public new string ofm_invoice_number { get; set; } = string.Empty; 
+    public new string ofm_siteid { get; set; } = string.Empty;
+    public new string ofm_supplierid { get; set; } = string.Empty;
 }
+
+//public record PaymentFileExchange
+//{
+//    public string ofm_batch_number { get; set; }
+//    public string ofm_oracle_batch_name { get; set; }
+//    public string ofm_payment_file_exchangeid { get; set; }
+//}
 
 public record D365ReportSection
 {
