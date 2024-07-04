@@ -58,6 +58,8 @@ public record ProcessParameter
     [property: JsonPropertyName("ReportSections")]
     public string? ReportSections { get; set; }
 
+   
+
     [property: JsonPropertyName("paymentfile")]
     public PaymentParameter? PaymentFile { get; set; }
 
