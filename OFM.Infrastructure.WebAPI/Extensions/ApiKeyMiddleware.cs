@@ -7,20 +7,22 @@ using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
-public class ApiKeyMiddleware
+public class ApiKeyMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger _logger;
-
-    public ApiKeyMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
-    {
-        _next = next;
-        _logger = loggerFactory.CreateLogger(LogCategory.API);
-    }
+    private readonly RequestDelegate _next = next;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.API);
 
     public async Task InvokeAsync(HttpContext context,
         IOptionsSnapshot<AuthenticationSettings> options)
     {
+        if (context.Request.Method == "OPTIONS" || context.Request.Method == "TRACE" || context.Request.Method == "TRACK")
+        {
+            context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+            _logger.LogError(CustomLogEvent.API, "Status405MethodNotAllowed: Attempted HTTP Verb: [{verb}]", context.Request.Method);
+
+            return;
+        }
+
         var apiKeys = options.Value.Schemes.ApiKeyScheme.Keys;
         var apiKeyPresentInHeader = context.Request.Headers.TryGetValue(options.Value.Schemes.ApiKeyScheme.ApiKeyName ?? "", out var extractedApiKey);
 

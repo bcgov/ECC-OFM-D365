@@ -55,7 +55,7 @@ D365_LOG_LEVEL=$(cat << JSON
   "LogLevel": {
     "Default": "Warning",
     "OFM.Portal.ProviderProfile": "Error",
-    "OFM.D365.Process": "Warning",
+    "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Warning",
     "Microsoft.AspNetCore": "Warning"
   },
@@ -210,6 +210,7 @@ D365_CONFIGURATION=$(jq << JSON
       "KeyName": "",
       "KeyValue": "",
       "MinsToCache": 5,
+	  "DaysToCorrectPayments": 3,
       "transactionCount": 5,
       "clientCode": "62",
       "cGIBatchNumber": "623540001",

@@ -21,6 +21,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(serverOptions => serverOptions.AddServerHeader = false);
 //builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
 
 var services = builder.Services;
