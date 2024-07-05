@@ -93,8 +93,8 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                         <condition attribute="ofm_payment_method" operator="not-null" />
                         <condition attribute="ofm_amount" operator="not-null" />
                         <filter type="or">
-                          <condition attribute="ofm_invoice_date" operator="today" />
-                          <condition attribute="ofm_revised_invoice_date" operator="today" />
+                          <condition attribute="ofm_invoice_date" operator=""last-x-days"" value=""1"" />
+                          <condition attribute="ofm_revised_invoice_date" operator=""last-x-days"" value=""1"" />
                         </filter>
                           </filter>
                             <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
