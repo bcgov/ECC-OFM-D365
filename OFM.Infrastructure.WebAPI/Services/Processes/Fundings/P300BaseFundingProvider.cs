@@ -29,25 +29,9 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
     {
         get
         {
-            var fetchXml = $"""
-                    <fetch distinct="true" no-lock="true">
-                      <entity name="account">
-                        <attribute name="accountid" />
-                        <attribute name="ofm_business_number" />
-                        <attribute name="name" />
-                        <attribute name="modifiedon" />
-                        <attribute name="statecode" />
-                        <attribute name="statuscode" />
-                        <filter type="and">
-                          <condition attribute="accountid" operator="eq" value="" />                  
-                        </filter>
-                      </entity>
-                    </fetch>
-                    """;
-
             var requestUri = $"""
-                         accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                         """;
+
+                """;
 
             return requestUri;
         }

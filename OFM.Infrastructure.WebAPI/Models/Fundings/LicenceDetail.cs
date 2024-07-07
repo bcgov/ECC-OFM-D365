@@ -17,12 +17,12 @@ public class LicenceDetail : ofm_licence_detail
 
     private readonly bool _applyRoomSplit;
     private readonly bool _applyDuplicateCareType;
-    public bool ApplyRoomSplitCondition { get; set; }
+    public bool ApplyRoomSplitCondition { get; set; } = false;
     private IEnumerable<SpaceAllocation>? _newSpacesAllocationAll = [];
     public IEnumerable<SpaceAllocation>? NewSpacesAllocationAll
     {
         get { return _newSpacesAllocationAll; }
-        set { _newSpacesAllocationAll = value ?? Array.Empty<SpaceAllocation>(); }
+        set { _newSpacesAllocationAll = value ?? []; }
     }
     public IEnumerable<SpaceAllocation>? NewSpacesAllocationByLicenceType
     {
@@ -43,7 +43,8 @@ public class LicenceDetail : ofm_licence_detail
 
     #region Funding Schedule Data
 
-    private decimal MIN_CARE_HOURS_FTE_RATIO => _rateSchedule?.ofm_min_care_hours_per_fte_ratio ?? 0m;
+    private decimal? MAX_ANNUAL_OPEN_HOURS => _rateSchedule?.ofm_max_annual_open_hours ?? 2510; // Note: 50.2 weeks a year for 5 days a week with 10 hours per day (2510 = 50.2 * 5 * 10)
+    private decimal MIN_CARE_HOURS_PER_FTE_RATIO => _rateSchedule?.ofm_min_care_hours_per_fte_ratio ?? 0m;
     private IEnumerable<CCLRRatio> CCLRRatios => _rateSchedule?.ofm_rateschedule_cclr ?? [];
     private RateSchedule? _rateSchedule;
     public RateSchedule? RateSchedule { set { _rateSchedule = value; } }
@@ -56,12 +57,12 @@ public class LicenceDetail : ofm_licence_detail
     public ecc_licence_type LicenceType => (ecc_licence_type)base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
     private int LicenceTypeNumber => base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
     public int Spaces => base.GetAttributeValue<int>(Fields.ofm_operational_spaces);
-    private bool RoomSplit => base.GetAttributeValue<bool>(Fields.ofm_apply_room_split_condition);
+    private bool HasRoomSplit => base.GetAttributeValue<bool>(Fields.ofm_apply_room_split_condition);
 
     #endregion
 
     #region Operating Hours
-       
+
     private DateTime DateFrom => base.GetAttributeValue<DateTime>(Fields.ofm_operation_hours_from);
     private DateTime DateTo => base.GetAttributeValue<DateTime>(Fields.ofm_operation_hours_to);
     private TimeOnly TimeFrom => TimeOnly.FromDateTime(DateFrom.ToLocalPST());
@@ -86,21 +87,20 @@ public class LicenceDetail : ofm_licence_detail
                                                     _rateSchedule.ofm_statutory_breaks ?? 0m); // Typically 1580
 
     // NOTE: If a facility has duplicate care types/licence types with the same address (i.e. it has seasonal schedules), the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
-    public decimal AnnualCareHoursFTERatio => Math.Max(AnnualStandardHours / AnnualAvailableHoursPerFTE, MIN_CARE_HOURS_FTE_RATIO);
+    public decimal AnnualCareHoursFTERatio => Math.Max(AnnualStandardHours / AnnualAvailableHoursPerFTE, MIN_CARE_HOURS_PER_FTE_RATIO);
     public decimal ExpectedAnnualFTEHours => _rateSchedule!.ofm_total_fte_hours_per_year!.Value; // The default is 1957.5
 
     #endregion
 
     #region Non-HR Adjusted Spaces
 
-    public decimal AdjustedNonHRSpaces => (Spaces * AnnualStandardHours) / (decimal)_rateSchedule!.ofm_max_annual_open_hours!; // Adjusted FTE Spaces
+    public decimal AdjustedNonHRSpaces => (Spaces * AnnualStandardHours) / MAX_ANNUAL_OPEN_HOURS ?? 1; // Adjusted FTE Spaces
 
     #endregion
 
     #region Parent Fees
 
     private ecc_care_types TimeSchedule => ofm_care_type ?? throw new NullReferenceException($"{nameof(LicenceDetail)}: ofm_care_type is empty. Value must be full-time or part-time."); // Full-Time or Part-Time
-
     private decimal ParentFeesRatePerDay => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_day_ft!.Value : _rateSchedule!.ofm_parent_fee_per_day_pt!.Value;
     private decimal ParentFeesRatePerMonth => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_month_ft!.Value : _rateSchedule!.ofm_parent_fee_per_month_pt!.Value;
     private decimal AnnualParentFeesPerSpaceByHours => ParentFeesRatePerDay * DaysPerWeek * WeeksPerYear;
@@ -167,7 +167,7 @@ public class LicenceDetail : ofm_licence_detail
     private IEnumerable<CCLRRatio> FilterCCLRByCareType(ecc_licence_type careType)
     {
         IEnumerable<CCLRRatio> filteredByCareType = [];
-        if (RoomSplit)
+        if (HasRoomSplit && ApplyRoomSplitCondition)
         {
             // Use the new spaces allocation    
             var adjustedAllocationOnly = NewSpacesAllocationAll!.Where(allo => allo.ofm_adjusted_allocation!.Value > 0);
@@ -249,13 +249,7 @@ public class LicenceDetail : ofm_licence_detail
     public decimal AdjustedECE => RawECE * AnnualCareHoursFTERatio;
     public decimal AdjustedECEA => RawECEA * AnnualCareHoursFTERatio;
     public decimal AdjustedRA => RawRA * AnnualCareHoursFTERatio;
-    private decimal AdjustedFTEs => RawFTEs * AnnualCareHoursFTERatio;
-
-    //private decimal AdjustedITE => RawITE > 0 ? Math.Max((RawITE * AnnualCareHoursFTERatio), 0.5m) : 0;
-    //private decimal AdjustedECE => RawECE > 0 ? Math.Max((RawECE * AnnualCareHoursFTERatio), 0.5m) : 0;
-    //private decimal AdjustedECEA => RawECEA > 0 ? Math.Max((RawECEA * AnnualCareHoursFTERatio), 0.5m) : 0;
-    //private decimal AdjustedRA => RawRA > 0 ? Math.Max((RawRA * AnnualCareHoursFTERatio), 0.5m) : 0;
-    //private decimal TotalAdjustedFTEs => AdjustedITE + AdjustedECE + AdjustedECEA + AdjustedRA;
+    public decimal AdjustedFTEs => RawFTEs * AnnualCareHoursFTERatio;
 
     #endregion
 
@@ -336,7 +330,7 @@ public class LicenceDetail : ofm_licence_detail
                                                         ((_rateSchedule!.ofm_average_benefit_load ?? 0m) / 100);
 
     public decimal ProfessionalDevelopmentHours => ProfessionalDevelopment_WagesPaidTimeOff + ProfessionalDevelopment_Benefits;
-    
+
     #endregion
 
     //private decimal ProfessionalDevelopment_Wages => (_rateSchedule!.ofm_licensed_childcare_hours_per_fte ?? 0m + _rateSchedule.ofm_elf_hours_per_fte ?? 0m

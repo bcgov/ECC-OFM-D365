@@ -16,8 +16,7 @@ public enum CalculatorDecision
 }
 
 public interface IFundingResult
-{
-    IEnumerable<LicenceDetail> ActionsLog { get; }
+{ 
     DateTime CompletedAt { get; }
     CalculatorDecision Decision { get; }
     IEnumerable<string> Errors { get; }
@@ -26,6 +25,7 @@ public interface IFundingResult
     IEnumerable<JsonObject> Result { get; }
     string ResultMessage { get; }
     JsonObject SimpleResult { get; }
+    IEnumerable<LicenceDetail> ActionsLog { get; }
 }
 
 public class FundingResult : IFundingResult

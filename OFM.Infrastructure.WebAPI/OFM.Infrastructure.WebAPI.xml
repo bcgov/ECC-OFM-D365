@@ -430,6 +430,32 @@
             <param name="client"></param>
             <returns></returns>
         </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.DefaultCalculator">
+            <summary>
+             This calculator version calculates funding amounts using the default allocation. 
+             It is intended to generate the initial calculation breakdowns for the CRC to compare with the modifed funding amounts in a complex scenario such as room split.
+            </summary>
+            <param name="fundingRepository"></param>
+            <param name="funding"></param>
+            <param name="rateSchedules"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.DefaultCalculator.#ctor(OFM.Infrastructure.WebAPI.Services.Processes.Fundings.IFundingRepository,OFM.Infrastructure.WebAPI.Models.Fundings.Funding,System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.Fundings.RateSchedule},Microsoft.Extensions.Logging.ILogger)">
+            <summary>
+             This calculator version calculates funding amounts using the default allocation. 
+             It is intended to generate the initial calculation breakdowns for the CRC to compare with the modifed funding amounts in a complex scenario such as room split.
+            </summary>
+            <param name="fundingRepository"></param>
+            <param name="funding"></param>
+            <param name="rateSchedules"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.DefaultCalculator.CalculateDefaultSpacesAllocationAsync">
+            <summary>
+            Only used for split room scenario. It will calculate and set the default allocation values for each applicable space allocation record.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator">
             <summary>
             Funding Calculator Version 9
@@ -439,12 +465,6 @@
             <summary>
              HR Envelopes: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at the calculator level to HR Total Renumeration Only ***
             </summary>
-        </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.CalculateDefaultSpacesAllocationAsync">
-            <summary>
-            Only used for split room scenario. It will calculate and set the default allocation values for each applicable space allocation record.
-            </summary>
-            <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.ComputeRate(System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.Fundings.FundingRate},System.Decimal)">
             <summary>

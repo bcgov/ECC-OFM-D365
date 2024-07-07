@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Models;
 using System.Text.Json.Serialization;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
@@ -157,6 +156,7 @@ public class SupplementaryApplication : ofm_allowance
 
 
 }
+
 public class BusinessClosure
 {
     public string msdyn_businessclosureid { get; set; }
@@ -167,6 +167,7 @@ public class BusinessClosure
     public string _createdby_value { get; set; }
     public int msdyn_selectedyear { get; set; }
 }
+
 public class SupplementarySchedule : ofm_supplementary_schedule
 {
     public new decimal? ofm_needs_less_lower_limit_amount { get; set; }

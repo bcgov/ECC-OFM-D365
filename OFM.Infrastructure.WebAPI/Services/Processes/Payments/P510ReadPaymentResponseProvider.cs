@@ -300,13 +300,13 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
         var entitySetName = "ofm_integration_logs";
 
         var payload = new JsonObject
-    {
-        { "ofm_category", (int)ecc_integration_log_category.Error },
-        { "ofm_subject", "Payment Process Error " + subject },
-        { "ofm_regardingid_ofm_application@odata.bind",$"/ofm_applications({regardingId.ToString()})"  },
-        { "ofm_message", message },
-        { "ofm_service_name", serviceName }
-    };
+        {
+            { "ofm_category", (int)ecc_integration_log_category.Error },
+            { "ofm_subject", "Payment Process Error " + subject },
+            { "ofm_regardingid_ofm_application@odata.bind",$"/ofm_applications({regardingId.ToString()})"  },
+            { "ofm_message", message },
+            { "ofm_service_name", serviceName }
+        };
 
         var requestBody = JsonSerializer.Serialize(payload);
 
@@ -330,8 +330,6 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
 
         return startTimeList;
     }
-
-
 }
 
 
