@@ -259,7 +259,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                     """;
 
             var requestUri = $"""
-                         ofm_questions?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_surveies?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
             return requestUri;
