@@ -111,7 +111,7 @@ OFM.Funding.Form = {
 		});
 	},
 
-	regenerateFAPDF: function (primaryControl) {
+	regenerateFAPDF_Superseded: function (primaryControl) {
 		debugger;
 		var globalContext = Xrm.Utility.getGlobalContext();
 		var envUrl = globalContext.getClientUrl();
@@ -136,6 +136,78 @@ OFM.Funding.Form = {
 				// formContext.data.refresh();
 			})
 			.catch(console.error);
+	},
+
+	regenerateFAPDF: function (primaryControl) {
+		debugger;
+		var formContext = primaryControl;
+		var entityName = formContext.data.entity.getEntityName();
+		var recordId = formContext.data.entity.getId().replace("{", "").replace("}", "");
+
+		var flowUrl;
+		var result = this.getSyncMultipleRecord("environmentvariabledefinitions?$select=defaultvalue&$expand=environmentvariabledefinition_environmentvariablevalue($select=value)&$filter=(schemaname eq 'ofm_FundingGenerateFAPDFUrl') and (environmentvariabledefinition_environmentvariablevalue/any(o1:(o1/environmentvariablevalueid ne null)))&$top=50");
+		flowUrl = result[0]["environmentvariabledefinition_environmentvariablevalue"][0].value;
+
+		var confirmStrings = {
+			title: "Confirm Manual Generation of Funding Agreement PDF",
+			text: "Are you sure you want to manually generate Funding Agreement PDF? Please click Yes button to continue, or click No button to cancel.",
+			confirmButtonLabel: "Yes",
+			cancelButtonLabel: "No"
+		};
+		var confirmOptions = { height: 80, width: 500 };
+		Xrm.Navigation.openConfirmDialog(confirmStrings, confirmOptions).then(
+			function (success) {
+				if (success.confirmed) {
+					let body = {
+						"Entity": entityName,
+						"RecordId": recordId
+					};
+					let req = new XMLHttpRequest();
+					req.open("POST", flowUrl, true);
+					req.setRequestHeader("Content-Type", "application/json");
+					req.onreadystatechange = function () {
+						if (this.readyState === 4) {
+							req.onreadystatechange = null;
+							if (this.status === 200) {
+								let resultJson = JSON.parse(this.response);
+							} else {
+								console.log(this.statusText);
+							}
+						}
+					};
+					req.send(JSON.stringify(body));
+				}
+				else {
+					console.log("Not OK");
+				}
+			},
+			function (error) {
+				Xrm.Navigation.openErrorDialog({ message: error });
+			});
+	},
+
+	getSyncMultipleRecord: function (request) {
+		var result = null;
+		var req = new XMLHttpRequest();
+		req.open("GET", Xrm.Page.context.getClientUrl() + "/api/data/v9.1/" + request, false);
+		req.setRequestHeader("OData-MaxVersion", "4.0");
+		req.setRequestHeader("OData-Version", "4.0");
+		req.setRequestHeader("Accept", "application/json");
+		req.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+		req.setRequestHeader("Prefer", "odata.include-annotations=\"*\"");
+		req.onreadystatechange = function () {
+			if (this.readyState === 4) {
+				req.onreadystatechange = null;
+				if (this.status === 200) {
+					var results = JSON.parse(this.response);
+					result = results.value;
+				} else {
+					Xrm.Utility.alertDialog(this.statusText);
+				}
+			}
+		};
+		req.send();
+		return result;
 	},
 
 	setOpsManagerApproval: function (executionContext) {
@@ -463,87 +535,87 @@ OFM.Funding.Form = {
 				var rolesArray = roles.split(';');
 				var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
 
-                for (var i = 0; i < userRoles.getLength(); i++) {
-                    for (var j = 0; j < rolesArray.length; j++)
-                        if (userRoles.get()[i].name == rolesArray[j]) {
-                            executionContext.getFormContext().getControl("ofm_agreement_file").setDisabled(false);
-                        }
-                }
-                //TODO: Add code here to process the Environment Variable value
-            },
-            function (error) {
-                Xrm.Navigation.openErrorDialog({ details: error.message, message: 'A problem occurred while retrieving an Environment Variable value. Please contact support.' });
-            }
-        )
-    },
-    lockfieldsPCM: function (executionContext) {
-        debugger; //PCM Access Role
-        let formContext = executionContext.getFormContext();
-        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
-        if (userRoles.getLength() > 1) { }
+				for (var i = 0; i < userRoles.getLength(); i++) {
+					for (var j = 0; j < rolesArray.length; j++)
+						if (userRoles.get()[i].name == rolesArray[j]) {
+							executionContext.getFormContext().getControl("ofm_agreement_file").setDisabled(false);
+						}
+				}
+				//TODO: Add code here to process the Environment Variable value
+			},
+			function (error) {
+				Xrm.Navigation.openErrorDialog({ details: error.message, message: 'A problem occurred while retrieving an Environment Variable value. Please contact support.' });
+			}
+		)
+	},
+	lockfieldsPCM: function (executionContext) {
+		debugger; //PCM Access Role
+		let formContext = executionContext.getFormContext();
+		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+		if (userRoles.getLength() > 1) { }
 
-        else if (userRoles.get()[0].name == "OFM - PCM") {
-            formContext.data.entity.attributes.forEach(function (attribute, index) {
-                let control = formContext.getControl(attribute.getName());
-                if (control) {
-                    control.setDisabled(true);
-                }
-                executionContext.getFormContext().getControl("ofm_start_date").setDisabled(false);
-                executionContext.getFormContext().getControl("ofm_end_date").setDisabled(false);
-                executionContext.getFormContext().getControl("statuscode").setDisabled(false);
+		else if (userRoles.get()[0].name == "OFM - PCM") {
+			formContext.data.entity.attributes.forEach(function (attribute, index) {
+				let control = formContext.getControl(attribute.getName());
+				if (control) {
+					control.setDisabled(true);
+				}
+				executionContext.getFormContext().getControl("ofm_start_date").setDisabled(false);
+				executionContext.getFormContext().getControl("ofm_end_date").setDisabled(false);
+				executionContext.getFormContext().getControl("statuscode").setDisabled(false);
 
-            });
+			});
 
-        }
+		}
 
-    },
+	},
 
-    showHideGenerateFAPDF: function (primaryControl) {
-        debugger;
-        var formContext = primaryControl;
-        var statusReason = formContext.getAttribute("statuscode").getValue();
+	showHideGenerateFAPDF: function (primaryControl) {
+		debugger;
+		var formContext = primaryControl;
+		var statusReason = formContext.getAttribute("statuscode").getValue();
 
-        var visable = false;
-        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
-        userRoles.forEach(function hasRole(item, index) {
-            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC") {
-                visable = true;
-            }
-        });
+		var visable = false;
+		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+		userRoles.forEach(function hasRole(item, index) {
+			if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC") {
+				visable = true;
+			}
+		});
 
-        var showButton = false;
-        //FA review, FA Signature Pending, FA Submitted, In Review with Ministry EA
-        if (statusReason == 3 || statusReason == 5 || statusReason == 6 || statusReason == 4) {
-            showButton = true;
-        }
+		var showButton = false;
+		//FA review, FA Signature Pending, FA Submitted, In Review with Ministry EA
+		if (statusReason == 3 || statusReason == 5 || statusReason == 6 || statusReason == 4) {
+			showButton = true;
+		}
 
-        return showButton && visable;
-    },
+		return showButton && visable;
+	},
 
-    showHideRecalculate: function (primaryControl) {
-        debugger;
-        var formContext = primaryControl;
-        var visable = false;
-        var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
-        userRoles.forEach(function hasRole(item, index) {
-            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - PCM" || item.name === "OFM - CRC" || item.name === "OFM - Program Policy Analyst") {
-                visable = true;
-            }
-        });
+	showHideRecalculate: function (primaryControl) {
+		debugger;
+		var formContext = primaryControl;
+		var visable = false;
+		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+		userRoles.forEach(function hasRole(item, index) {
+			if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - PCM" || item.name === "OFM - CRC" || item.name === "OFM - Program Policy Analyst") {
+				visable = true;
+			}
+		});
 
-        return visable;
+		return visable;
 	},
 	RemoveOptionFromPaymentFrequency: function (executionContext) {
 		debugger;
 		var formContext = executionContext.getFormContext();
 		var retroActivePaymentDateField = formContext.getAttribute("ofm_retroactive_payment_date");
 		var retroActivePaymentFrequencyField = formContext.getControl("ofm_retroactive_payment_frequency");
-			var retroActivePaymentDate = retroActivePaymentDateField.getValue();
-			if (retroActivePaymentDate != null) {
-				formContext.getAttribute("ofm_retroactive_payment_frequency").setRequiredLevel("required");
-			} else {
-				formContext.getAttribute("ofm_retroactive_payment_frequency").setRequiredLevel("none");
-				formContext.getAttribute("ofm_retroactive_payment_frequency").setValue(null);
-			}
+		var retroActivePaymentDate = retroActivePaymentDateField.getValue();
+		if (retroActivePaymentDate != null) {
+			formContext.getAttribute("ofm_retroactive_payment_frequency").setRequiredLevel("required");
+		} else {
+			formContext.getAttribute("ofm_retroactive_payment_frequency").setRequiredLevel("none");
+			formContext.getAttribute("ofm_retroactive_payment_frequency").setValue(null);
+		}
 	},
 }
