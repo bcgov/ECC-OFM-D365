@@ -1,110 +1,61 @@
-﻿using Microsoft.Extensions.Options;
+﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
-using System.Diagnostics.Metrics;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
 
-public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
+public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IEmailRepository emailRepository) : ID365ProcessProvider
 {
-    private readonly BCRegistrySettings _BCRegistrySettings;
-    private readonly ID365AppUserService _appUserService;
-    private readonly ID365WebApiService _d365webapiservice;
-    private readonly ILogger _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly BCRegistrySettings _BCRegistrySettings = ApiKeyBCRegistry.Value.BCRegistryApi;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
-    private string _organizationId;
-    private string _ofm_standing_historyid;
-    private readonly NotificationSettings _NotificationSettings;
-    private readonly IEmailRepository _emailRepository;
+    private string? _organizationId = string.Empty;
+    private string? _ofm_standing_historyid = string.Empty;
+    private readonly NotificationSettings _notificationSettings = notificationSettings.Value;
+    private readonly IEmailRepository _emailRepository = emailRepository;
     private string? _GScommunicationType;
-    private List<JsonNode> FacilitiyesWithAllActiveFunding;
-
-    public P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IEmailRepository emailRepository)
-    {
-
-        _BCRegistrySettings = ApiKeyBCRegistry.Value.BCRegistryApi;
-        _NotificationSettings = notificationSettings.Value;
-        _appUserService = appUserService;
-        _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process);
-        _timeProvider = timeProvider;
-        _emailRepository = emailRepository;
-    }
+    private List<JsonNode>? _allFacilitiesWithActiveFundingData;
 
     public Int16 ProcessId => Setup.Process.ProviderProfiles.VerifyGoodStandingBatchId;
     public string ProcessName => Setup.Process.ProviderProfiles.VerifyGoodStandingBatchName;
 
     #region fetchxml queries
-    //  ticket ofm 4631
-    //public string RequestUri
-    //{
-    //    get
-    //    {
-    //        var fetchXml = $"""
-    //                <fetch distinct="true" no-lock="true" >
-    //                  <entity name="account" >
-    //                    <attribute name="accountid" />
-    //                    <attribute name="name" />
-    //                    <attribute name="ofm_incorporation_number" />
-    //                    <attribute name="ofm_business_number" />
-    //                    <attribute name="ofm_bypass_bc_registry_good_standing" />
-    //                    <attribute name="primarycontactid"/>
-    //                    <attribute name="statecode" />
-    //                    <filter type="and" >
-    //                      <condition attribute="statecode" operator="eq" value="0"/>
-    //                      <condition attribute="parentaccountid" operator="null" />                    
-    //                      <condition attribute="ccof_accounttype" operator="eq" value="100000000" />
-    //                      <condition entityname="bu" attribute="name" operator="eq" value="OFM" />
-    //                      <condition entityname="application" attribute="ofm_applicationid" operator="not-null" />
-    //                  </filter>
-    //                    <link-entity name="businessunit" from="businessunitid" to="owningbusinessunit" link-type="inner" alias="bu" >
-    //                      <attribute name="name" />
-    //                    </link-entity>
-    //                    <link-entity name="ofm_application" from="ofm_organization" to="accountid" link-type="inner" alias="application" />
-    //                  </entity>
-    //                </fetch>
-    //                """;
-
-    //        var requestUri = $"""
-    //                     accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
-    //                     """;
-
-    //        return requestUri;
-    //    }
-    //}
 
     public string RequestUri
     {
         get
         {
             var fetchXml = $"""
-                    <fetch>
-                      <entity name="account">
-                        <attribute name="accountid" />
-                        <attribute name="name" />
-                        <attribute name="ofm_incorporation_number" />
-                        <attribute name="ofm_business_number" />
-                        <attribute name="ofm_bypass_bc_registry_good_standing" />
-                        <attribute name="primarycontactid" />
-                        <attribute name="statecode" />
-                        <filter type="and">
-                          <condition attribute="statecode" operator="eq" value="0" />
-                          <condition attribute="ofm_bypass_bc_registry_good_standing" operator="ne" value="1" />
-                          <condition attribute="ccof_accounttype" operator="eq" value="100000000" />
-                        </filter>
-                        <order attribute="createdon" descending="true" />
-                      </entity>
-                    </fetch>
-                    """;
+                            <fetch distinct="true" no-lock="true" >
+                              <entity name="account" >
+                                <attribute name="accountid" />
+                                <attribute name="name" />
+                                <attribute name="ofm_incorporation_number" />
+                                <attribute name="ofm_business_number" />
+                                <attribute name="ofm_bypass_bc_registry_good_standing" />
+                                <attribute name="primarycontactid"/>
+                                <attribute name="statecode" />
+                               <filter type="and">
+                                  <condition attribute="statecode" operator="eq" value="0" />
+                                  <condition attribute="ofm_bypass_bc_registry_good_standing" operator="ne" value="1" />
+                                  <condition attribute="ccof_accounttype" operator="eq" value="100000000" />
+                                  <condition attribute="name" operator="not-null" value="" />
+                                </filter>
+                              </entity>
+                            </fetch>
+                            """;
 
             var requestUri = $"""
                          accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
@@ -113,7 +64,8 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
             return requestUri;
         }
     }
-    public string RequestAllFacilitiesWithActiveFundingUri
+
+    public string AllFacilitiesWithActiveFundingRequestUri
     {
         get
         {
@@ -129,7 +81,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                         <filter type="and">
                           <condition attribute="statecode" operator="eq" value="0" />
                           <condition attribute="parentaccountid" operator="not-null" value="" />
-                          <condition attribute="ccof_accounttype" operator="eq" value="100000001" />
+                          <condition attribute="ccof_accounttype" operator="eq" value="{(int)ccof_AccountType.Facility}" />
                         </filter>
                         <link-entity name="ofm_application" from="ofm_facility" to="accountid" link-type="inner" alias="ofm_app">
                           <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid">
@@ -229,36 +181,10 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         }
     }
 
-    public string RecordstoSendNotificationUri
-    {
-        get
-        {
-            var fetchXml = $"""
-                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
-                      <entity name="account">
-                        <attribute name="name" />
-                         <attribute name="telephone1" />
-                        <attribute name="accountid" />
-                        <attribute name="ofm_primarycontact" />
-                        <order attribute="name" descending="false" />
-                        <filter type="and">
-                          <condition attribute="parentaccountid" operator="eq" uitype="account" value="{_organizationId}" />
-                        </filter>
-                      </entity>
-                    </fetch>
-                    """;
-
-            var requestUri = $"""
-                         accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                         """;
-
-            return requestUri;
-        }
-    }
-
     #endregion
 
     #region Get data from fetchxml Uri
+
     public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P405VerifyGoodStandingBatchProvider));
@@ -355,6 +281,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
 
         return await Task.FromResult(new ProcessData(d365Result));
     }
+
     public async Task<List<JsonNode>> FetchAllRecordsFromCRMAsync(string requestUri)
     {
         _logger.LogDebug(CustomLogEvent.Process, "Getting records with query {requestUri}", requestUri.CleanLog());
@@ -397,103 +324,110 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
         while (!string.IsNullOrEmpty(nextPageLink));
 
         _logger.LogDebug(CustomLogEvent.Process, "Total records fetched: {totalRecords}", allRecords.Count);
-        return allRecords;
+
+        return await Task.FromResult(allRecords);
     }
+
     #endregion
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
+        _allFacilitiesWithActiveFundingData = await FetchAllRecordsFromCRMAsync(AllFacilitiesWithActiveFundingRequestUri);
+
         var startTime = _timeProvider.GetTimestamp();
-        var localData = await GetDataAsync();
-        var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
-        FacilitiyesWithAllActiveFunding = await FetchAllRecordsFromCRMAsync(RequestAllFacilitiesWithActiveFundingUri);
-        deserializedData?.Where(c => c.ofm_bypass_bc_registry_good_standing != true).ToList().ForEach(async organization =>
-       {
-           string organizationId = organization.accountid;
-           string legalName = organization.name;
-           string incorporationNumber = organization.ofm_incorporation_number;
-           string businessNumber = organization.ofm_business_number;
+        var localOrganizationsData = await GetDataAsync();
+        var deserializedOrganizationsData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localOrganizationsData.Data.ToString());
 
-           string? queryValue = (!string.IsNullOrEmpty(incorporationNumber)) ? incorporationNumber.Trim() : legalName.Trim();
+        if (deserializedOrganizationsData.Any())
+        {
+            using HttpClient httpClient = new();
+            var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient)).Take(100);
 
-           var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
-           var status = "active";
-           var queryString = $"?query=value:{queryValue}::identifier:::bn:::name:" +
-                             $"&categories=legalType:{legalType}::status:{status}";
+            await Task.WhenAll(tasks!).ContinueWith(task => {
+                                                            _logger.LogError(CustomLogEvent.Process, "P405VerifyGoodStandingBatchProvider. One of the tasks failed with processing error: {error}", task.Exception);
+                                                            },
+                                                            TaskContinuationOptions.OnlyOnRanToCompletion)
+                                        .ConfigureAwait(false);
+        }
+        
+        var endTime = timeProvider.GetTimestamp();
+        _logger.LogDebug(CustomLogEvent.Process, "P405VerifyGoodStandingBatchProvider process finished in {timer.ElapsedMilliseconds} miliseconds.", timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
 
-           var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
-
-           var client = new HttpClient();
-           var request = new HttpRequestMessage(HttpMethod.Get, path);
-           request.Headers.Add("Account-Id", "1");
-           request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
-
-           var response = await client.SendAsync(request);
-           response.EnsureSuccessStatusCode();
-
-           var responseBody = await response.Content.ReadAsStringAsync();
-
-           BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
-
-           // Organization - Update
-           var goodStandingStatus = 3;                    // 1 - Good, 2 - No Good, 3 - Error 
-
-           // Integration Log - Create
-           var externalService = "BC Registries";
-           var subject = string.Empty;
-           var logCategory = 1;                           // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
-           var message = $"{responseBody.CleanLog()}";
-
-           if (searchResult is null || searchResult.searchResults.totalResults < 1)
-           {
-               // Todo: Add a new message for this scenario or try seach by name
-               _logger.LogError(CustomLogEvent.Process, "No results found.");
-
-               goodStandingStatus = 3;
-               logCategory = 3;
-               subject = "No results found";
-               await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
-               // return ProcessResult.PartialSuccess(ProcessId, ["No records found."], 0, 0).SimpleProcessResult;
-           }
-
-           if (searchResult.searchResults.totalResults > 1)
-           {
-               // ToDo: Process and filter the result further
-               _logger.LogError(CustomLogEvent.Process, "More than one records returned. Please resolve this issue to ensure uniqueness");
-
-               goodStandingStatus = 3;
-               logCategory = 3;
-               subject = "Multiple results returned";
-               await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
-               // return ProcessResult.PartialSuccess(ProcessId, ["Multiple results returned."], 0, 0).SimpleProcessResult;
-           }
-
-           if (searchResult.searchResults.totalResults == 1)
-           {
-               goodStandingStatus = searchResult.searchResults.results.First().goodStanding ? 1 : 2;                // 1 - Good, 2 - No Good, 3 - Error 
-               logCategory = 1;                                                                                     // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
-               subject = "One result returned";
-               await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
-
-               // Handling Standing History
-               var goodStandingStatusYN = searchResult.searchResults.results.First().goodStanding ? 1 : 0;          // 0 - No, 1 - Yes 
-               await CreateUpdateStandingHistory(_appUserService, _d365webapiservice, organization, goodStandingStatusYN);
-
-               if (goodStandingStatusYN == 0) { await SendNotification(_appUserService, _d365webapiservice, organization); };
-
-
-               // return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-           }
-
-       });
-
-
-
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-
-
+        return await Task.FromResult(ProcessResult.Completed(ProcessId).SimpleProcessResult);
     }
+
+    private async Task<DateTime> CheckOrganizationGoodStanding(D365Organization_Account organization, HttpClient httpClient)
+    {
+        string organizationId = organization.accountid;
+        string legalName = organization.name;
+        string incorporationNumber = organization.ofm_incorporation_number;
+
+        string? queryValue = (!string.IsNullOrEmpty(incorporationNumber)) ? incorporationNumber.Trim() : legalName.Trim();
+
+        var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
+        var status = "active";
+        var queryString = $"?query=value:{queryValue}::identifier:::bn:::name:" +
+                          $"&categories=legalType:{legalType}::status:{status}";
+
+        var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
+
+        var request = new HttpRequestMessage(HttpMethod.Get, path);
+        request.Headers.Add("Account-Id", "1");
+        request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
+
+        var response = await httpClient.SendAsync(request);
+        var responseBody = await response.Content.ReadAsStringAsync();
+        BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
+
+        // Organization - Update
+        var goodStandingStatus = 3;                    // 1 - Good, 2 - No Good, 3 - Error 
+
+        // Integration Log - Create
+        var externalService = "BC Registries";
+        var subject = string.Empty;
+        var logCategory = (int)ecc_integration_log_category.Information;
+        var message = $"{responseBody.CleanLog()}";
+
+        if (searchResult is null || searchResult.searchResults is null || searchResult.searchResults.totalResults < 1)
+        {
+            // Todo: Add a new message for this scenario or try seach by name
+            _logger.LogError(CustomLogEvent.Process, "No results found.");
+
+            goodStandingStatus = 3;
+            logCategory = 3;
+            subject = "No results found";
+            _ = await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
+        }
+
+        if (searchResult is not null && searchResult.searchResults is not null && searchResult.searchResults.totalResults > 1)
+        {
+            // ToDo: Process and filter the result further
+            _logger.LogError(CustomLogEvent.Process, "More than one records returned. Please resolve this issue to ensure uniqueness");
+
+            goodStandingStatus = 3;
+            logCategory = 3;
+            subject = "Multiple results returned";
+            _ = await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
+        }
+
+        if (searchResult is not null && searchResult.searchResults is not null && searchResult.searchResults.totalResults == 1)
+        {
+            goodStandingStatus = searchResult.searchResults.results.First().goodStanding ? 1 : 2;                // 1 - Good, 2 - No Good, 3 - Error 
+            logCategory = 1;                                                                                     // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
+            subject = "One result returned";
+            _ = await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, goodStandingStatus, subject, logCategory, message, externalService);
+
+            // Handling Standing History
+            var goodStandingStatusYN = searchResult.searchResults.results.First().goodStanding ? 1 : 0;          // 0 - No, 1 - Yes 
+            _ = await CreateUpdateStandingHistory(_appUserService, _d365webapiservice, organization, goodStandingStatusYN);
+
+            if (goodStandingStatusYN == 0) { await SendNoGoodStandingNotification(_appUserService, _d365webapiservice, organization); };
+        }
+
+        return await Task.FromResult(DateTime.Now);
+    }
+
     private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string organizationId, int goodStandingStatus, string subject, int category, string message, string externalService)
     {
         var statement = $"accounts({organizationId})";
@@ -511,7 +445,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
             var responseBody = await patchResponse.Content.ReadAsStringAsync();
             _logger.LogError(CustomLogEvent.Process, "Failed to patch GoodStanding status on organization with the server error {responseBody}", responseBody.CleanLog());
 
-            return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
+            return await Task.FromResult(ProcessResult.Failure(ProcessId, [responseBody], 0, 0).SimpleProcessResult);
         }
 
         var entitySetName = "ofm_integration_logs";
@@ -523,21 +457,20 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                 { "ofm_regardingid_account@odata.bind", $"/accounts({organizationId})"}
         };
         var requestBody2 = JsonSerializer.Serialize(payload2);
-        var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
+        _ = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
 
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        return await Task.FromResult(ProcessResult.Completed(ProcessId).SimpleProcessResult);
     }
 
     private async Task<JsonObject> CreateUpdateStandingHistory(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization, int goodStandingStatusYN)
     {
-        _organizationId = organization.accountid;
+        _organizationId = organization?.accountid;
         var localData = await GetStandingHistoryDataAsync();
 
         var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
 
         if (deserializedData.Count < 1)                  // no records found                                                              
         {
-
             // Operation - Create new record
             var entitySetName = "ofm_standing_histories";                                                      // Case 1. create new record --> open (active)
             var payload = new JsonObject {
@@ -548,10 +481,10 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                                 { "statecode", 0 },                                                                   // 0 - active, 1 - inactive
                                 { "statuscode", 1 },                                                                  // 1 - Open (active), 2 - Closed (inactive)
                                 //{ "ofm_validated_on", DateTime.UtcNow },
-                                { "ofm_organization@odata.bind", $"/accounts({organization.accountid})"}
+                                { "ofm_organization@odata.bind", $"/accounts({organization?.accountid})"}
                             };
             var requestBody = JsonSerializer.Serialize(payload);
-            var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
+            _ = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
         }
 
         if (deserializedData.Count >= 1)                // Records found
@@ -563,7 +496,6 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
 
             if (Equals(goodStandingStatus_History, goodStandingStatusYN))                                      // Case 2. open --> update validated_On
             {
-
                 DateTime validatedon = DateTime.Now;
                 var noduration = validatedon - startDate.Date;
                 // Operation - update the existing record
@@ -582,22 +514,21 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                 var requestBody = JsonSerializer.Serialize(payload);
                 var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, statement, requestBody);
 
-                var tempFacilitiesList = (FacilitiyesWithAllActiveFunding)
+                var tempFacilitiesList = _allFacilitiesWithActiveFundingData?
                     .Where(c => c["_parentaccountid_value"].ToString() == organization?.accountid)
                     .GroupBy(g => g["_ofm_primarycontact_value"])
                     .Select(s => s.First())
                     .ToList();
-                if (tempFacilitiesList.Count > 0 && goodStandingStatusYN == 0 && noduration.Days >= _BCRegistrySettings.NoDuration)
-                {   //Handling task creation if rcord is in not good standing fro 90 days
-                    await CreateTask(_appUserService, _d365webapiservice, organization, standingHistoryId);
+
+                if (tempFacilitiesList?.Count > 0 && goodStandingStatusYN == 0 && noduration.Days >= _BCRegistrySettings.NoDuration)
+                {
+                    _ = await CreateTaskForNotGoodStandingFrom90Days(_appUserService, _d365webapiservice, organization, standingHistoryId);
                 }
             }
             else
             {
-                // DateTime startDate = (DateTime)deserializedData.First().ofm_start_date;
                 DateTime endDate = DateTime.UtcNow;
                 TimeSpan duration = endDate - startDate;
-
 
                 // Operation - update the existing record and then deactivate it
                 var statement = $"ofm_standing_histories({standingHistoryId})";                                // Case 3.1 update endDate/duration and deactivate previous record
@@ -610,6 +541,7 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                                 { "statuscode", 2 },                                                                   // 2 - Closed (inactive)
                                 { "ofm_validated_on", DateTime.UtcNow}
                             };
+
                 var requestBody = JsonSerializer.Serialize(payload);
                 var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, statement, requestBody);
 
@@ -626,56 +558,57 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                                 { "ofm_organization@odata.bind", $"/accounts({organization.accountid})"}
                             };
                 var requestBody2 = JsonSerializer.Serialize(payload2);
-                var CreateResponse2 = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
+                _ = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody2);
             }
         }
 
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        return await Task.FromResult(ProcessResult.Completed(ProcessId).SimpleProcessResult);
     }
 
-
-    // Create task if org is in not good standing for more than 90 days
-    private async Task<JsonObject> CreateTask(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization, string ofm_standing_historyid)
+    /// <summary>
+    /// if the org is in not good standing => Create a task for more than 90 days
+    /// </summary>
+    /// <param name="appUserService"></param>
+    /// <param name="d365WebApiService"></param>
+    /// <param name="organization"></param>
+    /// <param name="ofm_standing_historyid"></param>
+    /// <returns></returns>
+    private async Task<JsonObject> CreateTaskForNotGoodStandingFrom90Days(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization, string ofm_standing_historyid)
     {
-        // _organizationId = organizationId;
         _ofm_standing_historyid = ofm_standing_historyid;
-        var localData = await GetRecordsDataAsync(RecordstoCreateTaskUri);
+        var localStandingHistoryData = await GetRecordsDataAsync(RecordstoCreateTaskUri);
+        var deserializedStandingHistoryData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localStandingHistoryData.Data.ToString());
 
-        var deserializedData = JsonSerializer.Deserialize<List<D365StandingHistory>>(localData.Data.ToString());
-
-
-        if (deserializedData.Count <= 0)                // Records found
+        if (deserializedStandingHistoryData?.Count <= 0)
         {
-            // Operation - Create new record
             var entitySetName = "tasks";                                                  // Case 3.2 create new record --> open (active)
             var assistanceReq = new JsonObject {
-                                 { "subject", _BCRegistrySettings.TaskActivity.subject + organization.name },
-                                 {"regardingobjectid_account@odata.bind", "/accounts("+organization.accountid+")"},
-                                 { "description",_BCRegistrySettings.TaskActivity.description },
-                                 {"ofm_process_responsible", _BCRegistrySettings.batchtaskprocess }
-                                  };
-            // create task
+                                     { "subject", _BCRegistrySettings.TaskActivity.subject + organization.name },
+                                     {"regardingobjectid_account@odata.bind", "/accounts("+organization.accountid+")"},
+                                     { "description",_BCRegistrySettings.TaskActivity.description },
+                                     {"ofm_process_responsible", _BCRegistrySettings.batchtaskprocess }
+                                };
             var requestBody = JsonSerializer.Serialize(assistanceReq);
-            var CreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
-
+            _ = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, entitySetName, requestBody);
         }
 
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        return await Task.FromResult(ProcessResult.Completed(ProcessId).SimpleProcessResult);
     }
 
-    //Send Notification if Record is not in good standing
-    private async Task<JsonObject> SendNotification(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization)
+    /// <summary>
+    /// Send a Notification to the provider if the prganization is not in good standing
+    /// </summary>
+    /// <param name="appUserService"></param>
+    /// <param name="d365WebApiService"></param>
+    /// <param name="organization"></param>
+    /// <returns></returns>
+    private async Task<JsonObject> SendNoGoodStandingNotification(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization)
     {
-        // _organizationId = organizationId;
-
-        // var localData = await GetRecordsDataAsync(RecordstoSendNotificationUri);
-        // var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
-
-        List<JsonNode> deserializedData = FacilitiyesWithAllActiveFunding;
-        var sendList = deserializedData?.Where(c => c["_parentaccountid_value"].ToString() == organization?.accountid)
+        var sendList = _allFacilitiesWithActiveFundingData?.Where(c => c["_parentaccountid_value"].ToString() == organization?.accountid)
             .GroupBy(g => g["_ofm_primarycontact_value"])
             .Select(s => s.First())
             .ToList();
+
         if (sendList.Count > 0)
         {
             var distinctRecords = new Dictionary<string, JsonNode>();
@@ -686,34 +619,29 @@ public class P405VerifyGoodStandingBatchProvider : ID365ProcessProvider
                     distinctRecords[node["_ofm_primarycontact_value"].ToString()] = node;
                 }
             }
-            IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
-            _GScommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _NotificationSettings.CommunicationTypes.ActionRequired)
-                                                                         .Select(s => s.ofm_communication_typeid).FirstOrDefault();
 
-            var templateData = await _emailRepository.GetTemplateDataAsync(_NotificationSettings.EmailTemplates.First(t => t.TemplateNumber == 400).TemplateNumber);
+            IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
+            _GScommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.ActionRequired)
+                                                     .Select(s => s.ofm_communication_typeid).FirstOrDefault();
+
+            var templateData = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 400).TemplateNumber);
             var serializedtemplateData = JsonSerializer.Deserialize<List<D365Template>>(templateData.Data.ToString());
             string? subject = serializedtemplateData?.Select(s => s.title).FirstOrDefault();
             string? emaildescription = serializedtemplateData?.Select(sh => sh.safehtml).FirstOrDefault();
 
-            List<Guid> recipientsList = new List<Guid>();
-            recipientsList.Add(new Guid($"{organization?._primarycontactid_value}"));
+            List<Guid> recipientsList = [new Guid($"{organization?._primarycontactid_value}")];
 
             foreach (var record in distinctRecords)
             {
                 if (record.Value["_ofm_primarycontact_value"].ToString() != organization?._primarycontactid_value.ToString())
                 {
                     recipientsList.Add(new Guid($"{record.Value?["_ofm_primarycontact_value"]}"));
-
                 }
             }
-            //deserializedData?.Where(c => c._ofm_primarycontact_value != organization?._primarycontactid_value).ToList().ForEach(recipient =>
-            //     {
-            //         recipientsList.Add(new Guid($"{recipient?._ofm_primarycontact_value}"));
-            //     });
-            await _emailRepository!.CreateAndUpdateEmail(subject, emaildescription, recipientsList, new Guid(_NotificationSettings.DefaultSenderId), _GScommunicationType, appUserService, d365WebApiService, 400);
+
+            await _emailRepository!.CreateAndUpdateEmail(subject, emaildescription, recipientsList, new Guid(_notificationSettings.DefaultSenderId), _GScommunicationType, appUserService, d365WebApiService, 400);
         }
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+
+        return await Task.FromResult(ProcessResult.Completed(ProcessId).SimpleProcessResult);
     }
-
-
 }
