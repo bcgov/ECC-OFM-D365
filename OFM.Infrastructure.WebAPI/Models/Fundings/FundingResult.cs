@@ -16,8 +16,7 @@ public enum CalculatorDecision
 }
 
 public interface IFundingResult
-{
-    IEnumerable<LicenceDetail> ActionsLog { get; }
+{ 
     DateTime CompletedAt { get; }
     CalculatorDecision Decision { get; }
     IEnumerable<string> Errors { get; }
@@ -26,6 +25,7 @@ public interface IFundingResult
     IEnumerable<JsonObject> Result { get; }
     string ResultMessage { get; }
     JsonObject SimpleResult { get; }
+    IEnumerable<LicenceDetail> ActionsLog { get; }
 }
 
 public class FundingResult : IFundingResult
@@ -35,7 +35,7 @@ public class FundingResult : IFundingResult
         FundingNumber = fundingNumber;
         Decision = decision;
         FundingAmounts = fundingAmounts;
-        ActionsLog = actionsLog ?? [] ;
+        ActionsLog = actionsLog ?? [];
         ResultMessage = GeneralValidation.IsValidCalculation(decision) ? "Auto Calculated Funding Amounts." : "Calculation error(s). See the logs for more details.";
         Errors = errors ?? [];
         CompletedAt = DateTime.Now;
@@ -51,8 +51,8 @@ public class FundingResult : IFundingResult
     public IEnumerable<LicenceDetail> ActionsLog { get; }
 
     public static FundingResult Success(string fundingNumber, FundingAmounts fundingAmounts, IEnumerable<LicenceDetail>? actionsLog) => new(fundingNumber, CalculatorDecision.Auto, fundingAmounts, actionsLog, null);
-      public static FundingResult InvalidData(string fundingNumber, IEnumerable<string>? errors) => new(fundingNumber, CalculatorDecision.InvalidData, new EmptyFundingAmounts(), null, errors);
-   
+    public static FundingResult InvalidData(string fundingNumber, IEnumerable<string>? errors) => new(fundingNumber, CalculatorDecision.InvalidData, new EmptyFundingAmounts(), null, errors);
+
     #region Output
 
     public JsonObject SimpleResult

@@ -55,8 +55,10 @@ public class P310CalculateDefaultAllocationProvider : ID365ProcessProvider
         _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
 
-        var calculator = new FundingCalculator(_fundingRepository, _funding, _rateSchedules, _logger);
+        var calculator = new DefaultCalculator(_fundingRepository, _funding, _rateSchedules, _logger);
         await calculator.CalculateDefaultSpacesAllocationAsync();
+        await calculator.CalculateAsync();
+        await calculator.LogProgressAsync(_d365webapiservice!, _appUserService!, _logger!, titlePrefix: "Default"); // This line should always be at the end to avoid any impacts to the calculator's main functionalities
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }

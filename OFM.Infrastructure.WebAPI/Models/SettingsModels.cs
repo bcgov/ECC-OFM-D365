@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
 namespace OFM.Infrastructure.WebAPI.Models;
+
 public record AppSettings
 {
     public required APIKey[] ApiKeys { get; set; }
@@ -32,8 +32,8 @@ public record NotificationSettings
     public required EmailTemplate[] EmailTemplates { get; set; }
     public required CommunicationTypes CommunicationTypes { get; set; }
     public required SafeList EmailSafeList { get; set; }
-    public required string fundingUrl { get; set; }
-    public required string fundingTabUrl { get; set; }
+    public required string FundingUrl { get; set; }
+    public required string FundingTabUrl { get; set; }
    
 
     public record SafeList
@@ -159,14 +159,11 @@ public record BCRegistrySettings
     public string batchtaskprocess { get; set; }
     public string singletaskprocess { get; set; }
     public required TaskActivity TaskActivity { get; set; }
-   
-
 }
 public record TaskActivity
 {
     public required string subject { get; set; }
     public required string description { get; set; }
-    
 }
 
 public record BCCASApi
@@ -176,6 +173,7 @@ public record BCCASApi
     public required string KeyName { get; set; }
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
+    public int DaysToCorrectPayments { get; set; }
     public int transactionCount { get; set; }
     public required string cGIBatchNumber { get; set; }
     public required string oracleBatchNumber { get; set; }
@@ -188,7 +186,6 @@ public record BCCASApi
     public required string delimiter { get; set; }
     public required InvoiceHeader InvoiceHeader { get; set; }
     public required InvoiceLines InvoiceLines { get; set; }
-   
 }
 
 

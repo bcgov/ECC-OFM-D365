@@ -29,25 +29,9 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
     {
         get
         {
-            var fetchXml = $"""
-                    <fetch distinct="true" no-lock="true">
-                      <entity name="account">
-                        <attribute name="accountid" />
-                        <attribute name="ofm_business_number" />
-                        <attribute name="name" />
-                        <attribute name="modifiedon" />
-                        <attribute name="statecode" />
-                        <attribute name="statuscode" />
-                        <filter type="and">
-                          <condition attribute="accountid" operator="eq" value="" />                  
-                        </filter>
-                      </entity>
-                    </fetch>
-                    """;
-
             var requestUri = $"""
-                         accounts?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                         """;
+
+                """;
 
             return requestUri;
         }
@@ -93,10 +77,10 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
         Funding? _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
 
-        var calculator = new FundingCalculator(_fundingRepository, _funding, _rateSchedules, _logger);
+        FundingCalculator calculator = new(_fundingRepository, _funding, _rateSchedules, _logger);
         _ = await calculator.CalculateAsync();
         _ = await calculator.ProcessFundingResultAsync();
-        await calculator.LogProgressAsync(_d365webapiservice!, _appUserService!, _logger!); // This line should always be at the end to avoid impact to the calculator's main functionalities
+        await calculator.LogProgressAsync(_d365webapiservice!, _appUserService!, _logger!); // This line should always be at the end to avoid any impacts to the calculator's main functionalities
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }

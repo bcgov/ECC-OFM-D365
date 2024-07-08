@@ -27,41 +27,52 @@ public record ProcessParameter
     //DO NOT change the optional properties
     [property: JsonPropertyName("triggeredBy")]
     public string? TriggeredBy { get; set; }
+
     [property: JsonPropertyName("triggeredOn")]
     public DateTime? TriggeredOn { get; set; }
+
     [property: JsonPropertyName("callerObjectId")]
     public Guid? CallerObjectId { get; set; }
+
     [property: JsonPropertyName("notification")]
     public EmailParameter? Notification { get; set; }
+
     [property: JsonPropertyName("organization")]
     public OrganizationParameter? Organization { get; set; }
+
     [property: JsonPropertyName("application")]
     public ApplicationParameter? Application { get; set; }
-    [property: JsonPropertyName("ofm_allowance")]
+
+    [property: JsonPropertyName("allowance")]
     public SupplementaryApplicationParameter? SupplementaryApplication { get; set; }
+
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
+
     [property: JsonPropertyName("fundingReport")]
     public FundingReportParameter? FundingReport { get; set; }
 
-
     [property: JsonPropertyName("project")]
-    public ProjectParameter? Project { get; set; }
+    public CustomerVoiceProjectParameter? CustomerVoiceProject { get; set; }
     
     [property: JsonPropertyName("ReportSections")]
     public string? ReportSections { get; set; }
 
-    [property: JsonPropertyName("paymentfile")]
-    public PaymentParameter? paymentfile { get; set; }
+   
 
+    [property: JsonPropertyName("paymentfile")]
+    public PaymentParameter? PaymentFile { get; set; }
+
+    [property: JsonPropertyName("dataImportId")]
+    public Guid? DataImportId { get; set; }
+
+    #region Inner Parameter Record Objects
 
     public record PaymentParameter
-    {
-       
+    {  
         [property: JsonPropertyName("paymentfileid")]
         public string? paymentfileId { get; set; }
     }
-
  
     public record EmailParameter
     {
@@ -105,21 +116,17 @@ public record ProcessParameter
     public record ApplicationParameter
     {
         [property: JsonPropertyName("applicationId")]
-        public Guid? applicationId { get; set; }
-
-        
+        public Guid? applicationId { get; set; }    
     }
+
     public record SupplementaryApplicationParameter
     {
-        [property: JsonPropertyName("fyYear")]
-        public string? fyYear { get; set; }
-
+        [property: JsonPropertyName("allowanceId")]
+        public Guid? allowanceId { get; set; }
     }
+
     public record FundingParameter
     {
-        //[property: JsonPropertyName("facilityId")]
-        //public string? FacilityId { get; set; }
-
         [property: JsonPropertyName("fundingId")]
         public string? FundingId { get; set; }
 
@@ -127,22 +134,25 @@ public record ProcessParameter
         public string? SupplementaryId { get; set; }
         
         [property: JsonPropertyName("ofm_monthly_province_base_funding_y1")]
-        public string? ofm_monthly_province_base_funding_y1 { get; set; }
+        public string? MonthlyBaseFundingAmount { get; set; }
 
         [property: JsonPropertyName("previous_monthly_province_base_funding_y1")]
-        public string? previous_monthly_province_base_funding_y1 { get; set; }
+        public string? PreviousMonthlyBaseFundingAmount { get; set; }
 
         [property: JsonPropertyName("isMod")]
-        public bool? isMod { get; set; }
+        public bool? IsMod { get; set; }
     }
 
-    public record ProjectParameter
+    public record CustomerVoiceProjectParameter
     {
-        //[property: JsonPropertyName("facilityId")]
-        //public string? FacilityId { get; set; }
-
         [property: JsonPropertyName("Project_Guid")]
         public string? ProjectId { get; set; }
+
+        [property: JsonPropertyName("StartDate")]
+        public DateTime? StartDate { get; set; }
+
+        [property: JsonPropertyName("EndDate")]
+        public DateTime? EndDate { get; set; }
     }
 
     public record FundingReportParameter
@@ -157,7 +167,5 @@ public record ProcessParameter
         public string? FacilityId { get; set; }
     }
 
-    [property: JsonPropertyName("dataImportId")]
-    public Guid? DataImportId { get; set; }
+    #endregion
 }
-

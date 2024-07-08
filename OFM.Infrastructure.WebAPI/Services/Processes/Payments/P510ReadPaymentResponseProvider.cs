@@ -7,36 +7,22 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 using FixedWidthParserWriter;
 using ECC.Core.DataContext;
-using EntityReference = OFM.Infrastructure.WebAPI.Messages.EntityReference;
 using System.Text.Json;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 
-
-
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
-public class P510ReadPaymentResponseProvider : ID365ProcessProvider
+public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> bccasApiSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
-
-    private readonly BCCASApi _BCCASApi;
-    private readonly ID365AppUserService _appUserService;
-    private readonly ID365WebApiService _d365webapiservice;
-    private readonly ILogger _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly BCCASApi _BCCASApi = bccasApiSettings.Value.BCCASApi;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
-
-    public P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> bccasApiSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
-    {
-        _BCCASApi = bccasApiSettings.Value.BCCASApi;
-        _appUserService = appUserService;
-        _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process);
-        _timeProvider = timeProvider;
-    }
 
     public Int16 ProcessId => Setup.Process.Payments.GetPaymentResponseId;
     public string ProcessName => Setup.Process.Payments.GetPaymentResponseName;
@@ -54,14 +40,14 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                         <attribute name="createdon" />
                         <order attribute="ofm_name" descending="false" />
                         <filter type="and">    
-                          <condition attribute="ofm_payment_file_exchangeid" operator="eq" value="{_processParams?.paymentfile?.paymentfileId}" />
+                          <condition attribute="ofm_payment_file_exchangeid" operator="eq" value="{_processParams?.PaymentFile?.paymentfileId}" />
                         </filter>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_payment_file_exchanges({_processParams?.paymentfile?.paymentfileId})/ofm_feedback_document_memo
+                         ofm_payment_file_exchanges({_processParams?.PaymentFile?.paymentfileId})/ofm_feedback_document_memo
                          """;
 
             return requestUri;
@@ -128,7 +114,6 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         }
     }
 
-
     public async Task<ProcessData> GetDataAsync()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P510ReadPaymentResponseProvider));
@@ -159,8 +144,6 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         }
 
         return await Task.FromResult(_data);
-
-
     }
     public async Task<ProcessData> GetBusinessClosuresDataAsync()
     {
@@ -224,17 +207,16 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
 
         return await Task.FromResult(_data);
 
-
     }
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
-        List<string> batchfeedback = new List<string>();
-        List<string> headerfeedback = new List<string>();
-        List<string> listfeedback = new List<string>();
-        List<string> linefeedback = new List<string>();
-        List<feedbackHeader> headers = new List<feedbackHeader>();
+        List<string> batchfeedback = [];
+        List<string> headerfeedback = [];
+        List<string> listfeedback = [];
+        List<string> linefeedback = [];
+        List<FeedbackHeader> headers = [];
         var createIntregrationLogTasks = new List<Task>();
         var startTime = _timeProvider.GetTimestamp();
 
@@ -248,18 +230,19 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
 
         foreach (string data in headerfeedback)
         {
-            List<feedbackLine> lines = new List<feedbackLine>();
+            List<FeedbackLine> lines = new List<FeedbackLine>();
             linefeedback = data.Split('\n').Where(g => g.StartsWith("APIL")).Select(g => g).ToList();
             foreach (string list1 in linefeedback)
             {
-                feedbackLine line = new CustomFileProvider<feedbackLine>().Parse(new List<string> { list1.TrimStart() });
+                FeedbackLine line = new CustomFileProvider<FeedbackLine>().Parse(new List<string> { list1.TrimStart() });
                 lines.Add(line);
 
             }
-            feedbackHeader header = new CustomFileProvider<feedbackHeader>().Parse(new List<string> { data });
+            FeedbackHeader header = new CustomFileProvider<FeedbackHeader>().Parse(new List<string> { data });
             header.feedbackLine = lines;
             headers.Add(header);
         }
+
         var localPayData = await GetPaylinesAsync();
         var serializedPayData = System.Text.Json.JsonSerializer.Deserialize<List<Models.D365PaymentLine>>(localPayData.Data.ToString());
         var updatePayRequests = new List<HttpRequestMessage>() { };
@@ -267,12 +250,11 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         var businessclosuresdata = await GetBusinessClosuresDataAsync();
         serializedPayData?.ForEach(async pay =>
         {
-            var line = headers.SelectMany(p => p.feedbackLine).SingleOrDefault(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.StartsWith(string.Concat(pay.ofm_application_number, " ", pay.ofm_payment_type)));
+            var line = headers.SelectMany(p => p.feedbackLine).SingleOrDefault(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.StartsWith(string.Concat(pay?.ofm_application?.ofm_Application, " ", pay.ofm_payment_type)));
             var header = headers.Where(p => p.IHInvoice == pay.ofm_invoice_number).FirstOrDefault();
-           
-          
+                   
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
-            DateTime revisedInvoiceDate = TimeExtensions.GetRevisedInvoiceDate(DateTime.Today.Date, 3,holidaysList);
+            DateTime revisedInvoiceDate = TimeExtensions.GetRevisedInvoiceDate(DateTime.Today.Date, _BCCASApi.DaysToCorrectPayments, holidaysList);
             DateTime revisedInvoiceReceivedDate = revisedInvoiceDate.AddDays(-4);
             DateTime revisedEffectiveDate = TimeExtensions.GetCFSEffectiveDate(revisedInvoiceDate, holidaysList);
 
@@ -285,16 +267,16 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
                 {
                     var subject = pay.ofm_name;
                     //create Integration log with an error message.
-                    createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay._ofm_application_value , casResponse, "CFS Integration Error", appUserService, d365WebApiService));
+                    createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay.ofm_application.ofm_applicationid.GetValueOrDefault() , casResponse, "CFS Integration Error", appUserService, d365WebApiService));
                 }
                 //Update it with latest cas response.
                 var payToUpdate = new JsonObject {  
-                {ofm_payment.Fields.ofm_cas_response, casResponse},
-                {ofm_payment.Fields.statecode,(int)((line?.ILCode=="0000" &&header?.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
-                {ofm_payment.Fields.statuscode,(int)((line?.ILCode=="0000" && header?.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingERROR)},
-                {ofm_payment.Fields.ofm_revised_invoice_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceDate.ToString("yyyy-MM-dd"): null},
-                {ofm_payment.Fields.ofm_revised_invoice_received_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceReceivedDate.ToString("yyyy-MM-dd"):null },
-                {ofm_payment.Fields.ofm_revised_effective_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedEffectiveDate.ToString("yyyy-MM-dd"):null }
+                    {ofm_payment.Fields.ofm_cas_response, casResponse},
+                    {ofm_payment.Fields.statecode,(int)((line?.ILCode=="0000" &&header?.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
+                    {ofm_payment.Fields.statuscode,(int)((line?.ILCode=="0000" && header?.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingError)},
+                    {ofm_payment.Fields.ofm_revised_invoice_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceDate.ToString("yyyy-MM-dd"): null},
+                    {ofm_payment.Fields.ofm_revised_invoice_received_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceReceivedDate.ToString("yyyy-MM-dd"):null },
+                    {ofm_payment.Fields.ofm_revised_effective_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedEffectiveDate.ToString("yyyy-MM-dd"):null }
                };
                 
                 updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName,pay.ofm_paymentid), payToUpdate));
@@ -318,13 +300,13 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
         var entitySetName = "ofm_integration_logs";
 
         var payload = new JsonObject
-    {
-        { "ofm_category", (int)ecc_integration_log_category.Error },
-        { "ofm_subject", "Payment Process Error " + subject },
-        { "ofm_regardingid_ofm_application@odata.bind",$"/ofm_applications({regardingId.ToString()})"  },
-        { "ofm_message", message },
-        { "ofm_service_name", serviceName }
-    };
+        {
+            { "ofm_category", (int)ecc_integration_log_category.Error },
+            { "ofm_subject", "Payment Process Error " + subject },
+            { "ofm_regardingid_ofm_application@odata.bind",$"/ofm_applications({regardingId.ToString()})"  },
+            { "ofm_message", message },
+            { "ofm_service_name", serviceName }
+        };
 
         var requestBody = JsonSerializer.Serialize(payload);
 
@@ -348,8 +330,6 @@ public class P510ReadPaymentResponseProvider : ID365ProcessProvider
 
         return startTimeList;
     }
-
-
 }
 
 

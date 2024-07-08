@@ -296,8 +296,8 @@ public class BRQuestion : ofm_question_business_rule
     public string? FalseSourcequestionIdentifier { get; set; }
     [property: JsonPropertyName("child.ofm_source_question_id")]
     public string? childSourcequestionIdentifier { get; set; }
-    [property: JsonPropertyName("survey.ofm_is_published")]
-    public bool? survey_ofm_is_published { get; set; }
+    [property: JsonPropertyName("survey.ofm_version")]
+    public string? surveyVersion { get; set; }
     [property: JsonPropertyName("survey.statecode")]
     public int? survey_statecode { get; set; }
 
@@ -310,8 +310,8 @@ public class BRQuestion : ofm_question_business_rule
 public class Question : ofm_question
 {
 
-    [property: JsonPropertyName("survey.ofm_is_published")]
-    public bool? surveyIsPublished { get; set; }
+    [property: JsonPropertyName("survey.ofm_version")]
+    public string? surveyVersion { get; set; }
     [property: JsonPropertyName("survey.statecode")]
     public int? surveyStatecode { get; set; }
 }
@@ -387,49 +387,33 @@ public record D365Reporting
 
 }
 
-public record PaymentFileExchange
+public class D365FiscalYear: ofm_fiscal_year
 {
-    public string ofm_batch_number { get; set; }
-    public string ofm_oracle_batch_name { get; set; }
-    public string ofm_payment_file_exchangeid { get; set; }
+    public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
 public class D365PaymentLine : ofm_payment
 {
-    public Guid ofm_paymentid { get; set; }
-    public DateTime? ofm_effective_date { get; set; }
-    public DateTime? ofm_invoice_date { get; set; }
-    public DateTime? ofm_invoice_received_date { get; set; }
-    public string ofm_supplierid { get; set; }
-    public string ofm_siteid { get; set; }
-    public string ofm_invoice_number { get; set; }
     public new decimal ofm_amount { get; set; }
-    public  int ofm_payment_method { get; set; }
-    [property: JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
-    public string ofm_financial_year { get; set; }
-    [property: JsonPropertyName("ofm_application.ofm_application")]
-    public string ofm_application_number { get; set; }
-    [property: JsonPropertyName("ofm_facility.name")]
-    public string accountname { get; set; }
-    public Guid _ofm_application_value { get; set; }
-    public Guid _ofm_supplementary_value { get; set; }
+    public new Facility? ofm_facility { get; set; }
+    public new Application? ofm_application { get; set; }
+    public new D365FiscalYear? ofm_fiscal_year { get; set; }
+    public new string ofm_invoice_number { get; set; } = string.Empty; 
+    public new string ofm_siteid { get; set; } = string.Empty;
+    public new string ofm_supplierid { get; set; } = string.Empty;
 }
+
+//public record PaymentFileExchange
+//{
+//    public string ofm_batch_number { get; set; }
+//    public string ofm_oracle_batch_name { get; set; }
+//    public string ofm_payment_file_exchangeid { get; set; }
+//}
 
 public record D365ReportSection
 {
     public int? OrderNumber { get; set; }
     public string? SectionName { get; set; }
-}
-
-public class IntegrationLogs : ofm_integration_log
-{
-    public Guid ofm_integration_logid { get; set; }
-    public string ofm_caption { get; set; }
-    public string ofm_subject { get; set; }
-    public Guid ofm_regardingid { get; set; }
-    public string ofm_message { get; set; }
-    public string ofm_service_name { get; set; }
-
 }
 
 public class ProviderStaff

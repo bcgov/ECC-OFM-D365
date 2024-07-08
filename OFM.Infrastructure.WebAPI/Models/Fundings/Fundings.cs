@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Models;
 using System.Text.Json.Serialization;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
@@ -41,19 +40,7 @@ public class Funding : ofm_funding
     public new decimal? ofm_envelope_programming { get; set; }
     public new decimal? ofm_envelope_programming_pf { get; set; }
     public new decimal? ofm_envelope_programming_proj { get; set; }
-    public new Guid? _ofm_provider_approver_value { get; set; }
-    public new DateTime? ofm_start_date { get; set; }
-    public new DateTime? ofm_end_date { get; set; }
-    public new DateTime? ofm_retroactive_payment_date { get; set; }
-    public new string? _ofm_funding_value { get; set; }
-    public new string? _ofm_application_value { get; set; }
-
-    [JsonPropertyName("statuscode@OData.Community.Display.V1.FormattedValue")]
-    public new string? statuscode_formatted { get; set; }
-    public new int? statuscode { get; set; }
-    public new Guid? _ofm_facility_value { get; set; }
-    
-    public new int? ofm_retroactive_payment { get; set; }
+    public Guid? _ofm_provider_approver_value { get; set; }
     public new SpaceAllocation[]? ofm_funding_spaceallocation { get; set; }
     public new Facility? ofm_facility { get; set; }
     public new Application? ofm_application { get; set; }
@@ -63,7 +50,6 @@ public class Funding : ofm_funding
 public class Facility : Account
 {
     public new Licence[]? ofm_facility_licence { get; set; }
-    
 }
 
 public class Licence : ofm_licence
@@ -141,31 +127,16 @@ public class Application : ofm_application
     public new decimal? ofm_costs_property_insurance { get; set; }
     public new decimal? ofm_costs_supplies { get; set; }
     public new decimal? ofm_costs_strata_fee { get; set; }
-    public new Guid? _ofm_contact_value { get; set; }
-    public new Guid? _ofm_expense_authority_value { get; set; }
-
+    public Guid? _ofm_contact_value { get; set; }
+    public Guid? _ofm_expense_authority_value { get; set; }
     public new D365Facility? ofm_facility { get; set; }
-    public new PaymentLine? ofm_payment { get; set; }
 }
 
 public class FacilityLicence : ofm_licence
 {
     public new LicenceDetail[]? ofm_licence_licencedetail { get; set; }
 }
-public class PaymentLine : ofm_payment
-{
-    [JsonPropertyName("statuscode@OData.Community.Display.V1.FormattedValue")]
-    public new string? statuscode_formatted { get; set; }
-    public new int? statuscode { get; set; }
-    public new decimal? ofm_amount { get; set; }
-    public Guid _ofm_supplementary_value { get; set; }
-}
-public class FiscalYear
-{
-    public new Guid? ofm_fiscal_yearid { get; set; }
-    public DateTime ofm_start_date { get; set; }
-    public DateTime ofm_end_date { get; set; }
-}
+
 public class SupplementaryApplication : ofm_allowance
 {
     public new decimal? ofm_funding_amount { get; set; }
@@ -185,6 +156,7 @@ public class SupplementaryApplication : ofm_allowance
 
 
 }
+
 public class BusinessClosure
 {
     public string msdyn_businessclosureid { get; set; }
@@ -195,6 +167,7 @@ public class BusinessClosure
     public string _createdby_value { get; set; }
     public int msdyn_selectedyear { get; set; }
 }
+
 public class SupplementarySchedule : ofm_supplementary_schedule
 {
     public new decimal? ofm_needs_less_lower_limit_amount { get; set; }

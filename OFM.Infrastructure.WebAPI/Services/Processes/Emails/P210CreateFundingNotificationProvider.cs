@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
@@ -111,21 +112,14 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
         _informationCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.Information)
                                                                    .Select(s => s.ofm_communication_typeid).FirstOrDefault();
         _processParams = processParams;
-        Funding? _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
-        var expenseOfficer = _funding.ofm_application!._ofm_expense_authority_value;
-        var primaryContact = _funding.ofm_application!._ofm_contact_value;
-        var providerApprover = _funding._ofm_provider_approver_value;      // Provider FA Approver
+        Funding? _funding = await _fundingRepository?.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
+        var expenseOfficer = _funding.ofm_application?._ofm_expense_authority_value;
+        var primaryContact = _funding.ofm_application?._ofm_contact_value;
+          // Provider FA Approver
 
         int statusReason = (int)_funding!.statuscode;                      // funding status
-
-        _contactId = providerApprover.ToString();
-        var localData = await GetDataAsync();
-        var deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
-
-        var contactobj = deserializedData!.FirstOrDefault();
-        var firstName = contactobj!.ofm_first_name;
-        var lastName = contactobj!.ofm_last_name;
-
+        _logger.LogInformation("Got the Status", statusReason);
+       
         var startTime = _timeProvider.GetTimestamp();
 
         #region Create the funding email notifications 
@@ -133,13 +127,16 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
 
         if (statusReason == (int)ofm_funding_StatusCode.FASignaturePending)
         {
+            _logger.LogInformation("Entered if FASignaturePending", statusReason);
             // Get template details to create emails.
             var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateNumber);
+          
 
             var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
-            var hyperlink = _notificationSettings.fundingUrl + _funding.Id;
-            var hyperlinkFATab = _notificationSettings.fundingTabUrl;
-
+            _logger.LogInformation("Got the Template", serializedDataTemplate.Count);
+            var hyperlink = _notificationSettings.FundingUrl + _funding.Id;
+            var hyperlinkFATab = _notificationSettings.FundingTabUrl;
+            _logger.LogInformation("Got the hyperlink", hyperlink +hyperlinkFATab);
             var templateobj = serializedDataTemplate?.FirstOrDefault();
             string? subject = templateobj?.title;
             string? emaildescription = templateobj?.safehtml;
@@ -148,6 +145,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
             emaildescription = emaildescription?.Replace("{HYPERLINK_FATAB}", $"<a href=\"{hyperlinkFATab}\">Funding Overview</a>");
             List<Guid> recipientsList = new List<Guid>();
+            _logger.LogInformation("Got the recipientsList", expenseOfficer);
             recipientsList.Add((Guid)expenseOfficer);
 
             await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _fundingAgreementCommunicationType, appUserService, d365WebApiService, 210);
@@ -169,18 +167,30 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
 
         if (statusReason == (int)ofm_funding_StatusCode.Active)
         {
-            // Get template details to create emails.
-            var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 235).TemplateNumber);
+            var providerApprover = _funding._ofm_provider_approver_value;
+            if (providerApprover != null)
+            {
+                _contactId = providerApprover.ToString();
+                var localData = await GetDataAsync();
+                var deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
 
-            var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
+                var contactobj = deserializedData?.FirstOrDefault();
+                var firstName = contactobj?.ofm_first_name;
+                var lastName = contactobj?.ofm_last_name;
 
-            var templateobj = serializedDataTemplate?.FirstOrDefault();
-            string? subject = templateobj?.subjectsafehtml;
-            string? emaildescription = templateobj?.safehtml;
-            emaildescription = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
-            List<Guid> recipientsList = new List<Guid>();
-            recipientsList.Add((Guid)providerApprover);
-            await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+                // Get template details to create emails.
+                var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 235).TemplateNumber);
+
+                var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
+
+                var templateobj = serializedDataTemplate?.FirstOrDefault();
+                string? subject = templateobj?.subjectsafehtml;
+                string? emaildescription = templateobj?.safehtml;
+                emaildescription = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
+                List<Guid> recipientsList = new List<Guid>();
+                recipientsList.Add((Guid)providerApprover);
+                await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+            }
         }
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;

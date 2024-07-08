@@ -10,23 +10,27 @@ using OFM.Infrastructure.WebAPI.Services.Processes;
 namespace OFM.Infrastructure.WebAPI.Handlers;
 public static class DocumentsHandlers
 {
-    private static bool uniqueFileNames;
-
+    /// <summary>
+    /// ToDo
+    /// </summary>
+    /// <returns></returns>
     public static async Task<Results<BadRequest<string>, ProblemHttpResult, Ok<JsonObject>>> GetAsync(
         ID365DocumentService documentService,
         string documentId)
     {
-        if (string.IsNullOrEmpty(documentId)) return TypedResults.BadRequest("Invalid Query.");
+        throw new NotImplementedException();
 
-        var response = await documentService.GetAsync(documentId);
+        //if (string.IsNullOrEmpty(documentId)) return TypedResults.BadRequest("Invalid Query.");
 
-        if (!response.IsSuccessStatusCode)
-        {
-            return TypedResults.Problem($"Failed to Retrieve record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
-        }
+        //var response = await documentService.GetAsync(documentId);
 
-        var result = await response.Content.ReadFromJsonAsync<JsonObject>();
-        return TypedResults.Ok(result);
+        //if (!response.IsSuccessStatusCode)
+        //{
+        //    return TypedResults.Problem($"Failed to Retrieve record: {response.ReasonPhrase}", statusCode: (int)response.StatusCode);
+        //}
+
+        //var result = await response.Content.ReadFromJsonAsync<JsonObject>();
+        //return TypedResults.Ok(result);
     }
 
     /// <summary>

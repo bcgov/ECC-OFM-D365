@@ -1,6 +1,8 @@
 ﻿using ECC.Core.DataContext;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
@@ -10,6 +12,7 @@ using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -31,6 +34,9 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
     private Guid? _sectionId;
     private string[] _questionIdentifier;
     private string[] _surveyIdentifier;
+    private string? newReportTemplateId;
+    private int latestVersion;
+    private int previousVersion;
 
     public P610CreateQuestionProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -47,7 +53,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
         
         get
         {
-            var projectId = _processParams?.Project?.ProjectId;
+            var projectId = _processParams?.CustomerVoiceProject?.ProjectId;
            
             var fetchXml = $"""
                     <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false" >
@@ -153,7 +159,18 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
             {
                 fetchXml += "<value>" + _questionIdentifier[i] + "</value>";
             }
-            fetchXml += @"</condition></filter>
+            fetchXml += $@"</condition></filter>
+ <link-entity name='ofm_section' from='ofm_sectionid' to='ofm_section' alias='section'>
+                          <link-entity name='ofm_survey' from='ofm_surveyid' to='ofm_survey' alias='survey' >
+                            <attribute name='ofm_version' />
+                            <attribute name='createdon' />
+                            <attribute name='statecode' />
+            <filter>
+               <condition attribute=""ofm_version"" operator=""eq"" value=""{previousVersion}""/>
+                         
+                             </filter>
+                          </link-entity>
+                        </link-entity>
 
                     </link-entity>
                     <link-entity name='ofm_question' from='ofm_questionid' to='ofm_true_child_question' link-type='outer' alias='true'>
@@ -190,18 +207,24 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                         <attribute name='ofm_maximum_rows' />
                         <attribute name='ofm_fixed_response' />
                         <attribute name='ofm_source_question_id' />
+                        <attribute name='ofm_fixed_data' />
+
                         <filter>
                           <condition attribute='ofm_source_question_id' operator='in'>";
             for (var i = 0; i < _questionIdentifier.Length; i++)
             {
                 fetchXml += "<value>" + _questionIdentifier[i] + "</value>";
             }
-            fetchXml += @"</condition></filter>
+            fetchXml += $@"</condition></filter>
                        <link-entity name='ofm_section' from='ofm_sectionid' to='ofm_section' alias='section'>
                           <link-entity name='ofm_survey' from='ofm_surveyid' to='ofm_survey' alias='survey' >
-                            <attribute name='ofm_is_published' />
+                            <attribute name='ofm_version' />
                             <attribute name='createdon' />
                             <attribute name='statecode' />
+            <filter type='or'>
+               <condition attribute=""ofm_version"" operator=""eq"" value=""{latestVersion}""/>
+                          <condition attribute= ""ofm_version"" operator= ""eq"" value = ""{previousVersion}""/>
+                             </filter>
                           </link-entity>
                         </link-entity>
                       </entity>
@@ -217,7 +240,32 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
             return requestUri;
         }
     }
-    
+    public string ReportTemplateVersionRequestUri
+    {
+        get
+        {
+            var fetchXml =
+                  $$"""
+                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+                      <entity name="ofm_survey">
+                        <attribute name="ofm_surveyid" />
+                        <attribute name="ofm_name" />
+                        <attribute name="ofm_version" />
+                        <attribute name="statuscode" />
+                        <attribute name="statecode" />
+                        <order attribute="ofm_version" descending="true" />
+                      </entity>
+                    </fetch>
+                    """;
+
+            var requestUri = $"""
+                         ofm_questions?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         """;
+
+            return requestUri;
+        }
+    }
+
 
     public async Task<ProcessData> GetDataAsync()
     {
@@ -344,7 +392,36 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
 
         return await Task.FromResult(new ProcessData(d365Result));
     }
-   
+    private async Task<ProcessData> GetLatestTemplateVersionDataAsync()
+    {
+        _logger.LogDebug(CustomLogEvent.Process, "GetLatestTemplateVersionDataAsync");
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, ReportTemplateVersionRequestUri, isProcess: true);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query Report Template Version records with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No Report Template Version found with query {ReportTemplateVersionRequestUri}", ReportTemplateVersionRequestUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
@@ -353,7 +430,14 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
         try
         {
             var localData = await GetDataAsync();
+
+            if (localData.Data.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "Create Version process completed. No new report templates found.");
+                return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+            }
             var deserializedData = JsonSerializer.Deserialize<List<D365Reporting>>(localData.Data.ToString());
+
             var questionIdentifiers = deserializedData.Select(q => q.QuestionSourcequestionIdentifier).ToList();
 
 
@@ -361,12 +445,16 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
 
 
             #region Create Customer Voice Project as Report Template in CE Custom
+            var startDate = _processParams?.CustomerVoiceProject.StartDate;
+            var endDate = _processParams?.CustomerVoiceProject?.EndDate;
             if (deserializedData.Count > 0)
             {
                 var payloadReportTemplate = new JsonObject
             {
                 {ofm_survey.Fields.ofm_customervoiceprojectid,deserializedData.First().msfp_projectid },
-                {ofm_survey.Fields.ofm_name,deserializedData.First().msfp_name }
+                {ofm_survey.Fields.ofm_name,deserializedData.First().msfp_name },
+                    {ofm_survey.Fields.ofm_start_date,startDate },
+                    {ofm_survey.Fields.ofm_end_date,endDate }
 
             };
 
@@ -376,12 +464,26 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                 {
                     var responseBody = await CreateResponserequestBodyReportTemplate.Content.ReadAsStringAsync();
                     _logger.LogError(CustomLogEvent.Process, "Failed to create the Report Template record with the server error {responseBody}", responseBody.CleanLog());
+                    var response = await RemoveAsync(newReportTemplateId);
+                    var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                    if (response.IsSuccessStatusCode)
+                        _logger.LogError(CustomLogEvent.Process, "Failed under if (!CreateResponserequestBodyReportTemplate.IsSuccessStatusCode).Record was removed successfully", responseBodyDeleteRequest);
+
+                    else
+                        
+                    _logger.LogError(CustomLogEvent.Operation, "Failed under if (!CreateResponserequestBodyReportTemplate.IsSuccessStatusCode).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
+                    
 
                     return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
                 }
 
                 var newReportTemplate = await CreateResponserequestBodyReportTemplate.Content.ReadFromJsonAsync<JsonObject>();
-                var newReportTemplateId = newReportTemplate?["ofm_surveyid"];
+                 newReportTemplateId = (string?)newReportTemplate?["ofm_surveyid"];
+                
+                var localVersionData = await GetLatestTemplateVersionDataAsync();
+                var deserializedTemplateVersionData = JsonSerializer.Deserialize<List<ofm_survey>>(localVersionData.Data.ToString());
+                latestVersion = Convert.ToInt32(deserializedTemplateVersionData.FirstOrDefault().ofm_version);
+                previousVersion = Convert.ToInt32(deserializedTemplateVersionData[1].ofm_version);
 
                 #endregion Create Customer Voice Project as Report Template in CE Custom
 
@@ -403,7 +505,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                     var payloadSurvey = new JsonObject
                         {
                             {ofm_section.Fields.ofm_name,survey.First().CVSectionName },
-                             {ofm_section.Fields.ofm_section_order,reportSectionOrder.Where(x => x.SectionName == survey.First().CVSectionName).Select(x => x.OrderNumber).First() },
+                             {ofm_section.Fields.ofm_section_order,reportSectionOrder.Where(x => x.SectionName == survey.First()?.CVSectionName).Select(x => x.OrderNumber).First() },
                             {ofm_section.Fields.ofm_section_title,survey.First().CVSectionName },
                             {ofm_section.Fields.ofm_source_section_id,survey.First().SectionSourceSurveyIdentifier },
                             {ofm_section.Fields.ofm_customer_voice_survey_id,survey.First().SectionSurveyId },
@@ -416,6 +518,14 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                         var responseBody = await CreateResponseSection.Content.ReadAsStringAsync();
                         _logger.LogError(CustomLogEvent.Process, "Failed to create the Section record with the server error {responseBody}", responseBody.CleanLog());
                         _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
+                        var response = await RemoveAsync(newReportTemplateId);
+                        var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                        if (response.IsSuccessStatusCode)
+                            _logger.LogError(CustomLogEvent.Process, "Failed under if (!CreateResponseSection.IsSuccessStatusCode).Record was removed successfully", responseBodyDeleteRequest);
+
+                        else
+
+                            _logger.LogError(CustomLogEvent.Operation, "Failed under if (!CreateResponseSection.IsSuccessStatusCode).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
                         return ProcessResult.Failure(ProcessId, new string[] { responseBody }, 0, 0).SimpleProcessResult;
                     }
 
@@ -430,8 +540,11 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                     // var surveyQuestions = survey.OrderByDescending(x => x.QuestionSubtitle).GroupBy(x => x.QuestionSubtitle).SelectMany(g => g);
 
                     var surveyQuestionTable = survey.Where(g => g.QuestionSubtitle != null && g.QuestionSubtitle.ToLower().Contains("table")).Select(g => g).ToList();
+                    _logger.LogInformation("Number of surveyQuestionTable", surveyQuestionTable.Count + "survey Name" + survey.First().CVSectionName);
                     var surveyQuestioColumn = survey.Where(g => g.QuestionSubtitle != null && g.QuestionSubtitle.ToLower().Contains("column")).Select(g => g).ToList();
+                    _logger.LogInformation("Number of surveyQuestioColumn", surveyQuestioColumn.Count + "survey Name" + survey.First().CVSectionName);
                     var surveyQuestions = survey.Where(g => (g.QuestionSubtitle == null) || (!g.QuestionSubtitle.ToLower().Contains("table") && !g.QuestionSubtitle.ToLower().Contains("column"))).Select(g => g).ToList();
+                    _logger.LogInformation("Number of surveyQuestions", surveyQuestions.Count + "survey Name" + survey.First().CVSectionName);
 
 
                     var entitySetNameQuestion = ofm_question.EntitySetName;
@@ -456,6 +569,14 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                             _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionError)!.ToString());
                             _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
                             _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                            var response = await RemoveAsync(newReportTemplateId);
+                            var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                            if (response.IsSuccessStatusCode)
+                                _logger.LogError(CustomLogEvent.Process, "Failed under if (createQuestionBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
+
+                            else
+
+                                _logger.LogError(CustomLogEvent.Operation, "Failed under if (createQuestionBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
                             return createQuestionError.SimpleProcessResult;
 
                         }
@@ -467,6 +588,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                     {
                         requestsQuestionCreationTable.Add(new CreateRequest($"{entitySetNameQuestion}",
                                CreateJsonObject(table)));
+                        _logger.LogInformation("table ID Created", table.SectionName + table.QuestionSubtitle +table.QuestionText);
 
                     }
                     if (requestsQuestionCreationTable.Count > 0)
@@ -480,10 +602,19 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                             _logger.LogError(CustomLogEvent.Process, "Failed to create Table type Question with an error: {error}", JsonValue.Create(createQuestionTableError)!.ToString());
                             _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
                             _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                            var response = await RemoveAsync(newReportTemplateId);
+                            var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                            if (response.IsSuccessStatusCode)
+                                _logger.LogError(CustomLogEvent.Process, "Failed under if (createTableQuestionBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
+
+                            else
+
+                                _logger.LogError(CustomLogEvent.Operation, "Failed under if (createTableQuestionBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
                             return createQuestionTableError.SimpleProcessResult;
 
 
                         }
+                       
                         requestsQuestionCreationTable.Clear();
                         var localdataTable = await GetTableDataAsync();
                         deserializedDataQuestion = JsonSerializer.Deserialize<List<ofm_question>>(localdataTable.Data.ToString());
@@ -520,7 +651,16 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                             _logger.LogError(CustomLogEvent.Process, "Failed to create Question with an error: {error}", JsonValue.Create(createQuestionColumnError)!.ToString());
                             _logger.LogError(CustomLogEvent.Process, "Report Template is Created with {Report Template ID}", newReportTemplateId);
                             _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                           // return createQuestionColumnError.SimpleProcessResult;
+                            _logger.LogError(CustomLogEvent.Process, "Error in Customer Voice Section", survey.First().CVSectionName);
+                            var response = await RemoveAsync(newReportTemplateId);
+                            var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                            if (response.IsSuccessStatusCode)
+                                _logger.LogError(CustomLogEvent.Process, "Failed under if (createQuestionColumnBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
+
+                            else
+
+                                _logger.LogError(CustomLogEvent.Operation, "Failed under if (createQuestionColumnBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
+                            return createQuestionColumnError.SimpleProcessResult;
 
 
                         }
@@ -536,14 +676,27 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
             }
         }
 
-        catch (ValidationException exp)
-        {
+        catch (Exception exp)
+        { 
+
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block RunProcessAsync", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+            var response = await RemoveAsync(newReportTemplateId);
+
+            if (response.IsSuccessStatusCode)
+                _logger.LogError(CustomLogEvent.Process, "Failed under catch block RunProcessAsync.Record was removed successfully", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+          
+            else
+                _logger.LogError(CustomLogEvent.Process, $"Failed under catch block RunProcessAsync.Failed to Delete record: {response.ReasonPhrase}", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+           
 
         }
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
+    }
+    public async Task<HttpResponseMessage> RemoveAsync(string reportTemplateId)
+    {
+        return await _d365webapiservice.SendDeleteRequestAsync(_appUserService.AZPortalAppUser, $"ofm_surveies({reportTemplateId})");
     }
     public JsonObject CreateJsonObject(D365Reporting question)
     {
@@ -599,17 +752,19 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
             foreach (var identifier in questionIdentifiers)
             {
 
-                var getLatestPublishedVersion = deserializedQuestion?.FirstOrDefault(x => x.surveyIsPublished == true && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
-                var getQuestionToUpdate = deserializedQuestion?.FirstOrDefault(x => x.surveyIsPublished == false && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
-                if (getLatestPublishedVersion != null && getQuestionToUpdate != null)
+                var getLatestActiveVersion = deserializedQuestion?.FirstOrDefault(x =>Convert.ToInt16(x.surveyVersion) == previousVersion && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
+                var getQuestionToUpdate = deserializedQuestion?.FirstOrDefault(x => Convert.ToInt16(x.surveyVersion) == latestVersion && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
+                if (getLatestActiveVersion != null && getQuestionToUpdate != null)
                 {
                     requestsQuestionUpdate.Add(new D365UpdateRequest(new Messages.EntityReference(ofm_question.EntitySetName, getQuestionToUpdate.ofm_questionid),
                                        new JsonObject()
                                        {
-                                            {ofm_question.Fields.ofm_default_rows, getLatestPublishedVersion.ofm_default_rows ?? null},
-                                            {ofm_question.Fields.ofm_maximum_rows, getLatestPublishedVersion.ofm_maximum_rows ?? null},
-                                            {ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
-                                            {ofm_question.Fields.ofm_fixed_response, getLatestPublishedVersion.ofm_fixed_response }
+                                            {ofm_question.Fields.ofm_default_rows, getLatestActiveVersion.ofm_default_rows ?? null},
+                                            {ofm_question.Fields.ofm_maximum_rows, getLatestActiveVersion.ofm_maximum_rows ?? null},
+                                            //{ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
+                                            {ofm_question.Fields.ofm_fixed_response, getLatestActiveVersion.ofm_fixed_response },
+                                            {ofm_question.Fields.ofm_question_id, getLatestActiveVersion.ofm_question_id ?? null},
+                                            {ofm_question.Fields.ofm_fixed_data, getLatestActiveVersion.ofm_fixed_data ?? null}
                                        }));
                 }
 
@@ -624,20 +779,35 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
 
                 if (UpdateQuestionBatchResult.Errors.Any())
                 {
-                    var createQuestionBRError = ProcessResult.Failure(ProcessId, UpdateQuestionBatchResult.Errors, UpdateQuestionBatchResult.TotalProcessed, UpdateQuestionBatchResult.TotalRecords);
-                    _logger.LogError(CustomLogEvent.Process, "Failed to Update manual values on Question with an error: {error}", JsonValue.Create(createQuestionBRError)!.ToString());
+                    var updateQuestionBRError = ProcessResult.Failure(ProcessId, UpdateQuestionBatchResult.Errors, UpdateQuestionBatchResult.TotalProcessed, UpdateQuestionBatchResult.TotalRecords);
+                    _logger.LogError(CustomLogEvent.Process, "Failed to Update manual values on Question with an error: {error}", JsonValue.Create(updateQuestionBRError)!.ToString());
                     _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                    var response = await RemoveAsync(newReportTemplateId);
+                    var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                    if (response.IsSuccessStatusCode)
+                        _logger.LogError(CustomLogEvent.Process, "Failed under if (UpdateQuestionBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
 
+                    else
+
+                        _logger.LogError(CustomLogEvent.Operation, "Failed under if (UpdateQuestionBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
+                    return false;
 
                 }
                 requestsQuestionUpdate.Clear();
                 await CreateBusinessRule(_sectionId, appUserService, d365WebApiService, deserializedQuestion);
             }
         }
-        catch (ValidationException exp)
+        catch (Exception exp)
         {
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block UpdateQuestionwithManualData", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             ProcessResult.Failure(ProcessId, new[] { exp.Message, exp.StackTrace ?? string.Empty }, 0, 0);
+            var response = await RemoveAsync(newReportTemplateId);
+
+            if (response.IsSuccessStatusCode)
+                _logger.LogError(CustomLogEvent.Process, "Failed under catch block UpdateQuestionwithManualData.Report Template Record was removed successfully", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+
+            else
+                _logger.LogError(CustomLogEvent.Process, $"Failed under catch block UpdateQuestionwithManualData.Failed to Delete Report Template record: {response.ReasonPhrase}", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             return await Task.FromResult(false);
         }
         return await Task.FromResult(true);
@@ -654,10 +824,10 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
            
             deserializedDataBR?.ForEach(br =>
             {
-                var parentQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.brSourceQuestion && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                var trueQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.TrueSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                var falseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.FalseSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                var hasResponseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.childSourcequestionIdentifier && q.surveyIsPublished == false && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                var parentQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.brSourceQuestion && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                var trueQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.TrueSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                var falseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.FalseSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                var hasResponseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.childSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
                 requestsQuestionBRCreation.Add(new CreateRequest($"{entitySetNameQuestionBR}",
       new JsonObject()
       {
@@ -695,10 +865,17 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
 
 
         }
-        catch (ValidationException exp)
+        catch (Exception exp)
         {
             _logger.LogError(CustomLogEvent.Process, "Failed under catch block CreateBusinessRule", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             ProcessResult.Failure(ProcessId, new[] { exp.Message, exp.StackTrace ?? string.Empty }, 0, 0);
+            var response = await RemoveAsync(newReportTemplateId);
+
+            if (response.IsSuccessStatusCode)
+                _logger.LogError(CustomLogEvent.Process, "Failed under catch block CreateBusinessRule.Report Template Record was removed successfully", new[] { exp.Message, exp.StackTrace ?? string.Empty });
+
+            else
+                _logger.LogError(CustomLogEvent.Process, $"Failed under catch block CreateBusinessRule.Failed to Delete Report Template record: {response.ReasonPhrase}", new[] { exp.Message, exp.StackTrace ?? string.Empty });
             return await Task.FromResult(false);
         }
         return await Task.FromResult(true);
