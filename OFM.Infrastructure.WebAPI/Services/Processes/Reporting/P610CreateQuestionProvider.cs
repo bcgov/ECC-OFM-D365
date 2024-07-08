@@ -429,6 +429,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
         var startTime = _timeProvider.GetTimestamp();
         try
         {
+            _logger.LogInformation("Entered RunProcessAsync", startTime);
             var localData = await GetDataAsync();
 
             if (localData.Data.AsArray().Count == 0)
