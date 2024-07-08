@@ -392,6 +392,23 @@ public class D365FiscalYear: ofm_fiscal_year
     public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
+public record ExpenseApplication
+{
+    public DateTime ofm_start_date { get; set; }
+    public int ofm_payment_frequency  { get; set; }
+
+    public int statuscode { get; set; }
+    public DateTime ofm_end_date { get; set; }
+
+    public string ofm_assistance_request { get; set; }
+
+    public string _ofm_application_value { get; set; }
+   
+    public new decimal ofm_amount { get; set; }
+
+
+}
+
 public class D365PaymentLine : ofm_payment
 {
     public new decimal ofm_amount { get; set; }
