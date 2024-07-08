@@ -46,6 +46,9 @@ public record ProcessParameter
     [property: JsonPropertyName("allowance")]
     public SupplementaryApplicationParameter? SupplementaryApplication { get; set; }
 
+    [property: JsonPropertyName("expense")]
+    public ExpenseApplicationParameter? ExpenseApplication { get; set; }
+
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
 
@@ -61,6 +64,7 @@ public record ProcessParameter
    
 
     [property: JsonPropertyName("paymentfile")]
+   
     public PaymentParameter? PaymentFile { get; set; }
 
     [property: JsonPropertyName("dataImportId")]
@@ -105,6 +109,8 @@ public record ProcessParameter
     {
         [property: JsonPropertyName("organizationId")]
         public Guid? organizationId { get; set; }
+        [property: JsonPropertyName("facilityId")]
+        public Guid? facilityId { get; set; }
 
         [property: JsonPropertyName("legalName")]
         public string? legalName { get; set; }
@@ -123,6 +129,12 @@ public record ProcessParameter
     {
         [property: JsonPropertyName("allowanceId")]
         public Guid? allowanceId { get; set; }
+    }
+
+    public record ExpenseApplicationParameter
+    {
+        [property: JsonPropertyName("expenseId")]
+        public Guid? expenseId { get; set; }
     }
 
     public record FundingParameter
