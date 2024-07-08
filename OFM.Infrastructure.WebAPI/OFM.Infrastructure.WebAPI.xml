@@ -31,20 +31,12 @@
             <summary>
             A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
             </summary>
-            <param name="invoiceDate"></param>
-            <param name="holidays"></param>
-            <param name="defaultDaysAfter"></param>
-            <param name="trailingTotalDays"></param>
-            <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetRevisedInvoiceDate(System.DateTime,System.Int32,System.Collections.Generic.List{System.DateTime})">
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetLastBusinessDayOfThePreviousMonth(System.DateTime,System.Collections.Generic.List{System.DateTime})">
             <summary>
-            Adding 3 days from current date as revised invoice date.
+             A pre-determined CFS Invoice Received Date. Last business day of previous month so for following month it is paid in advance.
+             For first month payment, it is always same as start date of funding.
             </summary>
-            <param name="currentDate"></param>
-            <param name="daysToAdd"></param>
-            <param name="holidays"></param>
-            <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.BatchOperationsHandlers.BatchOperationsAsync(OFM.Infrastructure.WebAPI.Services.Batches.ID365BatchService,Microsoft.Extensions.Logging.ILoggerFactory,System.Object)">
              <summary>

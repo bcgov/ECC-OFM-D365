@@ -590,7 +590,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         }
                     }
                     //For cancellation or termination of funding.
-                    else if (fundingStatus == (int)ofm_funding_StatusCode.Terminated || fundingStatus == (int)ofm_funding_StatusCode.Cancelled || fundingStatus == (int)ofm_funding_StatusCode.Expired)
+                    else if (fundingStatus == (int)ofm_funding_StatusCode.Terminated || fundingStatus == (int)ofm_funding_StatusCode.Cancelled || fundingStatus == (int)ofm_funding_StatusCode.Expired || fundingStatus == (int)ofm_funding_StatusCode.Cancelled)
                     {
                         List<ofm_payment> notPaidPayments = paymentDeserializedData.Where(r => r.statuscode != ofm_payment_StatusCode.Paid || r.statuscode != ofm_payment_StatusCode.Cancelled).ToList();
                         if (notPaidPayments != null)
@@ -658,6 +658,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
+
+
 
         #region Cancel the unpaid payments when status changed to Inactive or Terminated.
 
@@ -736,7 +738,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
                 { "ofm_fiscal_year@odata.bind",$"/ofm_fiscal_years({fiscalYear})" },
                 { "ofm_payment_manual_review", manualReview },
-                { "ofm_supplementary@odata.bind", $"/ofm_allowances({saApplication})" },
+                //{ "ofm_supplementary@odata.bind", $"/ofm_allowances({saApplication})" },
+                { "ofm_regardingid_ofm_allowance@odata.bind",$"/ofm_allowances({saApplication})"  }
             };
 
             var requestBody = JsonSerializer.Serialize(payload);

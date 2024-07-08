@@ -49,6 +49,7 @@ public class Range<T> : IRange<T> where T : IComparable<T>
 
 public static class TimeExtensions
 {
+
     public static string GetIanaTimeZoneId(TimeZoneInfo tzi)
     {
         if (tzi.HasIanaId)
@@ -79,6 +80,7 @@ public static class TimeExtensions
         return pacificTime;
     }
 
+
     /// <summary>
     /// Convert a UTC datetime to local PST date & time
     /// </summary>
@@ -106,6 +108,7 @@ public static class TimeExtensions
     /// <summary>
     /// A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
     /// </summary>
+
     public static DateTime GetCFSInvoiceDate(this DateTime invoiceReceivedDate, List<DateTime> holidays)
     {
         int businessDaysToSubtract = 5;
@@ -128,11 +131,7 @@ public static class TimeExtensions
     /// <summary>
     /// A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
     /// </summary>
-    /// <param name="invoiceDate"></param>
-    /// <param name="holidays"></param>
-    /// <param name="defaultDaysAfter"></param>
-    /// <param name="trailingTotalDays"></param>
-    /// <returns></returns>
+
     public static DateTime GetCFSEffectiveDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysAfter = 2, int trailingTotalDays = 3)
     {
         var potentialDates = Enumerable.Range(defaultDaysAfter, defaultDaysAfter + trailingTotalDays).Select(day => IsBusinessDay(day, invoiceDate, holidays));
@@ -143,14 +142,18 @@ public static class TimeExtensions
                 .First();
     }
 
+    /// <summary>
+    ///  A pre-determined CFS Invoice Received Date. Last business day of previous month so for following month it is paid in advance.
+    ///  For first month payment, it is always same as start date of funding.
+    /// </summary>
     public static DateTime GetLastBusinessDayOfThePreviousMonth(this DateTime targetDate, List<DateTime> holidays)
     {
         DateTime firstDayOfMonth = new(targetDate.Year, targetDate.Month, 1);
         DateTime lastDayOfPreviousMonth = firstDayOfMonth.AddDays(-1);
 
         // Iterate backward to find the last business day
-        while (lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Saturday || 
-                lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Sunday || 
+        while (lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Saturday ||
+                lastDayOfPreviousMonth.DayOfWeek == DayOfWeek.Sunday ||
                 holidays.Exists(excludedDate => excludedDate.Date.Equals(lastDayOfPreviousMonth.Date)))
         {
             lastDayOfPreviousMonth = lastDayOfPreviousMonth.AddDays(-1);
@@ -158,6 +161,7 @@ public static class TimeExtensions
 
         return lastDayOfPreviousMonth;
     }
+
 
     private static DateTime IsBusinessDay(int days, DateTime checkingDate, List<DateTime> holidays)
     {
@@ -169,22 +173,27 @@ public static class TimeExtensions
 
         return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
     }
-
-    /// <summary>
-    /// Adding 3 days from current date as revised invoice date.
-    /// </summary>
-    /// <param name="currentDate"></param>
-    /// <param name="daysToAdd"></param>
-    /// <param name="holidays"></param>
-    /// <returns></returns>
-    public static DateTime GetRevisedInvoiceDate(this DateTime currentDate, int daysToAdd, List<DateTime> holidays)
+    //Adding 3 business days from current date as revised invoice date.
+   
+    public static DateTime AddBusinessDays(DateTime currentDate, int businessDaysToAdd, List<DateTime> holidays)
     {
-        DateTime futureDate = currentDate.AddDays(daysToAdd);
-        while (futureDate.DayOfWeek == DayOfWeek.Saturday || futureDate.DayOfWeek == DayOfWeek.Sunday || holidays.Exists(excludedDate => excludedDate.Date.Equals(futureDate.Date)))
+        DateTime futureDate = currentDate;
+        int addedDays = 0;
+
+        while (addedDays < businessDaysToAdd)
         {
             futureDate = futureDate.AddDays(1);
+            if (futureDate.DayOfWeek != DayOfWeek.Saturday &&
+                futureDate.DayOfWeek != DayOfWeek.Sunday &&
+                !holidays.Exists(excludedDate => excludedDate.Date.Equals(futureDate.Date)))
+            {
+                addedDays++;
+            }
         }
+
         return futureDate;
     }
+
+
 
 }
