@@ -55,7 +55,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
                                   <condition attribute="name" operator="not-null" value="" />
                                   <condition attribute="ofm_program" operator="in">
                                     <value>1</value>
-                                    <value>2</value>
+                                    <value>4</value>
                                   </condition>
                                 </filter>
                                 <link-entity name="contact" from="contactid" to="primarycontactid" link-type="inner" alias="contact">
@@ -351,14 +351,8 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         if (deserializedOrganizationsData.Any())
         {
             using HttpClient httpClient = new();
-             var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient)).Take(500);
-            // var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient)).Take(deserializedOrganizationsData.Count);
-            await Task.WhenAll(tasks!).ContinueWith(task =>
-            {
-                _logger.LogError(CustomLogEvent.Process, "P405VerifyGoodStandingBatchProvider. One of the tasks failed with processing error: {error}", task.Exception);
-            },
-                                                            TaskContinuationOptions.OnlyOnRanToCompletion)
-                                        .ConfigureAwait(false);
+             var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient));
+            await Task.WhenAll(tasks!);
         }
 
         var endTime = timeProvider.GetTimestamp();
