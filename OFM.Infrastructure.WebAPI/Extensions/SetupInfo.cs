@@ -46,6 +46,10 @@ public static class Setup
             public const Int16 CreateECENotificationsId = 225;
             public const string CreateECENotificationsName = "Create Email Reminders for Not Good ECE";
 
+            public const Int16 CreateApplicationNotificationsId = 230;
+            public const string CreateApplicationNotificationsName = "Create Email for Application Ineligilble";
+
+
         }
 
         public static class Fundings
