@@ -247,7 +247,10 @@ public record D365Organization_Account
     public int statecode { get; set; }
     public Guid _primarycontactid_value { get; set; }
     public Guid _ofm_primarycontact_value { get; set; }
+    [property: JsonPropertyName("contact.emailaddress1")]
+    public string? primarycontactemail { get; set; }
 }
+
 
 public record D365StandingHistory
 {

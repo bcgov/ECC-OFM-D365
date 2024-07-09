@@ -303,8 +303,8 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                             {"email_activity_parties", new JsonArray(){
                                 new JsonObject
                                 {
-                                   //{ "partyid_systemuser@odata.bind", $"/systemusers({_processParams.Notification.SenderId})"},
-                                    { "partyid_systemuser@odata.bind", $"/systemusers({_notificationSettings.DefaultSenderId})"},
+                                   { "partyid_systemuser@odata.bind", $"/systemusers({_processParams.Notification.SenderId})"},
+                                    //{ "partyid_systemuser@odata.bind", $"/systemusers({_notificationSettings.DefaultSenderId})"},
                                     { "participationtypemask", 1 } //From Email
                                 },
                                 new JsonObject

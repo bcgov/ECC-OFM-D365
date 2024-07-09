@@ -6,6 +6,7 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -52,7 +53,14 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
                                   <condition attribute="ofm_bypass_bc_registry_good_standing" operator="ne" value="1" />
                                   <condition attribute="ccof_accounttype" operator="eq" value="100000000" />
                                   <condition attribute="name" operator="not-null" value="" />
+                                  <condition attribute="ofm_program" operator="in">
+                                    <value>1</value>
+                                    <value>2</value>
+                                  </condition>
                                 </filter>
+                                <link-entity name="contact" from="contactid" to="primarycontactid" link-type="inner" alias="contact">
+                                 <attribute name="emailaddress1" />
+                                </link-entity>
                               </entity>
                             </fetch>
                             """;
@@ -87,9 +95,11 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
                           <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid">
                             <filter>
                               <condition attribute="statecode" operator="eq" value="0" />
-                              <condition attribute="statuscode" operator="eq" value="8" />
                             </filter>
                           </link-entity>
+                        </link-entity>
+                        <link-entity name="contact" from="contactid" to="ofm_primarycontact" link-type="inner" alias="contact">
+                        <attribute name="emailaddress1" />
                         </link-entity>
                       </entity>
                     </fetch>
@@ -333,24 +343,24 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
-        _allFacilitiesWithActiveFundingData = await FetchAllRecordsFromCRMAsync(AllFacilitiesWithActiveFundingRequestUri);
-
         var startTime = _timeProvider.GetTimestamp();
+        _allFacilitiesWithActiveFundingData = await FetchAllRecordsFromCRMAsync(AllFacilitiesWithActiveFundingRequestUri);
         var localOrganizationsData = await GetDataAsync();
         var deserializedOrganizationsData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localOrganizationsData.Data.ToString());
 
         if (deserializedOrganizationsData.Any())
         {
             using HttpClient httpClient = new();
-            var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient)).Take(100);
-
-            await Task.WhenAll(tasks!).ContinueWith(task => {
-                                                            _logger.LogError(CustomLogEvent.Process, "P405VerifyGoodStandingBatchProvider. One of the tasks failed with processing error: {error}", task.Exception);
-                                                            },
+             var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient)).Take(500);
+            // var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient)).Take(deserializedOrganizationsData.Count);
+            await Task.WhenAll(tasks!).ContinueWith(task =>
+            {
+                _logger.LogError(CustomLogEvent.Process, "P405VerifyGoodStandingBatchProvider. One of the tasks failed with processing error: {error}", task.Exception);
+            },
                                                             TaskContinuationOptions.OnlyOnRanToCompletion)
                                         .ConfigureAwait(false);
         }
-        
+
         var endTime = timeProvider.GetTimestamp();
         _logger.LogDebug(CustomLogEvent.Process, "P405VerifyGoodStandingBatchProvider process finished in {timer.ElapsedMilliseconds} miliseconds.", timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
 
@@ -422,7 +432,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
             var goodStandingStatusYN = searchResult.searchResults.results.First().goodStanding ? 1 : 0;          // 0 - No, 1 - Yes 
             _ = await CreateUpdateStandingHistory(_appUserService, _d365webapiservice, organization, goodStandingStatusYN);
 
-            if (goodStandingStatusYN == 0) { await SendNoGoodStandingNotification(_appUserService, _d365webapiservice, organization); };
+            if (goodStandingStatusYN == 0) { await SendNoGoodStandingNotification(_appUserService, _d365webapiservice, organization, _notificationSettings); };
         }
 
         return await Task.FromResult(DateTime.Now);
@@ -602,7 +612,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
     /// <param name="d365WebApiService"></param>
     /// <param name="organization"></param>
     /// <returns></returns>
-    private async Task<JsonObject> SendNoGoodStandingNotification(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization)
+    private async Task<JsonObject> SendNoGoodStandingNotification(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, D365Organization_Account organization, NotificationSettings notificationSettings)
     {
         var sendList = _allFacilitiesWithActiveFundingData?.Where(c => c["_parentaccountid_value"].ToString() == organization?.accountid)
             .GroupBy(g => g["_ofm_primarycontact_value"])
@@ -628,17 +638,34 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
             var serializedtemplateData = JsonSerializer.Deserialize<List<D365Template>>(templateData.Data.ToString());
             string? subject = serializedtemplateData?.Select(s => s.title).FirstOrDefault();
             string? emaildescription = serializedtemplateData?.Select(sh => sh.safehtml).FirstOrDefault();
-
-            List<Guid> recipientsList = [new Guid($"{organization?._primarycontactid_value}")];
+            List<Guid> recipientsList = new List<Guid>();
+            // add contact safelist check code
+            if (_notificationSettings.EmailSafeList.Enable &&
+                !_notificationSettings.EmailSafeList.Recipients.Any(x => x.Equals(organization.primarycontactemail?.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
+            {
+                recipientsList.Add(new Guid(_notificationSettings.EmailSafeList.DefaultContactId));
+            }
+            else
+            {
+                recipientsList.Add(new Guid($"{organization?._primarycontactid_value}"));
+            }
 
             foreach (var record in distinctRecords)
             {
                 if (record.Value["_ofm_primarycontact_value"].ToString() != organization?._primarycontactid_value.ToString())
                 {
-                    recipientsList.Add(new Guid($"{record.Value?["_ofm_primarycontact_value"]}"));
+                    if (_notificationSettings.EmailSafeList.Enable &&
+                        !_notificationSettings.EmailSafeList.Recipients.Any(x => x.Equals(record.Value["contact.emailaddress1"]?.ToString().Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
+                    {
+                        recipientsList.Add(new Guid(_notificationSettings.EmailSafeList.DefaultContactId));
+                    }
+                    else
+                    {
+                        recipientsList.Add(new Guid($"{record.Value?["_ofm_primarycontact_value"]}"));
+                    }
                 }
             }
-
+            recipientsList = recipientsList.Distinct().ToList();
             await _emailRepository!.CreateAndUpdateEmail(subject, emaildescription, recipientsList, new Guid(_notificationSettings.DefaultSenderId), _GScommunicationType, appUserService, d365WebApiService, 400);
         }
 
