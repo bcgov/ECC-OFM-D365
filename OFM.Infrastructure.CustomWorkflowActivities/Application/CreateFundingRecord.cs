@@ -148,7 +148,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                             newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-" + (fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1).ToString("00"); // Primary coloumn
                             newFundingRecord["ofm_application"] = new EntityReference("ofm_application", recordId);
                             newFundingRecord["ofm_rate_schedule"] = (rateSchedualId == null || rateSchedualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchedualId);
-                            newFundingRecord["statuscode"] = new OptionSetValue((int) ofm_funding_StatusCode.FAReview);
+                            //newFundingRecord["statuscode"] = new OptionSetValue((int) ofm_funding_StatusCode.FAReview);
                             service.Create(newFundingRecord);
                             
                             tracingService.Trace("\nThis is a resubmisstion.Create Funding records successfully.");
