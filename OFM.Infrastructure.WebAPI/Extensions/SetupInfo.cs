@@ -46,6 +46,10 @@ public static class Setup
             public const Int16 CreateECENotificationsId = 225;
             public const string CreateECENotificationsName = "Create Email Reminders for Not Good ECE";
 
+            public const Int16 CreateApplicationNotificationsId = 230;
+            public const string CreateApplicationNotificationsName = "Create Email for Application Ineligilble";
+
+
         }
 
         public static class Fundings
@@ -79,6 +83,9 @@ public static class Setup
 
             public const Int16 GetPaymentResponseId = 510;
             public const string GetPaymentResponseName = "Get Payment Feedback and Invoices to BC Pay";
+
+            public const Int16 GeneratePaymentLinesForIrregularExpenseId = 515;
+            public const string GeneratePaymentForIrregularExpenseResponseName = "Generate Payment Lines for Irregular Expense";
         }
 
         public static class FundingReports

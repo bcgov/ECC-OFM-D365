@@ -188,6 +188,8 @@ public static class ProviderProfilesHandlers
                 {
                     logger.LogError("Failed to update the userId for {userName}. Response: {response}.", userName, userResponse);
                 }
+               
+                portalProfile.ccof_userid = userId; // Add the UseId to the return payload to help with validation on the portal
             }
 
             //logger.LogDebug(CustomLogEvent.ProviderProfile, "Return provider profile {portalProfile}", portalProfile);

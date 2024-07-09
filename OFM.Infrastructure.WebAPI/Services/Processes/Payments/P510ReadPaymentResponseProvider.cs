@@ -254,7 +254,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
             var header = headers.Where(p => p.IHInvoice == pay.ofm_invoice_number).FirstOrDefault();
                    
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
-            DateTime revisedInvoiceDate = TimeExtensions.GetRevisedInvoiceDate(DateTime.Today.Date, _BCCASApi.DaysToCorrectPayments, holidaysList);
+            DateTime revisedInvoiceDate = TimeExtensions.AddBusinessDays(DateTime.Today.Date, _BCCASApi.DaysToCorrectPayments, holidaysList);
             DateTime revisedInvoiceReceivedDate = revisedInvoiceDate.AddDays(-4);
             DateTime revisedEffectiveDate = TimeExtensions.GetCFSEffectiveDate(revisedInvoiceDate, holidaysList);
 

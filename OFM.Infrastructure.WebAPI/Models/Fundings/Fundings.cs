@@ -130,6 +130,9 @@ public class Application : ofm_application
     public Guid? _ofm_contact_value { get; set; }
     public Guid? _ofm_expense_authority_value { get; set; }
     public new D365Facility? ofm_facility { get; set; }
+
+    public Guid? _ofm_summary_submittedby_value { get; set; }
+    
 }
 
 public class FacilityLicence : ofm_licence
