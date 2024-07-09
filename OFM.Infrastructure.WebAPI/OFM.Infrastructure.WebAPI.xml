@@ -484,7 +484,7 @@
             <param name="ofm_standing_historyid"></param>
             <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile.P405VerifyGoodStandingBatchProvider.SendNoGoodStandingNotification(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account)">
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile.P405VerifyGoodStandingBatchProvider.SendNoGoodStandingNotification(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,OFM.Infrastructure.WebAPI.Models.NotificationSettings)">
             <summary>
             Send a Notification to the provider if the prganization is not in good standing
             </summary>
