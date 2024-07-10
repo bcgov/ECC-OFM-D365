@@ -486,10 +486,25 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                 decimal? totalMonthlyPayment = 0;
                                 foreach (var transportationApp in transportationApplications)
                                 {
-                                    //Check if payments exists for this app.
-                                    List<D365PaymentLine> saTransportationPayments = paymentDeserializedData
-                                        .Where(payment =>
-                                                payment.ofm_payment_type == ecc_payment_type.Transportation && payment.ofm_regardingid.Id == transportationApp.ofm_allowanceid).ToList();
+
+                                    List<D365PaymentLine> saSupplementaryPayments = paymentDeserializedData
+                                    .Where(payment => payment.ofm_regardingid?.Id != null)
+                                    .ToList();
+
+                                    List<D365PaymentLine> saTransportationPayments;
+
+                                    if (saSupplementaryPayments.Count != 0)
+                                    {
+                                        //Check if payments exists for this app.
+                                        saTransportationPayments = paymentDeserializedData
+                                            .Where(payment =>
+                                                    payment.ofm_payment_type == ecc_payment_type.Transportation && payment.ofm_regardingid.Id == transportationApp.ofm_allowanceid).ToList();
+                                    }
+                                    else
+                                    {
+                                        saTransportationPayments = new List<D365PaymentLine>(); // Assign an empty list or handle it accordingly
+                                    }
+                                    
                                     //if no payments exists for any transportationa application, then create monthly payment lines.
                                     if (saTransportationPayments.Count == 0)
                                     {
