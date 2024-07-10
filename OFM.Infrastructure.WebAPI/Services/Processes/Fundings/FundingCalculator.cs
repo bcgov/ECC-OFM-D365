@@ -97,7 +97,7 @@ public class FundingCalculator : IFundingCalculator
     private bool ApplyRoomSplitCondition => _funding.ofm_apply_room_split_condition ?? false;
     private bool ApplyDuplicateCareTypesCondition => _funding.ofm_apply_duplicate_caretypes_condition ?? false;
     private ecc_Ownership? OwnershipType => _funding.ofm_application!.ofm_summary_ownership;
-    private decimal AnnualFacilityCurrentCost => _funding.ofm_application!.ofm_costs_year_facility_costs ?? 0m;
+    private decimal AnnualFacilityCurrentCost => FacilityType == ofm_facility_type.ProvidedFreeofCharge ? 0 : _funding.ofm_application!.ofm_costs_year_facility_costs ?? 0m;
     private decimal AnnualOperatingCurrentCost => _funding.ofm_application!.ofm_costs_yearly_operating_costs ?? 0m;
     private ofm_facility_type? FacilityType => _funding?.ofm_application?.ofm_costs_facility_type;
 
@@ -273,7 +273,7 @@ public class FundingCalculator : IFundingCalculator
         _ = await _fundingRepository.SaveFundingAmountsAsync(_fundingResult);
 
         return await Task.FromResult(true);
-    } 
+    }
 
     public async Task LogProgressAsync(ID365WebApiService d365webapiservice, ID365AppUserService appUserService, ILogger logger, string titlePrefix = "")
     {
