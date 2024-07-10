@@ -431,6 +431,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             var saSupportOrIndigenous = supplementaryApplicationDeserializedData
                                 .Where(entry => entry.ofm_allowance_type == 1 || entry.ofm_allowance_type == 2)
                                 .ToList();
+                            List<D365PaymentLine> saSupplementaryPayments = paymentDeserializedData
+                          .Where(payment => payment.ofm_regardingid?.Id != null)
+                           .ToList();
 
                             if (saSupportOrIndigenous.Any())
                             {
@@ -439,23 +442,15 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                     var saStartDate = supplementaryApp.ofm_start_date;
                                     var saEndDate = supplementaryApp.ofm_end_date;
                                     //Check if payments of this allowance type created.
-                                    
-                                    List<D365PaymentLine> saSupplementaryPayments = paymentDeserializedData
-                                    .Where(payment => payment.ofm_regardingid?.Id != null)
-                                    .ToList();
 
-                                    List<D365PaymentLine> saSupportOrIndigenousPayments;
+                                  
 
-                                    if (saSupplementaryPayments.Count != 0)
-                                    {
-                                        saSupportOrIndigenousPayments = saSupplementaryPayments
+                                    List<D365PaymentLine> saSupportOrIndigenousPayments = saSupplementaryPayments.Count != 0
+                                        ? saSupplementaryPayments
                                             .Where(payment => payment.ofm_regardingid.Id == supplementaryApp.ofm_allowanceid)
-                                            .ToList();
-                                    }
-                                    else
-                                    {
-                                        saSupportOrIndigenousPayments = new List<D365PaymentLine>(); // Assign an empty list or handle it accordingly
-                                    }
+                                            .ToList()
+                                        : new List<D365PaymentLine>();
+
 
                                     //Check if payment record already exist for this supplementary app.
                                     if (saSupportOrIndigenousPayments.Count == 0)
@@ -487,24 +482,15 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                 foreach (var transportationApp in transportationApplications)
                                 {
 
-                                    List<D365PaymentLine> saSupplementaryPayments = paymentDeserializedData
-                                    .Where(payment => payment.ofm_regardingid?.Id != null)
-                                    .ToList();
-
-                                    List<D365PaymentLine> saTransportationPayments;
-
-                                    if (saSupplementaryPayments.Count != 0)
-                                    {
-                                        //Check if payments exists for this app.
-                                        saTransportationPayments = paymentDeserializedData
+                                    List<D365PaymentLine> saTransportationPayments = saSupplementaryPayments.Count != 0
+                                        ? paymentDeserializedData
                                             .Where(payment =>
-                                                    payment.ofm_payment_type == ecc_payment_type.Transportation && payment.ofm_regardingid.Id == transportationApp.ofm_allowanceid).ToList();
-                                    }
-                                    else
-                                    {
-                                        saTransportationPayments = new List<D365PaymentLine>(); // Assign an empty list or handle it accordingly
-                                    }
-                                    
+                                                payment.ofm_payment_type == ecc_payment_type.Transportation &&
+                                                payment.ofm_regardingid.Id == transportationApp.ofm_allowanceid)
+                                            .ToList()
+                                        : new List<D365PaymentLine>();
+
+
                                     //if no payments exists for any transportationa application, then create monthly payment lines.
                                     if (saTransportationPayments.Count == 0)
                                     {
@@ -558,22 +544,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         //Check if payments of this allowance type created.
                       
 
-                        List<D365PaymentLine> saSupplementaryPayments = paymentDeserializedData
-                        .Where(payment => payment.ofm_regardingid?.Id != null)
-                        .ToList();
+                        List<D365PaymentLine> saSupportOrIndigenousPayments = paymentDeserializedData
+                        .Where(payment => payment.ofm_regardingid?.Id != null &&
+                         payment.ofm_regardingid.Id == saAppApproved.ofm_allowanceid)
+                         .ToList();
 
-                        List<D365PaymentLine> saSupportOrIndigenousPayments;
-
-                        if (saSupplementaryPayments.Count != 0)
-                        {
-                            saSupportOrIndigenousPayments = saSupplementaryPayments
-                                .Where(payment => payment.ofm_regardingid.Id == saAppApproved.ofm_allowanceid)
-                                .ToList();
-                        }
-                        else
-                        {
-                            saSupportOrIndigenousPayments = new List<D365PaymentLine>(); // Assign an empty list or handle it accordingly
-                        }
                         //Check if payment record already exist for this supplementary app.
                         if (saSupportOrIndigenousPayments.Count == 0)
                         {
