@@ -235,7 +235,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                    
                     if (paymentFrequency == 1) // **LUMPSUM** // check if payment frequency of expense application is lump sum or monthly.
                     {
-                        createPaymentTasks.Add(CreateIrregularExpensePaymentLines(_expenseApplicationId, expenseAmount, startdate, false, applicationId, appUserService, d365WebApiService, _processParams));
+                        createPaymentTasks.Add(CreateIrregularExpensePaymentLines(_expenseApplicationId, expenseAmount, startdate, startdate, false, applicationId, appUserService, d365WebApiService, _processParams));
 
                     }
                     else if (paymentFrequency == 2) // ** Monthly ** // Check if payment frequency of expense application is monthly.
@@ -244,7 +244,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         expenseAmount = expenseAmount / numberOfMonths;
                         for (DateTime date = startdate; date <= enddate; date = date.AddMonths(1))
                         {
-                        createPaymentTasks.Add(CreateIrregularExpensePaymentLines(_expenseApplicationId, expenseAmount, startdate, false, applicationId, appUserService, d365WebApiService, _processParams));
+                        createPaymentTasks.Add(CreateIrregularExpensePaymentLines(_expenseApplicationId, expenseAmount, date,startdate, false, applicationId, appUserService, d365WebApiService, _processParams));
 
                         }
 
@@ -256,7 +256,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         }
 
        
-        private async Task<JsonObject> CreateIrregularExpensePaymentLines(string expenseId, decimal expenseAmount, DateTime paymentdate, bool manualReview, string application, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+        private async Task<JsonObject> CreateIrregularExpensePaymentLines(string expenseId, decimal expenseAmount,DateTime startdate, DateTime firstpaymentDate, bool manualReview, string application, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             var entitySetName = "ofm_payments";
             var fiscalYearData = await GetFiscalYearDataAsync();
@@ -266,10 +266,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             Int32 lineNumber = 1;
 
-            Guid? fiscalYear = AssignFiscalYear(paymentdate, fiscalYears);
+            Guid? fiscalYear = AssignFiscalYear(startdate, fiscalYears);
 
 
-            DateTime invoiceReceivedDate = paymentdate;
+            DateTime invoiceReceivedDate = firstpaymentDate == startdate && firstpaymentDate != null ? startdate : startdate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
             DateTime invoicedate = TimeExtensions.GetCFSInvoiceDate(invoiceReceivedDate, holidaysList);
             DateTime effectiveDate = invoicedate;
 
