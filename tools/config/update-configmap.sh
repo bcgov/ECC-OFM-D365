@@ -163,6 +163,10 @@ D365_CONFIGURATION=$(jq << JSON
       {
         "TemplateNumber": 245,
         "Description": "ECE Certification Template"
+      },
+	  {
+        "TemplateNumber": 250,
+        "Description": "Application Ineligible"
       }
     ],
     "CommunicationTypes": {
