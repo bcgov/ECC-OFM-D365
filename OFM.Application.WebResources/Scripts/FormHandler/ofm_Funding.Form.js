@@ -618,4 +618,25 @@ OFM.Funding.Form = {
 			formContext.getAttribute("ofm_retroactive_payment_frequency").setValue(null);
 		}
 	},
+	showHideCreateMOD: function (primaryControl) {
+		debugger;
+		var formContext = primaryControl;
+		var statusReason = formContext.getAttribute("statuscode").getValue();
+
+		var visable = false;
+		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
+		userRoles.forEach(function hasRole(item, index) {
+			if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC" || item.name === "OFM - PCM" || item.name === "OFM - Program Policy Analyst") {
+				visable = true;
+			}
+		});
+
+		var showButton = false;
+		//ACTIVE
+		if (statusReason == 8) {
+			showButton = true;
+		}
+
+		return showButton && visable;
+	},
 }

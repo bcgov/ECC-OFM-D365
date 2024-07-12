@@ -40,12 +40,13 @@ OFM.Expense.Form = {
 			confirmButtonLabel: "Yes",
 			cancelButtonLabel: "No"
 		};
-
+		var currentDateTime = new Date();
 		var confirmOptions = { height: 200, width: 550 };
 		Xrm.Navigation.openConfirmDialog(confirmStrings, confirmOptions).then(
 			function (success) {
 				if (success.confirmed) {
-					formContext.getAttribute("statuscode").setValue(6);                                    // 6 = Approved
+					formContext.getAttribute("statuscode").setValue(6);
+					formContext.getAttribute("ofm_approvedon_date").setValue(currentDateTime); // 6 = Approved
 					formContext.data.entity.save();
 				}
 			},
@@ -102,11 +103,7 @@ OFM.Expense.Form = {
 				statuscodeControl.addOption(draft);
 				statuscodeControl.addOption(notRecommended);
 				statuscodeControl.addOption(inReview);
-				
-			}
+			       }
 	}
 
-
-	}
-	//},
-
+}
