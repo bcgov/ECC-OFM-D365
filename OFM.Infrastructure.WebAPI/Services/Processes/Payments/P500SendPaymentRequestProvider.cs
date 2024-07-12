@@ -62,6 +62,9 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
     {
         get
         {
+            var localDateOnlyPST = DateTime.UtcNow.ToLocalPST().Date;
+
+            // For reference only
             var fetchXml = $"""
                     <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                       <entity name="ofm_payment">
@@ -93,8 +96,8 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                         <condition attribute="ofm_payment_method" operator="not-null" />
                         <condition attribute="ofm_amount" operator="not-null" />
                         <filter type="or">
-                          <condition attribute="ofm_invoice_date" operator="last-x-days" value="1" />
-                          <condition attribute="ofm_revised_invoice_date" operator="last-x-days" value="1" />
+                          <condition attribute="ofm_invoice_date" operator="eq" value="{localDateOnlyPST}" />
+                          <condition attribute="ofm_revised_invoice_date" operator="eq" value="{localDateOnlyPST}" />
                         </filter>
                           </filter>
                             <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
@@ -112,7 +115,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     """;
 
             var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,ofm_amount,ofm_description,ofm_effective_date,_ofm_fiscal_year_value,_ofm_funding_value,ofm_invoice_line_number,_owningbusinessunit_value,ofm_payment_type,ofm_remittance_message,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_received_date,ofm_invoice_date&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ApprovedforPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (Microsoft.Dynamics.CRM.LastXDays(PropertyName='ofm_invoice_date',PropertyValue=1) or Microsoft.Dynamics.CRM.LastXDays(PropertyName='ofm_revised_invoice_date',PropertyValue=1))) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,ofm_amount,ofm_description,ofm_effective_date,_ofm_fiscal_year_value,_ofm_funding_value,ofm_invoice_line_number,_owningbusinessunit_value,ofm_payment_type,ofm_remittance_message,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_received_date,ofm_invoice_date&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ApprovedforPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (ofm_invoice_date eq '{localDateOnlyPST}' or ofm_revised_invoice_date eq '{localDateOnlyPST}')) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
                          """;
 
             return requestUri;
@@ -379,11 +382,11 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
     private async Task<JsonObject> SavePaymentFileExchangeRecord(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string feederNumber, string result, List<D365PaymentLine> payment)
     {
-        var filename = ("INBOX.F" + feederNumber + "." + DateTime.Now.ToString("yyyyMMddHHMMss"));
+        var filename = ("INBOX.F" + feederNumber + "." + DateTime.UtcNow.ToLocalPST().ToString("yyyyMMddHHmmss"));
         var requestBody = new JsonObject()
         {
             ["ofm_input_file_name"] = filename,
-            ["ofm_name"] = filename + "-" + DateTime.Now.ToString("yyyyMMddHHmmss"),
+            ["ofm_name"] = filename,
             ["ofm_batch_number"] = _cgiBatchNumber,
             ["ofm_oracle_batch_name"] = _oracleBatchNumber.ToString()
         };
