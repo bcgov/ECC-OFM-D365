@@ -105,7 +105,7 @@ OFM.Expense.Form = {
 				statuscodeControl.addOption(inReview);
 				
 			}
-	},
+	}
 
 	
 
