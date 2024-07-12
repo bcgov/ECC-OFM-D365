@@ -49,6 +49,8 @@ public static class Setup
             public const Int16 CreateApplicationNotificationsId = 230;
             public const string CreateApplicationNotificationsName = "Create Email for Application Ineligilble";
 
+            public const Int16 AllowanceApprovalDenialNotificationId = 235;
+            public const string AllowanceApprovalDenialNotificationName = "Create Email for Allowance Approval or Denial";
 
         }
 
