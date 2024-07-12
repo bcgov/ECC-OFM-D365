@@ -19,13 +19,16 @@ OFM.Licence.Form = {
 
             case 1: //Create/QuickCreate
                 this.licenceDetailCheck(executionContext);
+                this.showBanner(executionContext);
                 break;
 
             case 2: // update 
                 this.licenceDetailCheck(executionContext);
+                this.showBanner(executionContext);
                 break;
 
             case 3: //readonly
+                this.showBanner(executionContext);
                 break;
 
             case 4: //disable
@@ -39,6 +42,7 @@ OFM.Licence.Form = {
     //A function called on save
     onSave: function (executionContext) {
         this.stopSaveWhenLicenceDetailFailed(executionContext);
+        this.showBanner(executionContext);
     },
 
     //function to check if the licence has at least 1 licence detail record
@@ -140,4 +144,32 @@ OFM.Licence.Form = {
 
     },
 
+    showBanner: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var review_flag = false;
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+        if (facility != null) {
+            facilityid = facility[0].id;
+            Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=ofm_flag_vau_review_underway").then(
+
+                function success(results) {
+                    console.log(results);
+                    if (results["ofm_flag_vau_review_underway"] != null) {
+                        review_flag = results["ofm_flag_vau_review_underway"];
+                    }
+                    formContext.ui.tabs.get("tab_1").sections.get("tab_1_section_4").setVisible(review_flag);
+                    formContext.getControl("ofm_review_underway_banner").setVisible(review_flag);
+                },
+                function (error) {
+                    console.log(error.message);
+                }
+            );
+        }
+        else {
+            formContext.ui.tabs.get("tab_1").sections.get("tab_1_section_4").setVisible(review_flag);
+            formContext.getControl("ofm_review_underway_banner").setVisible(review_flag);
+        }
+    }
 }
