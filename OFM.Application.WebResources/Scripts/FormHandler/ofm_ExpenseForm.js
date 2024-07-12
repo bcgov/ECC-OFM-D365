@@ -103,8 +103,7 @@ OFM.Expense.Form = {
 				statuscodeControl.addOption(draft);
 				statuscodeControl.addOption(notRecommended);
 				statuscodeControl.addOption(inReview);
-				
-			}
+			       }
 	}
 
-	}
+}
