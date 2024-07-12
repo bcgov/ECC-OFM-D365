@@ -53,29 +53,25 @@ OFM.Expense.Form = {
 				Xrm.Navigation.openErrorDialog({ message: error });
 			});
 	},
-	// show approve button for Leadership role.
+	
 	showHideApproveExpense: function (primaryControl) {
 		debugger;
 		var formContext = primaryControl;
-		var statusReason = formContext.getAttribute("statuscode").getValue();
+		var statusReason = formContext.getAttribute("statuscode").getValue()
+		
+		var currentUserId = Xrm.Utility.getGlobalContext().userSettings.userId.replace(/[{}]/g, "");
 
-		var visible = false;
-		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
-		userRoles.forEach(function hasRole(item, index) {
-			if (item.name === "OFM - Leadership") {
-				visible = true;
-			}
+		return new Promise(function (resolve, reject) {
+			Xrm.WebApi.retrieveRecord("systemuser", currentUserId, "?$select=ofm_is_expense_authority").then(
+				function success(result) {
+					resolve(statusReason == 4 && (result.ofm_is_expense_authority == true ? true : false));   
+				},
+				function (error) {
+					reject(error.message);
+				}
+			);
 		});
-
-		var showButton = false;
-		// Recommended for approval, 
-		if (statusReason == 4) {
-			showButton = true;
-		}
-
-		return showButton && visible;
 	},
-
 	RemoveOptionFromStatusCode: function (executionContext) {
 		var formContext = executionContext.getFormContext();
 		var statusCodeOptions = formContext.getAttribute("statuscode").getOptions();
@@ -108,7 +104,7 @@ OFM.Expense.Form = {
 				statuscodeControl.addOption(inReview);
 				
 			}
-		}
+	}
 
 
 	}
