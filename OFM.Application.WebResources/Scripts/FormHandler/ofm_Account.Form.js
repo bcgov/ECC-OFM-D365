@@ -40,6 +40,7 @@ OFM.Account.OrgFacility.Form = {
                 }
                 this.manualReviewflag();
                 this.showUnionList(executionContext);
+                this.showOtherDescription(executionContext);
                 break;
 
             case 3: //readonly
@@ -50,6 +51,7 @@ OFM.Account.OrgFacility.Form = {
                 this.setVisibilityAdditionalAddress(executionContext);
                 this.manualReviewflag();
                 this.showUnionList(executionContext);
+                this.showOtherDescription(executionContext);
                 break;
 
             case 4: //disable
@@ -464,6 +466,26 @@ OFM.Account.OrgFacility.Form = {
                 formContext.getControl("ofm_union_list").setVisible(false);
                 formContext.getAttribute("ofm_union_list").setRequiredLevel("none");
                 formContext.getAttribute("ofm_union_list").setValue(null);
+            }
+        }
+    },
+    //if union list contains Other, then show description field
+    showOtherDescription: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var unionsList = formContext.getAttribute("ofm_union_list");
+        if (unionsList != null) {
+            var selectedOption = unionsList.getSelectedOption();
+            if (selectedOption != null) {
+                if (selectedOption.filter(i => i.value === 6).length > 0) {
+                    formContext.getControl("ofm_union_description").setVisible(true);
+                    formContext.getAttribute("ofm_union_description").setRequiredLevel("required");
+                }
+                else {
+                    formContext.getControl("ofm_union_description").setVisible(false);
+                    formContext.getAttribute("ofm_union_description").setRequiredLevel("none");
+                    formContext.getAttribute("ofm_union_description").setValue(null);
+                }
             }
         }
     }

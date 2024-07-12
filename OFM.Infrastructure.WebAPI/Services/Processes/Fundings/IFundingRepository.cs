@@ -369,7 +369,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
     public async Task<Funding> GetFundingByIdAsync(Guid id)
     {
         _fundingId = id;
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, FundingRequestUri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, FundingRequestUri, false, 50, true);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -464,7 +464,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
             ofm_envelope_hr_wages_paidtimeoff = fm.Base_HRWagesPaidTimeOff,
             ofm_envelope_hr_benefits = fm.Base_HRBenefits,
             ofm_envelope_hr_employerhealthtax = fm.Base_HREmployerHealthTax,
-            ofm_envelope_hr_prodevhours=fm.Base_HRProfessionalDevelopmentHours,
+            ofm_envelope_hr_prodevhours = fm.Base_HRProfessionalDevelopmentHours,
             ofm_envelope_hr_prodevexpenses = fm.Base_HRProfessionalDevelopmentExpenses,
 
             ofm_envelope_programming = fm.Base_NonHRProgramming,
