@@ -92,7 +92,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             _processParams = processParams;
-
+            _logger.LogInformation("EnteredRunProcessAsync", _processParams.Application.applicationId);
             var localData = await GetDataAsync();
             var deserializedData = JsonSerializer.Deserialize<List<Application>>(localData.Data.ToString());
             if (deserializedData == null || deserializedData.Count == 0)
