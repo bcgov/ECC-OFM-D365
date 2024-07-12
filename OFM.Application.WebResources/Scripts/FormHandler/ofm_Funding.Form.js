@@ -13,15 +13,18 @@ OFM.Funding.Form = {
 			case 0: //undefined
 				break;
 			case 1: //Create/QuickCreate
+				this.showBanner(executionContext);
 
 			case 2: // update      
 				this.ShowHideBasedOnRoomSplit(executionContext);
 				this.lockApprovedStatus(executionContext);
 				this.enableAgreementPDF(executionContext);
 				this.lockfieldsPCM(executionContext);
+				this.showBanner(executionContext);
 				formContext.getAttribute("ofm_ops_manager_approval").addOnChange(this.setOpsManagerApproval);
 				break;
 			case 3: //readonly
+				this.showBanner(executionContext);
 				break;
 			case 4: //disable
 				break;
@@ -33,6 +36,7 @@ OFM.Funding.Form = {
 	//A function called on save
 	onSave: function (executionContext) {
 		this.ShowHideBasedOnRoomSplit(executionContext);
+		this.showBanner(executionContext);
 	},
 
 	ShowHideBasedOnRoomSplit: function (executionContext) {
@@ -639,4 +643,33 @@ OFM.Funding.Form = {
 
 		return showButton && visable;
 	},
+
+	showBanner: function (executionContext) {
+		debugger;
+		var formContext = executionContext.getFormContext();
+		var review_flag = false;
+		var facility = formContext.getAttribute("ofm_facility").getValue();
+		var facilityid;
+		if (facility != null) {
+			facilityid = facility[0].id;
+			Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=ofm_flag_vau_review_underway").then(
+
+				function success(results) {
+					console.log(results);
+					if (results["ofm_flag_vau_review_underway"] != null) {
+						review_flag = results["ofm_flag_vau_review_underway"];
+					}
+					formContext.ui.tabs.get("tab_1").sections.get("tab_1_section_6").setVisible(review_flag);
+					formContext.getControl("ofm_review_underway_banner").setVisible(review_flag);
+				},
+				function (error) {
+					console.log(error.message);
+				}
+			);
+		}
+		else {
+			formContext.ui.tabs.get("tab_1").sections.get("tab_1_section_6").setVisible(review_flag);
+			formContext.getControl("ofm_review_underway_banner").setVisible(review_flag);
+		}
+	}
 }

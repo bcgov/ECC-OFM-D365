@@ -23,6 +23,7 @@ OFM.Account.OrgFacility.Form = {
                 this.setVisibilityAdditionalAddress(executionContext);
                 formContext.getAttribute("address1_stateorprovince").addOnChange(this.setRequiredFieldsOrgFacility);
                 this.manualReviewflag();
+                this.showBanner(executionContext);
                 break;
 
             case 2: // update  
@@ -41,6 +42,7 @@ OFM.Account.OrgFacility.Form = {
                 this.manualReviewflag();
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
+                this.showBanner(executionContext);
                 break;
 
             case 3: //readonly
@@ -52,6 +54,7 @@ OFM.Account.OrgFacility.Form = {
                 this.manualReviewflag();
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
+                this.showBanner(executionContext);
                 break;
 
             case 4: //disable
@@ -66,7 +69,7 @@ OFM.Account.OrgFacility.Form = {
     //A function called on save
     onSave: function (executionContext) {
         filterfacilityPrimaryContactLookup(executionContext);
-
+        this.showBanner(executionContext);
     },
 
     //A function called onLoad to navigate the related main form (based on Account Type)
@@ -487,6 +490,18 @@ OFM.Account.OrgFacility.Form = {
                     formContext.getAttribute("ofm_union_description").setValue(null);
                 }
             }
+        }
+    },
+
+    showBanner: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var review = formContext.getAttribute("ofm_flag_vau_review_underway");
+        if (review != null) {
+            var reviewFlag = review.getValue();
+
+            formContext.ui.tabs.get("tab_Overview").sections.get("tab_Overview_section_33").setVisible(reviewFlag);
+            formContext.getControl("ofm_review_underway_banner").setVisible(reviewFlag);
         }
     }
 }
