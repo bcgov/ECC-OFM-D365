@@ -184,12 +184,21 @@ public class P235AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
                 }
                     await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235);
             }  
-            }
+        }
 
             if (statusReason == (int)ofm_allowance_StatusCode.DeniedCancel)
             {
-               
-            }
+            ProcessData localDataTemplate = null;
+            if (allowanceType == ecc_allowance_type.SupportNeedsProgramming)
+                // Get template details to create emails.
+                localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 275).TemplateNumber);
+            else if (allowanceType == ecc_allowance_type.IndigenousProgramming)
+                localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 280).TemplateNumber);
+            else if (allowanceType == ecc_allowance_type.Transportation)
+                localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 285).TemplateNumber);
+
+
+        }
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
