@@ -83,6 +83,9 @@ public record ProcessParameter
         [property: JsonPropertyName("templateId")]
         public Guid? TemplateId { get; set; }
 
+        [property: JsonPropertyName("templateNumber")]
+        public string? TemplateNumber { get; set; }
+
         [property: JsonPropertyName("marketingListId")]
         public Guid? MarketingListId { get; set; }
 
