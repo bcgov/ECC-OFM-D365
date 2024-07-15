@@ -44,6 +44,8 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
                                     <attribute name="ofm_transport_monthly_lease" />
                                     <attribute name="ofm_transport_odometer" />
                                     <attribute name="statuscode" />
+                                    <attribute name="ofm_start_date" />
+                                    <attribute name="ofm_end_date" />
                                     <filter>
                                       <condition attribute="ofm_allowanceid" operator="eq" value="00000000-0000-0000-0000-000000000000" />
                                     </filter>
@@ -66,7 +68,7 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
                 */
 
                 var requestUri = $"""                                
-                                ofm_allowances?$select=ofm_allowance_number,ofm_allowance_type,_ofm_application_value,ofm_funding_amount,ofm_transport_estimated_yearly_km,ofm_transport_monthly_lease,ofm_transport_odometer,statuscode
+                                ofm_allowances?$select=ofm_allowance_number,ofm_allowance_type,_ofm_application_value,ofm_funding_amount,ofm_transport_estimated_yearly_km,ofm_transport_monthly_lease,ofm_transport_odometer,statuscode,ofm_start_date,ofm_end_date
                                 &$expand=ofm_supplementary_schedule($select=ofm_end_date,ofm_indigenous_between_limits_amount,ofm_indigenous_greater_upper_limit_amount,ofm_indigenous_less_lower_limit_amount,ofm_needs_between_limits_amount,ofm_needs_greater_upper_limit_amount,ofm_needs_less_lower_limit_amount,ofm_sqw_caps_for_centers,ofm_sqw_caps_for_homebased,ofm_start_date,ofm_space_upper_limit,ofm_space_lower_limit,ofm_transport_reimbursement_rate_per_km)
                                 &$filter=(ofm_allowanceid eq '{supplementaryId}') and (ofm_supplementary_schedule/ofm_supplementary_scheduleid ne null)
                                 """;
@@ -231,12 +233,15 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
                     break;
                 case 3:
                     //if lease = Yes
+
+                    int numberOfMonths = (supplementary.ofm_end_date.Year - supplementary.ofm_start_date.Year) * 12 + supplementary.ofm_end_date.Month - supplementary.ofm_start_date.Month + 1;
+
                     if (supplementary.ofm_transport_monthly_lease is not null)
                     {
-                        calculatedFundingAmount += (decimal)supplementary.ofm_transport_monthly_lease * 12;
+                        calculatedFundingAmount += (decimal)supplementary.ofm_transport_monthly_lease * numberOfMonths;
                     }
 
-                    var monthlyKMCost = (supplementary.ofm_transport_estimated_yearly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * 12;
+                    var monthlyKMCost = (supplementary.ofm_transport_estimated_yearly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * numberOfMonths;
 
                     calculatedFundingAmount += monthlyKMCost;
 

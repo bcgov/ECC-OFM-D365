@@ -60,6 +60,7 @@ OFM.Application.Form = {
     onSave: function (executionContext) {
         //debugger;
         this.licenceDetailsFromFacility(executionContext);
+        this.showBanner(executionContext);
     },
 
     licenceDetailsFromFacility: function (executionContext) {
@@ -272,47 +273,6 @@ OFM.Application.Form = {
         // perform operations on record retrieval
     },
 
-    filterSubmittedByLookup: function (executionContext) {
-        debugger;
-        var formContext = executionContext.getFormContext();
-        var facility = formContext.getAttribute("ofm_facility").getValue();
-        var facilityid;
-        if (facility != null) {
-            facilityid = facility[0].id;
-
-            var viewId = "{00000000-0000-0000-0000-000000000091}";
-            var entity = "contact";
-            var ViewDisplayName = "Facility Submitted By Contacts";
-            var fetchXML = "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='true'>" +
-                "<entity name='contact'>" +
-                "<attribute name='fullname' />" +
-                "<attribute name='ccof_username' />" +
-                "<attribute name='parentcustomerid' />" +
-                "<attribute name='emailaddress1' />" +
-                "<attribute name='contactid' />" +
-                "<order attribute='fullname' descending='false' />" +
-                "<link-entity name='ofm_bceid_facility' from='ofm_bceid' to='contactid' link-type='inner' alias='an'>" +
-                "<filter type='and'>" +
-                "<condition attribute='ofm_facility' operator='eq'  uitype='account' value='" + facilityid + "'/>" +
-                "</filter></link-entity></entity></fetch>";
-
-            var layout = "<grid name='resultset' jump='fullname' select='1' icon='1' preview='1'>" +
-                "<row name = 'result' id = 'contactid' >" +
-                "<cell name='fullname' width='300' />" +
-                "<cell name='ccof_username' width='125' />" +
-                "<cell name='emailaddress1' width='150' />" +
-                "<cell name='parentcustomerid' width='150' />" +
-                "</row></grid>";
-
-            formContext.getControl("ofm_summary_submittedby").addCustomView(viewId, entity, ViewDisplayName, fetchXML, layout, true);
-
-        }
-        else {
-            formContext.getAttribute("ofm_summary_submittedby").setValue(null);
-        }
-        // perform operations on record retrieval
-    },
-
     // function to validate seconday and primary contact
     validateSecondaryContact: function (executionContext) {
         //debugger;
@@ -472,13 +432,43 @@ OFM.Application.Form = {
         var formContext = executionContext.getFormContext();
         var roomSplitIndicator = formContext.getAttribute("ofm_room_split_indicator").getValue();
         var pcmIndicator = formContext.getAttribute("ofm_pcm_indicator").getValue();
+        var providerType = formContext.getAttribute("ofm_provider_type").getValue();
+        var unionizedFlag = formContext.getAttribute("ofm_unionized").getValue();
+
         var status = formContext.getAttribute("statecode").getValue();
         var statusReason = formContext.getAttribute("statuscode").getValue();
         var supplementaryIndicator = formContext.getAttribute("ofm_supplementary_indicator").getValue();
-        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_5").setVisible(roomSplitIndicator || pcmIndicator || supplementaryIndicator);
+        var review_flag = false;
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+
+        if (facility != null) {
+            facilityid = facility[0].id;
+            Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=ofm_flag_vau_review_underway").then(
+
+                function success(results) {
+                    console.log(results);
+                    if (results["ofm_flag_vau_review_underway"] != null) {
+                        review_flag = results["ofm_flag_vau_review_underway"];
+                    }
+                    formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_5").setVisible(roomSplitIndicator || pcmIndicator || supplementaryIndicator || providerType === 2 || unionizedFlag === 1 || review_flag);
+                    formContext.getControl("ofm_review_underway_banner").setVisible(review_flag);
+                },
+                function (error) {
+                    console.log(error.message);
+                }
+            );
+        }
+        else {
+            formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_5").setVisible(roomSplitIndicator || pcmIndicator || supplementaryIndicator || providerType === 2 || unionizedFlag === 1 || review_flag);
+            formContext.getControl("ofm_review_underway_banner").setVisible(review_flag);
+        }
+
         formContext.ui.tabs.get("tab_9").sections.get("tab_9_banner").setVisible(pcmIndicator);
         formContext.getControl("ofm_room_split_banner").setVisible(roomSplitIndicator);
         formContext.getControl("ofm_pcm_banner").setVisible(pcmIndicator);
+        formContext.getControl("ofm_familyprovider_banner").setVisible(providerType === 2);
+        formContext.getControl("ofm_unionizedsite_banner").setVisible(unionizedFlag === 1);
         if (status == 0 && statusReason != 6)
             formContext.getControl("ofm_supplementary_banner").setVisible(supplementaryIndicator);
     },
