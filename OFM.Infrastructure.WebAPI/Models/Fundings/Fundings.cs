@@ -154,7 +154,6 @@ public class SupplementaryApplication : ofm_allowance
     public DateTime ofm_end_date { get; set; }
     public DateTime ofm_start_date { get; set; }
     public int statuscode { get; set; }
-
     public int ofm_renewal_term { get; set; }
 
 
