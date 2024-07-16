@@ -133,10 +133,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 if (submittedBy != Guid.Empty && submittedBy != primaryContact)
                 {
                     recipientsList.Add(primaryContact);
-                    await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+                   
                 }
-               
-        }
+                await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+
+            }
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
