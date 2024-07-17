@@ -548,8 +548,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                     .OrderByDescending(payment => payment.ofm_invoice_line_number)
                                     .First().ofm_invoice_line_number;
                 if (currentLineNumber is not null) nextLineNumber = currentLineNumber!.Value + 1;
-            }
-              
+            }              
 
             return await Task.FromResult(nextLineNumber);
         }

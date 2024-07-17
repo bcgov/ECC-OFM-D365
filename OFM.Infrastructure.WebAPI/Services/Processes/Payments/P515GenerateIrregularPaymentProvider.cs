@@ -466,8 +466,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             List<D365PaymentLine>? deserializedPaymentsData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
             if (deserializedPaymentsData is not null && deserializedPaymentsData.Any())
-                nextLineNumber = deserializedPaymentsData.OrderByDescending(payment => payment.ofm_invoice_line_number)
-                    .First().ofm_invoice_line_number!.Value + 1;
+            {
+                int? currentLineNumber = deserializedPaymentsData
+                                    .OrderByDescending(payment => payment.ofm_invoice_line_number)
+                                    .First().ofm_invoice_line_number;
+                if (currentLineNumber is not null) nextLineNumber = currentLineNumber!.Value + 1;
+            }
 
             return await Task.FromResult(nextLineNumber);
         }
