@@ -132,6 +132,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 }
                 if (submittedBy != Guid.Empty && submittedBy != primaryContact)
                 {
+                    _logger.LogInformation("Got the recipientsList primaryContact", primaryContact);
                     recipientsList.Add(primaryContact);
                    
                 }
