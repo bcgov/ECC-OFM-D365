@@ -372,7 +372,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, monthlyPaymentAmount, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
 
                 // Process retroactive payment
-                int retroActiveMonthsCount = (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month + 1;
+                int retroActiveMonthsCount = (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month;
                 await ProcessRetroActivePayment(baseApplication!, approvedSA, processParams, fiscalYears, holidaysList, monthlyPaymentAmount, retroActiveMonthsCount);
             }
 
