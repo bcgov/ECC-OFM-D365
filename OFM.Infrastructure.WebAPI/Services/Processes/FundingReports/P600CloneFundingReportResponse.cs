@@ -1,23 +1,12 @@
 ﻿using ECC.Core.DataContext;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
-using System.Reflection.PortableExecutable;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 
@@ -243,7 +232,7 @@ public class P600CloneFundingReportResponse : ID365ProcessProvider
                         {"statuscode",  2},
                         {"statecode", 1 }
                     };
-                    deactivatedQuestionResponseRequestList.Add(new D365UpdateRequest(new EntityReference("ofm_question_responses", new Guid(deactivatedQuestionResponseId)), deactivateQuestionResponseData));
+                    deactivatedQuestionResponseRequestList.Add(new D365UpdateRequest(new D365EntityReference("ofm_question_responses", new Guid(deactivatedQuestionResponseId)), deactivateQuestionResponseData));
 
                   
                 }

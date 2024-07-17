@@ -319,16 +319,6 @@ public class Question : ofm_question
     public int? surveyStatecode { get; set; }
 }
 
-public class Section : ofm_section
-{
-
-    [property: JsonPropertyName("survey.ofm_is_published")]
-    public bool? surveyIsPublished { get; set; }
-    [property: JsonPropertyName("survey.statecode")]
-    public int? surveyStatecode { get; set; }
-
-}
-
 public record D365Reporting
 {
     public string? msfp_name { get; set; }
@@ -395,21 +385,9 @@ public class D365FiscalYear: ofm_fiscal_year
     public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
-public record ExpenseApplication
+public class ExpenseApplication: ofm_expense
 {
-    public DateTime ofm_start_date { get; set; }
-    public int ofm_payment_frequency  { get; set; }
-
-    public int statuscode { get; set; }
-    public DateTime ofm_end_date { get; set; }
-
-    public string ofm_assistance_request { get; set; }
-
-    public string _ofm_application_value { get; set; }
-   
     public new decimal ofm_amount { get; set; }
-
-
 }
 
 public class D365PaymentLine : ofm_payment
@@ -421,19 +399,6 @@ public class D365PaymentLine : ofm_payment
     public new string ofm_invoice_number { get; set; } = string.Empty; 
     public new string ofm_siteid { get; set; } = string.Empty;
     public new string ofm_supplierid { get; set; } = string.Empty;
-}
-
-//public record PaymentFileExchange
-//{
-//    public string ofm_batch_number { get; set; }
-//    public string ofm_oracle_batch_name { get; set; }
-//    public string ofm_payment_file_exchangeid { get; set; }
-//}
-
-public record D365ReportSection
-{
-    public int? OrderNumber { get; set; }
-    public string? SectionName { get; set; }
 }
 
 public class ProviderStaff
@@ -468,6 +433,8 @@ public class ProviderStaff
     [JsonPropertyName("facility.ofm_primarycontact@OData.Community.Display.V1.FormattedValue")]
     public string FacilityContact_Name { get; set; }
 }
+
+
 
 #region External Parameters
 

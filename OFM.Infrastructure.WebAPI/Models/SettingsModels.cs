@@ -174,6 +174,7 @@ public record BCCASApi
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
     public int DaysToCorrectPayments { get; set; }
+    public int PayableInDays { get; set; }
     public int transactionCount { get; set; }
     public required string cGIBatchNumber { get; set; }
     public required string oracleBatchNumber { get; set; }

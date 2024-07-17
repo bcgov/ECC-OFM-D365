@@ -85,7 +85,10 @@ public static class Setup
             public const string GetPaymentResponseName = "Get Payment Feedback and Invoices to BC Pay";
 
             public const Int16 GeneratePaymentLinesForIrregularExpenseId = 515;
-            public const string GeneratePaymentForIrregularExpenseResponseName = "Generate Payment Lines for Irregular Expense";
+            public const string GeneratePaymentForIrregularExpenseName = "Generate Payment Lines for Irregular Expense";
+
+            public const Int16 GeneratePaymentLinesForSupplementaryAllowanceId = 520;
+            public const string GeneratePaymentLinesForSupplementaryAllowanceName = "Generate Payment Lines for Irregular Expense";
         }
 
         public static class FundingReports
