@@ -13,12 +13,11 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
-using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
-using OFM.Infrastructure.WebAPI.Services.Processes.Reporting;
 using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 using OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
 using System.Reflection;
+using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(serverOptions => serverOptions.AddServerHeader = false);

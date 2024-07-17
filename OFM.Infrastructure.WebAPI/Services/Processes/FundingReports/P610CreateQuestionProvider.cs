@@ -9,16 +9,16 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace OFM.Infrastructure.WebAPI.Services.Processes.Reporting;
+namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 
-public class P610CreateQuestionProvider : ID365ProcessProvider
+public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
     const string EntityNameSet = "ofm_question";
-    private readonly ID365AppUserService _appUserService;
-    private readonly ID365WebApiService _d365webapiservice;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
     private readonly IOrganizationService _service;
-    private readonly ILogger _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
@@ -29,19 +29,10 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
     private int latestVersion;
     private int previousVersion;
 
-    public P610CreateQuestionProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
-    {
-        _appUserService = appUserService;
-        _d365webapiservice = d365WebApiService;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process);
-        _timeProvider = timeProvider;
-    }
-
     public Int16 ProcessId => Setup.Process.Reporting.CreateUpdateQuestionId;
     public string ProcessName => Setup.Process.Reporting.CreateUpdateQuestionName;
     public string RequestUri
-    {
-        
+    {      
         get
         {
             var projectId = _processParams?.CustomerVoiceProject?.ProjectId;

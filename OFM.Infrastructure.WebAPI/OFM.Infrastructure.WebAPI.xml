@@ -5081,11 +5081,6 @@
             1:N ofm_payment_allowance
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_supplementary_payment">
-            <summary>
-            1:N ofm_supplementary_payment
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_application_allowance">
             <summary>
             N:1 ofm_application_allowance
@@ -9428,11 +9423,6 @@
             Revised Invoice Received Date. Typically, 4 days after the Effective Date
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_supplementary">
-            <summary>
-            The associated supplementary application record
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.overriddencreatedon">
             <summary>
             Date and time that the record was migrated.
@@ -9531,11 +9521,6 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_funding">
             <summary>
             N:1 ofm_payment_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_supplementary_payment">
-            <summary>
-            N:1 ofm_supplementary_payment
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.team_ofm_payment">

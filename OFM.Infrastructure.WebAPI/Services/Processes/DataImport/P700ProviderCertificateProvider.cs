@@ -379,7 +379,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                               { "ofm_certificate_status", certStatus}
                                };
             var requestBody = JsonSerializer.Serialize(payload);
-            var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
+            var patchResponse = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateString, requestBody);
             if (!patchResponse.IsSuccessStatusCode)
             {
                 var responseBody = await patchResponse.Content.ReadAsStringAsync();
@@ -411,7 +411,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         { "statecode", 0 }
                     };
                 var requestBody = JsonSerializer.Serialize(payload);
-                var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, dataImportStatement, requestBody);
+                var patchResponse = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, dataImportStatement, requestBody);
                 if (!patchResponse.IsSuccessStatusCode)
                 {
                     var responseBody = await patchResponse.Content.ReadAsStringAsync();
@@ -456,7 +456,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         { "statecode", 0 }
                     };
                     var requestBody = JsonSerializer.Serialize(payload);
-                    var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, ECECertStatement, requestBody);
+                    var patchResponse = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, ECECertStatement, requestBody);
                     if (!patchResponse.IsSuccessStatusCode)
                     {
                         var responseBody = await patchResponse.Content.ReadAsStringAsync();
@@ -550,7 +550,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     upsertECERequests.Add(new UpsertRequest(new D365EntityReference("ofm_employee_certificates(ofm_certificate_number='" + record?.CLIENTID + "')"), ECECert));
 
                 }
-                var upsertECECertResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, upsertECERequests, null);
+                var upsertECECertResults = await d365WebApiService.SendBatchMessageAsync(_appUserService.AZSystemAppUser, upsertECERequests, null);
                 if (upsertECECertResults.Errors.Any())
                 {
                     var errorInfos = ProcessResult.Failure(ProcessId, upsertECECertResults.Errors, upsertECECertResults.TotalProcessed, upsertECECertResults.TotalRecords);
@@ -589,7 +589,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     updateMissingECERequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_employee_certificates", (Guid)record["ofm_employee_certificateid"]), ECECert));
 
                 }
-                var upsertMissingECECertResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateMissingECERequests, null);
+                var upsertMissingECECertResults = await d365WebApiService.SendBatchMessageAsync(_appUserService.AZSystemAppUser, updateMissingECERequests, null);
                 if (upsertMissingECECertResults.Errors.Any())
                 {
                     var errorInfos = ProcessResult.Failure(ProcessId, upsertMissingECECertResults.Errors, upsertMissingECECertResults.TotalProcessed, upsertMissingECECertResults.TotalRecords);

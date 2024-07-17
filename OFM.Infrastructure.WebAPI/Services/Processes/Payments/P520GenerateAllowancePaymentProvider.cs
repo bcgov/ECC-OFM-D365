@@ -169,7 +169,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                        ofm_applications?$select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_funding_number_base,_ofm_contact_value,_ofm_expense_authority_value,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name),ofm_organization($select=accountid,accountnumber,name),ofm_application_allowance($select=ofm_allowance_number,ofm_allowance_type,ofm_allowanceid,ofm_end_date,ofm_funding_amount,ofm_renewal_term,ofm_retroactive_amount,ofm_retroactive_date,ofm_submittedon,statecode,statuscode,ofm_monthly_amount,_ofm_application_value,ofm_start_date;$filter=(ofm_allowanceid eq b59510e4-b6bf-ee11-9079-000d3af4865d)),ofm_application_funding($select=ofm_end_date,ofm_fundingid,ofm_start_date,ofm_version_number,statecode,statuscode;$filter=(ofm_version_number eq 0))&$filter=(ofm_facility/accountid ne null) and (ofm_organization/accountid ne null) and (ofm_application_allowance/any(o1:(o1/ofm_allowanceid eq {_processParams!.SupplementaryApplication!.allowanceId}))) and (ofm_application_funding/any(o2:(o2/ofm_version_number eq 0)))
+                        ofm_applications?$select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_funding_number_base,_ofm_contact_value,_ofm_expense_authority_value,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name),ofm_organization($select=accountid,accountnumber,name),ofm_application_allowance($select=ofm_allowance_number,ofm_allowance_type,ofm_allowanceid,ofm_end_date,ofm_funding_amount,ofm_renewal_term,ofm_retroactive_amount,ofm_retroactive_date,ofm_submittedon,statecode,statuscode,ofm_monthly_amount,_ofm_application_value,ofm_start_date;$filter=(ofm_allowanceid eq {_processParams.SupplementaryApplication.allowanceId})),ofm_application_funding($select=ofm_end_date,ofm_fundingid,ofm_start_date,ofm_version_number,statecode,statuscode;$filter=(ofm_version_number eq 0))&$filter=(ofm_facility/accountid ne null) and (ofm_organization/accountid ne null) and (ofm_application_allowance/any(o1:(o1/ofm_allowanceid eq {_processParams!.SupplementaryApplication!.allowanceId}))) and (ofm_application_funding/any(o2:(o2/ofm_version_number eq 0)))
                         """;
 
                 return requestUri;
@@ -246,7 +246,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             _logger.LogDebug(CustomLogEvent.Process, nameof(GetDataAsync));
 
-            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, ApplicationRequestUri);
+            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, ApplicationRequestUri, false,0,true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -354,7 +354,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             if (approvedSA.ofm_allowance_type == ecc_allowance_type.SupportNeedsProgramming || approvedSA.ofm_allowance_type == ecc_allowance_type.IndigenousProgramming)
             {
                 ecc_payment_type paymentType = (approvedSA.ofm_allowance_type.Value == ecc_allowance_type.SupportNeedsProgramming) ? ecc_payment_type.SupportNeedsFunding : ecc_payment_type.IndigenousProgramming;
-                await CreateSupplementaryPayment(approvedSA, approvedSA.ofm_start_date!.Value, approvedSA.ofm_funding_amount, false, paymentType, baseApplication!, processParams, fiscalYears, holidaysList);
+                await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, approvedSA.ofm_funding_amount, false, paymentType, baseApplication!, processParams, fiscalYears, holidaysList);
 
                 _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
             }
@@ -369,7 +369,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 // Process future payments
                 int futureMonthsCount = (approvedSA.ofm_end_date!.Value.Year - approvedSA.ofm_start_date!.Value.Year) * 12 + approvedSA.ofm_end_date.Value.Month - approvedSA.ofm_start_date.Value.Month + 1;
                 decimal monthlyPaymentAmount = approvedSA.ofm_funding_amount!.Value / futureMonthsCount;
-                await CreateSupplementaryPaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, monthlyPaymentAmount, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
+                await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, monthlyPaymentAmount, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
 
                 // Process retroactive payment
                 int retroActiveMonthsCount = (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month + 1;
@@ -382,7 +382,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private async Task ProcessRetroActivePayment(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList, decimal monthlyPaymentAmount, int retroActiveMonthsCount)
         {
             decimal retroActiveAmount = monthlyPaymentAmount * retroActiveMonthsCount;
-            await CreateSupplementaryPayment(approvedSA, approvedSA.ofm_start_date!.Value, retroActiveAmount, false, ecc_payment_type.Transportation, baseApplication, processParams, fiscalYears, holidaysList);
+            await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, retroActiveAmount, false, ecc_payment_type.Transportation, baseApplication, processParams, fiscalYears, holidaysList);
             await SaveRetroactiveAmount(approvedSA, retroActiveAmount);
 
             _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
@@ -409,7 +409,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
     
-        private async Task<JsonObject> CreateSupplementaryPayment(SupplementaryApplication approvedSA,
+        private async Task<JsonObject> CreateSinglePayment(SupplementaryApplication approvedSA,
                                                                     DateTime paymentDate,
                                                                     decimal? paymentAmount,
                                                                     bool manualReview,
@@ -464,7 +464,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> CreateSupplementaryPaymentsInBatch(Application baseApplication, SupplementaryApplication approvedSA,
+        private async Task<JsonObject> CreatePaymentsInBatch(Application baseApplication, SupplementaryApplication approvedSA,
                                                                     DateTime startDate,
                                                                     DateTime endDate,
                                                                     decimal? paymentAmount,

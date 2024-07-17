@@ -130,6 +130,7 @@ public class Application : ofm_application
     public new D365Facility? ofm_facility { get; set; }
     public new D365Organization? ofm_organization { get; set; }
     public new SupplementaryApplication[]? ofm_application_allowance { get; set; }
+    public new ExpenseApplication[]? ofm_application_expense { get; set; }
     public new Funding[]? ofm_application_funding { get; set; }
 }
 

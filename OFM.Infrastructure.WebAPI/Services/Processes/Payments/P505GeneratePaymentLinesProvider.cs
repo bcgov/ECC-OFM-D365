@@ -29,7 +29,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
         #region Data Queries
 
-        public string PaymentsByApplicationIdRequestUri
+        public string AllPaymentsByApplicationIdRequestUri
         {
             get
             {
@@ -45,7 +45,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                 <attribute name="ofm_payment_type" />
                                                 <attribute name="ofm_effective_date" />
                                                 <attribute name="ofm_amount" />
-                                                <order attribute="ofm_name" descending="false" />
                                                 <filter type="and">
                                                   <condition attribute="ofm_application" operator="eq"  value="{{_processParams!.Application!.applicationId}}" />                                                 
                                                 </filter>
@@ -54,7 +53,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount&$filter=(_ofm_application_value eq {_processParams!.Application!.applicationId})&$orderby=ofm_name asc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount&$filter=(_ofm_application_value eq {_processParams!.Application!.applicationId})
                          """;
 
                 return requestUri;
@@ -214,7 +213,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             _logger.LogDebug(CustomLogEvent.Process, nameof(GetDataAsync));
 
-            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, PaymentsByApplicationIdRequestUri, pageSize: 0, isProcess: true);
+            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, AllPaymentsByApplicationIdRequestUri, pageSize: 0, isProcess: true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -231,7 +230,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No payment records found with query {requestUri}", PaymentsByApplicationIdRequestUri.CleanLog());
+                    _logger.LogInformation(CustomLogEvent.Process, "No payment records found with query {requestUri}", AllPaymentsByApplicationIdRequestUri.CleanLog());
                 }
 
                 d365Result = currentValue!;
@@ -311,9 +310,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             switch (funding.statuscode)
             {
                 case ofm_funding_StatusCode.Active:
-                    await ProcessBaseOrModFundingPayments(funding, processParams, fiscalYears, holidaysList);
+                    await ProcessInitialOrModFundingPayments(funding, processParams, fiscalYears, holidaysList);
 
-                    _logger.LogInformation(CustomLogEvent.Process, "Finished funding payments generation for the Active Initial or Mod funding {ofm_funding_number}", funding.ofm_funding_number);
+                    _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the Active Initial or Mod funding {ofm_funding_number}", funding.ofm_funding_number);
                     break;
                 case ofm_funding_StatusCode.Terminated:
                 case ofm_funding_StatusCode.Cancelled:
@@ -330,9 +329,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> ProcessBaseOrModFundingPayments(Funding funding, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList)
+        private async Task<JsonObject> ProcessInitialOrModFundingPayments(Funding funding, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList)
         {
-            _logger.LogDebug(CustomLogEvent.Process, "Processing Base payments for the funding {ofm_funding_number}", funding.ofm_funding_number);
+            _logger.LogDebug(CustomLogEvent.Process, "Processing Initial or Mod payments for the funding {ofm_funding_number}", funding.ofm_funding_number);
 
             ArgumentNullException.ThrowIfNull(processParams.Funding!.IsMod);
             ArgumentNullException.ThrowIfNull(processParams.Funding!.MonthlyBaseFundingAmount);
@@ -340,12 +339,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             if (processParams!.Funding!.IsMod!.Value)
             {
                 await ProcessModPayments(processParams, funding, processParams.Funding.MonthlyBaseFundingAmount.Value, fiscalYears, holidaysList);
-                _logger.LogInformation(CustomLogEvent.Process, "Finished Mod payments generation for the funding {ofm_funding_number}", funding.ofm_funding_number);
+                _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the Mod funding {ofm_funding_number}", funding.ofm_funding_number);
             }
             else
             {
                 await CreatePaymentsInBatch(funding, processParams.Funding.MonthlyBaseFundingAmount.Value, funding!.ofm_start_date!.Value, funding!.ofm_end_date!.Value, false, processParams, fiscalYears, holidaysList, null, null);
-                _logger.LogInformation(CustomLogEvent.Process, "Finished Base payments generation for the funding {ofm_funding_number}", funding.ofm_funding_number);
+                _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the Initial funding {ofm_funding_number}", funding.ofm_funding_number);
             }
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
@@ -368,7 +367,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             decimal previousMonthlyFundingAmount = processParams!.Funding!.PreviousMonthlyBaseFundingAmount.Value;
             int retroActiveMonthsCount = 0;
             if (funding.ofm_retroactive_payment_date.HasValue)
-                retroActiveMonthsCount = (funding!.ofm_start_date!.Value.Year - funding.ofm_retroactive_payment_date.Value.Year) * 12 + funding.ofm_start_date.Value.Year - funding.ofm_retroactive_payment_date.Value.Month;
+                retroActiveMonthsCount = (funding!.ofm_start_date!.Value.Year - funding.ofm_retroactive_payment_date.Value.Year) * 12 + funding.ofm_start_date.Value.Month - funding.ofm_retroactive_payment_date.Value.Month;
             bool retroActivePaymentYesOrNo = (retroActiveMonthsCount > 0);
             int remainingModMonthsCount = (funding!.ofm_end_date!.Value.Year - funding!.ofm_start_date!.Value.Year) * 12 + (funding.ofm_end_date.Value.Month - funding.ofm_start_date.Value.Month);
             decimal adjustedMonthlyCreditOrDebitOnly = monthlyFundingAmount - previousMonthlyFundingAmount; // Positive or Negative (e.g.: facility cost has reduced or less operational space changes)
@@ -423,7 +422,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
                 DateTime invoiceDate = (paymentDate == startDate) ? 
                     startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : 
-                    paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                    paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
