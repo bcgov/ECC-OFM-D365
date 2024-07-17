@@ -135,7 +135,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     recipientsList.Add(primaryContact);
                    
                 }
-                await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+                if(recipientsList.Count > 0)
+                await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 230);
 
             }
 
