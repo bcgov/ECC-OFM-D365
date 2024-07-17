@@ -7,7 +7,7 @@ OFM.Funding.Form = OFM.Funding.Form || {};
 //Formload logic starts here
 OFM.Funding.Form = {
 	onLoad: function (executionContext) {
-		debugger;
+		
 		let formContext = executionContext.getFormContext();
 		switch (formContext.ui.getFormType()) {
 			case 0: //undefined
@@ -40,14 +40,14 @@ OFM.Funding.Form = {
 	},
 
 	ShowHideBasedOnRoomSplit: function (executionContext) {
-		debugger;
+		
 		var formContext = executionContext.getFormContext();
 		var roomSplit = formContext.getAttribute("ofm_apply_room_split_condition").getValue();
 		formContext.ui.tabs.get("tab_1").sections.get("manual_spaces_allocation").setVisible(roomSplit);
 	},
 
 	RecalculateFundings: function (primaryControl) {
-		//debugger;
+		
 		var formContext = primaryControl;
 		var recordId = formContext.data.entity.getId().replace("{", "").replace("}", "");
 		var pageInput = {
@@ -77,7 +77,7 @@ OFM.Funding.Form = {
 	},
 
 	CreateMOD: function (primaryControl, recordId) {
-		debugger;
+	
 		var formContext = primaryControl;
 		var applicationID = formContext.getAttribute("ofm_facility").getValue();
 		var pageInput = {
@@ -116,7 +116,7 @@ OFM.Funding.Form = {
 	},
 
 	regenerateFAPDF_Superseded: function (primaryControl) {
-		debugger;
+	
 		var globalContext = Xrm.Utility.getGlobalContext();
 		var envUrl = globalContext.getClientUrl();
 
@@ -143,7 +143,7 @@ OFM.Funding.Form = {
 	},
 
 	regenerateFAPDF: function (primaryControl) {
-		debugger;
+	
 		var formContext = primaryControl;
 		var entityName = formContext.data.entity.getEntityName();
 		var recordId = formContext.data.entity.getId().replace("{", "").replace("}", "");
@@ -215,7 +215,7 @@ OFM.Funding.Form = {
 	},
 
 	setOpsManagerApproval: function (executionContext) {
-		debugger;
+	
 		var formContext = executionContext.getFormContext();
 		var newStatus = formContext.getAttribute("ofm_ops_manager_approval").getValue();
 
@@ -302,7 +302,7 @@ OFM.Funding.Form = {
 	},
 
 	lockApprovedStatus: function (executionContext) {
-		//debugger;	
+		
 		var formContext = executionContext.getFormContext();
 		var status = formContext.getAttribute("ofm_ops_manager_approval").getValue();
 
@@ -348,7 +348,7 @@ OFM.Funding.Form = {
 	},
 
 	setMinistryEAApprovalYes: function (primaryControl) {
-		debugger;
+		
 		var formContext = primaryControl;
 		var Id = formContext.data.entity.getId().replace("{", "").replace("}", "");
 
@@ -392,7 +392,7 @@ OFM.Funding.Form = {
 	},
 
 	setMinistryEAApprovalNo: function (primaryControl) {
-		debugger;
+	
 		var formContext = primaryControl;
 
 		var displayText1 = "You are denying this funding record. Please click Yes button to continue, or click No button to cancel.";
@@ -428,7 +428,7 @@ OFM.Funding.Form = {
 	},
 
 	setMinistryEAUnapproval: function (primaryControl) {
-		debugger;
+		
 		var formContext = primaryControl;
 		var Id = formContext.data.entity.getId().replace("{", "").replace("}", "");
 		var ministryApproval = formContext.getAttribute("ofm_ministry_approval").getValue();
@@ -479,7 +479,7 @@ OFM.Funding.Form = {
 	},
 
 	showHideApprovalFA: function (primaryControl) {
-		debugger;
+	
 		var formContext = primaryControl;
 		var statusReason = formContext.getAttribute("statuscode").getValue()
 		var opsApprover = formContext.getAttribute("ofm_ops_approver").getValue();
@@ -501,7 +501,7 @@ OFM.Funding.Form = {
 	},
 
 	showHideUnapproveFA: function (primaryControl) {
-		debugger;
+	
 		var formContext = primaryControl;
 		var statusReason = formContext.getAttribute("statuscode").getValue();
 		var opsApprover = formContext.getAttribute("ofm_ops_approver").getValue();
@@ -531,10 +531,10 @@ OFM.Funding.Form = {
 		return showButton;
 	},
 	enableAgreementPDF: function (executionContext) {
-		debugger;
+		
 		Xrm.WebApi.retrieveMultipleRecords('environmentvariablevalue', "?$select=value&$expand=EnvironmentVariableDefinitionId&$filter=(EnvironmentVariableDefinitionId/schemaname eq 'ofm_OFMFundingAgreementEnablePDFDelete')").then(
 			function success(result) {
-				debugger;
+				
 				var roles = result.entities[0].value;
 				var rolesArray = roles.split(';');
 				var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
@@ -553,7 +553,7 @@ OFM.Funding.Form = {
 		)
 	},
 	lockfieldsPCM: function (executionContext) {
-		debugger; //PCM Access Role
+		//PCM Access Role
 		let formContext = executionContext.getFormContext();
 		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
 		if (userRoles.getLength() > 1) { }
@@ -575,14 +575,14 @@ OFM.Funding.Form = {
 	},
 
 	showHideGenerateFAPDF: function (primaryControl) {
-		debugger;
+		
 		var formContext = primaryControl;
 		var statusReason = formContext.getAttribute("statuscode").getValue();
 
 		var visable = false;
 		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
 		userRoles.forEach(function hasRole(item, index) {
-			if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC") {
+			if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership"|| item.name === "OFM - PCM" || item.name === "OFM - CRC") {
 				visable = true;
 			}
 		});
@@ -597,7 +597,7 @@ OFM.Funding.Form = {
 	},
 
 	showHideRecalculate: function (primaryControl) {
-		debugger;
+		
 		var formContext = primaryControl;
 		var visable = false;
 		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
@@ -610,7 +610,7 @@ OFM.Funding.Form = {
 		return visable;
 	},
 	RemoveOptionFromPaymentFrequency: function (executionContext) {
-		debugger;
+		
 		var formContext = executionContext.getFormContext();
 		var retroActivePaymentDateField = formContext.getAttribute("ofm_retroactive_payment_date");
 		var retroActivePaymentFrequencyField = formContext.getControl("ofm_retroactive_payment_frequency");
@@ -626,26 +626,35 @@ OFM.Funding.Form = {
 		debugger;
 		var formContext = primaryControl;
 		var statusReason = formContext.getAttribute("statuscode").getValue();
-
-		var visable = false;
+		var application = formContext.getAttribute("ofm_application").getValue();
+		var applicationid = application[0].id;
+		var visible = false;
 		var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
-		userRoles.forEach(function hasRole(item, index) {
-			if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC" || item.name === "OFM - PCM" || item.name === "OFM - Program Policy Analyst") {
-				visable = true;
-			}
-		});
-
-		var showButton = false;
-		//ACTIVE
-		if (statusReason == 8) {
-			showButton = true;
+		var recordId = formContext.data.entity.getId().replace("{", "").replace("}", "");
+		var versionNumber = formContext.getAttribute("ofm_version_number").getValue();
+		var result = this.getSyncMultipleRecord("ofm_fundings?$select=ofm_fundingid,ofm_version_number,ofm_funding_number,createdon,statecode&$filter=(_ofm_application_value eq " + applicationid + "  and ofm_fundingid ne " + recordId + " )&$orderby=ofm_funding_number asc");
+		// intial FA 
+		if (result.length == 0 && versionNumber == 0 && statusReason == 8) {
+			userRoles.forEach(function hasRole(item, index) {
+				if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC" || item.name === "OFM - PCM" || item.name === "OFM - Program Policy Analyst") {
+					visible = true;
+				}
+			});
 		}
-
-		return showButton && visable;
+		// next funding versions
+		else if (result.length > 0 && versionNumber != 0 && !result.some(item => item.ofm_version_number > versionNumber) && statusReason == 8) {
+			userRoles.forEach(function hasRole(item, index) {
+				if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC" || item.name === "OFM - PCM" || item.name === "OFM - Program Policy Analyst") {
+					visible = true;
+				}
+			});
+		}
+		
+		return visible;
 	},
 
 	showBanner: function (executionContext) {
-		debugger;
+	
 		var formContext = executionContext.getFormContext();
 		var review_flag = false;
 		var facility = formContext.getAttribute("ofm_facility").getValue();
