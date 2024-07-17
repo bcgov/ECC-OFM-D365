@@ -1,4 +1,5 @@
-﻿using OFM.Infrastructure.WebAPI.Extensions;
+﻿using ECC.Core.DataContext;
+using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
@@ -194,6 +195,7 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
         #region Step 2: Calculate Allowance
 
         decimal calculatedFundingAmount = 0.0M;
+        decimal calculatedMonthlyAmount = 0.0M;
         /*
             Support Needs Programming = 1
             Indigenous Programming = 2
@@ -234,16 +236,16 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
                 case 3:
                     //if lease = Yes
 
-                    int numberOfMonths = (supplementary.ofm_end_date.Year - supplementary.ofm_start_date.Year) * 12 + supplementary.ofm_end_date.Month - supplementary.ofm_start_date.Month + 1;
+                    int numberOfMonths = (supplementary.ofm_end_date.Value.Year - supplementary.ofm_start_date.Value.Year) * 12 + supplementary.ofm_end_date.Value.Month - supplementary.ofm_start_date.Value.Month + 1;
 
                     if (supplementary.ofm_transport_monthly_lease is not null)
                     {
                         calculatedFundingAmount += (decimal)supplementary.ofm_transport_monthly_lease * numberOfMonths;
                     }
 
-                    var monthlyKMCost = (supplementary.ofm_transport_estimated_yearly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km * numberOfMonths;
+                    calculatedMonthlyAmount = (supplementary.ofm_transport_estimated_yearly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km;
 
-                    calculatedFundingAmount += monthlyKMCost;
+                    calculatedFundingAmount = calculatedMonthlyAmount * numberOfMonths;
 
                     break;
             }
@@ -254,12 +256,13 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
         #region  Step 4: Post-Calculation
 
         //Update the supplemental record
-
         var updateSupplementalUrl = @$"ofm_allowances({supplementary.ofm_allowanceid})";
-        var updateContent = new
+        var updateContent = new JsonObject()
         {
-            ofm_funding_amount = calculatedFundingAmount
+            { ofm_allowance.Fields.ofm_funding_amount, calculatedFundingAmount },
+            { ofm_allowance.Fields.ofm_monthly_amount, calculatedMonthlyAmount }
         };
+
         var requestBody = JsonSerializer.Serialize(updateContent);
         var response = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateSupplementalUrl, requestBody);
 
