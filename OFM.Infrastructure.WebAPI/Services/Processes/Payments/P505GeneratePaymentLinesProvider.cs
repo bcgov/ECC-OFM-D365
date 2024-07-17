@@ -20,9 +20,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private readonly ID365WebApiService _d365WebApiService = d365WebApiService;
         private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
         private readonly IFundingRepository _fundingRepository = fundingRepository;
-
         private readonly TimeProvider _timeProvider = timeProvider;
         private ProcessParameter? _processParams;
+        private Guid _baseApplicationId = Guid.Empty;
 
         public Int16 ProcessId => Setup.Process.Payments.GeneratePaymentLinesId;
         public string ProcessName => Setup.Process.Payments.GeneratePaymentLinesName;
@@ -272,6 +272,37 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return await Task.FromResult(new ProcessData(d365Result));
         }
 
+        public async Task<ProcessData> GetAllPaymentsByApplicationIdDataAsync()
+        {
+            _logger.LogDebug(CustomLogEvent.Process, nameof(GetAllPaymentsByApplicationIdDataAsync));
+
+            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, AllPaymentsByApplicationIdRequestUri);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query all payment records by applicaitonId {applicaitonId} with the server error {responseBody}", _baseApplicationId, responseBody.CleanLog());
+
+                return await Task.FromResult(new ProcessData(string.Empty));
+            }
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+            {
+                if (currentValue?.AsArray().Count == 0)
+                {
+                    _logger.LogWarning(CustomLogEvent.Process, "No payment records found with query {requestUri}", AllPaymentsByApplicationIdRequestUri.CleanLog());
+                }
+                d365Result = currentValue!;
+            }
+
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+            return await Task.FromResult(new ProcessData(d365Result));
+        }
+
         #endregion
 
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
@@ -414,7 +445,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             List<HttpRequestMessage> createPaymentRequests = [];
 
-            Int32 lineNumber = 1;
+            Int32 lineNumber = await GetNextInvoiceLineNumber(funding!.ofm_application!.Id);
 
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {
@@ -471,30 +502,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             return await Task.FromResult(paymentsBatchResult.SimpleBatchResult);
-        }
-
-        private static List<DateTime> GetStartTimes(string jsonData)
-        {
-            var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(jsonData);
-
-            List<DateTime> startTimeList = closures.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
-
-            return startTimeList;
-        }
-
-        private Guid AssignFiscalYear(DateTime paymentDate, List<ofm_fiscal_year> fiscalYears)
-        {
-            ofm_fiscal_year? matchingFiscalYear = fiscalYears.FirstOrDefault(fiscalYear => paymentDate >= fiscalYear.ofm_start_date && paymentDate <= fiscalYear.ofm_end_date);
-
-            if (matchingFiscalYear == null || string.IsNullOrEmpty(matchingFiscalYear.ofm_financial_year))
-            {
-                _logger.LogError(CustomLogEvent.Process, "Failed to retrieve a fiscal year for the payment date {error}", paymentDate);
-                return Guid.Empty;
-            }
-
-            return matchingFiscalYear!.ofm_fiscal_yearid!.Value;
-        }
-
+        }   
+   
         private async Task<JsonObject> CancelUnpaidPayments(List<D365PaymentLine>? deserializedPaymentsData)
         {
             List<HttpRequestMessage> updatePaymentRequests = [];
@@ -524,6 +533,25 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             return await Task.FromResult(new JsonObject());
+        }
+
+        private async Task<int> GetNextInvoiceLineNumber(Guid baseApplicationId)
+        {
+            int nextLineNumber = 1;
+            _baseApplicationId = baseApplicationId;
+
+            ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
+
+            List<D365PaymentLine>? deserializedPaymentsData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
+            if (deserializedPaymentsData is not null && deserializedPaymentsData.Any()) {
+                int? currentLineNumber = deserializedPaymentsData
+                                    .OrderByDescending(payment => payment.ofm_invoice_line_number)
+                                    .First().ofm_invoice_line_number;
+                if (currentLineNumber is not null) nextLineNumber = currentLineNumber!.Value + 1;
+            }
+              
+
+            return await Task.FromResult(nextLineNumber);
         }
     }
 }
