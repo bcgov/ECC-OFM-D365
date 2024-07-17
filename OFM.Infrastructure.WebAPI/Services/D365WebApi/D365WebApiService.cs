@@ -70,6 +70,10 @@ public class D365WebAPIService : ID365WebApiService
         {
             request = new(new EntityReference(entityNameSet, id), columnName: "ofm_input_document_memo", data, fileName);
         }
+        else if (entityNameSet.Equals("ofm_allowances"))
+        {
+            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_approvalpdf", data, fileName);
+        }
         else
         {
             request = new(new EntityReference(entityNameSet, id), columnName: "ofm_file", data, fileName);

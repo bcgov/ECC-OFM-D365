@@ -8,6 +8,8 @@ using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
+using SelectPdf;
+using System;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -201,6 +203,32 @@ public class P235AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
                 }
                 await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235);
 
+
+                subject= "<div>&nbsp</div><div style = 'font-size:18pt;margin-left:8em'><span style = 'font-size:18pt'><b>Subject: " + subject+"</b></span></div><br/><br/><br/>";
+                emaildescription = string.Concat(Environment.NewLine,subject, Environment.NewLine, emaildescription);
+                SelectPdf.HtmlToPdf converter = new SelectPdf.HtmlToPdf();
+
+                try
+                {
+                    SelectPdf.HtmlToPdfOptions options = new HtmlToPdfOptions();
+                    converter.Options.MarginTop = 100; converter.Options.MarginLeft = 50; converter.Options.MarginRight = 40; converter.Options.MarginBottom = 10;
+                    converter.Options.PdfPageOrientation = PdfPageOrientation.Landscape;
+                    converter.Options.PdfPageSize = PdfPageSize.A4;
+                    SelectPdf.PdfDocument doc = converter.ConvertHtmlString(emaildescription);
+                    byte[] bytes = doc.Save();
+                    HttpResponseMessage response1 = await _d365webapiservice.SendDocumentRequestAsync(_appUserService.AZPortalAppUser, ofm_allowance.EntitySetName, (Guid)_allowanceId, bytes, string.Concat(allowanceNumber,".pdf"));
+
+                    if (!response1.IsSuccessStatusCode)
+                    {
+                        var responseBody = await response1.Content.ReadAsStringAsync();
+                        _logger.LogError(CustomLogEvent.Process, "Failed to upload file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
+
+                        //log the error
+                        return await Task.FromResult<JsonObject>(new JsonObject() { });
+
+                    }
+                }
+                catch (Exception ex) { }
 
             }
             #endregion Create the email notifications 
