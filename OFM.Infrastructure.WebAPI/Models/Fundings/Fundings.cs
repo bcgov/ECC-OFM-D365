@@ -132,7 +132,9 @@ public class Application : ofm_application
     public new D365Facility? ofm_facility { get; set; }
 
     public Guid? _ofm_summary_submittedby_value { get; set; }
-    
+
+    public string ofm_application { get; set; }
+
 }
 
 public class FacilityLicence : ofm_licence

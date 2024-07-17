@@ -210,9 +210,9 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                                 { "systemuserid",_notificationSettings.DefaultSenderId}
                                         }
                         },
-                    { "Target", new JsonObject  {
-                         { "ofm_show_notification_on_portal" , false},
-        {"email_activity_parties", new JsonArray(){
+                        { "Target", new JsonObject  {
+                            { "ofm_show_notification_on_portal" , false},
+                            {"email_activity_parties", new JsonArray(){
                                     new JsonObject
                                     {
                                         {"partyid_systemuser@odata.bind", $"/systemusers({_notificationSettings.DefaultSenderId})"},
@@ -223,11 +223,11 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                         { "partyid_contact@odata.bind", $"/contacts({recipientContact})" },
                                         { "participationtypemask",   2 } //To Email                             
                                     }
-                                }},
-
+                             }},
                         { "@odata.type", "Microsoft.Dynamics.CRM.email" }
 
-                } } }, _d365AuthSettings));
+                        }}
+                }, _d365AuthSettings));
         });
 
         var sendEmailBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, SendEmailFromTemplateRequest,null);

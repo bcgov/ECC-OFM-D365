@@ -421,6 +421,7 @@ public class D365PaymentLine : ofm_payment
     public new string ofm_invoice_number { get; set; } = string.Empty; 
     public new string ofm_siteid { get; set; } = string.Empty;
     public new string ofm_supplierid { get; set; } = string.Empty;
+    public new string ofm_batch_number { get; set; } = string.Empty;
 }
 
 //public record PaymentFileExchange

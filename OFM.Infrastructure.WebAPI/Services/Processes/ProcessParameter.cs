@@ -106,6 +106,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("emailBody")]
         public string? EmailBody { get; set; }
+
+        [property: JsonPropertyName("casReportContactId")]
+        public string? CasReportContactId { get; set; }
     }
 
     public record OrganizationParameter

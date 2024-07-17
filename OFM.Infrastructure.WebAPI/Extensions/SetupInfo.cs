@@ -86,6 +86,9 @@ public static class Setup
 
             public const Int16 GeneratePaymentLinesForIrregularExpenseId = 515;
             public const string GeneratePaymentForIrregularExpenseResponseName = "Generate Payment Lines for Irregular Expense";
+
+            public const Int16 SendCASDailyReportId = 525;
+            public const string SendCASDailyReportName = "Generate CAS Daily Report and Send Notification";
         }
 
         public static class FundingReports
