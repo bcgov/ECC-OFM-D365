@@ -6,7 +6,7 @@
 public sealed class UploadFileRequest : HttpRequestMessage
     {
         public UploadFileRequest(
-            EntityReference entityReference,
+            D365EntityReference entityReference,
             string columnName,
             Byte[] fileContent,
             string fileName,

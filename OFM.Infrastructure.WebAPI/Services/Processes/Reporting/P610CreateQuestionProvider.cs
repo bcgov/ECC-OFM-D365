@@ -1,22 +1,13 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Xrm.Sdk;
-using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
-using System.Reflection.Metadata;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using CreateRequest = OFM.Infrastructure.WebAPI.Messages.CreateRequest;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Reporting;
 
@@ -757,7 +748,7 @@ public class P610CreateQuestionProvider : ID365ProcessProvider
                 var getQuestionToUpdate = deserializedQuestion?.FirstOrDefault(x => Convert.ToInt16(x.surveyVersion) == latestVersion && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
                 if (getLatestActiveVersion != null && getQuestionToUpdate != null)
                 {
-                    requestsQuestionUpdate.Add(new D365UpdateRequest(new Messages.EntityReference(ofm_question.EntitySetName, getQuestionToUpdate.ofm_questionid),
+                    requestsQuestionUpdate.Add(new D365UpdateRequest(new Messages.D365EntityReference(ofm_question.EntitySetName, getQuestionToUpdate.ofm_questionid),
                                        new JsonObject()
                                        {
                                             {ofm_question.Fields.ofm_default_rows, getLatestActiveVersion.ofm_default_rows ?? null},

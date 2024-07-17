@@ -70,7 +70,7 @@ public class ContactEditProvider : ID365BatchProvider
         keyValuePairs.Remove("entityNameSet");
         keyValuePairs.Remove("entityID");
         keyValuePairs.Remove("actionMode");
-        var request = new D365UpdateRequest(new EntityReference(entityName.ToString(), new Guid(entityId)), keyValuePairs);
+        var request = new D365UpdateRequest(new D365EntityReference(entityName.ToString(), new Guid(entityId)), keyValuePairs);
         return request;
     }
 }

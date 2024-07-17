@@ -1,6 +1,4 @@
-﻿using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
@@ -8,28 +6,18 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 
-public class P615CreateMonthlyReportProvider : ID365ProcessProvider
+public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
-    private readonly ID365AppUserService _appUserService;
-    private readonly ID365WebApiService _d365webapiservice;
-    private readonly D365AuthSettings _d365AuthSettings;
-    private readonly ILogger _logger;
-    private readonly TimeProvider _timeProvider;
+    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
+    private readonly D365AuthSettings _d365AuthSettings = d365AuthSettings.Value;
+    private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
-
-    public P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
-    {
-        _appUserService = appUserService;
-        _d365webapiservice = d365WebApiService;
-        _d365AuthSettings = d365AuthSettings.Value;
-        _logger = loggerFactory.CreateLogger(LogCategory.Process);
-        _timeProvider = timeProvider;
-    }
 
     public Int16 ProcessId => Setup.Process.FundingReports.CreateMonthlyReportId;
     public string ProcessName => Setup.Process.FundingReports.CreateMonthlyReportName;

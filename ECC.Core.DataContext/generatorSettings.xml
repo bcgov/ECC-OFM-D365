@@ -1557,6 +1557,9 @@ workflowwaitsubscription|
 workqueue|
 workqueueitem</EntitiesToSkip>
     <EntitiesWhitelist>account|
+activitymimeattachment|
+activityparty|
+activitypointer|
 businessunit|
 contact|
 email|
@@ -1576,7 +1579,6 @@ ofm_employee_certificate|
 ofm_employee_certificate_status|
 ofm_expense|
 ofm_facility_intake|
-ofm_facility_operating_cost|
 ofm_facility_request|
 ofm_fiscal_year|
 ofm_funding|

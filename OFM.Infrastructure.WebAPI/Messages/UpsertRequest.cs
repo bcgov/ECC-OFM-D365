@@ -18,7 +18,7 @@ namespace OFM.Infrastructure.WebAPI.Messages;
         /// <param name="record">The data to create or update.</param>
         /// <param name="upsertBehavior">Control the upsert behavior.</param>
         public UpsertRequest(
-            EntityReference entityReference,
+            D365EntityReference entityReference,
             JsonObject record,
             UpsertBehavior upsertBehavior = UpsertBehavior.CreateOrUpdate)
         {

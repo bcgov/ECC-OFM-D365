@@ -1,6 +1,4 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.Extensions.Options;
-using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
@@ -9,11 +7,10 @@ using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
 using System.Text.Json.Nodes;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 {
-    public class P515GeneratePaymentLinesForIrregularExpense(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
+    public class P515GenerateIrregularPaymentProvider(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
     {
         private readonly ID365AppUserService _appUserService = appUserService;
         private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
@@ -24,7 +21,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private string _applicationId = string.Empty; 
 
         public Int16 ProcessId => Setup.Process.Payments.GeneratePaymentLinesForIrregularExpenseId;
-        public string ProcessName => Setup.Process.Payments.GeneratePaymentForIrregularExpenseResponseName;
+        public string ProcessName => Setup.Process.Payments.GeneratePaymentForIrregularExpenseName;
 
         public string FiscalYearRequestUri
         {
@@ -277,7 +274,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 {
                     { "ofm_invoice_line_number", lineNumber++ },
                     { "ofm_amount", expenseAmount},
-                    { "ofm_payment_type", (int) ecc_payment_type.UnexpectedExpense },
+                    { "ofm_payment_type", (int) ecc_payment_type.IrregularExpense },
                     { "ofm_description", " Irregular Expense payment" },
                     { "ofm_application@odata.bind",$"/ofm_applications({application})" },
                     { "ofm_invoice_date", invoicedate.ToString("yyyy-MM-dd") },

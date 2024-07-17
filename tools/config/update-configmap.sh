@@ -225,6 +225,8 @@ D365_CONFIGURATION=$(jq << JSON
       "trailertransactionType": "BT",
       "messageVersionNumber": "0001",
       "feederNumber": "3540",
+	  "PayableInDays": 5,
+      "DaysToCorrectPayments": 3,
       "InvoiceHeader": {
         "headertransactionType": "IH",
         "invoiceType": "ST",

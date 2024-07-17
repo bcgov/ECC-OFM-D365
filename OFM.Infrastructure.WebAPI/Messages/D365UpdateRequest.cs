@@ -17,7 +17,7 @@ public sealed class D365UpdateRequest : HttpRequestMessage
         /// <param name="partitionId">The partition key to use.</param>
         /// <param name="eTag">The current ETag value to compare.</param>
         public D365UpdateRequest(
-            EntityReference entityReference, 
+            D365EntityReference entityReference, 
             JsonObject record, 
             bool preventDuplicateRecord = false, 
             string? partitionId = null, 

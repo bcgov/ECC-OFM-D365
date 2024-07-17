@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using ECC.Core.DataContext;
+using System.Runtime.InteropServices;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -108,10 +109,8 @@ public static class TimeExtensions
     /// <summary>
     /// A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
     /// </summary>
-
-    public static DateTime GetCFSInvoiceDate(this DateTime invoiceReceivedDate, List<DateTime> holidays)
+    public static DateTime GetCFSInvoiceDate(this DateTime invoiceReceivedDate, List<DateTime> holidays,int businessDaysToSubtract = 5)
     {
-        int businessDaysToSubtract = 5;
         int businessDaysCount = 0;
         DateTime invoiceDate = invoiceReceivedDate;
 
@@ -131,7 +130,6 @@ public static class TimeExtensions
     /// <summary>
     /// A pre-determined CFS Effective Date. The recommended default is 2 days after the Invoice Date.
     /// </summary>
-
     public static DateTime GetCFSEffectiveDate(this DateTime invoiceDate, List<DateTime> holidays, int defaultDaysAfter = 2, int trailingTotalDays = 3)
     {
         var potentialDates = Enumerable.Range(defaultDaysAfter, defaultDaysAfter + trailingTotalDays).Select(day => IsBusinessDay(day, invoiceDate, holidays));
@@ -162,10 +160,30 @@ public static class TimeExtensions
         return lastDayOfPreviousMonth;
     }
 
-
-    private static DateTime IsBusinessDay(int days, DateTime checkingDate, List<DateTime> holidays)
+    public static DateTime GetFirstPaymentDate(this DateTime targetDate, List<DateTime> holidays)
     {
-        var dateToCheck = checkingDate.AddDays(days);
+        while (!targetDate.IsBusinessDay2(holidays))
+        {
+            targetDate = targetDate.AddDays(1);
+        } 
+
+        return targetDate;
+    }
+
+    public static bool IsBusinessDay2(this DateTime targetDate, List<DateTime> holidays)
+    {
+        //var dateToCheck = targetDate.AddDays(days);
+        var isNonBusinessDay =
+            targetDate.DayOfWeek == DayOfWeek.Saturday ||
+            targetDate.DayOfWeek == DayOfWeek.Sunday ||
+            holidays.Exists(excludedDate => excludedDate.Date.Equals(targetDate.Date));
+
+        return isNonBusinessDay;
+    }
+
+    private static DateTime IsBusinessDay(int days, DateTime targetDate, List<DateTime> holidays)
+    {
+        var dateToCheck = targetDate.AddDays(days);
         var isNonBusinessDay =
             dateToCheck.DayOfWeek == DayOfWeek.Saturday ||
             dateToCheck.DayOfWeek == DayOfWeek.Sunday ||
@@ -173,11 +191,17 @@ public static class TimeExtensions
 
         return !isNonBusinessDay ? dateToCheck : DateTime.MinValue;
     }
-    //Adding 3 business days from current date as revised invoice date.
-   
-    public static DateTime AddBusinessDays(DateTime currentDate, int businessDaysToAdd, List<DateTime> holidays)
+
+    /// <summary>
+    /// Adding x business days from the target date.
+    /// </summary>
+    /// <param name="targetDate"></param>
+    /// <param name="businessDaysToAdd"></param>
+    /// <param name="holidays"></param>
+    /// <returns></returns>
+    public static DateTime AddBusinessDays(this DateTime targetDate, int businessDaysToAdd, List<DateTime> holidays)
     {
-        DateTime futureDate = currentDate;
+        DateTime futureDate = targetDate;
         int addedDays = 0;
 
         while (addedDays < businessDaysToAdd)
@@ -194,6 +218,15 @@ public static class TimeExtensions
         return futureDate;
     }
 
+    public static Guid MatchFiscalYear(this DateTime paymentDate, List<ofm_fiscal_year> fiscalYears)
+    {
+        ofm_fiscal_year? matchingFiscalYear = fiscalYears.FirstOrDefault(fiscalYear => paymentDate >= fiscalYear.ofm_start_date && paymentDate <= fiscalYear.ofm_end_date);
 
+        if (matchingFiscalYear == null)
+        {
+            return Guid.Empty;
+        }
 
+        return matchingFiscalYear!.ofm_fiscal_yearid!.Value;
+    }
 }

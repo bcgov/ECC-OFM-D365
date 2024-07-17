@@ -6,7 +6,6 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
-using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -348,7 +347,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                 { "statecode", 1 }
             };
 
-            updateRemindersRequests.Add(new D365UpdateRequest(new EntityReference("ofm_reminders", (Guid)reminder["ofm_reminderid"]), reminderToUpdate));
+            updateRemindersRequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_reminders", (Guid)reminder["ofm_reminderid"]), reminderToUpdate));
         }
 
         // Deactive reminders
