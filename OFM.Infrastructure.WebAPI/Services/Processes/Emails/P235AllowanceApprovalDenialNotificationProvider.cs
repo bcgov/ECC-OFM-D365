@@ -32,6 +32,7 @@ public class P235AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
     private string? _fundingAgreementCommunicationType;
     private string? _informationCommunicationType;
     private Guid? _allowanceId;
+    private bool emailCreated = false;
 
     public P235AllowanceApprovalDenialNotificationProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IFundingRepository fundingRepository, IEmailRepository emailRepository)
     {
@@ -153,7 +154,7 @@ public class P235AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
 
         var startTime = _timeProvider.GetTimestamp();
 
-        #region Create the funding email notifications 
+        #region Create the Supp email notifications 
 
 
         if (appStatusCode == (int)ofm_application_StatusCode.Approved && statusReason == (int)ofm_allowance_StatusCode.Approved)
@@ -200,10 +201,11 @@ public class P235AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
                     recipientsList.Add(primaryContact);
                 }
                 await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235);
+                emailCreated = true;
 
 
             }
-            #endregion Create the email notifications 
+            
 
         }
 
@@ -236,43 +238,34 @@ public class P235AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
                     recipientsList.Add(primaryContact);
                 }
                 await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235);
+                emailCreated = true;
+
             }
 
         }
-
-        var updateNotificationFlagRequests = new List<HttpRequestMessage>() { };
-
-        var approvalEmailSentflag = new JsonObject
+        #endregion Create the Supp email notifications
+        if (emailCreated)
+        {
+            var updateSupplementalUrl = @$"ofm_allowances({_allowanceId})";
+            var updateContent = new
             {
-                { "ofm_approval_notification_sent", true }
+                ofm_notification_sent = true
             };
+            var requestBody = JsonSerializer.Serialize(updateContent);
+            var patchResponse = await _d365webapiservice.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateSupplementalUrl, requestBody);
 
-        updateNotificationFlagRequests.Add(new D365UpdateRequest(new EntityReference(ofm_allowance.EntitySetName, _allowanceId), approvalEmailSentflag));
+            _logger.LogDebug(CustomLogEvent.Process, "Update Supplemental Record {supplemental.ofm_allowanceid}", _allowanceId);
+
+            if (!patchResponse.IsSuccessStatusCode)
+            {
+                var responseBody = await patchResponse.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
+                return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
+            }
+            return ProcessResult.Failure(ProcessId, new String[] { "Upsert action failed" }, 0, 0).SimpleProcessResult;
 
 
-        // Deactive reminders
-        var updateNotificationResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateNotificationFlagRequests, null);
-        if (updateNotificationResults.Errors.Any())
-        {
-            var sendNotificationError = ProcessResult.Failure(ProcessId, updateNotificationResults.Errors, updateNotificationResults.TotalProcessed, updateNotificationResults.TotalRecords);
-            _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
-
-            return await Task.FromResult(sendNotificationError.SimpleProcessResult);
         }
-
-        var result = ProcessResult.Success(ProcessId, updateNotificationFlagRequests.Count);
-
-        var endTime = _timeProvider.GetTimestamp();
-
-        var serializeOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-        };
-
-        string json = JsonSerializer.Serialize(result, serializeOptions);
-        _logger.LogInformation(CustomLogEvent.Process, "Send Notification process finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
-
 
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
