@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Diagnostics;
 using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes;
@@ -61,14 +60,13 @@ public record ProcessParameter
     [property: JsonPropertyName("ReportSections")]
     public string? ReportSections { get; set; }
 
-   
-
     [property: JsonPropertyName("paymentfile")]
    
     public PaymentParameter? PaymentFile { get; set; }
 
     [property: JsonPropertyName("dataImportId")]
     public Guid? DataImportId { get; set; }
+
 
     #region Inner Parameter Record Objects
 
@@ -152,10 +150,10 @@ public record ProcessParameter
         public string? SupplementaryId { get; set; }
         
         [property: JsonPropertyName("ofm_monthly_province_base_funding_y1")]
-        public string? MonthlyBaseFundingAmount { get; set; }
+        public decimal? MonthlyBaseFundingAmount { get; set; }
 
         [property: JsonPropertyName("previous_monthly_province_base_funding_y1")]
-        public string? PreviousMonthlyBaseFundingAmount { get; set; }
+        public decimal? PreviousMonthlyBaseFundingAmount { get; set; }
 
         [property: JsonPropertyName("isMod")]
         public bool? IsMod { get; set; }

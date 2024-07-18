@@ -2,7 +2,7 @@
 
 namespace OFM.Infrastructure.WebAPI.Messages;
 
-    public class EntityReference
+    public class D365EntityReference
     {
         /// <summary>
         /// Creates an EntityReference with EntitySetName and Guid Id
@@ -10,7 +10,7 @@ namespace OFM.Infrastructure.WebAPI.Messages;
         /// <param name="entitySetName">The entity set name</param>
         /// <param name="id">The Guid Id value.</param>
         /// <exception cref="Exception"></exception>
-        public EntityReference(string entitySetName, Guid? id)
+        public D365EntityReference(string entitySetName, Guid? id)
         {
             if (!id.HasValue)
             {
@@ -26,7 +26,7 @@ namespace OFM.Infrastructure.WebAPI.Messages;
         /// </summary>
         /// <param name="uri">An absolute or relative URI to a record.</param>
         /// <exception cref="ArgumentException"></exception>
-        public EntityReference(string uri)
+        public D365EntityReference(string uri)
         {
             int firstParen = uri.LastIndexOf('(');
             int lastParen = uri.LastIndexOf(')');
@@ -67,7 +67,7 @@ namespace OFM.Infrastructure.WebAPI.Messages;
         /// </summary>
         /// <param name="setName">The entity set name</param>
         /// <param name="keyAttributes">The key attributes to use.</param>
-        public EntityReference(string setName, Dictionary<string, string>? keyAttributes)
+        public D365EntityReference(string setName, Dictionary<string, string>? keyAttributes)
         {
             KeyAttributes = keyAttributes;
             SetName = setName;

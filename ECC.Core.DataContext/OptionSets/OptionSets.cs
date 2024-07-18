@@ -3887,8 +3887,12 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Local Government", 3)]
-		LocalGovernment = 4,
+		[OptionSetMetadataAttribute("Corporation/Limited Company", 0)]
+		CorporationLimitedCompany = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Local Government/Municipality", 3)]
+		LocalGovernmentMunicipality = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Non-Profit Society", 1)]
@@ -3897,10 +3901,6 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Public Institution (College/University)", 2)]
 		PublicInstitutionCollegeUniversity = 3,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Registered Company", 0)]
-		RegisteredCompany = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Sole Proprietor or Partnership", 4)]
@@ -3973,6 +3973,30 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("ITE", 2)]
 		ITE = 3,
+	}
+	
+	/// <summary>
+	/// Expense Verification Status
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ecc_expense_verification_status
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Complete", 1)]
+		Complete = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Failed", 2)]
+		Failed = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("N/A", 3)]
+		NA = 4,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Pending", 0)]
+		Pending = 1,
 	}
 	
 	/// <summary>
@@ -4385,16 +4409,16 @@ namespace ECC.Core.DataContext
 		IndigenousProgramming = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Irregular Expense", 4)]
+		IrregularExpense = 5,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Support Needs Funding", 2)]
 		SupportNeedsFunding = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Transportation", 3)]
 		Transportation = 4,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Unexpected Expense", 4)]
-		UnexpectedExpense = 5,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -4531,7 +4555,11 @@ namespace ECC.Core.DataContext
 		HSA = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Other", 5)]
+		[OptionSetMetadataAttribute("Move UP", 5)]
+		MoveUP = 7,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Other", 6)]
 		Other = 6,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6106,6 +6134,27 @@ namespace ECC.Core.DataContext
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_ActionType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("EmailFollowup", 2)]
+		EmailFollowup = 100000002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("KnowledgeArticleDraftReview", 0)]
+		KnowledgeArticleDraftReview = 100000000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("ReplyToCustomer", 3)]
+		ReplyToCustomer = 100000003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("ResolveCase", 1)]
+		ResolveCase = 100000001,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum msdyn_AdjustmentStatus
 	{
 		
@@ -6483,6 +6532,27 @@ namespace ECC.Core.DataContext
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_applystatus
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Failed", 3)]
+		Failed = 772020003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Not Started", 0)]
+		NotStarted = 772020000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Running", 1)]
+		Running = 772020001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Succeeded", 2)]
+		Succeeded = 772020002,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum msdyn_AssignmentConfigurationStepType
 	{
 		
@@ -6761,6 +6831,35 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("System - Agreement Schedule", 4)]
 		SystemAgreementSchedule = 690970005,
+	}
+	
+	/// <summary>
+	/// Booking Status Optimization Methods
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_BookingStatusOptimizationMethod
+	{
+		
+		/// <summary>
+		/// Bookings in this status will not be moved by the optimization engine
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Do Not Move", 1, "#0000ff", "Bookings in this status will not be moved by the optimization engine")]
+		DoNotMove = 192350001,
+		
+		/// <summary>
+		/// Bookings in this status will be completely ignored by the optimization engine
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Ignore", 2, "#0000ff", "Bookings in this status will be completely ignored by the optimization engine")]
+		Ignore = 192350002,
+		
+		/// <summary>
+		/// Bookings in this status can be optimized by the optimization engine
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Optimize", 0, "#0000ff", "Bookings in this status can be optimized by the optimization engine")]
+		Optimize = 192350000,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -9858,6 +9957,39 @@ namespace ECC.Core.DataContext
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_OptimizationStatus
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Canceled", 3)]
+		Canceled = 772020003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Failed", 2)]
+		Failed = 772020002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Running", 0)]
+		Running = 772020000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Succeeded", 1)]
+		Succeeded = 772020001,
+	}
+	
+	/// <summary>
+	/// Scheduling Optimization Type
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_OptimizationType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Single Resource Optimization", 0)]
+		SingleResourceOptimization = 772020000,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum msdyn_OutofStockOptions
 	{
 		
@@ -10850,8 +10982,8 @@ namespace ECC.Core.DataContext
 		Mobile = 690970002,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Resource Scheduling Optimization", 5)]
-		ResourceSchedulingOptimization = 192350000,
+		[OptionSetMetadataAttribute("Optimization", 5)]
+		Optimization = 192350000,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Schedule Assistant", 4)]
@@ -11048,6 +11180,19 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Default", 0, "#0000ff")]
 		Default = 1,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_SchedulingGoal
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Front-load high priority work", 1)]
+		Frontloadhighprioritywork = 772020001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Maximize Utilization", 0)]
+		MaximizeUtilization = 772020000,
 	}
 	
 	/// <summary>
@@ -11872,6 +12017,23 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Per Field Service Status Change", 1, "#0000ff", "Per Field Service Status Change")]
 		PerFieldServiceStatusChange = 192350001,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_TimeTrackerCategoryOptionSet
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Automatic", 1)]
+		Automatic = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Final", 2)]
+		Final = 100000002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Manual", 0)]
+		Manual = 100000000,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -13121,8 +13283,8 @@ namespace ECC.Core.DataContext
 		Approved = 6,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Denied - Cancel", 7)]
-		DeniedCancel = 8,
+		[OptionSetMetadataAttribute("Cancelled", 7)]
+		Cancelled = 8,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Denied - Expired", 6)]
@@ -13592,31 +13754,31 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Approved", 5)]
+		[OptionSetMetadataAttribute("Approved", 4, "#0000ff")]
 		Approved = 6,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Cancelled", 6)]
+		[OptionSetMetadataAttribute("Cancelled", 6, "#0000ff")]
 		Cancelled = 7,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Draft", 0)]
+		[OptionSetMetadataAttribute("Draft", 0, "#0000ff")]
 		Draft = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Ineligible", 1)]
+		[OptionSetMetadataAttribute("Ineligible", 5, "#0000ff")]
 		Ineligible = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("In Review", 2)]
+		[OptionSetMetadataAttribute("In Review", 1, "#0000ff")]
 		InReview = 3,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Not Recommended", 4)]
+		[OptionSetMetadataAttribute("Not Recommended", 3, "#0000ff")]
 		NotRecommended = 5,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Recommended for Approval", 3)]
+		[OptionSetMetadataAttribute("Recommended for Approval", 2, "#0000ff")]
 		RecommendedforApproval = 4,
 	}
 	
@@ -16193,6 +16355,22 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("ReferencedEntity", 2, "#0000ff")]
 		ReferencedEntity = 200004749,
+	}
+	
+	/// <summary>
+	/// Value indicating whether security role is auto-assigned based on user license
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum securityrole_IsAutoAssigned
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("No", 0)]
+		No = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Yes", 1)]
+		Yes = 1,
 	}
 	
 	/// <summary>

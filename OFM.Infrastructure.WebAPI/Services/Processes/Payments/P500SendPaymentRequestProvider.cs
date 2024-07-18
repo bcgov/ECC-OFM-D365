@@ -121,7 +121,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
             return requestUri;
         }
     }
-    
+
 
     public async Task<ProcessData> GetDataAsync()
     {
@@ -197,8 +197,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
         var line = typeof(InvoiceLines);
         var header = typeof(InvoiceHeader);
-        string result = string.Empty;
-        
+        string inboxFileBytes = string.Empty;
 
         #region Step 0.1: Get paymentlines data & current Financial Year
 
@@ -273,6 +272,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
                 _controlCount++;
             }
+
             invoiceHeaders.Add(new InvoiceHeader
             {
                 feederNumber = _BCCASApi.feederNumber,// Static value:3540
@@ -288,7 +288,6 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
                 remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
                 grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - (invoiceamount < 0 ? 1 : 0), '0'), // invoice amount come from OFM total base value.
-
                 CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
                 termsName = "Immediate".PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
                 goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
@@ -299,27 +298,29 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 description = string.Concat(headeritem.First()?.ofm_facility?.name).PadRight(header.FieldLength("description")),// can be used to pass extra info
                 flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
                 invoiceLines = invoiceLines
-
             });
             _controlAmount = _controlAmount + invoiceamount;
             _controlCount++;
             _oracleBatchNumber++;
         }
 
-        // break transaction list into multiple list if it contains more than 250 transaction
+        // break transaction list into multiple list if it contains more than 250 transactions
         headerList = invoiceHeaders
         .Select((x, i) => new { Index = i, Value = x })
         .GroupBy(x => x.Index / _BCCASApi.transactionCount)
         .Select(x => x.Select(v => v.Value).ToList())
         .ToList();
+
         #endregion
 
-        #region Step 2: Generate and process inbox file in CRM
+        #region Step 2: Compose the inbox file string
+
         // for each set of transaction create and upload inbox file in payment file exchange
         foreach (List<InvoiceHeader> headeritem in headerList)
         {
             _controlAmount = (Double)headeritem.SelectMany(x => x.invoiceLines).ToList().Sum(x => Convert.ToDecimal(x.lineAmount));
             _controlCount = headeritem.SelectMany(x => x.invoiceLines).ToList().Count + headeritem.Count;
+
             var data = new
             {
                 feederNumber = _BCCASApi.feederNumber,// Static value:3540
@@ -333,105 +334,96 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 controlAmount = _controlAmount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount"), '0'),// total sum of amount
                 trailertransactionType = _BCCASApi.trailertransactionType,//Static  value :BT
                 InvoiceHeader = headeritem
-
             };
 
             _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
-            result += template(data);
+            inboxFileBytes += template(data);
         }
 
         #endregion
 
-        #region  Step 3: Create Payment Records for all approved applications.
+        #region  Step 3: Create Payment File Exchange Record for all approved payment lines and Mark Processed Payment Lines
 
-        if (!string.IsNullOrEmpty(result))
-        {   
-            await SavePaymentFileExchangeRecord(appUserService, d365WebApiService, _BCCASApi.feederNumber, result, serializedPaymentData);        
+        if (!string.IsNullOrEmpty(inboxFileBytes))
+        {
+            bool savePFEResult = await SaveInboxFileOnNewPaymentFileExchangeRecord(appUserService, d365WebApiService, _BCCASApi.feederNumber, inboxFileBytes);
+            
+            if (savePFEResult)
+                await MarkPaymentLinesAsProcessed(appUserService, d365WebApiService, serializedPaymentData);
         }
-        
+
         #endregion
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-
     }
 
-    private async Task<JsonObject> MarkPayAsProcessed(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, List<D365PaymentLine> payment)
+    private async Task<JsonObject> MarkPaymentLinesAsProcessed(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, List<D365PaymentLine> payments)
     {
         var updatePayRequests = new List<HttpRequestMessage>() { };
-        payment.ForEach(pay =>
+        payments.ForEach(pay =>
         {
             var payToUpdate = new JsonObject {
                   { "statuscode", Convert.ToInt16(ofm_payment_StatusCode.ProcessingPayment) }
-
              };
 
-            updatePayRequests.Add(new D365UpdateRequest(new EntityReference(ofm_payment.EntityLogicalCollectionName, pay.ofm_paymentid), payToUpdate));
+            updatePayRequests.Add(new D365UpdateRequest(new D365EntityReference(ofm_payment.EntityLogicalCollectionName, pay.ofm_paymentid), payToUpdate));
         });
 
-        var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updatePayRequests, null);
-        if (step2BatchResult.Errors.Any())
+        var paymentBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updatePayRequests, null);
+        if (paymentBatchResult.Errors.Any())
         {
-            var errors = ProcessResult.Failure(ProcessId, step2BatchResult.Errors, step2BatchResult.TotalProcessed, step2BatchResult.TotalRecords);
-            _logger.LogError(CustomLogEvent.Process, "Failed to update email notifications with an error: {error}", JsonValue.Create(errors)!.ToString());
+            var errors = ProcessResult.Failure(ProcessId, paymentBatchResult.Errors, paymentBatchResult.TotalProcessed, paymentBatchResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to update payment status with an error: {error}", JsonValue.Create(errors)!.ToString());
 
             return errors.SimpleProcessResult;
         }
 
-        return step2BatchResult.SimpleBatchResult;
+        return paymentBatchResult.SimpleBatchResult;
     }
 
-    private async Task<JsonObject> SavePaymentFileExchangeRecord(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string feederNumber, string result, List<D365PaymentLine> payment)
+    private async Task<bool> SaveInboxFileOnNewPaymentFileExchangeRecord(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string feederNumber, string result)
     {
-        var filename = ("INBOX.F" + feederNumber + "." + DateTime.UtcNow.ToLocalPST().ToString("yyyyMMddHHmmss"));
+        var inboxFileName = ("INBOX.F" + feederNumber + "." + DateTime.UtcNow.ToLocalPST().ToString("yyyyMMddHHmmss"));
         var requestBody = new JsonObject()
         {
-            ["ofm_input_file_name"] = filename,
-            ["ofm_name"] = filename,
+            ["ofm_input_file_name"] = inboxFileName,
+            ["ofm_name"] = inboxFileName,
             ["ofm_batch_number"] = _cgiBatchNumber,
             ["ofm_oracle_batch_name"] = _oracleBatchNumber.ToString()
         };
 
-        var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "ofm_payment_file_exchanges", requestBody.ToString());
+        var pfeCreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, ofm_payment_file_exchange.EntitySetName, requestBody.ToString());
 
-        if (!response.IsSuccessStatusCode)
+        if (!pfeCreateResponse.IsSuccessStatusCode)
         {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to create payment file exchange record with  the server error {responseBody}", responseBody.CleanLog());
+            var pfeCreateError = await pfeCreateResponse.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to create payment file exchange record with the server error {responseBody}", JsonValue.Create(pfeCreateError)!.ToString());
 
-            //log the error
-            // return await Task.FromResult<JsonObject>(new JsonObject() { });
+            return await Task.FromResult(false);
         }
 
-        var paymentRecord = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var pfeRecord = await pfeCreateResponse.Content.ReadFromJsonAsync<JsonObject>();
 
-        if (paymentRecord is not null && paymentRecord.ContainsKey("ofm_payment_file_exchangeid"))
+        if (pfeRecord is not null && pfeRecord.ContainsKey(ofm_payment_file_exchange.Fields.ofm_payment_file_exchangeid))
         {
-            //  paymentdocumentsResult.Add(paymentRecord);
-
-            if (filename.Length > 0)
+            if (inboxFileName.Length > 0)
             {
-                // Attach the file to the new document record
-                HttpResponseMessage response1 = await _d365webapiservice.SendDocumentRequestAsync(_appUserService.AZPortalAppUser, "ofm_payment_file_exchanges", new Guid(paymentRecord["ofm_payment_file_exchangeid"].ToString()), Encoding.ASCII.GetBytes(result.TrimEnd()), filename);
+                // Update the new Payment File Exchange record with the new document
+                HttpResponseMessage pfeUpdateResponse = await _d365webapiservice.SendDocumentRequestAsync(_appUserService.AZPortalAppUser, ofm_payment_file_exchange.EntitySetName,
+                                                                                                    new Guid(pfeRecord[ofm_payment_file_exchange.Fields.ofm_payment_file_exchangeid].ToString()),
+                                                                                                    Encoding.ASCII.GetBytes(result.TrimEnd()),
+                                                                                                    inboxFileName);
 
-                if (!response1.IsSuccessStatusCode)
+                if (!pfeUpdateResponse.IsSuccessStatusCode)
                 {
-                    var responseBody = await response1.Content.ReadAsStringAsync();
-                    _logger.LogError(CustomLogEvent.Process, "Failed to upload file in the payment file exchange with  the server error {responseBody}", responseBody.CleanLog());
+                    var pfeUpdateError = await pfeUpdateResponse.Content.ReadAsStringAsync();
+                    _logger.LogError(CustomLogEvent.Process, "Failed to update payment file exchange record with the new inbox document with the server error {responseBody}", pfeUpdateError.CleanLog());
 
-                    //log the error
-                    return await Task.FromResult<JsonObject>(new JsonObject() { });
-
-                }
-
-                #region  Step 4: Mark payment as processed.
-
-                await MarkPayAsProcessed(appUserService, d365WebApiService, payment);
-
-                #endregion
-
+                    return await Task.FromResult(false);
+                }               
             }
         }
 
-        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        return await Task.FromResult(true);
     }
 }

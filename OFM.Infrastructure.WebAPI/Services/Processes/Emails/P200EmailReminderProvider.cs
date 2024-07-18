@@ -6,12 +6,7 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Http;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 
@@ -183,7 +178,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
         #region Step 1: Create the email reminders as Completed-Pending Send
 
-        List<string> recipientsList = new() { };
+        List<string> recipientsList = [];
         string? contactId = null;
         // foreach contact, check if the email address is on the safe list configured on the appsettings, if yes then carry on, else replace the email with a default email address
         uniqueContacts.ForEach(contact =>
@@ -196,6 +191,7 @@ public class P200EmailReminderProvider : ID365ProcessProvider
             }
             recipientsList.Add(contactId);
         });
+
         List<HttpRequestMessage> SendEmailFromTemplateRequest = [];
         var templateData = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 201).TemplateNumber);
         var serializedtemplateData = JsonConvert.DeserializeObject<List<D365Template>>(templateData.Data.ToString());
@@ -211,8 +207,8 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                         }
                         },
                         { "Target", new JsonObject  {
-                            { "ofm_show_notification_on_portal" , false},
-                            {"email_activity_parties", new JsonArray(){
+                        { "ofm_show_notification_on_portal" , false},
+                        { "email_activity_parties", new JsonArray(){
                                     new JsonObject
                                     {
                                         {"partyid_systemuser@odata.bind", $"/systemusers({_notificationSettings.DefaultSenderId})"},

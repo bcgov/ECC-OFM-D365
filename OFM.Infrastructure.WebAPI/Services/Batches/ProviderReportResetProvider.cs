@@ -189,7 +189,7 @@ public class ProviderReportResetProvider(ILoggerFactory loggerFactory) : ID365Ba
                                     { ofm_question_response.Fields.statuscode, (int)ofm_question_response_StatusCode.Inactive }
                                 };
 
-                                var questionResponseRequest = new D365UpdateRequest(new EntityReference(ofm_question_response.EntitySetName, qresponse.Id), questionResponseToUpdate); // new D365UpdateRequest("ofm_question_responses", questionData);
+                                var questionResponseRequest = new D365UpdateRequest(new D365EntityReference(ofm_question_response.EntitySetName, qresponse.Id), questionResponseToUpdate); // new D365UpdateRequest("ofm_question_responses", questionData);
                                 questionResponseRequestList.Add(questionResponseRequest);
                             }
 
@@ -200,7 +200,7 @@ public class ProviderReportResetProvider(ILoggerFactory loggerFactory) : ID365Ba
                                 var sendQuestionResponseError = ProcessResult.Failure(BatchTypeId, questionResponseRequestBatchResult.Errors, questionResponseRequestBatchResult.TotalProcessed, questionResponseRequestBatchResult.TotalRecords);
                                 _logger.LogError(CustomLogEvent.Batch, "Failed to re-associate question response to the new Provider Report copy with an error: {error}", JsonValue.Create(sendQuestionResponseError)!.ToString());
 
-                                return sendQuestionResponseError.SimpleProcessResult;
+                                return await Task.FromResult(sendQuestionResponseError.SimpleProcessResult);
                             }
 
                             ProcessResult processResult = ProcessResult.Success(questionResponseRequestBatchResult.ProcessId, questionResponseRequestBatchResult.TotalRecords);

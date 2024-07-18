@@ -79,10 +79,6 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
         get
         {
             var actionsLog = _fundingResult.ActionsLog;
-            //var first = actionsLog.FirstOrDefault();
-            //var licenceDetails = first["LicenceDetails"];
-            //var deserilized = JsonSerializer.Deserialize<List<LicenceDetail>>(licenceDetails.ToJsonString());
-
             var rawFTEs = actionsLog.GroupBy(act => act.LicenceType).Select(sdd => new
             {
                 //sdd.First().Step,
@@ -126,10 +122,6 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
         get
         {
             var actionsLog = _fundingResult.ActionsLog;
-            //var first = actionsLog.FirstOrDefault();
-            //var licenceDetails = first["LicenceDetails"];
-            //var deserilized = JsonSerializer.Deserialize<List<LicenceDetail>>(licenceDetails.ToJsonString());
-
             var adjustedFTEs = actionsLog.GroupBy(act => act.LicenceType).Select(ld => new
             {
                 //sdd.First().Step,

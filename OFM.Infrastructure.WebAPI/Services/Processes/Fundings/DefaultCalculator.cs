@@ -1,6 +1,4 @@
-﻿using HandlebarsDotNet;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
-using System.Data;
+﻿using OFM.Infrastructure.WebAPI.Models.Fundings;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 

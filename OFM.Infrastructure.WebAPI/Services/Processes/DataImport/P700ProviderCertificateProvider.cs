@@ -9,7 +9,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
@@ -380,7 +379,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                               { "ofm_certificate_status", certStatus}
                                };
             var requestBody = JsonSerializer.Serialize(payload);
-            var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, updateString, requestBody);
+            var patchResponse = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateString, requestBody);
             if (!patchResponse.IsSuccessStatusCode)
             {
                 var responseBody = await patchResponse.Content.ReadAsStringAsync();
@@ -412,7 +411,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         { "statecode", 0 }
                     };
                 var requestBody = JsonSerializer.Serialize(payload);
-                var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, dataImportStatement, requestBody);
+                var patchResponse = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, dataImportStatement, requestBody);
                 if (!patchResponse.IsSuccessStatusCode)
                 {
                     var responseBody = await patchResponse.Content.ReadAsStringAsync();
@@ -457,7 +456,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         { "statecode", 0 }
                     };
                     var requestBody = JsonSerializer.Serialize(payload);
-                    var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, ECECertStatement, requestBody);
+                    var patchResponse = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, ECECertStatement, requestBody);
                     if (!patchResponse.IsSuccessStatusCode)
                     {
                         var responseBody = await patchResponse.Content.ReadAsStringAsync();
@@ -548,10 +547,10 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         { "ofm_is_active", record?.ISACTIVE.ToLower() == "yes" },
                         { "statecode", 0 }
                     };
-                    upsertECERequests.Add(new UpsertRequest(new EntityReference("ofm_employee_certificates(ofm_certificate_number='" + record?.CLIENTID + "')"), ECECert));
+                    upsertECERequests.Add(new UpsertRequest(new D365EntityReference("ofm_employee_certificates(ofm_certificate_number='" + record?.CLIENTID + "')"), ECECert));
 
                 }
-                var upsertECECertResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, upsertECERequests, null);
+                var upsertECECertResults = await d365WebApiService.SendBatchMessageAsync(_appUserService.AZSystemAppUser, upsertECERequests, null);
                 if (upsertECECertResults.Errors.Any())
                 {
                     var errorInfos = ProcessResult.Failure(ProcessId, upsertECECertResults.Errors, upsertECECertResults.TotalProcessed, upsertECECertResults.TotalRecords);
@@ -587,10 +586,10 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                     {
                         { "statecode", 1 }
                     };
-                    updateMissingECERequests.Add(new D365UpdateRequest(new EntityReference("ofm_employee_certificates", (Guid)record["ofm_employee_certificateid"]), ECECert));
+                    updateMissingECERequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_employee_certificates", (Guid)record["ofm_employee_certificateid"]), ECECert));
 
                 }
-                var upsertMissingECECertResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateMissingECERequests, null);
+                var upsertMissingECECertResults = await d365WebApiService.SendBatchMessageAsync(_appUserService.AZSystemAppUser, updateMissingECERequests, null);
                 if (upsertMissingECECertResults.Errors.Any())
                 {
                     var errorInfos = ProcessResult.Failure(ProcessId, upsertMissingECECertResults.Errors, upsertMissingECECertResults.TotalProcessed, upsertMissingECECertResults.TotalRecords);
@@ -681,7 +680,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         {
                             { "ofm_certificate_status", certStatus?1:0 }
                         };
-                        updateRequests.Add(new D365UpdateRequest(new EntityReference("ofm_provider_employees", (Guid)batch["ofm_provider_employeeid"]), tempObject));
+                        updateRequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_provider_employees", (Guid)batch["ofm_provider_employeeid"]), tempObject));
                     }
                     if (updateRequests.Count == 0) continue;
                     var updateResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRequests, null);
@@ -712,7 +711,7 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
                         {
                             { "ofm_certificate_status", 0 }
                         };
-                        updateRequests.Add(new D365UpdateRequest(new EntityReference("ofm_provider_employees", (Guid)batch["ofm_provider_employeeid"]), tempObject));
+                        updateRequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_provider_employees", (Guid)batch["ofm_provider_employeeid"]), tempObject));
                     }
 
                     if (updateRequests.Count == 0) continue;

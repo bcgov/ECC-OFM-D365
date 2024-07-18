@@ -8,7 +8,7 @@ namespace OFM.Infrastructure.WebAPI.Messages;
 public sealed class DownloadFileRequest : HttpRequestMessage
 {
     public DownloadFileRequest(
-        EntityReference entityReference,
+        D365EntityReference entityReference,
         string columnName,
         bool returnFullSizedImage = false)
     {

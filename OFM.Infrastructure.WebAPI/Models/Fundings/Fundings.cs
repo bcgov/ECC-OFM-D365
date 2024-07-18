@@ -1,7 +1,4 @@
 ﻿using ECC.Core.DataContext;
-using Newtonsoft.Json;
-using OFM.Infrastructure.WebAPI.Models;
-using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
@@ -131,10 +128,12 @@ public class Application : ofm_application
     public new decimal? ofm_costs_strata_fee { get; set; }
     public Guid? _ofm_contact_value { get; set; }
     public Guid? _ofm_expense_authority_value { get; set; }
-    public new D365Facility? ofm_facility { get; set; }
-
     public Guid? _ofm_summary_submittedby_value { get; set; }
-
+    public new D365Facility? ofm_facility { get; set; }
+    public new D365Organization? ofm_organization { get; set; }
+    public new SupplementaryApplication[]? ofm_application_allowance { get; set; }
+    public new ExpenseApplication[]? ofm_application_expense { get; set; }
+    public new Funding[]? ofm_application_funding { get; set; }
     public string? ofm_application { get; set; }
 
 }
@@ -149,18 +148,10 @@ public class SupplementaryApplication : ofm_allowance
     public new decimal? ofm_funding_amount { get; set; }
     public new decimal? ofm_transport_monthly_lease { get; set; }
     public new decimal? ofm_transport_odometer { get; set; }
+    public new decimal? ofm_monthly_amount { get; set; }
+    public new decimal? ofm_retroactive_amount { get; set; }
     public new SupplementarySchedule? ofm_supplementary_schedule { get; set; }
     public string _ofm_application_value { get; set; }
-    public Guid ofm_allowanceid { get; set; }
-    public string ofm_allowance_number { get; set; }
-    public DateTime createdon { get; set; }
-    public int ofm_allowance_type { get; set; }
-    public DateTime ofm_end_date { get; set; }
-    public DateTime ofm_start_date { get; set; }
-    public int statuscode { get; set; }
-    public int ofm_renewal_term { get; set; }
-
-
 }
 
 public class BusinessClosure
