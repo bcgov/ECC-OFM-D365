@@ -59,7 +59,7 @@ public class P525SendCASDailyReport(IOptionsSnapshot<NotificationSettings> notif
                         <attribute name="ofm_batch_number" />
                         <order attribute="ofm_name" descending="false" />
                         <filter type="and">
-                          <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ApprovedforPayment}" />
+                          <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ProcessingPayment}" />
                           <condition attribute="ofm_supplierid" operator="not-null" />
                           <condition attribute="ofm_siteid" operator="not-null" />
                           <condition attribute="ofm_payment_method" operator="not-null" />
@@ -75,13 +75,16 @@ public class P525SendCASDailyReport(IOptionsSnapshot<NotificationSettings> notif
                         <link-entity name="account" from="accountid" to="ofm_facility" visible="false" link-type="outer" alias="ofm_facility">
                           <attribute name="accountnumber" />
                           <attribute name="name" />
+                          <link-entity name="account" from="accountid" to="parentaccountid" alias="org">
+                            <attribute name="name" />
+                          </link-entity>
                         </link-entity>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,ofm_amount,ofm_description,ofm_effective_date,ofm_payment_type,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_date,ofm_batch_number&$expand=ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ApprovedforPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (ofm_invoice_date eq '{localDateOnlyPST}' or ofm_revised_invoice_date eq '{localDateOnlyPST}' )) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,ofm_amount,ofm_description,ofm_effective_date,ofm_payment_type,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_date,ofm_batch_number&$expand=ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name;$expand=parentaccountid($select=name))&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ProcessingPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (ofm_invoice_date eq '{localDateOnlyPST}' or ofm_revised_invoice_date eq '{localDateOnlyPST}')) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
                          """;
 
             return requestUri;
@@ -151,7 +154,7 @@ public class P525SendCASDailyReport(IOptionsSnapshot<NotificationSettings> notif
         using(var writer = new StreamWriter(memoryStream))
         {
                 
-            string[] columns = { "BatchNumber", "SupplierNumber", "SupplierStie", "InvoiceNumber", "InvoiceDate", "InvoiceAmount", "Description", "EffectiveDate" };
+            string[] columns = { "BatchNumber", "SupplierNumber", "OrganizationName", "FacilityName", "SupplierSite", "InvoiceNumber", "InvoiceDate", "InvoiceAmount", "Description", "EffectiveDate" };
             string separator = ",";
             writer.Write(String.Join(separator, columns));
             writer.Write("\r\n");
@@ -162,13 +165,15 @@ public class P525SendCASDailyReport(IOptionsSnapshot<NotificationSettings> notif
                     var batchNumber = payment.ofm_batch_number;
                     var supplierNumber = payment.ofm_supplierid;
                     var supplierSiteNumber = payment.ofm_siteid.PadLeft(line.FieldLength("supplierSiteNumber"), '0');
+                    var organizationName = payment.ofm_facility?.parentaccountid?.name??"";
+                    var facilityName = payment.ofm_facility?.name??"";
                     var invoiceNumber = payment.ofm_invoice_number;
-                    var invoiceDate = payment.ofm_invoice_date?.ToString("yyyyMMdd");
+                    var invoiceDate = payment.ofm_invoice_date?.ToString("yyyyMMdd")??"";
                     var lineAmount = (payment?.ofm_amount < 0 ? "-" : "") + Math.Abs((payment.ofm_amount)).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount") - (payment?.ofm_amount < 0 ? 1 : 0), '0');
                     var lineDescription = string.Concat(payment?.ofm_application?.ofm_application, " ", payment?.ofm_payment_type);
-                    var effectiveDate = payment?.ofm_effective_date?.ToString("yyyyMMdd");
+                    var effectiveDate = payment?.ofm_effective_date?.ToString("yyyyMMdd")??"";
 
-                    string[] paymentline = { batchNumber, supplierNumber, supplierSiteNumber, invoiceNumber, invoiceDate, lineAmount, lineDescription, effectiveDate };
+                    string[] paymentline = { batchNumber, supplierNumber, organizationName, facilityName, supplierSiteNumber, invoiceNumber, invoiceDate, lineAmount, lineDescription, effectiveDate };
                     writer.Write(String.Join(separator, paymentline));
                     writer.Write("\r\n");
                 }

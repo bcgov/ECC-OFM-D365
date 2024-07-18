@@ -262,7 +262,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     lineAmount = (lineitem.item.ofm_amount < 0 ? "-" : "") + Math.Abs(lineitem.item.ofm_amount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount") - (lineitem.item.ofm_amount < 0 ? 1 : 0), '0'),// come from split funding amount per facility
                     lineCode = (lineitem.item.ofm_amount > 0 ? "D" : "C"),//if it is positive then line code is Debit otherwise credit
                     distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
-                    lineDescription = string.Concat(lineitem.item?.ofm_application?.ofm_Application, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
+                    lineDescription = string.Concat(lineitem.item?.ofm_application?.ofm_application, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
                     effectiveDate = lineitem.item.ofm_effective_date?.ToString("yyyyMMdd"), //2 days after invoice posting
                     quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
                     unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder

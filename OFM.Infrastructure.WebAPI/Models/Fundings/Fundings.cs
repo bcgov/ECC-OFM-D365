@@ -50,6 +50,8 @@ public class Funding : ofm_funding
 public class Facility : Account
 {
     public new Licence[]? ofm_facility_licence { get; set; }
+
+    public new D365Organization? parentaccountid { get; set; }
 }
 
 public class Licence : ofm_licence
@@ -133,7 +135,7 @@ public class Application : ofm_application
 
     public Guid? _ofm_summary_submittedby_value { get; set; }
 
-    public string ofm_application { get; set; }
+    public string? ofm_application { get; set; }
 
 }
 
