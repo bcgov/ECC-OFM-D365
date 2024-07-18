@@ -137,8 +137,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                               """;
 
                 var requestUri = $"""
-                           ofm_applications?$select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_funding_number_base,_ofm_contact_value,_ofm_expense_authority_value,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name),ofm_organization($select=accountid,accountnumber,name),ofm_application_funding($select=ofm_end_date,ofm_fundingid,ofm_start_date,ofm_version_number,statecode,statuscode;$filter=(ofm_version_number eq 0)),ofm_application_expense($select=ofm_amount,_ofm_application_value,ofm_approvedon_date,_ofm_assistance_request_value,ofm_caption,ofm_end_date,ofm_expenseid,ofm_payment_frequency,ofm_start_date,statecode,statuscode;$filter=(ofm_expenseid eq 53ba21a3-9143-ef11-a316-000d3af4125f))&$filter=(ofm_facility/accountid ne null) and (ofm_organization/accountid ne null) and (ofm_application_funding/any(o1:(o1/ofm_version_number eq 0))) and (ofm_application_expense/any(o2:(o2/ofm_expenseid eq {_processParams!.ExpenseApplication!.expenseId})))
+                           ofm_applications?$select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_funding_number_base,_ofm_contact_value,_ofm_expense_authority_value,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name),ofm_organization($select=accountid,accountnumber,name),ofm_application_funding($select=ofm_end_date,ofm_fundingid,ofm_start_date,ofm_version_number,statecode,statuscode;$filter=(ofm_version_number eq 0)),ofm_application_expense($select=ofm_amount,_ofm_application_value,ofm_approvedon_date,_ofm_assistance_request_value,ofm_caption,ofm_end_date,ofm_expenseid,ofm_payment_frequency,ofm_start_date,statecode,statuscode;$filter=(ofm_expenseid eq {_expenseApplicationId}))&$filter=(ofm_facility/accountid ne null) and (ofm_organization/accountid ne null) and (ofm_application_funding/any(o1:(o1/ofm_version_number eq 0))) and (ofm_application_expense/any(o2:(o2/ofm_expenseid eq {_expenseApplicationId})))
                            """;
+
+          
 
                 return requestUri;
             }

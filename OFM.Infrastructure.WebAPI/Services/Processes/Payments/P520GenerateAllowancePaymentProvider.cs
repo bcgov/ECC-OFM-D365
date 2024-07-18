@@ -372,8 +372,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, monthlyPaymentAmount, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
 
                 // Process retroactive payment
-                int retroActiveMonthsCount = (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month;
-                await ProcessRetroActivePayment(baseApplication!, approvedSA, processParams, fiscalYears, holidaysList, monthlyPaymentAmount, retroActiveMonthsCount);
+               
+                    int retroActiveMonthsCount = approvedSA.ofm_retroactive_date!.HasValue ? (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month : 0;
+                    await ProcessRetroActivePayment(baseApplication!, approvedSA, processParams, fiscalYears, holidaysList, monthlyPaymentAmount, retroActiveMonthsCount);
+                
+                
             }
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
@@ -381,8 +384,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
         private async Task ProcessRetroActivePayment(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList, decimal monthlyPaymentAmount, int retroActiveMonthsCount)
         {
-            decimal retroActiveAmount = monthlyPaymentAmount * retroActiveMonthsCount;
-            await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, retroActiveAmount, false, ecc_payment_type.Transportation, baseApplication, processParams, fiscalYears, holidaysList);
+            decimal retroActiveAmount = retroActiveMonthsCount > 0 ? monthlyPaymentAmount * retroActiveMonthsCount : 0;
+            if( retroActiveAmount > 0)
+            { await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, retroActiveAmount, false, ecc_payment_type.Transportation, baseApplication, processParams, fiscalYears, holidaysList); 
+            }
+            
             await SaveRetroactiveAmount(approvedSA, retroActiveAmount);
 
             _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
