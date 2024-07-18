@@ -277,7 +277,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 {
                     { "ofm_invoice_line_number", lineNumber++ },
                     { "ofm_amount", expenseAmount},
-                    { "ofm_payment_type", (int) ecc_payment_type.UnexpectedExpense },
+                    { "ofm_payment_type", (int) ecc_payment_type.IrregularExpense },
                     { "ofm_description", " Irregular Expense payment" },
                     { "ofm_application@odata.bind",$"/ofm_applications({application})" },
                     { "ofm_invoice_date", invoicedate.ToString("yyyy-MM-dd") },

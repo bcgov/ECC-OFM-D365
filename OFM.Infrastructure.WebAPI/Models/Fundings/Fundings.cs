@@ -143,6 +143,9 @@ public class FacilityLicence : ofm_licence
 public class SupplementaryApplication : ofm_allowance
 {
     public new decimal? ofm_funding_amount { get; set; }
+    public new decimal? ofm_retroactive_amount { get; set; }
+    public new decimal? ofm_monthly_amount { get; set; }
+
     public new decimal? ofm_transport_monthly_lease { get; set; }
     public new decimal? ofm_transport_odometer { get; set; }
     public new SupplementarySchedule? ofm_supplementary_schedule { get; set; }
@@ -155,6 +158,27 @@ public class SupplementaryApplication : ofm_allowance
     public DateTime ofm_start_date { get; set; }
     public int statuscode { get; set; }
     public int ofm_renewal_term { get; set; }
+    [property: JsonPropertyName("con.ofm_first_name")]
+
+    public string ofm_first_name { get; set; }
+
+    [property: JsonPropertyName("con.ofm_last_name")]
+
+    public string ofm_last_name { get; set; }
+
+    [property: JsonPropertyName("app.ofm_contact")]
+    public Guid _ofm_contact_value { get; set; }
+
+    [property: JsonPropertyName("app.ofm_summary_submittedby")]
+    public Guid _ofm_summary_submittedby_value { get; set; }
+
+    [property: JsonPropertyName("app.statuscode")]
+    public int appstatuscode { get; set; }
+    [property: JsonPropertyName("app.ofm_funding_number_base")]
+    public string ofm_funding_number_base { get; set; }
+    [property: JsonPropertyName("funding.statuscode")]
+    public int fundingStatusCode { get; set; }
+
 
 
 }
