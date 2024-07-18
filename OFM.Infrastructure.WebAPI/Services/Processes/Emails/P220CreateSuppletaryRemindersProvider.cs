@@ -44,6 +44,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     <filter>
                       <condition attribute="ofm_submittedon" operator="today" />
                       <condition attribute="ofm_renewal_term" operator="ne" value="3" />
+                      <condition attribute="ofm_application" operator="not-null" value="" />
                     </filter>
                   </entity>
                 </fetch>
@@ -56,7 +57,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 string yesterdayUtcstr = yesterdayUtc.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
 
                 var requestUri = $"""
-                               ofm_allowances?$select=createdon,ofm_allowance_number,ofm_allowance_type,ofm_allowanceid,ofm_end_date,ofm_renewal_term,ofm_start_date,ofm_transport_vehicle_vin,_ofm_application_value,ofm_submittedon&$filter=(ofm_submittedon gt {yesterdayUtcstr} and ofm_submittedon lt {todayUtcstr} and ofm_renewal_term ne 3)
+                               ofm_allowances?$select=createdon,ofm_allowance_number,ofm_allowance_type,ofm_allowanceid,ofm_end_date,ofm_renewal_term,ofm_start_date,ofm_transport_vehicle_vin,_ofm_application_value,ofm_submittedon&$filter=(ofm_submittedon gt {yesterdayUtcstr} and ofm_submittedon lt {todayUtcstr} and ofm_renewal_term ne 3 and _ofm_application_value ne null)
                                """;
                 return requestUri.CleanCRLF();
             }
@@ -135,6 +136,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             #region step 1: get supplementary applications created on today
             var supplementaryData = await GetDataAsync();
 
+            if (String.IsNullOrEmpty(supplementaryData.Data.ToString()))
+            {
+                return ProcessResult.Failure(ProcessId, new String[] { "Failed to query records" }, 0, 0).SimpleProcessResult;
+            }
+
             var deserializedData = JsonSerializer.Deserialize<List<Supplementary>>(supplementaryData.Data, Setup.s_writeOptionsForLogs);
 
             if (deserializedData.Count > 0)
@@ -158,6 +164,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                             """;
 
                     var reminderData = await GetReminderDataAsync(requestUri.CleanCRLF());
+
+                    if (String.IsNullOrEmpty(reminderData.Data.ToString()))
+                    {
+                        continue;
+                    }
                     var deserializedReminderData = JsonSerializer.Deserialize<List<ofm_reminders>>(reminderData.Data, Setup.s_writeOptionsForLogs);
 
                     //if there is a reminder created for the term -> skip
