@@ -143,8 +143,15 @@ public class P240AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
             _logger.LogInformation("No records returned from FetchXml", deserializedData.Count);
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
-        await _emailRepository.CreateAllowanceEmail(deserializedData.First(), _processParams.Notification.SenderId, _informationCommunicationType, ProcessId,d365WebApiService);
+        try
+        {
+            await _emailRepository.CreateAllowanceEmail(deserializedData.First(), _processParams.Notification.SenderId, _informationCommunicationType, ProcessId, d365WebApiService);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(CustomLogEvent.Process, "Failed to generate email notification for supplementary {responseBody}", ex.InnerException.Message);
 
+        }
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
 
