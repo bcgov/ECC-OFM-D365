@@ -384,38 +384,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             if (newEmailId != null)
                 await NotificationSentSupp(allowance.ofm_allowanceid, _d365webapiservice, processId);
 
-            #region generate pdf for the email sent for approval
-            subject = "<div>&nbsp</div><div style = 'font-size:18pt;margin-left:8em'><span style = 'font-size:18pt'><b>Subject: " + subject + "</b></span></div><br/><br/><br/>";
-            emaildescription = string.Concat(Environment.NewLine, subject, Environment.NewLine, emaildescription);
-            SelectPdf.HtmlToPdf converter = new SelectPdf.HtmlToPdf();
 
-            try
-            {
-                SelectPdf.HtmlToPdfOptions options = new HtmlToPdfOptions();
-                converter.Options.MarginTop = 100; converter.Options.MarginLeft = 50; converter.Options.MarginRight = 40; converter.Options.MarginBottom = 10;
-                converter.Options.PdfPageOrientation = PdfPageOrientation.Landscape;
-                converter.Options.PdfPageSize = PdfPageSize.A4;
-                SelectPdf.PdfDocument doc = converter.ConvertHtmlString(emaildescription);
-                byte[] bytes = doc.Save();
-                HttpResponseMessage response1 = await _d365webapiservice.SendDocumentRequestAsync(_appUserService.AZPortalAppUser, ofm_allowance.EntitySetName, (Guid)allowance.ofm_allowanceid, bytes, string.Concat(allowanceNumber, ".pdf"));
-
-                if (!response1.IsSuccessStatusCode)
-                {
-                    var responseBody = await response1.Content.ReadAsStringAsync();
-                    _logger.LogError(CustomLogEvent.Process, "Failed to create notification pdf for approved supplementary  the server error {responseBody}", responseBody.CleanLog());
-
-                    //log the error
-                    return await Task.FromResult(false);
-
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(CustomLogEvent.Process, "Failed to create notification pdf for approved supplementary {responseBody}", ex.InnerException.Message);
-
-            }
-
-            #endregion
 
         }
         if (allownaceStatusReason == (int)ofm_allowance_StatusCode.DeniedIneligible)
