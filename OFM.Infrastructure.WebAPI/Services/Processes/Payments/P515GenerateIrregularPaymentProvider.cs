@@ -25,7 +25,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private Guid _baseApplicationId = Guid.NewGuid();
 
         public Int16 ProcessId => Setup.Process.Payments.GeneratePaymentLinesForIrregularExpenseId;
-        public string ProcessName => Setup.Process.Payments.GeneratePaymentForIrregularExpenseName;
+        public string ProcessName => Setup.Process.Payments.GeneratePaymentForIrregularExpenseResponseName;
 
         #region Data Queries
 
