@@ -1,8 +1,5 @@
 ﻿using ECC.Core.DataContext;
-using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk;
 using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
@@ -11,9 +8,6 @@ using System.Text.Json.Nodes;
 using System.Net;
 using OFM.Infrastructure.WebAPI.Models;
 using Microsoft.Extensions.Options;
-using System.Threading.Tasks;
-using System;
-using CreateRequest = OFM.Infrastructure.WebAPI.Messages.CreateRequest;
 using SelectPdf;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
@@ -26,7 +20,6 @@ public interface IEmailRepository
     string StripHTML(string source);
     Task<bool> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService);
     Task<JsonObject> NotificationSentSupp(Guid allowanceId, ID365WebApiService d365WebApiService, Int16 processId);
-
 
 }
 
