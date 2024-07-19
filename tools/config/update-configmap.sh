@@ -167,7 +167,35 @@ D365_CONFIGURATION=$(jq << JSON
 	  {
         "TemplateNumber": 250,
         "Description": "Application Ineligible"
-      }
+      },
+	  {
+		  "TemplateNumber": 240,
+		  "Description": "SupportNeedsProgramAllowanceApproved"
+		},
+		{
+		  "TemplateNumber": 255,
+		  "Description": "IndigenousAllowanceApproved"
+		},
+		{
+		  "TemplateNumber": 260,
+		  "Description": "TransportationAllowanceApprovedwithRetroActive"
+		},
+		{
+		  "TemplateNumber": 290,
+		  "Description": "TransportationAllowanceApprovedwithoutRetroActive"
+		},
+		{
+		  "TemplateNumber": 275,
+		  "Description": "SupportNeedsProgramAllowanceDenied"
+		},
+		{
+		  "TemplateNumber": 280,
+		  "Description": "IndigenousAllowanceDenied"
+		},
+		{
+		  "TemplateNumber": 285,
+		  "Description": "TransportationAllowanceDenied"
+		}
     ],
     "CommunicationTypes": {
       "Information": 1,
