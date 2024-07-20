@@ -8,14 +8,13 @@ using System.Text.Json.Nodes;
 using System.Net;
 using OFM.Infrastructure.WebAPI.Models;
 using Microsoft.Extensions.Options;
-using SelectPdf;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
 public interface IEmailRepository
 {
     Task<IEnumerable<D365CommunicationType>> LoadCommunicationTypeAsync();
-    Task<Guid?> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId);
+    Task<Guid?> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId,string regarding="");
     Task<ProcessData> GetTemplateDataAsync(int templateNumber);
     string StripHTML(string source);
     Task<bool> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService);
@@ -138,7 +137,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
 
     #region Create and Update Email
 
-    public async Task<Guid?> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId)
+    public async Task<Guid?> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId,string regarding="")
     {
         toRecipient.ForEach(async recipient =>
         {
@@ -157,7 +156,8 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                                     { "participationtypemask",   2 } //To Email                             
                                 }
                             }},
-                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({communicationType})"}
+                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({communicationType})"},
+                            {"ofm_regarding_data",regarding }
                         };
 
             var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "emails", requestBody.ToString());
@@ -380,7 +380,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
 
             // if (task.Value != null)
 
-            Guid? newEmailId = await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId);
+            Guid? newEmailId = await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId,string.Concat(allowance.ofm_allowanceid,"#",SupplementaryApplication.EntityLogicalName));
             if (newEmailId != null)
                 await NotificationSentSupp(allowance.ofm_allowanceid, _d365webapiservice, processId);
 
