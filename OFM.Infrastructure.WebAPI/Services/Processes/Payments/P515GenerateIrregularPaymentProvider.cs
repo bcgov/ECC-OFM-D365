@@ -173,7 +173,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number&$filter=(_ofm_application_value eq {_baseApplicationId})&$orderby=ofm_invoice_line_number desc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,_ofm_regardingid_value,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number&$filter=(_ofm_application_value eq {_baseApplicationId})&$orderby=ofm_invoice_line_number desc
                          """;
 
                 return requestUri;
@@ -339,6 +339,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             var fiscalYearsData = await GetFiscalYearDataAsync();
             List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
+            _baseApplicationId = deserializedApplicationData.First().Id;
+            ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
+
+            List<D365PaymentLine>? deserializedPaymentsData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
+            List<D365PaymentLine> expensePayments = deserializedPaymentsData.Where(payment => payment._ofm_regardingid_value != null && payment._ofm_regardingid_value == expenseInfo.Id.ToString()).ToList();
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
             var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
@@ -346,21 +351,24 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             #endregion
 
-            switch (expenseInfo.ofm_payment_frequency)
-            {
-                case ecc_payment_frequency.LumpSum:
-                    await CreateSinglePayment(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
-                    break;
-                case ecc_payment_frequency.Monthly:
-                    int numberOfMonthsCount = (expenseInfo.ofm_end_date.Value.Year - expenseInfo.ofm_start_date.Value.Year) * 12 + expenseInfo.ofm_end_date.Value.Month - expenseInfo.ofm_start_date.Value.Month + 1;
-                    var expenseAmount = expenseInfo.ofm_amount / numberOfMonthsCount;
+            if(expensePayments.Count == 0) {
+                switch (expenseInfo.ofm_payment_frequency)
+                {
+                    case ecc_payment_frequency.LumpSum:
+                        await CreateSinglePayment(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
+                        break;
+                    case ecc_payment_frequency.Monthly:
+                        int numberOfMonthsCount = (expenseInfo.ofm_end_date.Value.Year - expenseInfo.ofm_start_date.Value.Year) * 12 + expenseInfo.ofm_end_date.Value.Month - expenseInfo.ofm_start_date.Value.Month + 1;
+                        var expenseAmount = expenseInfo.ofm_amount / numberOfMonthsCount;
 
-                    await CreatePaymentsInBatch(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_end_date.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
-                    break;
-                default:
-                    _logger.LogError(CustomLogEvent.Process, "Unable to generate payments for Expense record with Id {} . Invalid {frequency}", processParams?.ExpenseApplication.expenseId, expenseInfo.ofm_payment_frequency);
-                    break;
+                        await CreatePaymentsInBatch(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_end_date.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
+                        break;
+                    default:
+                        _logger.LogError(CustomLogEvent.Process, "Unable to generate payments for Expense record with Id {} . Invalid {frequency}", processParams?.ExpenseApplication.expenseId, expenseInfo.ofm_payment_frequency);
+                        break;
+                }
             }
+           
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }

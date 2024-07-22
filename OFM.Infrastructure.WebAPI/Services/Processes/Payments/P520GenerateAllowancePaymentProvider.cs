@@ -47,6 +47,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         <attribute name="ofm_amount" />
                         <attribute name="ofm_application" />
                         <attribute name="ofm_invoice_line_number" />
+                        <attribute name="ofm_regardingid" />
                         <order attribute="ofm_invoice_line_number" descending="true" />
                         <filter type="and">
                           <condition attribute="ofm_application" operator="eq" value="00000000-0000-0000-0000-000000000000" />
@@ -56,7 +57,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number&$filter=(_ofm_application_value eq {_baseApplicationId})&$orderby=ofm_invoice_line_number desc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,_ofm_regardingid_value,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number&$filter=(_ofm_application_value eq {_baseApplicationId})&$orderby=ofm_invoice_line_number desc
                          """;
 
                 return requestUri;
@@ -331,20 +332,30 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 _logger.LogError(CustomLogEvent.Process, "Unable to retrieve the Supplementary Application with the Id: {allowanceId}", processParams!.SupplementaryApplication!.allowanceId);
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
+            _baseApplicationId = deserializedApplicationData.First().Id;
+            ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
+           
+            List<D365PaymentLine>? deserializedPaymentsData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
+            List<D365PaymentLine> approvedSAPayments = deserializedPaymentsData.Where(payment => payment._ofm_regardingid_value != null && payment._ofm_regardingid_value == approvedSA.ofm_allowanceid.ToString()).ToList();
 
-            var fiscalYearsData = await GetAllFiscalYearsDataAsync();
-            List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
+            
 
-            var businessClosuresData = await GetBusinessClosuresDataAsync();
-            var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
-            List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
+            if (approvedSAPayments.Count == 0) {
+                var fiscalYearsData = await GetAllFiscalYearsDataAsync();
+                List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
+
+                var businessClosuresData = await GetBusinessClosuresDataAsync();
+                var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
+                List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
 
             #endregion
 
-            await ProcessSupportNeedsOrIndigenousPayments(deserializedApplicationData.First(), approvedSA, processParams, fiscalYears, holidaysList);
-            await ProcessTransportationPayments(deserializedApplicationData.First(), approvedSA, processParams, fiscalYears, holidaysList);
+                await ProcessSupportNeedsOrIndigenousPayments(deserializedApplicationData.First(), approvedSA, processParams, fiscalYears, holidaysList);
+                await ProcessTransportationPayments(deserializedApplicationData.First(), approvedSA, processParams, fiscalYears, holidaysList);
 
-            _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the supplementary application {allowanceId}", processParams.SupplementaryApplication!.allowanceId);
+                _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the supplementary application {allowanceId}", processParams.SupplementaryApplication!.allowanceId);
+            }
+           
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }

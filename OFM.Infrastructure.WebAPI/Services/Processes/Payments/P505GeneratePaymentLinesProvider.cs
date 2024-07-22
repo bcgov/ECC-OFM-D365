@@ -328,6 +328,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             ProcessData allExistingPaymentsByApplicationIdData = await GetDataAsync();
             List<D365PaymentLine>? deserializedPaymentsData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allExistingPaymentsByApplicationIdData.Data.ToString());
+            List<D365PaymentLine> fundingPayments = deserializedPaymentsData.Count != 0 ? deserializedPaymentsData.Where(payment => payment._ofm_funding_value == funding.Id.ToString()).ToList() : new List<D365PaymentLine>();
 
             var fiscalYearsData = await GetAllFiscalYearsDataAsync();
             List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
@@ -337,25 +338,28 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
 
             #endregion
-
-            switch (funding.statuscode)
+            if(fundingPayments.Count == 0)
             {
-                case ofm_funding_StatusCode.Active:
-                    await ProcessInitialOrModFundingPayments(funding, processParams, fiscalYears, holidaysList);
+                switch (funding.statuscode)
+                {
+                    case ofm_funding_StatusCode.Active:
+                        await ProcessInitialOrModFundingPayments(funding, processParams, fiscalYears, holidaysList);
 
-                    _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the Active Initial or Mod funding {ofm_funding_number}", funding.ofm_funding_number);
-                    break;
-                case ofm_funding_StatusCode.Terminated:
-                case ofm_funding_StatusCode.Cancelled:
-                case ofm_funding_StatusCode.Expired:
-                    await CancelUnpaidPayments(deserializedPaymentsData);
+                        _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the Active Initial or Mod funding {ofm_funding_number}", funding.ofm_funding_number);
+                        break;
+                    case ofm_funding_StatusCode.Terminated:
+                    case ofm_funding_StatusCode.Cancelled:
+                    case ofm_funding_StatusCode.Expired:
+                        await CancelUnpaidPayments(deserializedPaymentsData);
 
-                    _logger.LogInformation(CustomLogEvent.Process, "Finished cancelling unpaid payments for the Inactive Funding {ofm_funding_number}", funding.ofm_funding_number);
-                    break;
-                default:
-                    _logger.LogWarning(CustomLogEvent.Process, "Unable to process payments with Invalid Funding status {statuscode} for the funding {ofm_funding_number}. Process Params: {param}", funding.statuscode, funding.ofm_funding_number, JsonValue.Create(processParams)!.ToString());
-                    break;
+                        _logger.LogInformation(CustomLogEvent.Process, "Finished cancelling unpaid payments for the Inactive Funding {ofm_funding_number}", funding.ofm_funding_number);
+                        break;
+                    default:
+                        _logger.LogWarning(CustomLogEvent.Process, "Unable to process payments with Invalid Funding status {statuscode} for the funding {ofm_funding_number}. Process Params: {param}", funding.statuscode, funding.ofm_funding_number, JsonValue.Create(processParams)!.ToString());
+                        break;
+                }
             }
+            
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
@@ -392,6 +396,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
+           
 
             #endregion
 

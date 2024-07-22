@@ -399,6 +399,8 @@ public class D365PaymentLine : ofm_payment
     public new string ofm_invoice_number { get; set; } = string.Empty; 
     public new string ofm_siteid { get; set; } = string.Empty;
     public new string ofm_supplierid { get; set; } = string.Empty;
+    public new string _ofm_regardingid_value { get; set; } = string.Empty;
+    public new string _ofm_funding_value { get; set; } = string.Empty;
 }
 
 public class ProviderStaff
