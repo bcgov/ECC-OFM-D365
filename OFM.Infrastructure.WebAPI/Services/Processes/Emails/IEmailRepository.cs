@@ -18,9 +18,7 @@ public interface IEmailRepository
     Task<ProcessData> GetTemplateDataAsync(int templateNumber);
     string StripHTML(string source);
     Task<bool> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService);
-    Task<JsonObject> NotificationSentSupp(Guid allowanceId, ID365WebApiService d365WebApiService, Int16 processId);
-
-}
+ }
 
 public class EmailRepository(ID365AppUserService appUserService, ID365WebApiService service, ID365DataService dataService, ILoggerFactory loggerFactory, IOptionsSnapshot<NotificationSettings> notificationSettings) : IEmailRepository
 {
@@ -157,7 +155,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                                 }
                             }},
                             { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({communicationType})"},
-                            {"ofm_regarding_data",regarding }
+                            {"ofm_regarding_data",regarding }// field is used for email pdf generation. Format:entityname#entityguid
                         };
 
             var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "emails", requestBody.ToString());
@@ -381,8 +379,8 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             // if (task.Value != null)
 
             Guid? newEmailId = await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId,string.Concat(allowance.ofm_allowanceid,"#",SupplementaryApplication.EntityLogicalName));
-            if (newEmailId != null)
-                await NotificationSentSupp(allowance.ofm_allowanceid, _d365webapiservice, processId);
+            /*if (newEmailId != null)
+                await NotificationSentSupp(allowance.ofm_allowanceid.Value, _d365webapiservice, processId);*/
 
 
 
@@ -426,7 +424,8 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
         return await Task.FromResult(emailCreated);
     }
 
-    public async Task<JsonObject> NotificationSentSupp(Guid allowanceId, ID365WebApiService d365WebApiService, Int16 processId)
+    //Update flag in the flow
+   /* public async Task<JsonObject> NotificationSentSupp(Guid allowanceId, ID365WebApiService d365WebApiService, Int16 processId)
     {
         if (emailCreated)
         {
@@ -448,7 +447,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             }
         }
         return ProcessResult.Completed(processId).SimpleProcessResult;
-    }
+    }*/
 
 
 }
