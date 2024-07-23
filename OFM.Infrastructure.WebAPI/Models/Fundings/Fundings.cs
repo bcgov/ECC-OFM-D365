@@ -159,6 +159,8 @@ public class SupplementaryApplication : ofm_allowance
     public Guid? _ofm_summary_submittedby_value { get; set; }
     [property: JsonPropertyName("app.ofm_funding_number_base")]
     public string? ofm_funding_number_base { get; set; }
+    [property: JsonPropertyName("funding.statuscode")]
+    public int? fundingstatuscode { get; set; }
 }
 
 public class BusinessClosure

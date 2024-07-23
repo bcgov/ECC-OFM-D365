@@ -114,7 +114,7 @@ OFM.Expense.Form = {
 		var currentDate = new Date();
 		if (startDate != null) {
 			if (startDate < currentDate) {
-				formContext.ui.setFormNotification("Start  date cannot a past date.", "ERROR", "startdate");
+				formContext.ui.setFormNotification("Start  date cannot be a past date.", "ERROR", "startdate");
 				// Clear end date field
 				formContext.getAttribute("ofm_start_date").setValue(null);
 			}
@@ -124,7 +124,7 @@ OFM.Expense.Form = {
 		}
 		if (endDate != null) {
 			if (endDate < currentDate) {
-				formContext.ui.setFormNotification("End  date cannot a past date.", "ERROR", "enddate");
+				formContext.ui.setFormNotification("End  date cannot be a past date.", "ERROR", "enddate");
 				// Clear end date field
 				formContext.getAttribute("ofm_end_date").setValue(null);
 			}

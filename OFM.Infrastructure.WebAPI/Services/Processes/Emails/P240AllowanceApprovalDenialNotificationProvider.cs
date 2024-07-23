@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
@@ -74,6 +75,12 @@ public class P240AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
                             <attribute name="ofm_last_name" />
                             <attribute name="ofm_first_name" />
                           </link-entity>
+                     <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid" link-type="inner" alias="funding" >
+                        <attribute name="statuscode" />
+                        <filter>
+                            <condition attribute="ofm_version_number" operator="eq" value="0" />
+                        </filter>
+                    </link-entity>
                         </link-entity>
                       </entity>
                     </fetch>
@@ -136,6 +143,7 @@ public class P240AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
         }
         try
         {
+            if(deserializedData.First().fundingstatuscode == (int)ofm_funding_StatusCode.Active)
             await _emailRepository.CreateAllowanceEmail(deserializedData.First(), _processParams.Notification.SenderId, _informationCommunicationType, ProcessId, d365WebApiService);
         }
         catch (Exception ex)
