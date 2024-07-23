@@ -12,7 +12,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 public interface IFundingRepository
 {
     Task<IEnumerable<RateSchedule>> LoadRateSchedulesAsync();
-    Task<Funding> GetFundingByIdAsync(Guid id);
+    Task<Funding> GetFundingByIdAsync(Guid id, bool isPayment = false);
     Task<IEnumerable<SpaceAllocation>> GetSpacesAllocationByFundingIdAsync(Guid id);
     Task<bool> SaveFundingAmountsAsync(IFundingResult fundingResult);
     Task<bool> SaveDefaultSpacesAllocationAsync(IEnumerable<ofm_space_allocation> spacesAllocation);
@@ -317,6 +317,116 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
         }
     }
 
+    private string FundingForPaymentsRequestUri
+    {
+        get
+        {
+            // For reference only
+            var fetchXml = $"""
+                            <fetch distinct="true" no-lock="true">
+                              <entity name="ofm_funding">
+                                <attribute name="createdby" />
+                                <attribute name="createdon" />
+                                <attribute name="modifiedby" />
+                                <attribute name="modifiedon" />
+                                <attribute name="ofm_application" />
+                                <attribute name="ofm_provider_approver" />
+                                <attribute name="ofm_apply_duplicate_caretypes_condition" />
+                                <attribute name="ofm_apply_room_split_condition" />
+                                <attribute name="ofm_end_date" />
+                                <attribute name="ofm_envelope_administrative" />
+                                <attribute name="ofm_envelope_administrative_pf" />
+                                <attribute name="ofm_envelope_administrative_proj" />
+                                <attribute name="ofm_envelope_facility" />
+                                <attribute name="ofm_envelope_facility_pf" />
+                                <attribute name="ofm_envelope_facility_proj" />
+                                <attribute name="ofm_envelope_grand_total" />
+                                <attribute name="ofm_envelope_grand_total_pf" />
+                                <attribute name="ofm_envelope_grand_total_proj" />
+                                <attribute name="ofm_envelope_hr_benefits" />
+                                <attribute name="ofm_envelope_hr_benefits_pf" />
+                                <attribute name="ofm_envelope_hr_benefits_proj" />
+                                <attribute name="ofm_envelope_hr_employerhealthtax" />
+                                <attribute name="ofm_envelope_hr_employerhealthtax_pf" />
+                                <attribute name="ofm_envelope_hr_employerhealthtax_proj" />
+                                <attribute name="ofm_envelope_hr_prodevexpenses" />
+                                <attribute name="ofm_envelope_hr_prodevexpenses_pf" />
+                                <attribute name="ofm_envelope_hr_prodevexpenses_proj" />
+                                <attribute name="ofm_envelope_hr_prodevhours" />
+                                <attribute name="ofm_envelope_hr_prodevhours_pf" />
+                                <attribute name="ofm_envelope_hr_prodevhours_proj" />
+                                <attribute name="ofm_envelope_hr_total" />
+                                <attribute name="ofm_envelope_hr_total_pf" />
+                                <attribute name="ofm_envelope_hr_total_proj" />
+                                <attribute name="ofm_envelope_hr_wages_paidtimeoff" />
+                                <attribute name="ofm_envelope_hr_wages_paidtimeoff_pf" />
+                                <attribute name="ofm_envelope_hr_wages_paidtimeoff_proj" />
+                                <attribute name="ofm_envelope_operational" />
+                                <attribute name="ofm_envelope_operational_pf" />
+                                <attribute name="ofm_envelope_operational_proj" />
+                                <attribute name="ofm_envelope_programming" />
+                                <attribute name="ofm_envelope_programming_pf" />
+                                <attribute name="ofm_envelope_programming_proj" />
+                                <attribute name="ofm_facility" />
+                                <attribute name="ofm_funding_envelope" />
+                                <attribute name="ofm_funding_number" />
+                                <attribute name="ofm_fundingid" />
+                                <attribute name="ofm_new_allocation_date" />
+                                <attribute name="ofm_monthly_province_base_funding_y1" />
+                                <attribute name="ofm_retroactive_payment_date" />
+                                <attribute name="ofm_retroactive_payment_frequency" />
+                                <attribute name="ofm_rate_schedule" />
+                                <attribute name="ofm_start_date" />
+                                <attribute name="ofm_version_number" />
+                                <attribute name="ownerid" />
+                                <attribute name="owningbusinessunit" />
+                                <attribute name="statecode" />
+                                <attribute name="statuscode" />
+                                <filter>
+                                  <condition attribute="ofm_fundingid" operator="eq" value="00000000-0000-0000-0000-000000000000" />
+                                </filter>
+                                <link-entity name="account" from="accountid" to="ofm_facility" link-type="inner" alias="Facility">
+                                  <attribute name="accountid" />
+                                  <attribute name="accountnumber" />
+                                  <attribute name="name" />
+                                </link-entity>
+                                <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="outer" alias="App">
+                                  <attribute name="ofm_application" />
+                                  <attribute name="ofm_applicationid" />
+                                  <attribute name="ofm_summary_ownership" />
+                                  <attribute name="ofm_application_type" />
+                                  <attribute name="ofm_costs_applicable_fee" />
+                                  <attribute name="ofm_costs_facility_type" />
+                                  <attribute name="ofm_costs_furniture_equipment" />
+                                  <attribute name="ofm_costs_maintenance_repairs" />
+                                  <attribute name="ofm_costs_mortgage" />
+                                  <attribute name="ofm_costs_property_insurance" />
+                                  <attribute name="ofm_costs_property_municipal_tax" />
+                                  <attribute name="ofm_costs_rent_lease" />
+                                  <attribute name="ofm_costs_strata_fee" />
+                                  <attribute name="ofm_costs_supplies" />
+                                  <attribute name="ofm_costs_upkeep_labour_supplies" />
+                                  <attribute name="ofm_costs_utilities" />
+                                  <attribute name="ofm_costs_year_facility_costs" />
+                                  <attribute name="ofm_costs_yearly_operating_costs" />
+                                  <attribute name="ofm_funding_number_base" />
+                                  <attribute name="ofm_contact" />
+                                  <attribute name="ofm_expense_authority" />
+                                  <attribute name="statecode" />
+                                  <attribute name="statuscode" />
+                                </link-entity>
+                              </entity>
+                            </fetch>
+                            """;
+
+            var requestUri = $"""                                
+                             ofm_fundings?$select=_createdby_value,createdon,_modifiedby_value,modifiedon,_ofm_application_value,_ofm_provider_approver_value,ofm_apply_duplicate_caretypes_condition,ofm_apply_room_split_condition,ofm_end_date,ofm_envelope_administrative,ofm_envelope_administrative_pf,ofm_envelope_administrative_proj,ofm_envelope_facility,ofm_envelope_facility_pf,ofm_envelope_facility_proj,ofm_envelope_grand_total,ofm_envelope_grand_total_pf,ofm_envelope_grand_total_proj,ofm_envelope_hr_benefits,ofm_envelope_hr_benefits_pf,ofm_envelope_hr_benefits_proj,ofm_envelope_hr_employerhealthtax,ofm_envelope_hr_employerhealthtax_pf,ofm_envelope_hr_employerhealthtax_proj,ofm_envelope_hr_prodevexpenses,ofm_envelope_hr_prodevexpenses_pf,ofm_envelope_hr_prodevexpenses_proj,ofm_envelope_hr_prodevhours,ofm_envelope_hr_prodevhours_pf,ofm_envelope_hr_prodevhours_proj,ofm_envelope_hr_total,ofm_envelope_hr_total_pf,ofm_envelope_hr_total_proj,ofm_envelope_hr_wages_paidtimeoff,ofm_envelope_hr_wages_paidtimeoff_pf,ofm_envelope_hr_wages_paidtimeoff_proj,ofm_envelope_operational,ofm_envelope_operational_pf,ofm_envelope_operational_proj,ofm_envelope_programming,ofm_envelope_programming_pf,ofm_envelope_programming_proj,_ofm_facility_value,ofm_funding_envelope,ofm_funding_number,ofm_fundingid,ofm_new_allocation_date,ofm_monthly_province_base_funding_y1,ofm_retroactive_payment_date,ofm_retroactive_payment_frequency,_ofm_rate_schedule_value,ofm_start_date,ofm_version_number,_ownerid_value,_owningbusinessunit_value,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name),ofm_application($select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_costs_applicable_fee,ofm_costs_facility_type,ofm_costs_furniture_equipment,ofm_costs_maintenance_repairs,ofm_costs_mortgage,ofm_costs_property_insurance,ofm_costs_property_municipal_tax,ofm_costs_rent_lease,ofm_costs_strata_fee,ofm_costs_supplies,ofm_costs_upkeep_labour_supplies,ofm_costs_utilities,ofm_costs_year_facility_costs,ofm_costs_yearly_operating_costs,ofm_funding_number_base,_ofm_contact_value,_ofm_expense_authority_value,statecode,statuscode)&$filter=(ofm_fundingid eq '{_fundingId!.Value}') and (ofm_facility/accountid ne null)
+                             """;
+
+            return requestUri;
+        }
+    }
+
     private string SpacesAllocationRequestUri
     {
         get
@@ -368,10 +478,10 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
         return await Task.FromResult(deserializedData!); ;
     }
 
-    public async Task<Funding> GetFundingByIdAsync(Guid id)
+    public async Task<Funding> GetFundingByIdAsync(Guid id, bool isPayment = false)
     {
         _fundingId = id;
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, FundingRequestUri, false, 50, true);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, (isPayment) ? FundingForPaymentsRequestUri : FundingRequestUri, false, 50, true);
 
         if (!response.IsSuccessStatusCode)
         {

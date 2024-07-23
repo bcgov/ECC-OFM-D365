@@ -20,9 +20,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
         private readonly TimeProvider _timeProvider = timeProvider;
         private ProcessParameter? _processParams;
-        private string _expenseApplicationId = string.Empty;
-        private string _applicationId = string.Empty;
-        private Guid _baseApplicationId = Guid.NewGuid();
+        private List<D365PaymentLine>? _allPayments;
+        private Guid _baseApplicationId = Guid.Empty;
 
         public Int16 ProcessId => Setup.Process.Payments.GeneratePaymentLinesForIrregularExpenseId;
         public string ProcessName => Setup.Process.Payments.GeneratePaymentForIrregularExpenseName;
@@ -78,7 +77,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
         }
 
-        public string ExpenseApplicationRequestURI
+        public string BaseApplicationRequestURI
         {
             get
             {
@@ -137,10 +136,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                               """;
 
                 var requestUri = $"""
-                           ofm_applications?$select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_funding_number_base,_ofm_contact_value,_ofm_expense_authority_value,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name),ofm_organization($select=accountid,accountnumber,name),ofm_application_funding($select=ofm_end_date,ofm_fundingid,ofm_start_date,ofm_version_number,statecode,statuscode;$filter=(ofm_version_number eq 0)),ofm_application_expense($select=ofm_amount,_ofm_application_value,ofm_approvedon_date,_ofm_assistance_request_value,ofm_caption,ofm_end_date,ofm_expenseid,ofm_payment_frequency,ofm_start_date,statecode,statuscode;$filter=(ofm_expenseid eq {_expenseApplicationId}))&$filter=(ofm_facility/accountid ne null) and (ofm_organization/accountid ne null) and (ofm_application_funding/any(o1:(o1/ofm_version_number eq 0))) and (ofm_application_expense/any(o2:(o2/ofm_expenseid eq {_expenseApplicationId})))
+                           ofm_applications?$select=ofm_application,ofm_applicationid,ofm_summary_ownership,ofm_application_type,ofm_funding_number_base,_ofm_contact_value,_ofm_expense_authority_value,statecode,statuscode&$expand=ofm_facility($select=accountid,accountnumber,name),ofm_organization($select=accountid,accountnumber,name),ofm_application_funding($select=ofm_end_date,ofm_fundingid,ofm_start_date,ofm_version_number,statecode,statuscode;$filter=(ofm_version_number eq 0)),ofm_application_expense($select=ofm_amount,_ofm_application_value,ofm_approvedon_date,_ofm_assistance_request_value,ofm_caption,ofm_end_date,ofm_expenseid,ofm_payment_frequency,ofm_start_date,statecode,statuscode;$filter=(ofm_expenseid eq '{_processParams!.ExpenseApplication!.expenseId}'))&$filter=(ofm_facility/accountid ne null) and (ofm_organization/accountid ne null) and (ofm_application_funding/any(o1:(o1/ofm_version_number eq 0))) and (ofm_application_expense/any(o2:(o2/ofm_expenseid eq '{_processParams!.ExpenseApplication!.expenseId}')))
                            """;
-
-          
 
                 return requestUri;
             }
@@ -173,7 +170,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number&$filter=(_ofm_application_value eq {_baseApplicationId})&$orderby=ofm_invoice_line_number desc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,_ofm_regardingid_value,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number&$filter=(_ofm_application_value eq {_baseApplicationId})&$orderby=ofm_invoice_line_number desc
                          """;
 
                 return requestUri;
@@ -281,7 +278,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             _logger.LogDebug(CustomLogEvent.Process, "GetDataAsync");
 
-            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, ExpenseApplicationRequestURI);
+            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BaseApplicationRequestURI);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -298,7 +295,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    _logger.LogInformation(CustomLogEvent.Process, "No Expense records found with query {requestUri}", ExpenseApplicationRequestURI.CleanLog());
+                    _logger.LogInformation(CustomLogEvent.Process, "No Expense records found with query {requestUri}", BaseApplicationRequestURI.CleanLog());
                 }
                 d365Result = currentValue!;
             }
@@ -320,25 +317,39 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             _processParams = processParams;
             var startTime = _timeProvider.GetTimestamp();
-            _expenseApplicationId = processParams?.ExpenseApplication.expenseId.ToString();
-
             var baseApplicationData = await GetDataAsync();
             List<Application>? deserializedApplicationData = JsonSerializer.Deserialize<List<Application>>(baseApplicationData.Data);
             if (deserializedApplicationData is null || !deserializedApplicationData.Any())
             {
-                _logger.LogError(CustomLogEvent.Process, "Unable to retrieve Application record with expenseId {expenseId}", processParams!.ExpenseApplication!.expenseId);
+                _logger.LogError(CustomLogEvent.Process, "Unable to retrieve Base Application record by expenseId {expenseId}", processParams!.ExpenseApplication!.expenseId);
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
+            _baseApplicationId = deserializedApplicationData!.First().Id;
 
             ExpenseApplication? expenseInfo = deserializedApplicationData?.First()?.ofm_application_expense?.FirstOrDefault();
             if (expenseInfo is null)
             {
-                _logger.LogError(CustomLogEvent.Process, "Unable to retrieve the Expense record with Id {expenseId}", processParams!.ExpenseApplication!.expenseId);
+                _logger.LogError(CustomLogEvent.Process, "Unable to retrieve the Expense record by expenseId {expenseId}", processParams!.ExpenseApplication!.expenseId);
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
 
             var fiscalYearsData = await GetFiscalYearDataAsync();
             List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
+
+
+            ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
+            _allPayments = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
+            if (_allPayments is not null && _allPayments.Count > 0)
+            {
+                List<D365PaymentLine> expensePayments = _allPayments.Where(payment => payment?.ofm_regardingid.Id != null &&
+                                                                                        payment.ofm_regardingid.Id.ToString() == expenseInfo.Id.ToString()).ToList();
+
+                if (expensePayments.Count > 0)
+                {
+                    _logger.LogWarning(CustomLogEvent.Process, "Payments have been previously generated for the Expense Application by the expenseId: {expenseId}", processParams!.ExpenseApplication!.expenseId);
+                    return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                }
+            }
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
             var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
@@ -346,22 +357,23 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             #endregion
 
-            switch (expenseInfo.ofm_payment_frequency)
-            {
-                case ecc_payment_frequency.LumpSum:
-                    await CreateSinglePayment(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
-                    break;
-                case ecc_payment_frequency.Monthly:
-                    int numberOfMonthsCount = (expenseInfo.ofm_end_date.Value.Year - expenseInfo.ofm_start_date.Value.Year) * 12 + expenseInfo.ofm_end_date.Value.Month - expenseInfo.ofm_start_date.Value.Month + 1;
-                    var expenseAmount = expenseInfo.ofm_amount / numberOfMonthsCount;
 
-                    await CreatePaymentsInBatch(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_end_date.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
-                    break;
-                default:
-                    _logger.LogError(CustomLogEvent.Process, "Unable to generate payments for Expense record with Id {} . Invalid {frequency}", processParams?.ExpenseApplication.expenseId, expenseInfo.ofm_payment_frequency);
-                    break;
-            }
+                switch (expenseInfo.ofm_payment_frequency)
+                {
+                    case ecc_payment_frequency.LumpSum:
+                        await CreateSinglePayment(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
+                        break;
+                    case ecc_payment_frequency.Monthly:
+                        int numberOfMonthsCount = (expenseInfo.ofm_end_date.Value.Year - expenseInfo.ofm_start_date.Value.Year) * 12 + expenseInfo.ofm_end_date.Value.Month - expenseInfo.ofm_start_date.Value.Month + 1;
+                        var expenseAmount = expenseInfo.ofm_amount / numberOfMonthsCount;
 
+                        await CreatePaymentsInBatch(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_end_date.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
+                        break;
+                    default:
+                        _logger.LogError(CustomLogEvent.Process, "Unable to generate payments for Expense record with Id {expenseId}. Invalid Payment Frequency {frequency}", processParams?.ExpenseApplication.expenseId, expenseInfo.ofm_payment_frequency);
+                        break;
+                }
+        
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
@@ -462,14 +474,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private async Task<int> GetNextInvoiceLineNumber(Guid baseApplicationId)
         {
             int nextLineNumber = 1;
-            _baseApplicationId = baseApplicationId;
 
-            ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
-
-            List<D365PaymentLine>? deserializedPaymentsData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
-            if (deserializedPaymentsData is not null && deserializedPaymentsData.Any())
+            if (_allPayments is not null && _allPayments.Count > 0)
             {
-                int? currentLineNumber = deserializedPaymentsData
+                int? currentLineNumber = _allPayments
                                     .OrderByDescending(payment => payment.ofm_invoice_line_number)
                                     .First().ofm_invoice_line_number;
                 if (currentLineNumber is not null) nextLineNumber = currentLineNumber!.Value + 1;

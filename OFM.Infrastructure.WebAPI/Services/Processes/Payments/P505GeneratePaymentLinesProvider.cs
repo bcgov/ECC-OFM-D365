@@ -22,7 +22,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private readonly IFundingRepository _fundingRepository = fundingRepository;
         private readonly TimeProvider _timeProvider = timeProvider;
         private ProcessParameter? _processParams;
-        private Guid _baseApplicationId = Guid.Empty;
+        private List<D365PaymentLine>? _allPayments;
 
         public Int16 ProcessId => Setup.Process.Payments.GeneratePaymentLinesId;
         public string ProcessName => Setup.Process.Payments.GeneratePaymentLinesName;
@@ -281,7 +281,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query all payment records by applicaitonId {applicaitonId} with the server error {responseBody}", _baseApplicationId, responseBody.CleanLog());
+                _logger.LogError(CustomLogEvent.Process, "Failed to query all payment records by applicaitonId {applicaitonId} with the server error {responseBody}", _processParams!.Application!.applicationId, responseBody.CleanLog());
 
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
@@ -318,7 +318,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             _processParams = processParams;
 
-            Funding? funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
+            Funding? funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!), isPayment: true);
 
             if (funding is null)
             {
@@ -327,7 +327,16 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             ProcessData allExistingPaymentsByApplicationIdData = await GetDataAsync();
-            List<D365PaymentLine>? deserializedPaymentsData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allExistingPaymentsByApplicationIdData.Data.ToString());
+            _allPayments = JsonSerializer.Deserialize<List<D365PaymentLine>>(allExistingPaymentsByApplicationIdData.Data.ToString());
+            if (funding.statuscode == ofm_funding_StatusCode.Active && _allPayments is not null && _allPayments.Count > 0)
+            {
+                List<D365PaymentLine> fundingPayments = _allPayments.Where(payment => payment.ofm_funding.Id.ToString() == funding.Id.ToString()).ToList();
+                if (fundingPayments.Count > 0)
+                {
+                    _logger.LogWarning(CustomLogEvent.Process, "Payments have been previously generated for Funding with the Id: {FundingId}", processParams!.Funding!.FundingId);
+                    return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                }
+            }
 
             var fiscalYearsData = await GetAllFiscalYearsDataAsync();
             List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
@@ -348,7 +357,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 case ofm_funding_StatusCode.Terminated:
                 case ofm_funding_StatusCode.Cancelled:
                 case ofm_funding_StatusCode.Expired:
-                    await CancelUnpaidPayments(deserializedPaymentsData);
+                    await CancelUnpaidPayments(_allPayments);
 
                     _logger.LogInformation(CustomLogEvent.Process, "Finished cancelling unpaid payments for the Inactive Funding {ofm_funding_number}", funding.ofm_funding_number);
                     break;
@@ -356,6 +365,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     _logger.LogWarning(CustomLogEvent.Process, "Unable to process payments with Invalid Funding status {statuscode} for the funding {ofm_funding_number}. Process Params: {param}", funding.statuscode, funding.ofm_funding_number, JsonValue.Create(processParams)!.ToString());
                     break;
             }
+
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
@@ -384,14 +394,15 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private async Task<JsonObject> ProcessModPayments(ProcessParameter processParams, Funding funding, decimal monthlyFundingAmount, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList)
         {
             #region Validation   
-            
+
             ArgumentNullException.ThrowIfNull(processParams.Funding!.PreviousMonthlyBaseFundingAmount);
             if (funding.ofm_retroactive_payment_frequency is null || funding.ofm_retroactive_payment_date >= funding.ofm_start_date)
             {
                 _logger.LogError(CustomLogEvent.Process, "Unable to process Mod Payments generation for the funding {ofm_funding_number}. ofm_retroactive_payment_frequency can not be blank or Invalid retroactive date.", funding.ofm_funding_number);
-                
+
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
+
 
             #endregion
 
@@ -445,14 +456,14 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             List<HttpRequestMessage> createPaymentRequests = [];
 
-            Int32 lineNumber = await GetNextInvoiceLineNumber(funding!.ofm_application!.Id);
+            Int32 lineNumber = await GetNextInvoiceLineNumber();
 
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {
                 Guid fiscalYearId = paymentDate.MatchFiscalYear(fiscalYears);
 
-                DateTime invoiceDate = (paymentDate == startDate) ? 
-                    startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : 
+                DateTime invoiceDate = (paymentDate == startDate) ?
+                    startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) :
                     paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
@@ -502,9 +513,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             return await Task.FromResult(paymentsBatchResult.SimpleBatchResult);
-        }   
-   
-        private async Task<JsonObject> CancelUnpaidPayments(List<D365PaymentLine>? deserializedPaymentsData)
+        }
+
+        private async Task<JsonObject> CancelUnpaidPayments(List<D365PaymentLine> deserializedPaymentsData)
         {
             List<HttpRequestMessage> updatePaymentRequests = [];
             List<D365PaymentLine> unpaidPayments = deserializedPaymentsData.Where(r => r.statuscode != ofm_payment_StatusCode.Paid && r.statuscode != ofm_payment_StatusCode.ProcessingPayment).ToList();
@@ -535,20 +546,17 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return await Task.FromResult(new JsonObject());
         }
 
-        private async Task<int> GetNextInvoiceLineNumber(Guid baseApplicationId)
+        private async Task<int> GetNextInvoiceLineNumber()
         {
             int nextLineNumber = 1;
-            _baseApplicationId = baseApplicationId;
 
-            ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
-
-            List<D365PaymentLine>? deserializedPaymentsData = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
-            if (deserializedPaymentsData is not null && deserializedPaymentsData.Any()) {
-                int? currentLineNumber = deserializedPaymentsData
+            if (_allPayments is not null && _allPayments.Count > 0)
+            {
+                int? currentLineNumber = _allPayments
                                     .OrderByDescending(payment => payment.ofm_invoice_line_number)
                                     .First().ofm_invoice_line_number;
                 if (currentLineNumber is not null) nextLineNumber = currentLineNumber!.Value + 1;
-            }              
+            }
 
             return await Task.FromResult(nextLineNumber);
         }
