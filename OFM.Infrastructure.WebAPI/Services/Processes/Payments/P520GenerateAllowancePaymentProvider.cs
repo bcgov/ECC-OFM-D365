@@ -338,8 +338,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             _allPayments = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
             if (_allPayments is not null && _allPayments.Count > 0)
             {
-                List<D365PaymentLine> approvedSAPayments = _allPayments.Where(payment => payment.ofm_regardingid != null &&
-                                                                              payment.ofm_regardingid.Id.ToString() == approvedSA.ofm_allowanceid.ToString()).ToList();
+                List<D365PaymentLine> approvedSAPayments = _allPayments.Where(payment => payment._ofm_regardingid_value != null &&
+                                                                              payment._ofm_regardingid_value == approvedSA.ofm_allowanceid.ToString()).ToList();
 
                 if (approvedSAPayments.Count > 0)
                 {

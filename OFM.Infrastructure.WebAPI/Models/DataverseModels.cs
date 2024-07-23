@@ -387,18 +387,19 @@ public class D365FiscalYear: ofm_fiscal_year
 
 public class ExpenseApplication: ofm_expense
 {
-    public new decimal ofm_amount { get; set; }
+    public new decimal? ofm_amount { get; set; }
 }
 
 public class D365PaymentLine : ofm_payment
 {
-    public new decimal ofm_amount { get; set; }
+    public new decimal? ofm_amount { get; set; }
     public new Facility? ofm_facility { get; set; }
     public new Application? ofm_application { get; set; }
     public new D365FiscalYear? ofm_fiscal_year { get; set; }
     public new string ofm_invoice_number { get; set; } = string.Empty;
     public new string ofm_siteid { get; set; } = string.Empty;
     public new string ofm_supplierid { get; set; } = string.Empty;
+    public string _ofm_regardingid_value { get; set; } = string.Empty;
 }
 
 public class ProviderStaff
@@ -433,8 +434,6 @@ public class ProviderStaff
     [JsonPropertyName("facility.ofm_primarycontact@OData.Community.Display.V1.FormattedValue")]
     public string FacilityContact_Name { get; set; }
 }
-
-
 
 #region External Parameters
 
