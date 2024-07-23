@@ -497,7 +497,7 @@
             <param name="contactId">GUID of contact</param>
             <returns>Contact details</returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile.P405VerifyGoodStandingBatchProvider.CreateTaskForNotGoodStandingFrom90Days(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,System.String)">
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles.P405VerifyGoodStandingBatchProvider.CreateTaskForNotGoodStandingFrom90Days(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,System.String)">
             <summary>
             if the org is in not good standing => Create a task for more than 90 days
             </summary>
@@ -507,7 +507,7 @@
             <param name="ofm_standing_historyid"></param>
             <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile.P405VerifyGoodStandingBatchProvider.SendNoGoodStandingNotification(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,OFM.Infrastructure.WebAPI.Models.NotificationSettings)">
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles.P405VerifyGoodStandingBatchProvider.SendNoGoodStandingNotification(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,OFM.Infrastructure.WebAPI.Models.NotificationSettings)">
             <summary>
             Send a Notification to the provider if the prganization is not in good standing
             </summary>
