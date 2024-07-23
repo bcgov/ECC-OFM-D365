@@ -314,10 +314,22 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         #endregion
 
         #region Step 2: Compose the inbox file string
-
+        List<D365PaymentLine> paylinesToUpdate = new List<D365PaymentLine>();
         // for each set of transaction create and upload inbox file in payment file exchange
         foreach (List<InvoiceHeader> headeritem in headerList)
         {
+           
+            headeritem.ForEach(x => {
+             
+                foreach (var paydata in serializedPaymentData.Where(paydata => paydata.ofm_invoice_number == x.invoiceLines.First().invoiceNumber.TrimEnd()))
+                {
+                    
+                    paydata.ofm_batch_number = _cgiBatchNumber;
+                    paylinesToUpdate.Add(paydata);
+                }
+              // var payline= serializedPaymentData?.Where(paydata => paydata.ofm_invoice_number == x.invoiceNumber).Select(paydata => new { paydata, paydata.ofm_batch_number = _cgiBatchNumber });
+            });
+             
             _controlAmount = (Double)headeritem.SelectMany(x => x.invoiceLines).ToList().Sum(x => Convert.ToDecimal(x.lineAmount));
             _controlCount = headeritem.SelectMany(x => x.invoiceLines).ToList().Count + headeritem.Count;
 
@@ -349,7 +361,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
             bool savePFEResult = await SaveInboxFileOnNewPaymentFileExchangeRecord(appUserService, d365WebApiService, _BCCASApi.feederNumber, inboxFileBytes);
             
             if (savePFEResult)
-                await MarkPaymentLinesAsProcessed(appUserService, d365WebApiService, serializedPaymentData);
+                await MarkPaymentLinesAsProcessed(appUserService, d365WebApiService, paylinesToUpdate);
         }
 
         #endregion
@@ -363,7 +375,8 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         payments.ForEach(pay =>
         {
             var payToUpdate = new JsonObject {
-                  { "statuscode", Convert.ToInt16(ofm_payment_StatusCode.ProcessingPayment) }
+                  { "statuscode", Convert.ToInt16(ofm_payment_StatusCode.ProcessingPayment) },
+                   {"ofm_batch_number",pay.ofm_batch_number }
              };
 
             updatePayRequests.Add(new D365UpdateRequest(new D365EntityReference(ofm_payment.EntityLogicalCollectionName, pay.ofm_paymentid), payToUpdate));

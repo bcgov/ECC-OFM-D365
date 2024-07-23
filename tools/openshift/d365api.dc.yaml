@@ -121,6 +121,7 @@ objects:
         app: '${APP_NAME}-${BRANCH}'
       annotations:
         openshift.io/host.generated: 'true'
+        router.openshift.io/cookie-same-site: 'Strict'
         haproxy.router.openshift.io/ip_whitelist: >-
           ${HAPROXY_IP_WHITELIST}
     spec:
