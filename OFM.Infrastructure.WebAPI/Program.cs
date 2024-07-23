@@ -13,6 +13,8 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile;
+using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
+//using OFM.Infrastructure.WebAPI.Services.Processes.Reporting;
 using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 using OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
@@ -75,7 +77,8 @@ services.AddScoped<ID365ProcessProvider, P605CloseDuedReportsProvider>();
 services.AddScoped<ID365ProcessProvider, P610CreateQuestionProvider>();
 services.AddScoped<ID365ProcessProvider, P615CreateMonthlyReportProvider>();
 services.AddScoped<ID365ProcessProvider, P700ProviderCertificateProvider>();
-services.AddScoped<ID365ProcessProvider, P240AllowanceApprovalDenialNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P235SendExpenseApplicationNotificationProvider>();
+
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
 

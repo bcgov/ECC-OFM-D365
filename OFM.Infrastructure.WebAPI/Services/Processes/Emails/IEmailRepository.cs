@@ -197,6 +197,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
 
         return await Task.FromResult(newEmailId);
     }
+
     public string StripHTML(string source)
     {
         try
@@ -292,20 +293,18 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
         }
         catch
         {
-            //MessageBox.Show("Error");
             return source;
         }
     }
 
     public async Task<bool> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService)
     {
-
         var contactName = allowance.ofm_first_name + " " + allowance.ofm_last_name;
         var MonthlyAmount = allowance.ofm_monthly_amount;
         var RetroActiveAmount = allowance.ofm_retroactive_amount;
         var allowanceType = (ecc_allowance_type)allowance.ofm_allowance_type;
         var allowanceNumber = allowance.ofm_allowance_number;
-        var allownaceStatusReason = allowance.statuscode;
+        //var allowanceStatusReason = allowance.statuscode;
         Guid applicationPrimaryContact = (Guid)allowance._ofm_contact_value != null ? (Guid)allowance._ofm_contact_value : Guid.Empty;
         Guid submittedBy = allowance._ofm_summary_submittedby_value != null ? (Guid)allowance._ofm_summary_submittedby_value : Guid.Empty;
         var fundingNumber = allowance.ofm_funding_number_base;
@@ -315,17 +314,15 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
         // DateOnly retroActiveDate = allowance.ofm_ret;
 
         // funding status
-        _logger.LogInformation("Got the Status", allownaceStatusReason);
-
-
+        //_logger.LogInformation("Got the Status", allowanceStatusReason);
 
         //_allowanceId = _processParams.SupplementaryApplication.allowanceId;
-        if (allownaceStatusReason == (int)ofm_allowance_StatusCode.Approved)
+        if (allowance.statuscode == ofm_allowance_StatusCode.Approved)
         {
             ProcessData localDataTemplate = null;
 
+            //_logger.LogInformation("Entered if Approved", allowanceStatusReason);
 
-            _logger.LogInformation("Entered if Approved", allownaceStatusReason);
             if (allowanceType == ecc_allowance_type.SupportNeedsProgramming)
                 // Get template details to create emails.
                 localDataTemplate = await GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.Description == "SupportNeedsProgramAllowanceApproved").TemplateNumber); //240
@@ -361,7 +358,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 }
             }
 
-            List<Guid> recipientsList = new List<Guid>();
+            List<Guid> recipientsList = [];
             if (submittedBy != Guid.Empty)
             {
                 _logger.LogInformation("Got the recipientsList submittedBy", submittedBy);
@@ -371,21 +368,12 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             {
                 recipientsList.Add(applicationPrimaryContact);
             }
-            //Task.Run(() => CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId)).Wait();
-            // var result = Task.Run(() => CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId)).Result;
-            // await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId);
-            //CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId).GetAwaiter().GetResult();
-
-            // if (task.Value != null)
-
-            Guid? newEmailId = await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId,string.Concat(allowance.ofm_allowanceid,"#",SupplementaryApplication.EntityLogicalName));
-            /*if (newEmailId != null)
-                await NotificationSentSupp(allowance.ofm_allowanceid.Value, _d365webapiservice, processId);*/
-
-
+           
+            await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId,string.Concat(allowance.ofm_allowanceid,"#",SupplementaryApplication.EntityLogicalName));
 
         }
-        if (allownaceStatusReason == (int)ofm_allowance_StatusCode.DeniedIneligible)
+
+        if (allowance.statuscode == ofm_allowance_StatusCode.DeniedIneligible)
         {
             ProcessData localDataTemplate = null;
             if (allowanceType == ecc_allowance_type.SupportNeedsProgramming)
@@ -416,38 +404,11 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             }
             await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId);
             emailCreated = true;
-
         }
+
         #endregion Create the Supp email notifications
 
 
         return await Task.FromResult(emailCreated);
     }
-
-    //Update flag in the flow
-   /* public async Task<JsonObject> NotificationSentSupp(Guid allowanceId, ID365WebApiService d365WebApiService, Int16 processId)
-    {
-        if (emailCreated)
-        {
-            var updateSupplementalUrl = @$"ofm_allowances({allowanceId})";
-            var updateContent = new
-            {
-                ofm_notification_sent = true
-            };
-            var requestBody = JsonSerializer.Serialize(updateContent);
-            var patchResponse = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, updateSupplementalUrl, requestBody);
-
-            _logger.LogDebug(CustomLogEvent.Process, "Update Supplemental Record {supplemental.ofm_allowanceid}", allowanceId);
-
-            if (!patchResponse.IsSuccessStatusCode)
-            {
-                var responseBody = await patchResponse.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
-                // return ProcessResult.Failure(ProcessId, new String[] { responseBody }, 0, 0).SimpleProcessResult;
-            }
-        }
-        return ProcessResult.Completed(processId).SimpleProcessResult;
-    }*/
-
-
 }

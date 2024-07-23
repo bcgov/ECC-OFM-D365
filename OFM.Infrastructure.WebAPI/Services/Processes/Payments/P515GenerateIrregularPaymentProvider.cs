@@ -333,10 +333,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
 
-            var fiscalYearsData = await GetFiscalYearDataAsync();
-            List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
-
-
             ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
             _allPayments = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
             if (_allPayments is not null && _allPayments.Count > 0)
@@ -350,6 +346,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     return ProcessResult.Completed(ProcessId).SimpleProcessResult;
                 }
             }
+
+            var fiscalYearsData = await GetFiscalYearDataAsync();
+            List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
             var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());

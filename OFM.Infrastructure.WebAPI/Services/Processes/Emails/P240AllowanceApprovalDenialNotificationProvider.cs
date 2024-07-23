@@ -41,8 +41,8 @@ public class P240AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
         _timeProvider = timeProvider;
     }
 
-    public Int16 ProcessId => Setup.Process.Emails.AllowanceApprovalDenialNotificationId;
-    public string ProcessName => Setup.Process.Emails.AllowanceApprovalDenialNotificationName;
+    public Int16 ProcessId => Setup.Process.Emails.CreateAllowanceApprovalDenialNotificationId;
+    public string ProcessName => Setup.Process.Emails.CreateAllowanceApprovalDenialNotificationName;
 
     #region fetchxml queries
     public string RequestUri
