@@ -403,6 +403,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 recipientsList.Add(applicationPrimaryContact);
             }
             await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId,string.Concat(allowance.ofm_allowanceid, "#", SupplementaryApplication.EntityLogicalName));
+            _logger.LogInformation("Email Created :  ", string.Concat(allowance.ofm_allowanceid, "#", SupplementaryApplication.EntityLogicalName));
         }
 
         #endregion Create the Supp email notifications
