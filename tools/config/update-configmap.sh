@@ -13,7 +13,7 @@ readonly D365_BCCAS_API_URL=${10}
 
 SERVER_FRONTEND="https://ofm-frontend-$ENV_VAL-$OPENSHIFT_NAMESPACE.apps.silver.devops.gov.bc.ca"
 if [ "$ENV_VAL" = "prod" ]; then
-  SERVER_FRONTEND="" # TODO: Set this to our production domain
+  SERVER_FRONTEND="https://ofm.mychildcareservices.gov.bc.ca"
 fi
 readonly SERVER_FRONTEND
 
@@ -58,6 +58,36 @@ D365_LOG_LEVEL=$(cat << JSON
     "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Warning",
     "Microsoft.AspNetCore": "Warning"
+  },
+  "Console": {
+    "FormatterName": "simple",
+    "FormatterOptions": {
+      "SingleLine": true,
+      "IncludeScopes": true,
+      "TimestampFormat": "yyyy-MM-ddTHH:mm:ss",
+      "UseUtcTimestamp": false,
+      "JsonWriterOptions": {
+        "Indented": true
+      }
+    }
+  },
+  "Debug": {
+    "LogLevel": {
+      "Default": "Critical"
+    }
+  }
+}
+JSON
+)
+elif [ "$ENV_VAL" = "qa" ]; then
+D365_LOG_LEVEL=$(cat << JSON
+{
+  "LogLevel": {
+    "Default": "Error",
+    "OFM.Portal.ProviderProfile": "Error",
+    "OFM.D365.Process": "Information",
+    "OFM.D365.Batch": "Error",
+    "Microsoft.AspNetCore": "Error"
   },
   "Console": {
     "FormatterName": "simple",
