@@ -462,9 +462,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 Guid fiscalYearId = paymentDate.MatchFiscalYear(fiscalYears);
 
-                DateTime invoiceDate = (paymentDate == startDate) ?
-                    startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) :
-                    paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                DateTime invoiceDate = (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
