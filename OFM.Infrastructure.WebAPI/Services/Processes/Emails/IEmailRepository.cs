@@ -17,7 +17,7 @@ public interface IEmailRepository
     Task<Guid?> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId,string regarding="");
     Task<ProcessData> GetTemplateDataAsync(int templateNumber);
     string StripHTML(string source);
-    Task<bool> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService);
+    Task<JsonObject> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService);
  }
 
 public class EmailRepository(ID365AppUserService appUserService, ID365WebApiService service, ID365DataService dataService, ILoggerFactory loggerFactory, IOptionsSnapshot<NotificationSettings> notificationSettings) : IEmailRepository
@@ -29,7 +29,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     private readonly NotificationSettings _notificationSettings = notificationSettings.Value;
     private int _templateNumber;
     Guid? newEmailId;
-    bool emailCreated = false;
+    
 
     #region Pre-Defined Queries
 
@@ -297,7 +297,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
         }
     }
 
-    public async Task<bool> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService)
+    public async Task<JsonObject> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService)
     {
         var contactName = allowance.ofm_first_name + " " + allowance.ofm_last_name;
         var MonthlyAmount = allowance.ofm_monthly_amount;
@@ -402,13 +402,12 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             {
                 recipientsList.Add(applicationPrimaryContact);
             }
-            await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId);
-            emailCreated = true;
+            await CreateAndUpdateEmail(subject, emaildescription, recipientsList, senderId, communicationType, appUserService, _d365webapiservice, processId,string.Concat(allowance.ofm_allowanceid, "#", SupplementaryApplication.EntityLogicalName));
         }
 
         #endregion Create the Supp email notifications
 
 
-        return await Task.FromResult(emailCreated);
+        return ProcessResult.Completed(processId).SimpleProcessResult;
     }
 }

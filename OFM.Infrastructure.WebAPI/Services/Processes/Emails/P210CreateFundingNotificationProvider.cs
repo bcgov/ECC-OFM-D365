@@ -287,7 +287,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             }
             foreach (var allowance in deserializedDataAllowance)
             {
-                bool emailCreated = await _emailRepository.CreateAllowanceEmail(allowance, _processParams.Notification.SenderId, _informationCommunicationType, ProcessId, d365WebApiService);
+                 await _emailRepository.CreateAllowanceEmail(allowance, _processParams.Notification.SenderId, _informationCommunicationType, ProcessId, d365WebApiService);
             }
             #endregion Create the Supp email notifications
 
