@@ -1,4 +1,5 @@
-﻿using HandlebarsDotNet;
+﻿
+using HandlebarsDotNet;
 using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
@@ -88,6 +89,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                         <attribute name="ofm_supplierid" />
                        <attribute name="ofm_invoice_received_date" />
                        <attribute name="ofm_invoice_date" />
+                     <attribute name="ofm_organization" />
                         <order attribute="ofm_name" descending="false" />
                          <filter type="and">
                         <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ApprovedforPayment}" />
@@ -261,7 +263,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     lineAmount = (lineitem.item.ofm_amount < 0 ? "-" : "") + Math.Abs(lineitem.item.ofm_amount.Value).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount") - (lineitem.item.ofm_amount < 0 ? 1 : 0), '0'),// come from split funding amount per facility
                     lineCode = (lineitem.item.ofm_amount > 0 ? "D" : "C"),//if it is positive then line code is Debit otherwise credit
                     distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
-                    lineDescription = string.Concat(lineitem.item?.ofm_application?.ofm_Application, " ", lineitem.item.ofm_payment_type).PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
+                    lineDescription = (lineitem.item.ofm_payment_type).ToString().PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
                     effectiveDate = lineitem.item.ofm_effective_date?.ToString("yyyyMMdd"), //2 days after invoice posting
                     quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
                     unitPrice = _BCCASApi.InvoiceLines.unitPrice,//Static Value:000000000000.00 not used by feeder
