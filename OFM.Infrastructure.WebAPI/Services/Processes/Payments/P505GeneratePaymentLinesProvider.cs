@@ -316,6 +316,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             ArgumentNullException.ThrowIfNull(processParams.Application);
             ArgumentNullException.ThrowIfNull(processParams.Application.applicationId);
 
+            _logger.LogTrace(CustomLogEvent.Process, "Start processing payments for the funding {FundingId}.", processParams.Funding.FundingId);
+
             _processParams = processParams;
 
             Funding? funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!), isPayment: true);
@@ -366,6 +368,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     break;
             }
 
+            _logger.LogTrace(CustomLogEvent.Process, "Finished processing payments for the funding {FundingId}.", processParams.Funding.FundingId);
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
