@@ -199,7 +199,9 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
         _informationCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.Information)
                                                                    .Select(s => s.ofm_communication_typeid).FirstOrDefault();
         _processParams = processParams;
-        Funding? _funding = await _fundingRepository?.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
+        Funding? _funding = await _fundingRepository?.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!),true);
+        if(_funding != null)
+        { 
         var expenseOfficer = _funding.ofm_application?._ofm_expense_authority_value;
         var primaryContact = _funding.ofm_application?._ofm_contact_value;
         // Provider FA Approver
@@ -233,9 +235,12 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             emaildescription = emaildescription?.Replace("{HYPERLINK_FATAB}", $"<a href=\"{hyperlinkFATab}\">Funding Overview</a>");
             List<Guid> recipientsList = new List<Guid>();
             _logger.LogInformation("Got the recipientsList", expenseOfficer);
-            recipientsList.Add((Guid)expenseOfficer);
+                if (expenseOfficer != null)
+                {
+                    recipientsList.Add((Guid)expenseOfficer);
 
-            await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _fundingAgreementCommunicationType, appUserService, d365WebApiService, 210);
+                    await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _fundingAgreementCommunicationType, appUserService, d365WebApiService, 210);
+                }
 
             if (expenseOfficer != primaryContact)
             {
@@ -252,47 +257,47 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
             }
         }
 
-        if (statusReason == (int)ofm_funding_StatusCode.Active)
-        {
-            var providerApprover = _funding._ofm_provider_approver_value;
-            if (providerApprover != null)
+            if (statusReason == (int)ofm_funding_StatusCode.Active)
             {
-                _contactId = providerApprover.ToString();
-                var localData = await GetDataAsync();
-                var deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
+                var providerApprover = _funding._ofm_provider_approver_value;
+                if (providerApprover != null)
+                {
+                    _contactId = providerApprover.ToString();
+                    var localData = await GetDataAsync();
+                    var deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localData.Data.ToString());
 
-                var contactobj = deserializedData?.FirstOrDefault();
-                var firstName = contactobj?.ofm_first_name;
-                var lastName = contactobj?.ofm_last_name;
+                    var contactobj = deserializedData?.FirstOrDefault();
+                    var firstName = contactobj?.ofm_first_name;
+                    var lastName = contactobj?.ofm_last_name;
 
-                // Get template details to create emails.
-                var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 235).TemplateNumber);
+                    // Get template details to create emails.
+                    var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 235).TemplateNumber);
 
-                var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
+                    var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
 
-                var templateobj = serializedDataTemplate?.FirstOrDefault();
-                string? subject = templateobj?.subjectsafehtml;
-                string? emaildescription = templateobj?.safehtml;
-                emaildescription = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
-                List<Guid> recipientsList = new List<Guid>();
-                recipientsList.Add((Guid)providerApprover);
-                await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+                    var templateobj = serializedDataTemplate?.FirstOrDefault();
+                    string? subject = templateobj?.subjectsafehtml;
+                    string? emaildescription = templateobj?.safehtml;
+                    emaildescription = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
+                    List<Guid> recipientsList = new List<Guid>();
+                    recipientsList.Add((Guid)providerApprover);
+                    await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+                }
+                var localDataAllowance = await GetDataAsyncAllowance();
+                var deserializedDataAllowance = JsonSerializer.Deserialize<List<SupplementaryApplication>>(localDataAllowance.Data.ToString());
+                if (deserializedDataAllowance == null || deserializedDataAllowance.Count == 0)
+                {
+                    _logger.LogInformation("No records returned from FetchXml", deserializedDataAllowance.Count);
+                    return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                }
+                foreach (var allowance in deserializedDataAllowance)
+                {
+                    await _emailRepository.CreateAllowanceEmail(allowance, _processParams.Notification.SenderId, _informationCommunicationType, ProcessId, d365WebApiService);
+                }
+                #endregion Create the Supp email notifications
+
+
             }
-            var localDataAllowance = await GetDataAsyncAllowance();
-            var deserializedDataAllowance = JsonSerializer.Deserialize<List<SupplementaryApplication>>(localDataAllowance.Data.ToString());
-            if (deserializedDataAllowance == null || deserializedDataAllowance.Count == 0)
-            {
-                _logger.LogInformation("No records returned from FetchXml", deserializedDataAllowance.Count);
-                return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-            }
-            foreach (var allowance in deserializedDataAllowance)
-            {
-                 await _emailRepository.CreateAllowanceEmail(allowance, _processParams.Notification.SenderId, _informationCommunicationType, ProcessId, d365WebApiService);
-            }
-            #endregion Create the Supp email notifications
-
-
-
 
 
 

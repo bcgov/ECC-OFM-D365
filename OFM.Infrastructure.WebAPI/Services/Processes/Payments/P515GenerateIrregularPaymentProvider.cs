@@ -373,7 +373,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     int numberOfMonthsCount = (expenseInfo.ofm_end_date.Value.Year - expenseInfo.ofm_start_date.Value.Year) * 12 + expenseInfo.ofm_end_date.Value.Month - expenseInfo.ofm_start_date.Value.Month + 1;
                     var expenseAmount = expenseInfo.ofm_amount / numberOfMonthsCount;
 
-                    await CreatePaymentsInBatch(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_end_date.Value, expenseInfo.ofm_amount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
+                    await CreatePaymentsInBatch(expenseInfo, expenseInfo.ofm_start_date!.Value, expenseInfo.ofm_end_date.Value, expenseAmount, deserializedApplicationData!.First(), processParams!, fiscalYears, holidaysList);
                     break;
                 default:
                     _logger.LogError(CustomLogEvent.Process, "Unable to generate payments for Expense record with Id {expenseId}. Invalid Payment Frequency {frequency}", processParams?.ExpenseApplication.expenseId, expenseInfo.ofm_payment_frequency);
@@ -391,10 +391,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                            List<ofm_fiscal_year> fiscalYears,
                                                                            List<DateTime> holidaysList)
         {
-            DateTime invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
-            DateTime invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
-            DateTime effectiveDate = invoiceDate;
 
+
+            DateTime invoiceDate = paymentDate.ToLocalPST().Date.GetPreviousBusinessDay(holidaysList);
+            DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
+            DateTime effectiveDate = invoiceDate;
             Guid fiscalYear = paymentDate.MatchFiscalYear(fiscalYears);
 
             var payload = new JsonObject()
@@ -442,8 +443,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 Guid? fiscalYear = paymentDate.MatchFiscalYear(fiscalYears);
 
-                DateTime invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
-                DateTime invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+
+                DateTime invoiceDate = (paymentDate == startDate) ? paymentDate.ToLocalPST().Date.GetPreviousBusinessDay(holidaysList) : paymentDate.ToLocalPST().Date.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
                 var paymentToCreate = new JsonObject()

@@ -47,14 +47,15 @@ public class FundingCalculator : IFundingCalculator
         _rateSchedule = _rateSchedules.First(sch => sch.Id == _funding?.ofm_rate_schedule?.ofm_rate_scheduleid) ?? throw new InvalidDataException("No Rate Schedule matched."); ;
     }
 
+    private DateTime Application_SubmittedOn => _funding.ofm_application!.ofm_summary_submittedon ?? _funding.ofm_application!.createdon ?? new DateTime();
+
     public virtual IEnumerable<LicenceDetail> LicenceDetails
     {
         get
         {
             IEnumerable<Licence>? activeLicences = _funding?.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
-                                                                                                         licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= DateTime.UtcNow.ToLocalPST().Date &&
-                                                                                                         (licence.ofm_end_date is null ||
-                                                                                                         licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= DateTime.UtcNow.ToLocalPST().Date));
+                                                                                                         licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= Application_SubmittedOn.ToLocalPST().Date &&
+                                                                                                         (licence.ofm_end_date is null || licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= Application_SubmittedOn.ToLocalPST().Date));
 
             IEnumerable<LicenceDetail>? licenceDetails = activeLicences?
                                 .SelectMany(licence => licence?.ofm_licence_licencedetail!)
