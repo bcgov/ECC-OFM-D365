@@ -174,26 +174,6 @@ public static class TimeExtensions
 
         return previousBusinessDay;
     }
-    public static DateTime GetFirstPaymentDate(this DateTime targetDate, List<DateTime> holidays)
-    {
-        while (!targetDate.IsBusinessDay2(holidays))
-        {
-            targetDate = targetDate.AddDays(1);
-        } 
-
-        return targetDate;
-    }
-
-    public static bool IsBusinessDay2(this DateTime targetDate, List<DateTime> holidays)
-    {
-        //var dateToCheck = targetDate.AddDays(days);
-        var isNonBusinessDay =
-            targetDate.DayOfWeek == DayOfWeek.Saturday ||
-            targetDate.DayOfWeek == DayOfWeek.Sunday ||
-            holidays.Exists(excludedDate => excludedDate.Date.Equals(targetDate.Date));
-
-        return isNonBusinessDay;
-    }
 
     private static DateTime IsBusinessDay(int days, DateTime targetDate, List<DateTime> holidays)
     {
