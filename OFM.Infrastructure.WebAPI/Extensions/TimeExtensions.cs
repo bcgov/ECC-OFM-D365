@@ -159,7 +159,21 @@ public static class TimeExtensions
 
         return lastDayOfPreviousMonth;
     }
+    public static DateTime GetPreviousBusinessDay(this DateTime targetDate, List<DateTime> holidays)
+    {
+        
+        DateTime previousBusinessDay = targetDate.AddDays(-1);
 
+        // find previous business day
+        while (previousBusinessDay.DayOfWeek == DayOfWeek.Saturday ||
+                previousBusinessDay.DayOfWeek == DayOfWeek.Sunday ||
+                holidays.Exists(excludedDate => excludedDate.Date.Equals(previousBusinessDay.Date)))
+        {
+            previousBusinessDay = previousBusinessDay.AddDays(-1);
+        }
+
+        return previousBusinessDay;
+    }
     public static DateTime GetFirstPaymentDate(this DateTime targetDate, List<DateTime> holidays)
     {
         while (!targetDate.IsBusinessDay2(holidays))
