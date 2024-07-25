@@ -250,7 +250,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
         var businessclosuresdata = await GetBusinessClosuresDataAsync();
         serializedPayData?.ForEach(async pay =>
         {
-            var line = headers.SelectMany(p => p.feedbackLine).SingleOrDefault(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.StartsWith(string.Concat(pay?.ofm_application?.ofm_Application, " ", pay.ofm_payment_type)));
+            var line = headers.SelectMany(p => p.feedbackLine).FirstOrDefault(pl => pl.ILInvoice == pay.ofm_invoice_number && pl.ILDescription.Contains(pay?.ofm_payment_type.ToString()));
             var header = headers.Where(p => p.IHInvoice == pay.ofm_invoice_number).FirstOrDefault();
 
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
@@ -267,7 +267,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                 {
                     var subject = pay.ofm_name;
                     //create Integration log with an error message.
-                    createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay.ofm_application.ofm_applicationid.GetValueOrDefault(), casResponse, "CFS Integration Error", appUserService, d365WebApiService));
+                   createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay.ofm_application.ofm_applicationid.GetValueOrDefault(), casResponse, "CFS Integration Error", appUserService, d365WebApiService));
                 }
 
                 //Update it with latest cas response.
