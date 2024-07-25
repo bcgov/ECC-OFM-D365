@@ -382,6 +382,13 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
 
         var response = await httpClient.SendAsync(request);
         var responseBody = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogError(CustomLogEvent.Process, "Unable to call BC Registries API with an error {responseBody}.", responseBody.CleanLog());
+            return await Task.FromResult(DateTime.Now);
+        }
+ 
         BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
 
         // Organization - Update

@@ -359,13 +359,9 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
         _processParams = processParams;
 
         var startTime = _timeProvider.GetTimestamp();
-        try
-        {
-
             var localData = await GetDataAsync();
 
             var deserializedData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localData.Data.ToString());
-
 
             deserializedData?.Where(c => c.ofm_bypass_bc_registry_good_standing != true).ToList().ForEach(async organization =>
             {
@@ -389,7 +385,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                 request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
 
                 var response = await client.SendAsync(request);
-                //   response.EnsureSuccessStatusCode();
+
                 if (response.IsSuccessStatusCode)
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
@@ -444,21 +440,15 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                             await SendNotification(_appUserService, _d365webapiservice, organization, _NotificationSettings);
                         };
                     }
-
                 }
                 else
                 {
-                    _logger.LogError(CustomLogEvent.Process, "Http Response error, please contact api provider\n\r" +response.ToString());
+                    var responseBody = await response.Content.ReadAsStringAsync();
+                    _logger.LogError(CustomLogEvent.Process, "Unable to call BC Registries API with an error {responseBody}.", responseBody.CleanLog());
                 }
             });
 
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(CustomLogEvent.Process, ex.ToString());
-            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-        }
     }
 
     private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string organizationId, int goodStandingStatus, string subject, int category, string message, string externalService)
