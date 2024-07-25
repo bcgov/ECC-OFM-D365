@@ -131,8 +131,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
 
-            Guid mainApplicantContact = (Guid)localData.Data[0]["ofm_assistance_request.ofm_contact"] != null ? (Guid)localData.Data[0]["ofm_assistance_request.ofm_contact"] : Guid.Empty;
-            Guid facilityContact = (Guid)localData.Data[0]["ofm_application.ofm_contact"] != null ? (Guid)localData.Data[0]["ofm_application.ofm_contact"] : Guid.Empty;
+            Guid mainApplicantContact = localData.Data[0]["ofm_assistance_request.ofm_contact"] != null ? (Guid)localData.Data[0]["ofm_assistance_request.ofm_contact"] : Guid.Empty;
+            Guid facilityContact = localData.Data[0]["ofm_application.ofm_contact"] != null ? (Guid)localData.Data[0]["ofm_application.ofm_contact"] : Guid.Empty;
             string expenseCaption = (string)localData.Data[0]["ofm_caption"];
 
             IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
@@ -180,6 +180,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     recipientsList.Clear();
                     recipientsList.Add(facilityContact);
 
+                    regardingData = statusReason == (int)ofm_expense_StatusCode.Approved && mainApplicantContact == Guid.Empty ? string.Format("{0}#ofm_expense", _processParams.ExpenseApplication.expenseId) : string.Empty;
+
                     localDataContact = await GetContactDataAsync(facilityContact.ToString());
                     deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localDataContact.Data.ToString());
                     contactobj = deserializedData?.FirstOrDefault();
@@ -187,7 +189,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     lastName = contactobj?.ofm_last_name;
                     emailBody = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
 
-                    await _emailRepository.CreateAndUpdateEmail(subject, emailBody, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235);
+                    await _emailRepository.CreateAndUpdateEmail(subject, emailBody, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235, regardingData);
                 }
 
             }
@@ -204,7 +206,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
         /// <returns>Contact details</returns>
         public async Task<ProcessData> GetContactDataAsync(string contactId)
         {
-            _logger.LogDebug(CustomLogEvent.Process, nameof(GetContactDataAsync));
+            _logger.LogDebug(CustomLogEvent.Process, "GetContactDataAsync");
 
             var contactRequestUri = this.ContactRequestUri(contactId);
             var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, contactRequestUri);

@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
@@ -130,6 +131,8 @@ public class P240AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
     {
         _processParams = processParams;
         _allowanceId = _processParams.SupplementaryApplication.allowanceId;
+        _logger.LogInformation("Entered RunPorcessAsync", _processParams.SupplementaryApplication.allowanceId);
+        _logger.LogTrace("Entered RunPorcessAsync", _processParams.SupplementaryApplication.allowanceId);
 
         IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
         _informationCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.Information)
@@ -143,7 +146,9 @@ public class P240AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
         }
         try
         {
-            if(deserializedData.First().fundingstatuscode == (int)ofm_funding_StatusCode.Active)
+            _logger.LogTrace("Entered try. Funding status is :  ", deserializedData.First().fundingstatuscode);
+            _logger.LogInformation("Entered try. Funding status is :  ", deserializedData.First().fundingstatuscode);
+            if (deserializedData.First().fundingstatuscode == (int)ofm_funding_StatusCode.Active)
             await _emailRepository.CreateAllowanceEmail(deserializedData.First(), _processParams.Notification.SenderId, _informationCommunicationType, ProcessId, d365WebApiService);
         }
         catch (Exception ex)
