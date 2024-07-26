@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
@@ -357,6 +358,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         _processParams = processParams;
+        var externalService = "BC Registries";
 
         var startTime = _timeProvider.GetTimestamp();
             var localData = await GetDataAsync();
@@ -396,7 +398,6 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                     var goodStandingStatus = 3;                    // 1 - Good, 2 - No Good, 3 - Error 
 
                     // Integration Log - Create
-                    var externalService = "BC Registries";
                     var subject = string.Empty;
                     var logCategory = 1;                           // 1 - Info, 2 - Warning, 3 - Error, 4 - Critical
                     var message = $"{responseBody.CleanLog()}";
@@ -445,6 +446,9 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
                     _logger.LogError(CustomLogEvent.Process, "Unable to call BC Registries API with an error {responseBody}.", responseBody.CleanLog());
+
+                    var subject = "Unable to call BC Registries API with an error.";
+                    await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId,(int) ofm_good_standing_status.IntegrationError, subject, (int) ecc_integration_log_category.Error, responseBody.CleanLog(), externalService);
                 }
             });
 

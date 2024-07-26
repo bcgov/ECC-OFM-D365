@@ -366,6 +366,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         string organizationId = organization.accountid;
         string legalName = organization.name;
         string incorporationNumber = organization.ofm_incorporation_number;
+        var externalService = "BC Registries";
 
         string? queryValue = (!string.IsNullOrEmpty(incorporationNumber)) ? incorporationNumber.Trim() : legalName.Trim();
 
@@ -386,6 +387,9 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError(CustomLogEvent.Process, "Unable to call BC Registries API with an error {responseBody}.", responseBody.CleanLog());
+
+            await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, (int)ofm_good_standing_status.IntegrationError, subject: "Unable to call BC Registries API with an error.", (int)ecc_integration_log_category.Error, responseBody.CleanLog(), externalService);
+
             return await Task.FromResult(DateTime.Now);
         }
  
@@ -395,7 +399,6 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         var goodStandingStatus = 3;                    // 1 - Good, 2 - No Good, 3 - Error 
 
         // Integration Log - Create
-        var externalService = "BC Registries";
         var subject = string.Empty;
         var logCategory = (int)ecc_integration_log_category.Information;
         var message = $"{responseBody.CleanLog()}";

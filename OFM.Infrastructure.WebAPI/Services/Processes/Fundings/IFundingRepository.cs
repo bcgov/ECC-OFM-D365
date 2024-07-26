@@ -12,7 +12,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 public interface IFundingRepository
 {
     Task<IEnumerable<RateSchedule>> LoadRateSchedulesAsync();
-    Task<Funding> GetFundingByIdAsync(Guid id, bool isPayment = false);
+    Task<Funding> GetFundingByIdAsync(Guid id, bool isCalculator = true);
     Task<IEnumerable<SpaceAllocation>> GetSpacesAllocationByFundingIdAsync(Guid id);
     Task<bool> SaveFundingAmountsAsync(IFundingResult fundingResult);
     Task<bool> SaveDefaultSpacesAllocationAsync(IEnumerable<ofm_space_allocation> spacesAllocation);
@@ -480,10 +480,10 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
         return await Task.FromResult(deserializedData!); ;
     }
 
-    public async Task<Funding> GetFundingByIdAsync(Guid id, bool isPayment = false)
+    public async Task<Funding> GetFundingByIdAsync(Guid id, bool isCalculator = true)
     {
         _fundingId = id;
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, (isPayment) ? FundingForPaymentsRequestUri : FundingRequestUri, false, 50, true);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, (isCalculator) ? FundingRequestUri: FundingForPaymentsRequestUri, false, 50, true);
 
         if (!response.IsSuccessStatusCode)
         {
