@@ -241,7 +241,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         // add invoice header for each organization and invoice lines for each facility
         foreach (var headeritem in grouppayment)
         {
-            var pay_method = headeritem.First().ofm_payment_method;
+            var pay_method = (ecc_payment_method) headeritem.First().ofm_payment_method;
             double invoiceamount = 0.00;
             List<InvoiceLines> invoiceLines = [];
 
