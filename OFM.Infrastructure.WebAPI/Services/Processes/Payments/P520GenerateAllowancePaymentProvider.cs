@@ -384,7 +384,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 // Process future payments
                 int futureMonthsCount = (approvedSA.ofm_end_date!.Value.Year - approvedSA.ofm_start_date!.Value.Year) * 12 + approvedSA.ofm_end_date.Value.Month - approvedSA.ofm_start_date.Value.Month + 1;
-                decimal monthlyPaymentAmount = approvedSA.ofm_funding_amount!.Value / futureMonthsCount;
+                decimal monthlyPaymentAmount = approvedSA.ofm_monthly_amount!.Value;
                 await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, monthlyPaymentAmount, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
 
                 // Process retroactive payment
