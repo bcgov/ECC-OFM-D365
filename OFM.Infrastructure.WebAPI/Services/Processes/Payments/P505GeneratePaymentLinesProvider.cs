@@ -332,7 +332,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             _allPayments = JsonSerializer.Deserialize<List<D365PaymentLine>>(allExistingPaymentsByApplicationIdData.Data.ToString());
             if (funding.statuscode == ofm_funding_StatusCode.Active && _allPayments is not null && _allPayments.Count > 0)
             {
-                List<D365PaymentLine> fundingPayments = _allPayments.Where(payment => payment.ofm_funding.Id.ToString() == funding.Id.ToString()).ToList();
+                List<D365PaymentLine> fundingPayments = _allPayments.Where(payment => payment?._ofm_funding_value == funding.Id.ToString()).ToList();
                 if (fundingPayments.Count > 0)
                 {
                     _logger.LogWarning(CustomLogEvent.Process, "Payments have been previously generated for Funding with the Id: {FundingId}", processParams!.Funding!.FundingId);

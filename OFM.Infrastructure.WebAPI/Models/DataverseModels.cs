@@ -395,6 +395,8 @@ public class D365PaymentLine : ofm_payment
     public new decimal? ofm_amount { get; set; }
     public new Facility? ofm_facility { get; set; }
     public new Application? ofm_application { get; set; }
+    public new Funding? ofm_funding { get; set; }
+    public string _ofm_funding_value { get; set; } = string.Empty;
     public new D365FiscalYear? ofm_fiscal_year { get; set; }
     public new string ofm_invoice_number { get; set; } = string.Empty;
     public new string ofm_siteid { get; set; } = string.Empty;
