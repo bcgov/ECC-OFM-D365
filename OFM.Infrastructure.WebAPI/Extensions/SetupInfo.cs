@@ -49,6 +49,12 @@ public static class Setup
             public const Int16 CreateApplicationNotificationsId = 230;
             public const string CreateApplicationNotificationsName = "Create Email for Application Ineligilble";
 
+            public const Int16 CreateExpenseApplicationNotificationsId = 235;
+            public const string CreateExpenseApplicationNotificationsName = "Create Email for Irregular Expense Approval/Denial";
+           
+            public const Int16 CreateAllowanceApprovalDenialNotificationId = 240;
+            public const string CreateAllowanceApprovalDenialNotificationName = "Create email and pdf for supplementary Approval/Denial";
+
 
         }
 
@@ -85,7 +91,10 @@ public static class Setup
             public const string GetPaymentResponseName = "Get Payment Feedback and Invoices to BC Pay";
 
             public const Int16 GeneratePaymentLinesForIrregularExpenseId = 515;
-            public const string GeneratePaymentForIrregularExpenseResponseName = "Generate Payment Lines for Irregular Expense";
+            public const string GeneratePaymentForIrregularExpenseName = "Generate Payment Lines for Irregular Expense";
+
+            public const Int16 GeneratePaymentLinesForSupplementaryAllowanceId = 520;
+            public const string GeneratePaymentLinesForSupplementaryAllowanceName = "Generate Payment Lines for Irregular Expense";
         }
 
         public static class FundingReports

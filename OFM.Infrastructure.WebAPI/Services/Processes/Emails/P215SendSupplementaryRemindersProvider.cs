@@ -6,7 +6,6 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
-using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -214,7 +213,8 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
         // get all supplementaries records for all reminders
         var localDateSupplementaries = await GetDataFromCRMAsync(SupplementariesUri);
         // get emailtemplate
-        var localDateEmailTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 220).TemplateNumber);
+        //var localDateEmailTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 220).TemplateNumber);
+        var localDateEmailTemplate = await _emailRepository.GetTemplateDataAsync(Int32.Parse(_processParams.Notification.TemplateNumber));
         JsonArray emailTemplate = (JsonArray)localDateEmailTemplate.Data;
         JsonNode templateobj = emailTemplate.FirstOrDefault();
         var updateRemindersRequests = new List<HttpRequestMessage>() { };
@@ -296,7 +296,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
             foreach (var getContact in getContacts)
             {
                 string tempEmaildescription = emaildescription;
-                tempEmaildescription = tempEmaildescription?.Replace("#ContactName#", getContact["contact.ofm_last_name"].ToString() + " " + getContact["contact.ofm_first_name"].ToString());
+                tempEmaildescription = tempEmaildescription?.Replace("#ContactName#", getContact["contact.ofm_last_name"]?.ToString() + " " + getContact["contact.ofm_first_name"]?.ToString());
                 var requestBody = new JsonObject(){
                             {"subject",subject },
                             {"description",tempEmaildescription},
@@ -348,7 +348,7 @@ public class P215SendSupplementaryRemindersProvider : ID365ProcessProvider
                 { "statecode", 1 }
             };
 
-            updateRemindersRequests.Add(new D365UpdateRequest(new EntityReference("ofm_reminders", (Guid)reminder["ofm_reminderid"]), reminderToUpdate));
+            updateRemindersRequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_reminders", (Guid)reminder["ofm_reminderid"]), reminderToUpdate));
         }
 
         // Deactive reminders

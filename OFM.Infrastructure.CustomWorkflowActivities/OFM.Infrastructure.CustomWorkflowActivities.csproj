@@ -29,9 +29,6 @@
     <None Remove="Properties\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Contact\GenerateFacilityPermissions.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <None Remove="packages.config" />
   </ItemGroup>
 

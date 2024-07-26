@@ -22,7 +22,7 @@
             <returns></returns>
         </member>
         <!-- Badly formed XML comment ignored for member "M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.ToLocalPST(System.DateTime)" -->
-        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceDate(System.DateTime,System.Collections.Generic.List{System.DateTime})">
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32)">
             <summary>
             A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
             </summary>
@@ -37,6 +37,15 @@
              A pre-determined CFS Invoice Received Date. Last business day of previous month so for following month it is paid in advance.
              For first month payment, it is always same as start date of funding.
             </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.AddBusinessDays(System.DateTime,System.Int32,System.Collections.Generic.List{System.DateTime})">
+            <summary>
+            Adding x business days from the target date.
+            </summary>
+            <param name="targetDate"></param>
+            <param name="businessDaysToAdd"></param>
+            <param name="holidays"></param>
+            <returns></returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.BatchOperationsHandlers.BatchOperationsAsync(OFM.Infrastructure.WebAPI.Services.Batches.ID365BatchService,Microsoft.Extensions.Logging.ILoggerFactory,System.Object)">
              <summary>
@@ -235,7 +244,7 @@
             <param name="preventDuplicateRecord">Whether to throw an error when a duplicate record is detected.</param>
             <param name="partitionId">The partition key to use.</param>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Messages.EntityReference.#ctor(System.String,System.Nullable{System.Guid})">
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.D365EntityReference.#ctor(System.String,System.Nullable{System.Guid})">
             <summary>
             Creates an EntityReference with EntitySetName and Guid Id
             </summary>
@@ -243,36 +252,36 @@
             <param name="id">The Guid Id value.</param>
             <exception cref="T:System.Exception"></exception>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Messages.EntityReference.#ctor(System.String)">
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.D365EntityReference.#ctor(System.String)">
             <summary>
             Creates an entity reference from a URI
             </summary>
             <param name="uri">An absolute or relative URI to a record.</param>
             <exception cref="T:System.ArgumentException"></exception>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Messages.EntityReference.#ctor(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.D365EntityReference.#ctor(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
             <summary>
             Creates an EntityReference with alternate keys
             </summary>
             <param name="setName">The entity set name</param>
             <param name="keyAttributes">The key attributes to use.</param>
         </member>
-        <member name="P:OFM.Infrastructure.WebAPI.Messages.EntityReference.Id">
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.D365EntityReference.Id">
             <summary>
             The primary key value
             </summary>
         </member>
-        <member name="P:OFM.Infrastructure.WebAPI.Messages.EntityReference.KeyAttributes">
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.D365EntityReference.KeyAttributes">
             <summary>
             Alternate key values
             </summary>
         </member>
-        <member name="P:OFM.Infrastructure.WebAPI.Messages.EntityReference.SetName">
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.D365EntityReference.SetName">
             <summary>
             The EntitySet name
             </summary>
         </member>
-        <member name="P:OFM.Infrastructure.WebAPI.Messages.EntityReference.Path">
+        <member name="P:OFM.Infrastructure.WebAPI.Messages.D365EntityReference.Path">
             <summary>
             The calculated relative Uri to the record.
             </summary>
@@ -282,7 +291,7 @@
             Contains the data to update a record
             </summary>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Messages.D365UpdateRequest.#ctor(OFM.Infrastructure.WebAPI.Messages.EntityReference,System.Text.Json.Nodes.JsonObject,System.Boolean,System.String,System.String)">
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.D365UpdateRequest.#ctor(OFM.Infrastructure.WebAPI.Messages.D365EntityReference,System.Text.Json.Nodes.JsonObject,System.Boolean,System.String,System.String)">
             <summary>
             Initializes the UpdateRequest
             </summary>
@@ -307,7 +316,7 @@
             Contains the data to upsert a record.
             </summary>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Messages.UpsertRequest.#ctor(OFM.Infrastructure.WebAPI.Messages.EntityReference,System.Text.Json.Nodes.JsonObject,OFM.Infrastructure.WebAPI.Messages.UpsertBehavior)">
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.UpsertRequest.#ctor(OFM.Infrastructure.WebAPI.Messages.D365EntityReference,System.Text.Json.Nodes.JsonObject,OFM.Infrastructure.WebAPI.Messages.UpsertBehavior)">
             <summary>
             Initializes the UpsertRequest
             </summary>
@@ -474,7 +483,21 @@
             <param name="adjustedSpaces"></param>
             <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile.P405VerifyGoodStandingBatchProvider.CreateTaskForNotGoodStandingFrom90Days(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,System.String)">
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P235SendExpenseApplicationNotificationProvider.ContactRequestUri(System.String)">
+            <summary>
+            To frame ContactRequestUri
+            </summary>
+            <param name="contactId">GUID of contact</param>
+            <returns>ContactRequestUri</returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P235SendExpenseApplicationNotificationProvider.GetContactDataAsync(System.String)">
+            <summary>
+            To get contact details
+            </summary>
+            <param name="contactId">GUID of contact</param>
+            <returns>Contact details</returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles.P405VerifyGoodStandingBatchProvider.CreateTaskForNotGoodStandingFrom90Days(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,System.String)">
             <summary>
             if the org is in not good standing => Create a task for more than 90 days
             </summary>
@@ -484,7 +507,7 @@
             <param name="ofm_standing_historyid"></param>
             <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfile.P405VerifyGoodStandingBatchProvider.SendNoGoodStandingNotification(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,OFM.Infrastructure.WebAPI.Models.NotificationSettings)">
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles.P405VerifyGoodStandingBatchProvider.SendNoGoodStandingNotification(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,OFM.Infrastructure.WebAPI.Models.NotificationSettings)">
             <summary>
             Send a Notification to the provider if the prganization is not in good standing
             </summary>
@@ -1764,6 +1787,11 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_facility_review_complete">
             <summary>
             Provider Review Complete
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_flag_vau_review_underway">
+            <summary>
+            Internal Audit Flag
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_good_standing_indicator">
@@ -4917,6 +4945,11 @@
             Select the option(s) on how you intend to use this funding (IP)
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_monthly_amount_base">
+            <summary>
+            Value of the Monthly Amount in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_needs_description">
             <summary>
             Please describe how you intend to use this funding (SNs)
@@ -4935,6 +4968,21 @@
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_renewal_term">
             <summary>
             Renewal Term
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_retroactive_amount">
+            <summary>
+            Retroactive Amount
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_retroactive_amount_base">
+            <summary>
+            Value of the Retroactive Amount in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_retroactive_date">
+            <summary>
+            Retroactive Date
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_start_date">
@@ -5045,11 +5093,6 @@
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_payment_allowance">
             <summary>
             1:N ofm_payment_allowance
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_supplementary_payment">
-            <summary>
-            1:N ofm_supplementary_payment
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_allowance.ofm_application_allowance">
@@ -6725,6 +6768,11 @@
             N:1 ofm_document_assistance_request
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_document.ofm_document_expense">
+            <summary>
+            N:1 ofm_document_expense
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_document.team_ofm_document">
             <summary>
             N:1 team_ofm_document
@@ -7168,6 +7216,31 @@
             Start Date
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_verification_documents_complete">
+            <summary>
+            Supporting documents complete
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_verification_funding_exhausted">
+            <summary>
+            All avenues for funding exhausted
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_verification_quotations_arms_length">
+            <summary>
+            Quotations are arm’s length
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_verification_quotations_confirmed">
+            <summary>
+            Quotations for work confirmed
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_verification_supported_by_policy">
+            <summary>
+            Purpose of expense supported by policy
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_expense.overriddencreatedon">
             <summary>
             Date and time that the record was migrated.
@@ -7231,6 +7304,11 @@
         <member name="P:ECC.Core.DataContext.ofm_expense.versionnumber">
             <summary>
             Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_document_expense">
+            <summary>
+            1:N ofm_document_expense
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_expense.ofm_payment_expense">
@@ -8118,11 +8196,6 @@
             Unique identifier for entity instances
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_intake">
-            <summary>
-            The associated Intake on the funding record
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_is_approval_required">
             <summary>
             Funding Approval/Adjudication is required by default except for inflation increase
@@ -8161,11 +8234,6 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_rate_schedule">
             <summary>
             The associated Rate Schedule
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_retroactive_payment">
-            <summary>
-            Retroactive Payment
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_retroactive_payment_date">
@@ -8296,11 +8364,6 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_facility_account">
             <summary>
             N:1 ofm_funding_facility_account
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_intake_funding">
-            <summary>
-            N:1 ofm_intake_funding
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_rateschedule_funding">
@@ -8668,11 +8731,6 @@
         <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intake_facilityintake">
             <summary>
             1:N ofm_intake_facilityintake
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_intake.ofm_intake_funding">
-            <summary>
-            1:N ofm_intake_funding
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_intake.team_ofm_intake">
@@ -9319,16 +9377,6 @@
             The associated Fiscal Year record
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_funding_year">
-            <summary>
-            Indicate the funding agreement year (1->3)
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_inflation_rate">
-            <summary>
-            The associated Inflation Rate record
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_invoice_date">
             <summary>
             Invoice Date
@@ -9387,11 +9435,6 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_revised_invoice_received_date">
             <summary>
             Revised Invoice Received Date. Typically, 4 days after the Effective Date
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_supplementary">
-            <summary>
-            The associated supplementary application record
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.overriddencreatedon">
@@ -9492,11 +9535,6 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_funding">
             <summary>
             N:1 ofm_payment_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_supplementary_payment">
-            <summary>
-            N:1 ofm_supplementary_payment
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.team_ofm_payment">
@@ -10460,11 +10498,6 @@
         <member name="P:ECC.Core.DataContext.ofm_progress_tracker.ofm_title">
             <summary>
             Title
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_progress_tracker.ofm_tracking_details">
-            <summary>
-            Tracking Details
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_progress_tracker.ofm_tracking_number">
@@ -14908,6 +14941,11 @@
             Employee Type
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ecc_expense_verification_status">
+            <summary>
+            Expense Verification Status
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ecc_funding_envelope">
             <summary>
             Funding Envelope
@@ -15236,6 +15274,26 @@
         <member name="T:ECC.Core.DataContext.msdyn_BookableResourceType">
             <summary>
             Select whether the resource is an account, contact, user, equipment, crew, facility or a pool of resources.
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.msdyn_BookingStatusOptimizationMethod">
+            <summary>
+            Booking Status Optimization Methods
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_BookingStatusOptimizationMethod.DoNotMove">
+            <summary>
+            Bookings in this status will not be moved by the optimization engine
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_BookingStatusOptimizationMethod.Ignore">
+            <summary>
+            Bookings in this status will be completely ignored by the optimization engine
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_BookingStatusOptimizationMethod.Optimize">
+            <summary>
+            Bookings in this status can be optimized by the optimization engine
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_ConsoleApplicationNotificationAction">
@@ -16146,6 +16204,11 @@
         <member name="F:ECC.Core.DataContext.msdyn_ocSystemMessageType.MessageTemplate">
             <summary>
             Message Template
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.msdyn_OptimizationType">
+            <summary>
+            Scheduling Optimization Type
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_OverflowActionType">
@@ -17481,6 +17544,11 @@
         <member name="F:ECC.Core.DataContext.sameweekweek_options.Third">
             <summary>
             Third week of the month
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.securityrole_IsAutoAssigned">
+            <summary>
+            Value indicating whether security role is auto-assigned based on user license
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.selection_rule_criteria">

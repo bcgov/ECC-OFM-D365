@@ -104,6 +104,46 @@ OFM.Expense.Form = {
 				statuscodeControl.addOption(notRecommended);
 				statuscodeControl.addOption(inReview);
 			       }
+	},
+
+	ValidateStartAndEndDate: function (executionContext) {
+		var formContext = executionContext.getFormContext();
+
+		var startDate = formContext.getAttribute("ofm_start_date").getValue();
+		var endDate = formContext.getAttribute("ofm_end_date").getValue();
+		var currentDate = new Date();
+		if (startDate != null) {
+			if (startDate < currentDate) {
+				formContext.ui.setFormNotification("Start  date cannot be a past date.", "ERROR", "startdate");
+				// Clear end date field
+				formContext.getAttribute("ofm_start_date").setValue(null);
+			}
+			else {
+				formContext.ui.clearFormNotification("startdate");
+			}
+		}
+		if (endDate != null) {
+			if (endDate < currentDate) {
+				formContext.ui.setFormNotification("End  date cannot be a past date.", "ERROR", "enddate");
+				// Clear end date field
+				formContext.getAttribute("ofm_end_date").setValue(null);
+			}
+			else {
+				formContext.ui.clearFormNotification("enddate");
+			}
+		}
+		if (startDate != null && endDate != null) {
+			// Compare start date and end date
+			if (startDate > endDate) {
+				// End date is before start date, show an error message
+				formContext.ui.setFormNotification("End date cannot be before start date.", "ERROR", "enddate");
+				// Clear end date field
+				formContext.getAttribute("ofm_end_date").setValue(null);
+			} else {
+				// Remove any existing error message
+				formContext.ui.clearFormNotification("enddate");
+			}
+		}
 	}
 
 }

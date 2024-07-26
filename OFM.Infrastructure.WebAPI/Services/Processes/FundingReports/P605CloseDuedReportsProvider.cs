@@ -120,7 +120,7 @@ public class P605CloseDuedReportsProvider : ID365ProcessProvider
                 {"statecode",(int)ofm_survey_response_statecode.Inactive }
             };
 
-            requests.Add(new D365UpdateRequest(new EntityReference("ofm_survey_responses", new Guid(reportId)), deactivateReportBody));
+            requests.Add(new D365UpdateRequest(new D365EntityReference("ofm_survey_responses", new Guid(reportId)), deactivateReportBody));
         }
 
         var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);

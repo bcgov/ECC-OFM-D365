@@ -374,7 +374,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                 { "statecode", 1 }     // 1 = Completed
              };
 
-            updateEmailRequests.Add(new D365UpdateRequest(new EntityReference("emails", new Guid(email.activityid)), emailToUpdate));
+            updateEmailRequests.Add(new D365UpdateRequest(new D365EntityReference("emails", new Guid(email.activityid)), emailToUpdate));
         });
 
         var step2BatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateEmailRequests, null);

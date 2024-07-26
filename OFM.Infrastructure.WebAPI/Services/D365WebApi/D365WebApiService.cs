@@ -68,11 +68,15 @@ public class D365WebAPIService : ID365WebApiService
         UploadFileRequest request;
         if (entityNameSet.Equals("ofm_payment_file_exchanges"))
         {
-            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_input_document_memo", data, fileName);
+            request = new(new D365EntityReference(entityNameSet, id), columnName: "ofm_input_document_memo", data, fileName);
+        }
+        else if (entityNameSet.Equals("ofm_allowances"))
+        {
+            request = new(new D365EntityReference(entityNameSet, id), columnName: "ofm_approval_pdf", data, fileName);
         }
         else
         {
-            request = new(new EntityReference(entityNameSet, id), columnName: "ofm_file", data, fileName);
+            request = new(new D365EntityReference(entityNameSet, id), columnName: "ofm_file", data, fileName);
         }
         HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 
