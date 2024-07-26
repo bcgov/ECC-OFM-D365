@@ -35,25 +35,52 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 // For reference only
                 var fetchXml = $$"""
-                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
-                                              <entity name="ofm_payment">
-                                                <attribute name="ofm_paymentid" />
-                                                <attribute name="ofm_name" />
-                                                <attribute name="createdon" />
-                                                <attribute name="statuscode" />
-                                                <attribute name="ofm_funding" />
-                                                <attribute name="ofm_payment_type" />
-                                                <attribute name="ofm_effective_date" />
-                                                <attribute name="ofm_amount" />
-                                                <filter type="and">
-                                                  <condition attribute="ofm_application" operator="eq"  value="{{_processParams!.Application!.applicationId}}" />                                                 
-                                                </filter>
-                                              </entity>
-                                            </fetch>
+                                        <fetch>
+                      <entity name="ofm_payment">
+                        <attribute name="ofm_paymentid" />
+                        <attribute name="ofm_name" />
+                        <attribute name="createdon" />
+                        <attribute name="statuscode" />
+                        <attribute name="ofm_funding" />
+                        <attribute name="ofm_payment_type" />
+                        <attribute name="ofm_effective_date" />
+                        <attribute name="ofm_amount" />
+                        <attribute name="ofm_application" />
+                        <attribute name="ofm_invoice_line_number" />
+                        <attribute name="ofm_invoice_received_date" />
+                        <attribute name="ofm_payment_manual_review" />
+                        <attribute name="ofm_regardingid" />
+                        <attribute name="ofm_remittance_message" />
+                        <attribute name="ofm_revised_effective_date" />
+                        <attribute name="ofm_revised_invoice_date" />
+                        <attribute name="ofm_revised_invoice_received_date" />
+                        <attribute name="ofm_facility" />
+                        <attribute name="ofm_fiscal_year" />
+                        <attribute name="ofm_invoice_date" />
+                        <attribute name="ofm_invoice_number" />
+                        <attribute name="statecode" />
+                        <order attribute="ofm_invoice_line_number" descending="true" />
+                        <filter type="and">
+                          <condition attribute="ofm_application" operator="eq" value="00000000-0000-0000-0000-000000000000" />
+                        </filter>
+                        <link-entity name="ofm_funding" from="ofm_fundingid" to="ofm_funding" link-type="inner" alias="Funding">
+                          <attribute name="ofm_end_date" />
+                          <attribute name="ofm_fundingid" />
+                          <attribute name="ofm_monthly_province_base_funding_y1" />
+                          <attribute name="ofm_start_date" />
+                          <attribute name="ofm_version_number" />
+                        </link-entity>
+                        <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="App">
+                          <attribute name="ofm_application" />
+                          <attribute name="ofm_applicationid" />
+                          <attribute name="statuscode" />
+                        </link-entity>
+                      </entity>
+                    </fetch>
                     """;
 
                 var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount&$filter=(_ofm_application_value eq {_processParams!.Application!.applicationId})
+                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number,ofm_invoice_received_date,ofm_payment_manual_review,_ofm_regardingid_value,ofm_remittance_message,ofm_revised_effective_date,ofm_revised_invoice_date,ofm_revised_invoice_received_date,_ofm_facility_value,_ofm_fiscal_year_value,ofm_invoice_date,ofm_invoice_number,statecode&$expand=ofm_funding($select=ofm_end_date,ofm_fundingid,ofm_monthly_province_base_funding_y1,ofm_start_date,ofm_version_number),ofm_application($select=ofm_application,ofm_applicationid,statuscode)&$filter=(_ofm_application_value eq '{_processParams!.Application!.applicationId}') and (ofm_funding/ofm_fundingid ne null) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_invoice_line_number desc
                          """;
 
                 return requestUri;
@@ -320,7 +347,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             _processParams = processParams;
 
-            Funding? funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!), isPayment: true);
+            Funding? funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!), isCalculator: false);
 
             if (funding is null)
             {
@@ -332,7 +359,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             _allPayments = JsonSerializer.Deserialize<List<D365PaymentLine>>(allExistingPaymentsByApplicationIdData.Data.ToString());
             if (funding.statuscode == ofm_funding_StatusCode.Active && _allPayments is not null && _allPayments.Count > 0)
             {
-                List<D365PaymentLine> fundingPayments = _allPayments.Where(payment => payment?._ofm_funding_value == funding.Id.ToString()).ToList();
+                List<D365PaymentLine> fundingPayments = _allPayments.Where(payment => payment?.ofm_funding?.Id == funding.Id).ToList();
                 if (fundingPayments.Count > 0)
                 {
                     _logger.LogWarning(CustomLogEvent.Process, "Payments have been previously generated for Funding with the Id: {FundingId}", processParams!.Funding!.FundingId);
