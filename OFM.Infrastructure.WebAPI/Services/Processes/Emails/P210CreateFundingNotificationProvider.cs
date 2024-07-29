@@ -199,42 +199,43 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
         _informationCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.Information)
                                                                    .Select(s => s.ofm_communication_typeid).FirstOrDefault();
         _processParams = processParams;
-        Funding? _funding = await _fundingRepository?.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!),true);
-        if(_funding != null)
-        { 
-        var expenseOfficer = _funding.ofm_application?._ofm_expense_authority_value;
-        var primaryContact = _funding.ofm_application?._ofm_contact_value;
-        // Provider FA Approver
-
-        int statusReason = (int)_funding!.statuscode;                      // funding status
-        _logger.LogInformation("Got the Status", statusReason);
-
-        var startTime = _timeProvider.GetTimestamp();
-
-        #region Create the funding email notifications 
-
-
-        if (statusReason == (int)ofm_funding_StatusCode.FASignaturePending)
+       
+        Funding? _funding = await _fundingRepository?.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!), isCalculator: false);
+        if (_funding != null)
         {
-            _logger.LogInformation("Entered if FASignaturePending", statusReason);
-            // Get template details to create emails.
-            var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateNumber);
+            var expenseOfficer = _funding.ofm_application?._ofm_expense_authority_value;
+            var primaryContact = _funding.ofm_application?._ofm_contact_value;
+            // Provider FA Approver
+
+            int statusReason = (int)_funding!.statuscode;                      // funding status
+            _logger.LogInformation("Got the Status", statusReason);
+
+            var startTime = _timeProvider.GetTimestamp();
+
+            #region Create the funding email notifications 
 
 
-            var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
-            _logger.LogInformation("Got the Template", serializedDataTemplate.Count);
-            var hyperlink = _notificationSettings.FundingUrl + _funding.Id;
-            var hyperlinkFATab = _notificationSettings.FundingTabUrl;
-            _logger.LogInformation("Got the hyperlink", hyperlink + hyperlinkFATab);
-            var templateobj = serializedDataTemplate?.FirstOrDefault();
-            string? subject = templateobj?.title;
-            string? emaildescription = templateobj?.safehtml;
-            emaildescription = emaildescription?.Replace("{FA_NUMBER}", _funding.ofm_funding_number);
-            emaildescription = emaildescription?.Replace("{FACILITY_NAME}", _funding.ofm_facility?.name);
-            emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
-            emaildescription = emaildescription?.Replace("{HYPERLINK_FATAB}", $"<a href=\"{hyperlinkFATab}\">Funding Overview</a>");
-            List<Guid> recipientsList = new List<Guid>();
-            _logger.LogInformation("Got the recipientsList", expenseOfficer);
+            if (statusReason == (int)ofm_funding_StatusCode.FASignaturePending)
+            {
+                _logger.LogInformation("Entered if FASignaturePending", statusReason);
+                // Get template details to create emails.
+                var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 210).TemplateNumber);
+
+
+                var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
+                _logger.LogInformation("Got the Template", serializedDataTemplate.Count);
+                var hyperlink = _notificationSettings.FundingUrl + _funding.Id;
+                var hyperlinkFATab = _notificationSettings.FundingTabUrl;
+                _logger.LogInformation("Got the hyperlink", hyperlink + hyperlinkFATab);
+                var templateobj = serializedDataTemplate?.FirstOrDefault();
+                string? subject = templateobj?.title;
+                string? emaildescription = templateobj?.safehtml;
+                emaildescription = emaildescription?.Replace("{FA_NUMBER}", _funding.ofm_funding_number);
+                emaildescription = emaildescription?.Replace("{FACILITY_NAME}", _funding.ofm_facility?.name);
+                emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
+                emaildescription = emaildescription?.Replace("{HYPERLINK_FATAB}", $"<a href=\"{hyperlinkFATab}\">Funding Overview</a>");
+                List<Guid> recipientsList = new List<Guid>();
+                _logger.LogInformation("Got the recipientsList", expenseOfficer);
                 if (expenseOfficer != null)
                 {
                     recipientsList.Add((Guid)expenseOfficer);
@@ -242,20 +243,20 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
                     await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _fundingAgreementCommunicationType, appUserService, d365WebApiService, 210);
                 }
 
-            if (expenseOfficer != primaryContact)
-            {
+                if (expenseOfficer != primaryContact)
+                {
 
-                localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 215).TemplateNumber);
-                serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
-                templateobj = serializedDataTemplate?.FirstOrDefault();
-                subject = templateobj?.title;
-                emaildescription = templateobj?.safehtml;
-                emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
-                recipientsList.Clear();
-                recipientsList.Add((Guid)primaryContact);
-                await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+                    localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 215).TemplateNumber);
+                    serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
+                    templateobj = serializedDataTemplate?.FirstOrDefault();
+                    subject = templateobj?.title;
+                    emaildescription = templateobj?.safehtml;
+                    emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
+                    recipientsList.Clear();
+                    recipientsList.Add((Guid)primaryContact);
+                    await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 210);
+                }
             }
-        }
 
             if (statusReason == (int)ofm_funding_StatusCode.Active)
             {

@@ -240,11 +240,11 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
 
                     if (supplementary.ofm_transport_monthly_lease is not null)
                     {
-                        calculatedFundingAmount += (decimal)supplementary.ofm_transport_monthly_lease * numberOfMonths;
+                        calculatedMonthlyAmount += (decimal)supplementary.ofm_transport_monthly_lease;
                     }
 
-                    calculatedMonthlyAmount = (supplementary.ofm_transport_estimated_yearly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km;
-
+                    var yearlyKMCost = (supplementary.ofm_transport_estimated_yearly_km ?? 0) * (decimal)supplementary.ofm_supplementary_schedule?.ofm_transport_reimbursement_rate_per_km;
+                    calculatedMonthlyAmount += yearlyKMCost / 12;
                     calculatedFundingAmount = calculatedMonthlyAmount * numberOfMonths;
 
                     break;
