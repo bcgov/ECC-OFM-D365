@@ -216,7 +216,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
     {
         get
         {
-            var facilityCost = _nonHRactions.FirstOrDefault(c => c.Envelope == "Facility")?.Cost ?? 0m;
+            var facilityCost = _fundingResult!.FundingAmounts!.Projected_NonHRFacility;
             var transposedCost = _nonHRactions.GroupBy(m => m.Step).Select(m => new
             {
                 m.First().Step,
@@ -224,7 +224,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                 Programming = m.First(c => c.Envelope == "Programming").Cost,
                 Administrative = m.First(c => c.Envelope == "Administration").Cost,
                 Operational = m.First(c => c.Envelope == "Operational").Cost,
-                Facility = (m.Key == 1) ? facilityCost : 0m,
+                Facility = (m.Key == 1) ? facilityCost:0m,
                 Total = m.Sum(m => m.Cost)
             });
 
