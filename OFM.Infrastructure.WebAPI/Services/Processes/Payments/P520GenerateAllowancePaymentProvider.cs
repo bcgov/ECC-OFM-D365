@@ -383,13 +383,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             if (approvedSA.ofm_allowance_type == ecc_allowance_type.Transportation)
             {
                 // Process future payments
-                int futureMonthsCount = (approvedSA.ofm_end_date!.Value.Year - approvedSA.ofm_start_date!.Value.Year) * 12 + approvedSA.ofm_end_date.Value.Month - approvedSA.ofm_start_date.Value.Month + 1;
-                decimal monthlyPaymentAmount = approvedSA.ofm_funding_amount!.Value / futureMonthsCount;
-                await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, monthlyPaymentAmount, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
+                await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, approvedSA.ofm_monthly_amount!.Value, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
 
                 // Process retroactive payment
                 int retroActiveMonthsCount = approvedSA.ofm_retroactive_date!.HasValue ? (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month : 0;
-                await ProcessRetroActivePayment(baseApplication!, approvedSA, processParams, fiscalYears, holidaysList, monthlyPaymentAmount, retroActiveMonthsCount);
+                await ProcessRetroActivePayment(baseApplication!, approvedSA, processParams, fiscalYears, holidaysList, approvedSA.ofm_monthly_amount!.Value, retroActiveMonthsCount);
                
                 _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
 
@@ -462,9 +460,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 { "ofm_invoice_line_number", await GetNextInvoiceLineNumber() },
                 { "ofm_amount", paymentAmount },
                 { "ofm_payment_type", (int) paymentType },
-                { "ofm_facility@odata.bind", $"/accounts({baseApplication.ofm_facility.accountid})" },
-                { "ofm_organization@odata.bind", $"/accounts({baseApplication.ofm_organization.accountid})" },
-                { "ofm_funding@odata.bind", $"/ofm_fundings({baseApplication.ofm_application_funding.First().Id})" },
+                { "ofm_facility@odata.bind", $"/accounts({baseApplication.ofm_facility?.accountid})" },
+                { "ofm_organization@odata.bind", $"/accounts({baseApplication.ofm_organization?.accountid})" },
+                { "ofm_funding@odata.bind", $"/ofm_fundings({baseApplication.ofm_application_funding?.First().Id})" },
                 { "ofm_application@odata.bind",$"/ofm_applications({baseApplication.Id})" },
                 { "ofm_invoice_date", invoiceDate.ToString("yyyy-MM-dd") },
                 { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
@@ -522,10 +520,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         { "ofm_invoice_line_number", nextLineNumber++ },
                         { "ofm_amount", paymentAmount },
                         { "ofm_payment_type", (int) paymentType },
-                        { "ofm_facility@odata.bind", $"/accounts({baseApplication.ofm_facility.accountid})" },
-                        { "ofm_organization@odata.bind", $"/accounts({baseApplication.ofm_organization.accountid})" },
-                        { "ofm_funding@odata.bind", $"/ofm_fundings({baseApplication.ofm_application_funding.First().Id})" },
-                        { "ofm_application@odata.bind",$"/ofm_applications({baseApplication.Id})" },
+                        { "ofm_facility@odata.bind", $"/accounts({baseApplication?.ofm_facility?.accountid})" },
+                        { "ofm_organization@odata.bind", $"/accounts({baseApplication?.ofm_organization?.accountid})" },
+                        { "ofm_funding@odata.bind", $"/ofm_fundings({baseApplication?.ofm_application_funding?.First().Id})" },
+                        { "ofm_application@odata.bind",$"/ofm_applications({baseApplication?.Id})" },
                         { "ofm_invoice_date", invoiceDate.ToString("yyyy-MM-dd") },
                         { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
                         { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
