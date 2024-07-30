@@ -301,6 +301,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     {
         var contactName = allowance.ofm_first_name + " " + allowance.ofm_last_name;
         var MonthlyAmount = allowance.ofm_monthly_amount;
+        var fundingAmount = allowance.ofm_funding_amount;
         var RetroActiveAmount = allowance.ofm_retroactive_amount;
         var allowanceType = (ecc_allowance_type)allowance.ofm_allowance_type;
         var allowanceNumber = allowance.ofm_allowance_number;
@@ -344,8 +345,10 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
 
             string? emaildescription = templateobj?.safehtml;
             emaildescription = emaildescription?.Replace("[PrimaryContactName]", contactName);
-            emaildescription = emaildescription?.Replace("{Amount}", MonthlyAmount?.ToString());
-
+            if(allowanceType == ecc_allowance_type.SupportNeedsProgramming || allowanceType == ecc_allowance_type.IndigenousProgramming)
+            emaildescription = emaildescription?.Replace("{Amount}", fundingAmount?.ToString());
+            else
+                emaildescription = emaildescription?.Replace("{Amount}", MonthlyAmount?.ToString());
             //emaildescription = emaildescription?.Replace("{AllowanceType}", allowanceType.ToString());
             if (allowanceType == ecc_allowance_type.Transportation)
             {
