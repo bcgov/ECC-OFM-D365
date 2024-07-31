@@ -440,7 +440,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             if (funding.ofm_retroactive_payment_date.HasValue)
                 retroActiveMonthsCount = (funding!.ofm_start_date!.Value.Year - funding.ofm_retroactive_payment_date.Value.Year) * 12 + funding.ofm_start_date.Value.Month - funding.ofm_retroactive_payment_date.Value.Month;
             bool retroActivePaymentYesOrNo = (retroActiveMonthsCount > 0);
-            int remainingModMonthsCount = (funding!.ofm_end_date!.Value.Year - funding!.ofm_start_date!.Value.Year) * 12 + (funding.ofm_end_date.Value.Month - funding.ofm_start_date.Value.Month);
+            int remainingModMonthsCount = (funding!.ofm_end_date!.Value.Year - funding!.ofm_start_date!.Value.Year) * 12 + (funding.ofm_end_date.Value.Month - funding.ofm_start_date.Value.Month) + 1;
             decimal adjustedMonthlyCreditOrDebitOnly = monthlyFundingAmount - previousMonthlyFundingAmount; // Positive or Negative (e.g.: facility cost has reduced or less operational space changes)
 
             // Processing future payments
