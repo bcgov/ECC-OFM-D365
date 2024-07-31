@@ -488,13 +488,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             Int32 lineNumber = await GetNextInvoiceLineNumber();
 
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
-            {
-               
-
+            {       
                 DateTime invoiceDate = (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
-                Guid fiscalYearId = invoiceDate.MatchFiscalYear(fiscalYears);
+                
                 if (processParams.Funding!.IsMod!.Value)
                 {
                     // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
@@ -503,6 +501,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                     effectiveDate = invoiceDate;
                 }
+                Guid fiscalYearId = invoiceDate.MatchFiscalYear(fiscalYears);
 
                 var paymentToCreate = new JsonObject()
                 {
