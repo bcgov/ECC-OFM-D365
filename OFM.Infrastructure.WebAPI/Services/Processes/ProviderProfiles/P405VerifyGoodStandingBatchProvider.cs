@@ -378,7 +378,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
 
         var request = new HttpRequestMessage(HttpMethod.Get, path);
-        request.Headers.Add("Account-Id", "1");
+        request.Headers.Add(_BCRegistrySettings.AccoutIdName, _BCRegistrySettings.AccoutIdValue);
         request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
 
         var response = await httpClient.SendAsync(request);
