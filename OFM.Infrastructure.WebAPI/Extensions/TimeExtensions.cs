@@ -107,6 +107,31 @@ public static class TimeExtensions
     }
 
     /// <summary>
+    /// Convert a PST date to UTC
+    /// </summary>
+    /// <param name="pstDate"></param>
+    /// <returns></returns>
+    public static DateTime ToUTC(this DateTime pstDate)
+    {
+        _ = TimeZoneInfo.Local;
+        bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        TimeZoneInfo timeZone;
+        if (isWindows)
+        {
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+        }
+        else
+        {
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Vancouver");
+        }
+
+        DateTime utcTime = TimeZoneInfo.ConvertTimeToUtc(pstDate, timeZone);
+
+        return utcTime;
+    }
+
+
+    /// <summary>
     /// A pre-determined Invoice Date when OFM system sends the payment request over to CFS.
     /// </summary>
     public static DateTime GetCFSInvoiceDate(this DateTime invoiceReceivedDate, List<DateTime> holidays,int businessDaysToSubtract = 5)

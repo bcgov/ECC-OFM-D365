@@ -22,6 +22,13 @@
             <returns></returns>
         </member>
         <!-- Badly formed XML comment ignored for member "M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.ToLocalPST(System.DateTime)" -->
+        <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.ToUTC(System.DateTime)">
+            <summary>
+            Convert a PST date to UTC
+            </summary>
+            <param name="pstDate"></param>
+            <returns></returns>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Extensions.TimeExtensions.GetCFSInvoiceDate(System.DateTime,System.Collections.Generic.List{System.DateTime},System.Int32)">
             <summary>
             A pre-determined Invoice Date when OFM system sends the payment request over to CFS.

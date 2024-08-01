@@ -135,34 +135,6 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         return fiscalMonth;
     }
 
-    public TimeZoneInfo GetPSTTimeZoneInfo(string timezoneId1, string timezoneId2)
-    {
-        try
-        {
-            TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(timezoneId1);
-
-            return info;
-        }
-        catch (System.TimeZoneNotFoundException)
-        {
-            try
-            {
-                TimeZoneInfo info = TimeZoneInfo.FindSystemTimeZoneById(timezoneId2);
-
-                return info;
-            }
-            catch (System.TimeZoneNotFoundException)
-            {
-                _logger.LogError(CustomLogEvent.Process, "Could not find timezone by Id");
-                return null;
-            }
-        }
-        catch (System.Exception)
-        {
-            return null;
-        }
-    }
-
 
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
@@ -185,8 +157,6 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         DateTime monthEndDate = new DateTime();
 
         
-       TimeZoneInfo PSTZone = GetPSTTimeZoneInfo("Pacific Standard Time", "America/Los_Angeles");
-        
         //batch create the monthly report
         if (batchFlag)
         {
@@ -203,7 +173,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             // april report
             //Run at PST May 1 1AM -> Min 1 month -> April 1 1AM
-            monthEndDate = TimeZoneInfo.ConvertTimeFromUtc(currentUTC, PSTZone).AddMonths(-1);
+            monthEndDate = currentUTC.ToLocalPST().AddMonths(-1);
         }
         else
         {
@@ -218,11 +188,11 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             facilities.Add(facilityId);
 
             //when funding is expired or terminated -> create the report for current month
-            monthEndDate = TimeZoneInfo.ConvertTimeFromUtc(currentUTC, PSTZone);
+            monthEndDate = currentUTC.ToLocalPST();
         }
 
         var monthEndDateInPST = new DateTime(monthEndDate.Year, monthEndDate.Month, DateTime.DaysInMonth(monthEndDate.Year, monthEndDate.Month), 23, 59, 00);
-        var monthEndDateInUTC = TimeZoneInfo.ConvertTimeToUtc(monthEndDateInPST, PSTZone);
+        var monthEndDateInUTC = monthEndDateInPST.ToUTC();
 
         //Set the fiscal year and duedate
         //fetch the current fiscal year
@@ -267,6 +237,9 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         var reportMonth = ConvertMonthToFiscalMonth(monthEndDateInPST.Month);
         var duedateInUTC = monthEndDateInUTC.AddMonths(1);
 
+        //Start date
+        var startdateInPST = new DateTime(monthEndDateInPST.Year, monthEndDateInPST.Month, 1).ToString("yyyy-MM-dd");
+
         List<HttpRequestMessage> requests = [];
 
         foreach (var facility in facilities)
@@ -278,7 +251,8 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                 {"ofm_survey@odata.bind", $"/ofm_surveies({reportTempateId})" },
                 {"ofm_fiscal_year@odata.bind", $"/ofm_fiscal_years({fiscalYear})" },
                 {"ofm_report_month", reportMonth},
-                {"ofm_duedate", duedateInUTC }
+                {"ofm_duedate", duedateInUTC },
+                { "ofm_start_date", startdateInPST}
             };
 
             //Create a new report
