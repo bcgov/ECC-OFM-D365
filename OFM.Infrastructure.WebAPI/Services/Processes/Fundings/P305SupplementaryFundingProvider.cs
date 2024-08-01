@@ -5,9 +5,6 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
-using static System.Net.Mime.MediaTypeNames;
-using Application = OFM.Infrastructure.WebAPI.Models.Fundings.Application;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
@@ -86,7 +83,6 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
     //For reference
     public async Task<ProcessData> GetApplicationData(string applicationId)
     {
-
         if (applicationId is not null)
         {
             var requestUri = $"""                                
