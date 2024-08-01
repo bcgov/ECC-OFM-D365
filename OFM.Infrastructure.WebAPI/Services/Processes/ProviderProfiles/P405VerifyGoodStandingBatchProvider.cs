@@ -351,7 +351,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         if (deserializedOrganizationsData.Any())
         {
             using HttpClient httpClient = new();
-             var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient));
+            var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient));
             await Task.WhenAll(tasks!);
         }
 
@@ -378,7 +378,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
 
         var request = new HttpRequestMessage(HttpMethod.Get, path);
-        request.Headers.Add("Account-Id", "1");
+        request.Headers.Add(_BCRegistrySettings.AccoutIdName, _BCRegistrySettings.AccoutIdValue);
         request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
 
         var response = await httpClient.SendAsync(request);
@@ -388,11 +388,13 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         {
             _logger.LogError(CustomLogEvent.Process, "Unable to call BC Registries API with an error {responseBody}.", responseBody.CleanLog());
 
-            await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, (int)ofm_good_standing_status.IntegrationError, subject: "Unable to call BC Registries API with an error.", (int)ecc_integration_log_category.Error, responseBody.CleanLog(), externalService);
+            var standingStatusUpdate = (response.StatusCode != HttpStatusCode.InternalServerError);
+
+            await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, (int)ofm_good_standing_status.IntegrationError, subject: "Unable to call BC Registries API with an error.", (int)ecc_integration_log_category.Error, responseBody.CleanLog(), externalService, statusUpdate: standingStatusUpdate);
 
             return await Task.FromResult(DateTime.Now);
         }
- 
+
         BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
 
         // Organization - Update
@@ -442,13 +444,18 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         return await Task.FromResult(DateTime.Now);
     }
 
-    private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string organizationId, int goodStandingStatus, string subject, int category, string message, string externalService)
+    private async Task<JsonObject> UpdateOrganizationCreateIntegrationLog(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, string organizationId, int goodStandingStatus, string subject, int category, string message, string externalService, bool statusUpdate = true)
     {
         var statement = $"accounts({organizationId})";
         var payload = new JsonObject {
                 { "ofm_good_standing_status", goodStandingStatus},
                 { "ofm_good_standing_validated_on", DateTime.UtcNow }
         };
+
+        if (!statusUpdate)
+        {
+            payload.Remove("ofm_good_standing_status");
+        }
 
         var requestBody = JsonSerializer.Serialize(payload);
 
@@ -457,7 +464,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         if (!patchResponse.IsSuccessStatusCode)
         {
             var responseBody = await patchResponse.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to patch GoodStanding status on organization with the server error {responseBody}", responseBody.CleanLog());
+            _logger.LogError(CustomLogEvent.Process, "Failed to patch GoodStanding status on organization {organizationId} with the server error {responseBody}", organizationId, responseBody.CleanLog());
 
             return await Task.FromResult(ProcessResult.Failure(ProcessId, [responseBody], 0, 0).SimpleProcessResult);
         }

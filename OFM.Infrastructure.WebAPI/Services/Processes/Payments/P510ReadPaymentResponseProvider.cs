@@ -97,6 +97,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                     </link-entity>
                     <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="ofm_application">
                       <attribute name="ofm_application" />
+                          <attribute name="ofm_applicationid" />
                     </link-entity>
                      <link-entity name="account" from="accountid" to="ofm_facility" visible="false" link-type="outer" alias="ofm_facility">
                        <attribute name="name" />
@@ -104,11 +105,9 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                        </entity>
                     </fetch>
                     """;
-
             var requestUri = $"""
-                         ofm_payments?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_payments?$select=ofm_paymentid,ofm_name,_ofm_fiscal_year_value,ofm_payment_type,statuscode,ofm_invoice_number,ofm_cas_response,_ofm_application_value&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application,ofm_applicationid),ofm_facility($select=name)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ProcessingPayment}) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
                          """;
-
 
             return requestUri;
         }
@@ -267,7 +266,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                 {
                     var subject = pay.ofm_name;
                     //create Integration log with an error message.
-                   createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay.ofm_application.ofm_applicationid.GetValueOrDefault(), casResponse, "CFS Integration Error", appUserService, d365WebApiService));
+                   createIntregrationLogTasks.Add(CreateIntegrationErrorLog(subject, pay.ofm_application.ofm_applicationid.Value, casResponse, "CFS Integration Error", appUserService, d365WebApiService));
                 }
 
                 //Update it with latest cas response.

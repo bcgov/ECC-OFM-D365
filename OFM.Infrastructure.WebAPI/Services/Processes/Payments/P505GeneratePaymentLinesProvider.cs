@@ -426,13 +426,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             #region Validation   
 
             ArgumentNullException.ThrowIfNull(processParams.Funding!.PreviousMonthlyBaseFundingAmount);
-            if (funding.ofm_retroactive_payment_frequency is null || funding.ofm_retroactive_payment_date >= funding.ofm_start_date)
+            if (funding.ofm_retroactive_payment_frequency is not null && funding.ofm_retroactive_payment_date >= funding.ofm_start_date)
             {
-                _logger.LogError(CustomLogEvent.Process, "Unable to process Mod Payments generation for the funding {ofm_funding_number}. ofm_retroactive_payment_frequency can not be blank or Invalid retroactive date.", funding.ofm_funding_number);
+                _logger.LogError(CustomLogEvent.Process, "Unable to process Mod Payments generation for the funding {ofm_funding_number}. Invalid retroactive date.", funding.ofm_funding_number);
 
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
-
 
             #endregion
 
@@ -441,7 +440,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             if (funding.ofm_retroactive_payment_date.HasValue)
                 retroActiveMonthsCount = (funding!.ofm_start_date!.Value.Year - funding.ofm_retroactive_payment_date.Value.Year) * 12 + funding.ofm_start_date.Value.Month - funding.ofm_retroactive_payment_date.Value.Month;
             bool retroActivePaymentYesOrNo = (retroActiveMonthsCount > 0);
-            int remainingModMonthsCount = (funding!.ofm_end_date!.Value.Year - funding!.ofm_start_date!.Value.Year) * 12 + (funding.ofm_end_date.Value.Month - funding.ofm_start_date.Value.Month);
+            int remainingModMonthsCount = (funding!.ofm_end_date!.Value.Year - funding!.ofm_start_date!.Value.Year) * 12 + (funding.ofm_end_date.Value.Month - funding.ofm_start_date.Value.Month) + 1;
             decimal adjustedMonthlyCreditOrDebitOnly = monthlyFundingAmount - previousMonthlyFundingAmount; // Positive or Negative (e.g.: facility cost has reduced or less operational space changes)
 
             // Processing future payments
@@ -489,13 +488,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             Int32 lineNumber = await GetNextInvoiceLineNumber();
 
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
-            {
-                Guid fiscalYearId = paymentDate.MatchFiscalYear(fiscalYears);
-
+            {       
                 DateTime invoiceDate = (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
-
+                
                 if (processParams.Funding!.IsMod!.Value)
                 {
                     // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
@@ -504,6 +501,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                     effectiveDate = invoiceDate;
                 }
+                Guid fiscalYearId = invoiceDate.MatchFiscalYear(fiscalYears);
 
                 var paymentToCreate = new JsonObject()
                 {
