@@ -155,6 +155,8 @@ public record BCRegistrySettings
     public bool Enable { get; set; }
     public required string BusinessSearchUrl { get; set; }
     public required string RegistrySearchUrl { get; set; }
+    public required string AccoutIdName { get; set; }
+    public required string AccoutIdValue { get; set; }
     public required string KeyName { get; set; }
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
