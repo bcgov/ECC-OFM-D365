@@ -83,11 +83,10 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
     //For reference
     public async Task<ProcessData> GetApplicationData(string applicationId)
     {
-
         if (applicationId is not null)
         {
             var requestUri = $"""                                
-                                ofm_applications?$expand=ofm_facility($expand=ofm_facility_licence($select=ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_licenceid,ofm_tdad_funding_agreement_number,statecode;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_detailid,ofm_licence_spaces,ofm_licence_type,ofm_operation_from_time,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_operations_to_time,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,statecode;$filter=(statecode eq 0));$filter=(statecode eq 0))),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))&$filter=(ofm_applicationid eq '{applicationId}') and (ofm_application_funding/any(o1:(o1/statecode eq 0)))
+                                ofm_applications?$expand=ofm_facility($expand=ofm_facility_licence($select=ofm_accb_providerid,ofm_ccof_facilityid,ofm_ccof_organizationid,_ofm_facility_value,ofm_health_authority,ofm_licence,ofm_licenceid,ofm_tdad_funding_agreement_number,statecode,statuscode,ofm_start_date,ofm_end_date;$expand=ofm_licence_licencedetail($select=createdon,ofm_care_type,ofm_enrolled_spaces,_ofm_licence_value,ofm_licence_detail,ofm_licence_detailid,ofm_licence_spaces,ofm_licence_type,ofm_operation_from_time,ofm_operation_hours_from,ofm_operation_hours_to,ofm_operational_spaces,ofm_operations_to_time,ofm_overnight_care,ofm_week_days,ofm_weeks_in_operation,statecode,statuscode;$filter=(statecode eq 0));$filter=(statecode eq 0))),ofm_application_funding($select=ofm_fundingid;$filter=(statecode eq 0))&$filter=(ofm_applicationid eq '{applicationId}') and (ofm_application_funding/any(o1:(o1/statecode eq 0)))
                                 """;
 
             _logger.LogDebug(CustomLogEvent.Process, "Getting application data with query {requestUri}", requestUri);
@@ -182,9 +181,13 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
         //Calculate the total operational spaces
         //Total spaces: Sum the ***ofm_operational_spaces*** for each category of each licence
 
-        var licences = application.ofm_facility.ofm_facility_licence;
+        var Application_SubmittedOn = application.ofm_summary_submittedon ?? application.createdon ?? new DateTime();
 
-        var categories = licences?.SelectMany(licence => licence.ofm_licence_licencedetail);
+        var activeLicences = application?.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
+                                                                                                         licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= Application_SubmittedOn.ToLocalPST().Date &&
+                                                                                                         (licence.ofm_end_date is null || licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= Application_SubmittedOn.ToLocalPST().Date));
+
+        var categories = activeLicences?.SelectMany(licence => licence.ofm_licence_licencedetail);
 
         var totalSpaces = categories?.Sum(category => category.ofm_operational_spaces) ?? 0;
 
