@@ -216,7 +216,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
     {
         get
         {
-            var facilityCost = _fundingResult!.FundingAmounts!.Projected_NonHRFacility;
+            var facilityCost = Math.Round(_fundingResult!.FundingAmounts!.Projected_NonHRFacility, 2);
             var transposedCost = _nonHRactions.GroupBy(m => m.Step).Select(m => new
             {
                 m.First().Step,
@@ -224,7 +224,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                 Programming = m.First(c => c.Envelope == "Programming").Cost,
                 Administrative = m.First(c => c.Envelope == "Administration").Cost,
                 Operational = m.First(c => c.Envelope == "Operational").Cost,
-                Facility = (m.Key == 1) ? facilityCost:0m,
+                Facility = (m.Key == 1) ? facilityCost : 0m,
                 Total = m.Sum(m => m.Cost)
             });
 
@@ -404,7 +404,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                                     <tr style="background-color:lightgrey;text-align:center;vertical-align:middle;"><td>{{Step}}</td><td>{{MinSpaces}}</td><td>{{MaxSpaces}}</td><td>{{Ownership}}</td><td>{{Programming}}</td><td>{{Administrative}}</td><td>{{Operational}}</td><td>{{Facility}}</td><td>{{Total}}</td></tr>
                                     """;
     private string NonHRAmountsPartialSource => """
-                                    <tr style="text-align:center;vertical-align:middle;"><td>{{Step}}</td><td>@{{AllocatedSpaces}}</td><td>{{Programming}}</td><td>{{Administrative}}</td><td>{{Operational}}</td><td>{{Facility}}</td><td>{{Total}}</td></tr>
+                                    <tr style="text-align:center;vertical-align:middle;"><td>{{Step}}</td><td>{{AllocatedSpaces}}</td><td>{{Programming}}</td><td>{{Administrative}}</td><td>{{Operational}}</td><td>{{Facility}}</td><td>{{Total}}</td></tr>
                                     """;
 
     public async Task SaveProgressAsync(Funding funding, IFundingResult fundingResult, List<NonHRStepAction>? nonHRMessages, string titlePrefix)
