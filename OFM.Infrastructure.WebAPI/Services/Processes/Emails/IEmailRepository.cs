@@ -331,7 +331,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 localDataTemplate = await GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.Description == "IndigenousAllowanceApproved").TemplateNumber);//255
             else if (allowanceType == ecc_allowance_type.Transportation && RetroActiveAmount > 0)
                 localDataTemplate = await GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.Description == "TransportationAllowanceApprovedwithRetroActive").TemplateNumber);//260
-            else if (allowanceType == ecc_allowance_type.Transportation && (RetroActiveAmount == 0 || RetroActiveAmount == null))
+            else if (allowanceType == ecc_allowance_type.Transportation && (RetroActiveAmount == 0))
                 localDataTemplate = await GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.Description == "TransportationAllowanceApprovedwithoutRetroActive").TemplateNumber);//290
 
             var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
