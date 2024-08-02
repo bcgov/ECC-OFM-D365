@@ -167,7 +167,8 @@ jobs:
                 ${{ secrets.D365_DEFAULT_CONTACT_ID }} \
                 /tmp/recipients \
                 /tmp/bc_registry_api \
-                ${{ secrets.D365_BCCAS_API_URL }}
+                ${{ secrets.D365_BCCAS_API_URL }} \
+                ${{ secrets.D365_CGI_BATCH_NUMBER }}
 
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
