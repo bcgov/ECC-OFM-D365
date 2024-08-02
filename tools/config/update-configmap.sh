@@ -10,7 +10,7 @@ readonly D365_DEFAULT_CONTACT_ID=$7
 readonly D365_RECIPIENTS=$8
 readonly D365_BC_REGISTRY_API=$9
 readonly D365_BCCAS_API_URL=${10}
-readonly D365_CGI_BATCH_NUMBER=$11
+readonly D365_CGI_BATCH_NUMBER=${11}
 
 SERVER_FRONTEND="https://ofm-frontend-$ENV_VAL-$OPENSHIFT_NAMESPACE.apps.silver.devops.gov.bc.ca"
 if [ "$ENV_VAL" = "prod" ]; then
