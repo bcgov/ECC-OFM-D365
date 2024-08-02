@@ -10,6 +10,7 @@ using System.Text.Json.Nodes;
 using System.Text;
 using ECC.Core.DataContext;
 using System.Text.Json;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
@@ -86,7 +87,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     """;
 
             var requestUri = $"""
-                         ofm_fiscal_years?$select=ofm_caption,createdon,ofm_agreement_number_seed,ofm_end_date,ofm_fiscal_year_number,_owningbusinessunit_value,ofm_start_date,statuscode,ofm_fiscal_yearid&$orderby=ofm_caption asc
+                         ofm_fiscal_years?$select=ofm_caption,createdon,ofm_financial_year, ofm_agreement_number_seed,ofm_end_date,ofm_fiscal_year_number,_owningbusinessunit_value,ofm_start_date,statuscode,ofm_fiscal_yearid&$orderby=ofm_caption asc
                          """;
 
             return requestUri;
@@ -277,14 +278,15 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         #region Step 0.2: Get latest Oracle Batch Number
 
         var fiscalYearsData = await GetAllFiscalYearsDataAsync();
-        List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
-        _currentFiscalYearId = DateTime.UtcNow.MatchFiscalYear(fiscalYears).ToString();
-
+       
+        List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
+       
+        _currentFiscalYearId = DateTime.UtcNow.ToLocalPST().Date.GetCurrentFiscalYear(fiscalYears).ToString();
         string oracleBatchName;
         var latestPaymentFileExchangeData = await GetDataAsync();
         var serializedPFXData = JsonSerializer.Deserialize<List<ofm_payment_file_exchange>>(latestPaymentFileExchangeData.Data.ToString());
 
-        if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null)
+        if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null )
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
             _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);

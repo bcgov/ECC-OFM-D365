@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using OFM.Infrastructure.WebAPI.Models;
 using System.Runtime.InteropServices;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
@@ -218,6 +219,18 @@ public static class TimeExtensions
 
         if (matchingFiscalYear == null)
         {
+            return Guid.Empty;
+        }
+
+        return matchingFiscalYear!.ofm_fiscal_yearid!.Value;
+    }
+    public static Guid GetCurrentFiscalYear(this DateTime currentDate, List<D365FiscalYear> fiscalYears)
+    {
+        ofm_fiscal_year? matchingFiscalYear = fiscalYears.FirstOrDefault(fiscalYear => currentDate >= fiscalYear.ofm_start_date && currentDate <= fiscalYear.ofm_end_date);
+
+        if (matchingFiscalYear == null)
+        {
+
             return Guid.Empty;
         }
 
