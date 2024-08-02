@@ -226,7 +226,7 @@ public static class TimeExtensions
     }
     public static Guid GetCurrentFiscalYear(this DateTime currentDate, List<D365FiscalYear> fiscalYears)
     {
-        ofm_fiscal_year? matchingFiscalYear = fiscalYears.FirstOrDefault(fiscalYear => currentDate >= fiscalYear.ofm_start_date && currentDate <= fiscalYear.ofm_end_date);
+        ofm_fiscal_year? matchingFiscalYear = fiscalYears.FirstOrDefault(fiscalYear => currentDate >= ((DateTime)fiscalYear.ofm_start_date).ToLocalPST() && currentDate <= ((DateTime)fiscalYear.ofm_end_date).ToLocalPST());
 
         if (matchingFiscalYear == null)
         {
