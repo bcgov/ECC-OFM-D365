@@ -277,7 +277,7 @@ D365_CONFIGURATION=$(jq << JSON
 	  "PayableInDays": 5,
       "transactionCount": 250,
       "clientCode": "62",
-      "cGIBatchNumber": "$D365_CGI_BATCH_NUMBER",
+      "cGIBatchNumber": "100000001",
       "oracleBatchNumber": "001",
       "batchType": "AP",
       "delimiter": "\u001d",
