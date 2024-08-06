@@ -428,7 +428,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         }
 
         private async Task<JsonObject> CreatePaymentsInBatch(ExpenseApplication expenseInfo,
-                                                                    DateTime startDate,
+                                                                    DateTime originalStartDate,
                                                                     DateTime endDate,
                                                                     decimal? monthlyExpenseAmount,
                                                                     Application baseApplication,
@@ -438,13 +438,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             List<HttpRequestMessage> createPaymentRequests = [];
             int nextLineNumber = await GetNextInvoiceLineNumber(baseApplication.Id);
-
+            DateTime startDate = new(originalStartDate.Year, originalStartDate.Month, 1);
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
-            {
-               
-
-
-                DateTime invoiceDate = (paymentDate == startDate) ? paymentDate.Date.GetPreviousBusinessDay(holidaysList) : paymentDate.Date.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+            {           
+                DateTime invoiceDate = (paymentDate == startDate) ? originalStartDate.Date.GetPreviousBusinessDay(holidaysList) : paymentDate.Date.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
                 Guid? fiscalYear = invoiceDate.MatchFiscalYear(fiscalYears);
