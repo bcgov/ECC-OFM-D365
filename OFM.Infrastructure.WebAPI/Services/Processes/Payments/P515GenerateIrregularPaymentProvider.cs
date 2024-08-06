@@ -356,7 +356,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             var fiscalYearsData = await GetFiscalYearDataAsync();
-            List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
+            List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
             var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
@@ -388,7 +388,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                            decimal? expenseAmount,
                                                                            Application baseApplication,
                                                                            ProcessParameter processParams,
-                                                                           List<ofm_fiscal_year> fiscalYears,
+                                                                           List<D365FiscalYear> fiscalYears,
                                                                            List<DateTime> holidaysList)
         {
 
@@ -433,7 +433,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                     decimal? monthlyExpenseAmount,
                                                                     Application baseApplication,
                                                                     ProcessParameter processParams,
-                                                                    List<ofm_fiscal_year> fiscalYears,
+                                                                    List<D365FiscalYear> fiscalYears,
                                                                     List<DateTime> holidaysList)
         {
             List<HttpRequestMessage> createPaymentRequests = [];
