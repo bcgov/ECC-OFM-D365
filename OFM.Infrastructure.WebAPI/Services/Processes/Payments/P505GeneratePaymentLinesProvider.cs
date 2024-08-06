@@ -368,7 +368,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             var fiscalYearsData = await GetAllFiscalYearsDataAsync();
-            List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
+            List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
             var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
@@ -400,7 +400,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> ProcessInitialOrModFundingPayments(Funding funding, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList)
+        private async Task<JsonObject> ProcessInitialOrModFundingPayments(Funding funding, ProcessParameter processParams, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList)
         {
             _logger.LogDebug(CustomLogEvent.Process, "Processing Initial or Mod payments for the funding {ofm_funding_number}", funding.ofm_funding_number);
 
@@ -421,7 +421,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> ProcessModPayments(ProcessParameter processParams, Funding funding, decimal monthlyFundingAmount, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList)
+        private async Task<JsonObject> ProcessModPayments(ProcessParameter processParams, Funding funding, decimal monthlyFundingAmount, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList)
         {
             #region Validation   
 
@@ -459,7 +459,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> ProcessRetroActivePaymentsForMod(Funding funding, decimal retroActiveCreditOrDebitLumpSumAmount, decimal retroActiveCreditOrDebitMonthlyAmount, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList)
+        private async Task<JsonObject> ProcessRetroActivePaymentsForMod(Funding funding, decimal retroActiveCreditOrDebitLumpSumAmount, decimal retroActiveCreditOrDebitMonthlyAmount, ProcessParameter processParams, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList)
         {
             if (funding.ofm_retroactive_payment_frequency == ecc_payment_frequency.Monthly)
             {
@@ -475,7 +475,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> CreatePaymentsInBatch(Funding funding, decimal fundingAmount, DateTime startDate, DateTime endDate, bool manualReview, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList, Guid? regardingid, string? regardingTableSet)
+        private async Task<JsonObject> CreatePaymentsInBatch(Funding funding, decimal fundingAmount, DateTime startDate, DateTime endDate, bool manualReview, ProcessParameter processParams, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList, Guid? regardingid, string? regardingTableSet)
         {
             if (startDate > endDate)
             {
