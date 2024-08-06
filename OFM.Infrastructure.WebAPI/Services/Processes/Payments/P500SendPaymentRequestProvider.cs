@@ -280,8 +280,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         var fiscalYearsData = await GetAllFiscalYearsDataAsync();
        
         List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
-       
-        _currentFiscalYearId = DateTime.UtcNow.ToLocalPST().Date.GetCurrentFiscalYear(fiscalYears).ToString();
+        _currentFiscalYearId = DateTime.UtcNow.ToLocalPST().Date.MatchFiscalYear(fiscalYears).ToString();
         string oracleBatchName;
         var latestPaymentFileExchangeData = await GetDataAsync();
         var serializedPFXData = JsonSerializer.Deserialize<List<ofm_payment_file_exchange>>(latestPaymentFileExchangeData.Data.ToString());
