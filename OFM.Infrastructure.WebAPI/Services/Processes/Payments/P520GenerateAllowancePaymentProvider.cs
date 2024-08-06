@@ -349,7 +349,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             var fiscalYearsData = await GetAllFiscalYearsDataAsync();
-            List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
+            List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
             var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
@@ -365,7 +365,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> ProcessSupportNeedsOrIndigenousPayments(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList)
+        private async Task<JsonObject> ProcessSupportNeedsOrIndigenousPayments(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList)
         {
             if (approvedSA.ofm_allowance_type == ecc_allowance_type.SupportNeedsProgramming || approvedSA.ofm_allowance_type == ecc_allowance_type.IndigenousProgramming)
             {
@@ -378,7 +378,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> ProcessTransportationPayments(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList)
+        private async Task<JsonObject> ProcessTransportationPayments(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList)
         {
             if (approvedSA.ofm_allowance_type == ecc_allowance_type.Transportation)
             {
@@ -396,7 +396,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task ProcessRetroActivePayment(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<ofm_fiscal_year> fiscalYears, List<DateTime> holidaysList, decimal monthlyPaymentAmount, int retroActiveMonthsCount)
+        private async Task ProcessRetroActivePayment(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList, decimal monthlyPaymentAmount, int retroActiveMonthsCount)
         {
             decimal retroActiveAmount = retroActiveMonthsCount > 0 ? monthlyPaymentAmount * retroActiveMonthsCount : 0;
             if (retroActiveAmount > 0)
@@ -437,7 +437,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                     ecc_payment_type paymentType,
                                                                     Application baseApplication,
                                                                     ProcessParameter processParams,
-                                                                    List<ofm_fiscal_year> fiscalYears,
+                                                                    List<D365FiscalYear> fiscalYears,
                                                                     List<DateTime> holidaysList)
         {
             DateTime invoiceDate = (paymentDate == approvedSA.ofm_start_date!.Value) ? paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
@@ -492,7 +492,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                     bool manualReview,
                                                                     ecc_payment_type paymentType,
                                                                     ProcessParameter processParams,
-                                                                    List<ofm_fiscal_year> fiscalYears,
+                                                                    List<D365FiscalYear> fiscalYears,
                                                                     List<DateTime> holidaysList)
         {
             List<HttpRequestMessage> createPaymentRequests = [];
