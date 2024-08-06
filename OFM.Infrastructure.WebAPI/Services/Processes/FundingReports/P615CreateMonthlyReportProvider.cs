@@ -155,8 +155,9 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
         var currentUTC = DateTime.UtcNow;
         DateTime monthEndDate = new DateTime();
+        DateTime monthEndDateInPST = new DateTime();
 
-        
+
         //batch create the monthly report
         if (batchFlag)
         {
@@ -174,6 +175,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             // april report
             //Run at PST May 1 1AM -> Min 1 month -> April 1 1AM
             monthEndDate = currentUTC.ToLocalPST().AddMonths(-1);
+            monthEndDateInPST = new DateTime(monthEndDate.Year, monthEndDate.Month, DateTime.DaysInMonth(monthEndDate.Year, monthEndDate.Month), 23, 59, 00);
         }
         else
         {
@@ -189,9 +191,9 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             //when funding is expired or terminated -> create the report for current month
             monthEndDate = currentUTC.ToLocalPST();
+            monthEndDateInPST = monthEndDate;
         }
 
-        var monthEndDateInPST = new DateTime(monthEndDate.Year, monthEndDate.Month, DateTime.DaysInMonth(monthEndDate.Year, monthEndDate.Month), 23, 59, 00);
         var monthEndDateInUTC = monthEndDateInPST.ToUTC();
 
         //Set the fiscal year and duedate
