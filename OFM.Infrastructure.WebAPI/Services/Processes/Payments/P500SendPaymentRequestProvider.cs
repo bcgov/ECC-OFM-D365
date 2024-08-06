@@ -220,7 +220,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
             _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);
-            oracleBatchName = _BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D5");
+            oracleBatchName = _BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13");
         }
         else
         {
@@ -294,7 +294,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 termsName = "Immediate".PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
                 goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
                 invoiceRecDate = headeritem.First().ofm_invoice_received_date?.ToString("yyyyMMdd"),//ideally is is 4 days before current date
-                oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
+                oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                 SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
                 description = string.Concat(headeritem.First()?.ofm_facility?.name).PadRight(header.FieldLength("description")),// can be used to pass extra info
