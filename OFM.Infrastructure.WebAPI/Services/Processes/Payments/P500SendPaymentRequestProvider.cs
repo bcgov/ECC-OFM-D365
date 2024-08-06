@@ -10,6 +10,7 @@ using System.Text.Json.Nodes;
 using System.Text;
 using ECC.Core.DataContext;
 using System.Text.Json;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
@@ -30,6 +31,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
     private ProcessData? _data;
     private ProcessParameter? _processParams;
+    private string _currentFiscalYearId;
 
     public Int16 ProcessId => Setup.Process.Payments.SendPaymentRequestId;
     public string ProcessName => Setup.Process.Payments.SendPaymentRequestName;
@@ -45,20 +47,52 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                         <attribute name="ofm_payment_file_exchangeid" />
                         <attribute name="ofm_name" />
                         <attribute name="ofm_batch_number" />
-                       <attribute name="ofm_oracle_batch_name" />
-                         <order attribute="ofm_batch_number" descending="true" />
+                        <attribute name="ofm_oracle_batch_name" />
+                        <order attribute="ofm_batch_number" descending="true" />
+                        <filter type="and">
+                          <condition attribute="ofm_fiscal_year" operator="eq" value="{_currentFiscalYearId}" />                  
+                        </filter>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_payment_file_exchanges?$select=ofm_payment_file_exchangeid,ofm_name,ofm_batch_number,ofm_oracle_batch_name&$orderby=ofm_batch_number desc&$top=1
+                         ofm_payment_file_exchanges?$select=ofm_payment_file_exchangeid,ofm_name,ofm_batch_number,ofm_oracle_batch_name&$filter=(_ofm_fiscal_year_value eq '{_currentFiscalYearId}')&$orderby=ofm_batch_number desc
                          """;
 
             return requestUri;
         }
     }
 
+    public string AllFiscalYearsRequestUri
+    {
+        get
+        {
+            // For reference only
+            var fetchXml = $$"""
+                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+                      <entity name="ofm_fiscal_year">
+                        <attribute name="ofm_caption" />
+                        <attribute name="createdon" />
+                        <attribute name="ofm_agreement_number_seed" />
+                        <attribute name="ofm_end_date" />
+                        <attribute name="ofm_fiscal_year_number" />
+                        <attribute name="owningbusinessunit" />
+                        <attribute name="ofm_start_date" />
+                        <attribute name="statuscode" />
+                        <attribute name="ofm_fiscal_yearid" />
+                        <order attribute="ofm_caption" descending="false" />
+                      </entity>
+                    </fetch>
+                    """;
+
+            var requestUri = $"""
+                         ofm_fiscal_years?$select=ofm_caption,createdon,ofm_financial_year, ofm_agreement_number_seed,ofm_end_date,ofm_fiscal_year_number,_owningbusinessunit_value,ofm_start_date,statuscode,ofm_fiscal_yearid&$orderby=ofm_caption asc
+                         """;
+
+            return requestUri;
+        }
+    }
     public string RequestPaymentLineUri
     {
         get
@@ -157,6 +191,37 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         return await Task.FromResult(_data);
     }
 
+    public async Task<ProcessData> GetAllFiscalYearsDataAsync()
+    {
+        _logger.LogDebug(CustomLogEvent.Process, nameof(GetAllFiscalYearsDataAsync));
+
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, AllFiscalYearsRequestUri, isProcess: true);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to query fiscal year record information with the server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No Fiscal Year records found with query {requestUri}", AllFiscalYearsRequestUri.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
+
     public async Task<ProcessData> GetPaymentLineData()
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P500SendPaymentRequestProvider));
@@ -212,15 +277,19 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
         #region Step 0.2: Get latest Oracle Batch Number
 
+        var fiscalYearsData = await GetAllFiscalYearsDataAsync();
+       
+        List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
+        _currentFiscalYearId = DateTime.UtcNow.ToLocalPST().Date.MatchFiscalYear(fiscalYears).ToString();
         string oracleBatchName;
         var latestPaymentFileExchangeData = await GetDataAsync();
         var serializedPFXData = JsonSerializer.Deserialize<List<ofm_payment_file_exchange>>(latestPaymentFileExchangeData.Data.ToString());
 
-        if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null)
+        if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null )
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
             _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);
-            oracleBatchName = _BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D5");
+            oracleBatchName = _BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13");
         }
         else
         {
@@ -294,7 +363,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 termsName = "Immediate".PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
                 goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
                 invoiceRecDate = headeritem.First().ofm_invoice_received_date?.ToString("yyyyMMdd"),//ideally is is 4 days before current date
-                oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
+                oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                 SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
                 description = string.Concat(headeritem.First()?.ofm_facility?.name).PadRight(header.FieldLength("description")),// can be used to pass extra info
@@ -404,7 +473,8 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
             ["ofm_input_file_name"] = inboxFileName,
             ["ofm_name"] = inboxFileName,
             ["ofm_batch_number"] = _cgiBatchNumber,
-            ["ofm_oracle_batch_name"] = _oracleBatchNumber.ToString()
+            ["ofm_oracle_batch_name"] = _oracleBatchNumber.ToString(),
+            ["ofm_fiscal_year@odata.bind"] = $"/ofm_fiscal_years({_currentFiscalYearId})"
         };
 
         var pfeCreateResponse = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, ofm_payment_file_exchange.EntitySetName, requestBody.ToString());

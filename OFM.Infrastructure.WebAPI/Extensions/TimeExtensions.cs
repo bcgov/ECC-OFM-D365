@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using OFM.Infrastructure.WebAPI.Models;
 using System.Runtime.InteropServices;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
@@ -237,9 +238,9 @@ public static class TimeExtensions
         return futureDate;
     }
 
-    public static Guid MatchFiscalYear(this DateTime paymentDate, List<ofm_fiscal_year> fiscalYears)
+    public static Guid MatchFiscalYear(this DateTime currentDate, List<D365FiscalYear> fiscalYears)
     {
-        ofm_fiscal_year? matchingFiscalYear = fiscalYears.FirstOrDefault(fiscalYear => paymentDate >= fiscalYear.ofm_start_date && paymentDate <= fiscalYear.ofm_end_date);
+        ofm_fiscal_year? matchingFiscalYear = fiscalYears.FirstOrDefault(fiscalYear => currentDate >= ((DateTime)fiscalYear.ofm_start_date).ToLocalPST() && currentDate <= ((DateTime)fiscalYear.ofm_end_date).ToLocalPST());
 
         if (matchingFiscalYear == null)
         {
@@ -248,4 +249,5 @@ public static class TimeExtensions
 
         return matchingFiscalYear!.ofm_fiscal_yearid!.Value;
     }
+   
 }

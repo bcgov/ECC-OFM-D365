@@ -356,7 +356,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             var fiscalYearsData = await GetFiscalYearDataAsync();
-            List<ofm_fiscal_year> fiscalYears = [.. JsonSerializer.Deserialize<List<ofm_fiscal_year>>(fiscalYearsData.Data)];
+            List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
             var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
@@ -388,7 +388,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                            decimal? expenseAmount,
                                                                            Application baseApplication,
                                                                            ProcessParameter processParams,
-                                                                           List<ofm_fiscal_year> fiscalYears,
+                                                                           List<D365FiscalYear> fiscalYears,
                                                                            List<DateTime> holidaysList)
         {
 
@@ -428,23 +428,20 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         }
 
         private async Task<JsonObject> CreatePaymentsInBatch(ExpenseApplication expenseInfo,
-                                                                    DateTime startDate,
+                                                                    DateTime originalStartDate,
                                                                     DateTime endDate,
                                                                     decimal? monthlyExpenseAmount,
                                                                     Application baseApplication,
                                                                     ProcessParameter processParams,
-                                                                    List<ofm_fiscal_year> fiscalYears,
+                                                                    List<D365FiscalYear> fiscalYears,
                                                                     List<DateTime> holidaysList)
         {
             List<HttpRequestMessage> createPaymentRequests = [];
             int nextLineNumber = await GetNextInvoiceLineNumber(baseApplication.Id);
-
+            DateTime startDate = new(originalStartDate.Year, originalStartDate.Month, 1);
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
-            {
-               
-
-
-                DateTime invoiceDate = (paymentDate == startDate) ? paymentDate.Date.GetPreviousBusinessDay(holidaysList) : paymentDate.Date.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+            {           
+                DateTime invoiceDate = (paymentDate == startDate) ? originalStartDate.Date.GetPreviousBusinessDay(holidaysList) : paymentDate.Date.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
                 Guid? fiscalYear = invoiceDate.MatchFiscalYear(fiscalYears);

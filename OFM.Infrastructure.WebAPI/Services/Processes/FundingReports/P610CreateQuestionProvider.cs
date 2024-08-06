@@ -684,7 +684,6 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
     public JsonObject CreateJsonObject(D365Reporting question)
     {
         var newRequest = new JsonObject(){
-                                 {ofm_question.Fields.ofm_name, question.QuestionName },
                        { ofm_question.Fields.ofm_subtitle, question.QuestionSubtitle },
                             { ofm_question.Fields.ofm_source_question_id, question.QuestionSourcequestionIdentifier},
                            { ofm_question.Fields.ofm_choice_type,question.QuestionChoiceType},
