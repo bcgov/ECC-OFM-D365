@@ -346,9 +346,9 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             string? emaildescription = templateobj?.safehtml;
             emaildescription = emaildescription?.Replace("[PrimaryContactName]", contactName);
             if(allowanceType == ecc_allowance_type.SupportNeedsProgramming || allowanceType == ecc_allowance_type.IndigenousProgramming)
-            emaildescription = emaildescription?.Replace("{Amount}", fundingAmount?.ToString());
+            emaildescription = emaildescription?.Replace("{Amount}", fundingAmount?.ToString("########.00"));
             else
-                emaildescription = emaildescription?.Replace("{Amount}", MonthlyAmount?.ToString());
+                emaildescription = emaildescription?.Replace("{Amount}", MonthlyAmount?.ToString("########.00"));
             //emaildescription = emaildescription?.Replace("{AllowanceType}", allowanceType.ToString());
             if (allowanceType == ecc_allowance_type.Transportation)
             {
@@ -356,7 +356,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 emaildescription = emaildescription?.Replace("{VINnumber}", VIN?.ToString());
                 if (RetroActiveAmount > 0)
                 {
-                    emaildescription = emaildescription?.Replace("{retroactiveAmount}", RetroActiveAmount?.ToString());
+                    emaildescription = emaildescription?.Replace("{retroactiveAmount}", RetroActiveAmount?.ToString("########.00"));
                     emaildescription = emaildescription?.Replace("{retroactivedate}", retroActiveDate?.ToString("MM/dd/yyyy"));
                 }
             }
