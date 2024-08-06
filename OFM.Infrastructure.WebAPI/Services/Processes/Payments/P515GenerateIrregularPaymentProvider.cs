@@ -440,10 +440,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             int nextLineNumber = await GetNextInvoiceLineNumber(baseApplication.Id);
             DateTime startDate = new(originalStartDate.Year, originalStartDate.Month, 1);
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
-            {
-               
-
-
+            {           
                 DateTime invoiceDate = (paymentDate == startDate) ? originalStartDate.Date.GetPreviousBusinessDay(holidaysList) : paymentDate.Date.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
