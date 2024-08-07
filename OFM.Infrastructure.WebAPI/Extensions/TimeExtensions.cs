@@ -185,6 +185,21 @@ public static class TimeExtensions
 
         return lastDayOfPreviousMonth;
     }
+    public static DateTime GetLastBusinessDayOfPaymentMonth(this DateTime PaymentDate, List<DateTime> holidays)
+    {
+        DateTime firstDayOfNextMonth = PaymentDate.AddMonths(1);
+        DateTime lastDayOfPaymentMonth = firstDayOfNextMonth.AddDays(-1);
+
+        // Iterate backward to find the last business day of that payment month.
+        while (lastDayOfPaymentMonth.DayOfWeek == DayOfWeek.Saturday ||
+                lastDayOfPaymentMonth.DayOfWeek == DayOfWeek.Sunday ||
+                holidays.Exists(excludedDate => excludedDate.Date.Equals(lastDayOfPaymentMonth.Date)))
+        {
+            lastDayOfPaymentMonth = lastDayOfPaymentMonth.AddDays(-1);
+        }
+
+        return lastDayOfPaymentMonth;
+    }
     public static DateTime GetPreviousBusinessDay(this DateTime targetDate, List<DateTime> holidays)
     {
         
