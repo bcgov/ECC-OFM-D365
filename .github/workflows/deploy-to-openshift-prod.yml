@@ -1,4 +1,3 @@
-# OFM Dynamics 365 PROD workflow
 name: 5 PROD - Deploy Dynamics API
 
 env:
@@ -158,7 +157,7 @@ jobs:
 
           curl -s https://raw.githubusercontent.com/bcgov/${{ env.REPO_NAME }}/${{ env.BRANCH }}/tools/config/update-configmap.sh \
             | bash /dev/stdin \
-                prod \
+                ${{ env.APP_ENVIRONMENT }} \
                 ${{ env.APP_NAME }} \
                 ${{ env.OPENSHIFT_NAMESPACE }} \
                 /tmp/key_scheme \
