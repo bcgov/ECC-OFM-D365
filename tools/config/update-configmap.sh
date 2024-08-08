@@ -195,38 +195,38 @@ D365_CONFIGURATION=$(jq << JSON
         "TemplateNumber": 245,
         "Description": "ECE Certification Template"
       },
-	  {
+      {
         "TemplateNumber": 250,
         "Description": "Application Ineligible"
       },
-	  {
-		  "TemplateNumber": 240,
-		  "Description": "SupportNeedsProgramAllowanceApproved"
-		},
-		{
-		  "TemplateNumber": 255,
-		  "Description": "IndigenousAllowanceApproved"
-		},
-		{
-		  "TemplateNumber": 260,
-		  "Description": "TransportationAllowanceApprovedwithRetroActive"
-		},
-		{
-		  "TemplateNumber": 290,
-		  "Description": "TransportationAllowanceApprovedwithoutRetroActive"
-		},
-		{
-		  "TemplateNumber": 275,
-		  "Description": "SupportNeedsProgramAllowanceDenied"
-		},
-		{
-		  "TemplateNumber": 280,
-		  "Description": "IndigenousAllowanceDenied"
-		},
-		{
-		  "TemplateNumber": 285,
-		  "Description": "TransportationAllowanceDenied"
-		}
+      {
+        "TemplateNumber": 240,
+        "Description": "SupportNeedsProgramAllowanceApproved"
+      },
+      {
+        "TemplateNumber": 255,
+        "Description": "IndigenousAllowanceApproved"
+      },
+      {
+        "TemplateNumber": 260,
+        "Description": "TransportationAllowanceApprovedwithRetroActive"
+      },
+      {
+        "TemplateNumber": 290,
+        "Description": "TransportationAllowanceApprovedwithoutRetroActive"
+      },
+      {
+        "TemplateNumber": 275,
+        "Description": "SupportNeedsProgramAllowanceDenied"
+      },
+      {
+        "TemplateNumber": 280,
+        "Description": "IndigenousAllowanceDenied"
+      },
+      {
+        "TemplateNumber": 285,
+        "Description": "TransportationAllowanceDenied"
+      }
     ],
     "CommunicationTypes": {
       "Information": 1,
@@ -273,8 +273,8 @@ D365_CONFIGURATION=$(jq << JSON
       "KeyName": "",
       "KeyValue": "",
       "MinsToCache": 5,
-	  "DaysToCorrectPayments": 3,
-	  "PayableInDays": 5,
+      "DaysToCorrectPayments": 3,
+      "PayableInDays": 5,
       "transactionCount": 250,
       "clientCode": "62",
       "cGIBatchNumber": "$D365_CGI_BATCH_NUMBER",
