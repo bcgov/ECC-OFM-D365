@@ -290,7 +290,7 @@ D365_CONFIGURATION=$(jq << JSON
         "invoiceType": "ST",
         "remittanceCode": "00",
         "CAD": "CAD",
-        "termsName": "30 days",
+        "termsName": "Immediate",
         "payflag": "Y"
       },
       "InvoiceLines": {
