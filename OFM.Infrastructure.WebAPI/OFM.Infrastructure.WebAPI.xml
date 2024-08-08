@@ -7208,6 +7208,11 @@
             Unique identifier for entity instances
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_expense.ofm_file">
+            <summary>
+            Approval or Denial notification
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_expense.ofm_payment_frequency">
             <summary>
             Payment Frequency
@@ -7769,6 +7774,11 @@
         <member name="P:ECC.Core.DataContext.ofm_fiscal_year.versionnumber">
             <summary>
             Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_fiscal_year.ofm_fiscal_year_payment_file_exchange">
+            <summary>
+            1:N ofm_fiscal_year_payment_file_exchange
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_fiscal_year.ofm_fiscal_year_survey_response">
@@ -9600,9 +9610,24 @@
             Unique identifier of the delegate user who modified the record.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ofm_batch_number">
+            <summary>
+            Last CGI Batch Number for the current fiscal
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ofm_fiscal_year">
+            <summary>
+            The associated Fiscal Year record
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ofm_name">
             <summary>
             The name of the custom entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ofm_oracle_batch_name">
+            <summary>
+            Last Oracle Batch Number for the current fiscal year. 
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ofm_payment_file_exchangeid">
@@ -9668,6 +9693,11 @@
         <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.versionnumber">
             <summary>
             Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.ofm_fiscal_year_payment_file_exchange">
+            <summary>
+            N:1 ofm_fiscal_year_payment_file_exchange
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment_file_exchange.team_ofm_payment_file_exchange">
@@ -12933,6 +12963,11 @@
             The month of the provider report
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_start_date">
+            <summary>
+            The first date of the reporting month
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_survey_response.ofm_survey">
             <summary>
             Unique identifier for Report Template associated with the Provider Report.
@@ -15313,6 +15348,26 @@
             The set of allowed runtime types for parameter values
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.msdyn_ConsultModeType">
+            <summary>
+            Denotes the mode of consultation a participant has in a conversation
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_ConsultModeType.Chat">
+            <summary>
+            Chat
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_ConsultModeType.ChatAndVoice">
+            <summary>
+            Chat And Voice
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_ConsultModeType.Voice">
+            <summary>
+            Voice
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.msdyn_conversation_StateCode">
             <summary>
             State of the conversation record
@@ -15321,6 +15376,26 @@
         <member name="T:ECC.Core.DataContext.msdyn_conversation_statuscode">
             <summary>
             Reason for the status of live conversation record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.msdyn_ConversationAccessType">
+            <summary>
+            Denotes the level of access a participant has in a conversation
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_ConversationAccessType.Default">
+            <summary>
+            Default
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_ConversationAccessType.Private">
+            <summary>
+            Private
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_ConversationAccessType.Public">
+            <summary>
+            Public
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_conversationaction_language_locale">
@@ -15468,6 +15543,11 @@
             Channel type of external participant
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.msdyn_HarvestingTag">
+            <summary>
+            Whether this entity is tagged for solution harvesting or not.
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.msdyn_iermlModelstatus">
             <summary>
             Indicates model's status
@@ -15491,6 +15571,11 @@
         <member name="T:ECC.Core.DataContext.msdyn_InspectionStatus">
             <summary>
             Options for status of the Inspection
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.msdyn_intent_source">
+            <summary>
+            Source of the Intent or Intent Attributes
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_IoTAggregation">
@@ -16361,6 +16446,11 @@
         <member name="T:ECC.Core.DataContext.msdyn_RequirementStatus">
             <summary>
             Requirement Status
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.msdyn_reviewstate">
+            <summary>
+            review state of intent or intent attributes
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_reviewstatus">
