@@ -386,9 +386,15 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
         #region Step 2: Compose the inbox file string
         List<D365PaymentLine> paylinesToUpdate = new List<D365PaymentLine>();
+        int batchCountInFile = 0;
         // for each set of transaction create and upload inbox file in payment file exchange
         foreach (List<InvoiceHeader> headeritem in headerList)
         {
+            //CGI batch number will be incremented for more than one batch in a inbox file.
+            if(batchCountInFile > 0)
+            {
+                _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
+            }
            
             headeritem.ForEach(x => {
              
@@ -419,8 +425,9 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 InvoiceHeader = headeritem
             };
 
-            _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
+           // _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
             inboxFileBytes += template(data);
+            batchCountInFile++;
         }
 
         #endregion
