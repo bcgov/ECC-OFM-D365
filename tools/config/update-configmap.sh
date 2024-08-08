@@ -208,7 +208,7 @@ D365_CONFIGURATION=$(jq << JSON
         "Description": "IndigenousAllowanceApproved"
       },
       {
-        "TemplateNumber": 260d,
+        "TemplateNumber": 260,
         "Description": "TransportationAllowanceApprovedwithRetroActive"
       },
       {
