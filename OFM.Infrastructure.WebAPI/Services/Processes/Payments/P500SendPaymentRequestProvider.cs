@@ -288,7 +288,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null)
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
-            _cgiBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_batch_number).ToString("D9").Substring(0, 9);
+            _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);
             oracleBatchName = _BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13");
         }
         else
@@ -386,9 +386,15 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
         #region Step 2: Compose the inbox file string
         List<D365PaymentLine> paylinesToUpdate = new List<D365PaymentLine>();
+        int batchCount = 0;
         // for each set of transaction create and upload inbox file in payment file exchange
         foreach (List<InvoiceHeader> headeritem in headerList)
         {
+            // Increment cgi batch number only if there are multiple batches.
+            if (batchCount > 0)
+            {
+                _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
+            }
             headeritem.ForEach(x =>
             {
                 foreach (var paydata in serializedPaymentData.Where(paydata => paydata.ofm_invoice_number == x.invoiceLines.First().invoiceNumber.TrimEnd()))
@@ -418,8 +424,9 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 InvoiceHeader = headeritem
             };
 
-            _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
+            //_cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
             inboxFileBytes += template(data);
+            batchCount++;
         }
 
         #endregion
