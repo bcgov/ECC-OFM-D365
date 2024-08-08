@@ -278,14 +278,14 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         #region Step 0.2: Get latest Oracle Batch Number
 
         var fiscalYearsData = await GetAllFiscalYearsDataAsync();
-       
+
         List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
         _currentFiscalYearId = DateTime.UtcNow.ToLocalPST().Date.MatchFiscalYear(fiscalYears).ToString();
         string oracleBatchName;
         var latestPaymentFileExchangeData = await GetDataAsync();
         var serializedPFXData = JsonSerializer.Deserialize<List<ofm_payment_file_exchange>>(latestPaymentFileExchangeData.Data.ToString());
 
-        if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null )
+        if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null)
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
             _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);
@@ -310,7 +310,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         // add invoice header for each organization and invoice lines for each facility
         foreach (var headeritem in grouppayment)
         {
-            var pay_method = (ecc_payment_method) headeritem.First().ofm_payment_method;
+            var pay_method = (ecc_payment_method)headeritem.First().ofm_payment_method;
             double invoiceamount = 0.00;
             List<InvoiceLines> invoiceLines = [];
 
@@ -356,11 +356,11 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 PONumber = string.Empty.PadRight(header.FieldLength("PONumber")),// sending blank as not used by feeder
                 invoiceDate = headeritem.First().ofm_invoice_date?.ToString("yyyyMMdd"), // set to current date
                 invoiceType = invoiceamount < 0 ? "CM" : "ST",// static to ST (standard invoice)
-                payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
+                payGroupLookup = (pay_method == ecc_payment_method.IMMEFT)? "IMM EFT N" : string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
                 remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
                 grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - (invoiceamount < 0 ? 1 : 0), '0'), // invoice amount come from OFM total base value.
                 CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
-                termsName = "Immediate".PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
+                termsName = _BCCASApi.InvoiceHeader.termsName.PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
                 goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
                 invoiceRecDate = headeritem.First().ofm_invoice_received_date?.ToString("yyyyMMdd"),//ideally is is 4 days before current date
                 oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
@@ -389,18 +389,17 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         // for each set of transaction create and upload inbox file in payment file exchange
         foreach (List<InvoiceHeader> headeritem in headerList)
         {
-           
-            headeritem.ForEach(x => {
-             
+            headeritem.ForEach(x =>
+            {
                 foreach (var paydata in serializedPaymentData.Where(paydata => paydata.ofm_invoice_number == x.invoiceLines.First().invoiceNumber.TrimEnd()))
                 {
-                    
+
                     paydata.ofm_batch_number = _cgiBatchNumber;
                     paylinesToUpdate.Add(paydata);
                 }
-              // var payline= serializedPaymentData?.Where(paydata => paydata.ofm_invoice_number == x.invoiceNumber).Select(paydata => new { paydata, paydata.ofm_batch_number = _cgiBatchNumber });
+                // var payline= serializedPaymentData?.Where(paydata => paydata.ofm_invoice_number == x.invoiceNumber).Select(paydata => new { paydata, paydata.ofm_batch_number = _cgiBatchNumber });
             });
-             
+
             _controlAmount = (Double)headeritem.SelectMany(x => x.invoiceLines).ToList().Sum(x => Convert.ToDecimal(x.lineAmount));
             _controlCount = headeritem.SelectMany(x => x.invoiceLines).ToList().Count + headeritem.Count;
 
@@ -430,7 +429,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         if (!string.IsNullOrEmpty(inboxFileBytes))
         {
             bool savePFEResult = await SaveInboxFileOnNewPaymentFileExchangeRecord(appUserService, d365WebApiService, _BCCASApi.feederNumber, inboxFileBytes);
-            
+
             if (savePFEResult)
                 await MarkPaymentLinesAsProcessed(appUserService, d365WebApiService, paylinesToUpdate);
         }
@@ -505,7 +504,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     _logger.LogError(CustomLogEvent.Process, "Failed to update payment file exchange record with the new inbox document with the server error {responseBody}", pfeUpdateError.CleanLog());
 
                     return await Task.FromResult(false);
-                }               
+                }
             }
         }
 
