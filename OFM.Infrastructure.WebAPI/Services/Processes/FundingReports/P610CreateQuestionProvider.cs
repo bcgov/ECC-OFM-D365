@@ -466,7 +466,7 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
                 var localVersionData = await GetLatestTemplateVersionDataAsync();
                 var deserializedTemplateVersionData = JsonSerializer.Deserialize<List<ofm_survey>>(localVersionData.Data.ToString());
                 latestVersion = Convert.ToInt32(deserializedTemplateVersionData.FirstOrDefault().ofm_version);
-                previousVersion = Convert.ToInt32(deserializedTemplateVersionData[1].ofm_version);
+                previousVersion = deserializedTemplateVersionData.Count > 1 ? Convert.ToInt32(deserializedTemplateVersionData[1].ofm_version) : -1;
 
                 #endregion Create Customer Voice Project as Report Template in CE Custom
 
@@ -726,57 +726,59 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
    {
         try
         {
-           
-            var questionData = await GetQuestionDataAsync();
-            var deserializedQuestion = JsonSerializer.Deserialize<List<Question>>(questionData.Data.ToString());
-            List<HttpRequestMessage> requestsQuestionUpdate = new() { };
-
-            foreach (var identifier in questionIdentifiers)
+            if (previousVersion != -1)
             {
+                var questionData = await GetQuestionDataAsync();
+                var deserializedQuestion = JsonSerializer.Deserialize<List<Question>>(questionData.Data.ToString());
+                List<HttpRequestMessage> requestsQuestionUpdate = new() { };
 
-                var getLatestActiveVersion = deserializedQuestion?.FirstOrDefault(x =>Convert.ToInt16(x.surveyVersion) == previousVersion && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
-                var getQuestionToUpdate = deserializedQuestion?.FirstOrDefault(x => Convert.ToInt16(x.surveyVersion) == latestVersion && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
-                if (getLatestActiveVersion != null && getQuestionToUpdate != null)
+                foreach (var identifier in questionIdentifiers)
                 {
-                    requestsQuestionUpdate.Add(new D365UpdateRequest(new Messages.D365EntityReference(ofm_question.EntitySetName, getQuestionToUpdate.ofm_questionid),
-                                       new JsonObject()
-                                       {
+
+                    var getLatestActiveVersion = deserializedQuestion?.FirstOrDefault(x => Convert.ToInt16(x.surveyVersion) == previousVersion && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
+                    var getQuestionToUpdate = deserializedQuestion?.FirstOrDefault(x => Convert.ToInt16(x.surveyVersion) == latestVersion && x.surveyStatecode == (int)ofm_survey_statecode.Active && x.ofm_source_question_id == identifier);
+                    if (getLatestActiveVersion != null && getQuestionToUpdate != null)
+                    {
+                        requestsQuestionUpdate.Add(new D365UpdateRequest(new Messages.D365EntityReference(ofm_question.EntitySetName, getQuestionToUpdate.ofm_questionid),
+                                           new JsonObject()
+                                           {
                                             {ofm_question.Fields.ofm_default_rows, getLatestActiveVersion.ofm_default_rows ?? null},
                                             {ofm_question.Fields.ofm_maximum_rows, getLatestActiveVersion.ofm_maximum_rows ?? null},
                                             //{ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
                                             {ofm_question.Fields.ofm_fixed_response, getLatestActiveVersion.ofm_fixed_response },
                                             {ofm_question.Fields.ofm_question_id, getLatestActiveVersion.ofm_question_id ?? null},
                                             {ofm_question.Fields.ofm_fixed_data, getLatestActiveVersion.ofm_fixed_data ?? null}
-                                       }));
+                                           }));
+                    }
+
+
+
+
                 }
 
-
-
-
-            }
-
-            if (requestsQuestionUpdate.Count > 0)
-            {
-                var UpdateQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionUpdate, null);
-
-                if (UpdateQuestionBatchResult.Errors.Any())
+                if (requestsQuestionUpdate.Count > 0)
                 {
-                    var updateQuestionBRError = ProcessResult.Failure(ProcessId, UpdateQuestionBatchResult.Errors, UpdateQuestionBatchResult.TotalProcessed, UpdateQuestionBatchResult.TotalRecords);
-                    _logger.LogError(CustomLogEvent.Process, "Failed to Update manual values on Question with an error: {error}", JsonValue.Create(updateQuestionBRError)!.ToString());
-                    _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
-                    var response = await RemoveAsync(newReportTemplateId);
-                    var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
-                    if (response.IsSuccessStatusCode)
-                        _logger.LogError(CustomLogEvent.Process, "Failed under if (UpdateQuestionBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
+                    var UpdateQuestionBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requestsQuestionUpdate, null);
 
-                    else
+                    if (UpdateQuestionBatchResult.Errors.Any())
+                    {
+                        var updateQuestionBRError = ProcessResult.Failure(ProcessId, UpdateQuestionBatchResult.Errors, UpdateQuestionBatchResult.TotalProcessed, UpdateQuestionBatchResult.TotalRecords);
+                        _logger.LogError(CustomLogEvent.Process, "Failed to Update manual values on Question with an error: {error}", JsonValue.Create(updateQuestionBRError)!.ToString());
+                        _logger.LogError(CustomLogEvent.Process, "Report Section is Created with {Report Section ID}", _sectionId);
+                        var response = await RemoveAsync(newReportTemplateId);
+                        var responseBodyDeleteRequest = await response.Content.ReadAsStringAsync();
+                        if (response.IsSuccessStatusCode)
+                            _logger.LogError(CustomLogEvent.Process, "Failed under if (UpdateQuestionBatchResult.Errors.Any()).Record was removed successfully", responseBodyDeleteRequest);
 
-                        _logger.LogError(CustomLogEvent.Operation, "Failed under if (UpdateQuestionBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
-                    return false;
+                        else
 
+                            _logger.LogError(CustomLogEvent.Operation, "Failed under if (UpdateQuestionBatchResult.Errors.Any()).Failed to Delete the record with a server error {responseBody}", responseBodyDeleteRequest);
+                        return false;
+
+                    }
+                    requestsQuestionUpdate.Clear();
+                    await CreateBusinessRule(_sectionId, appUserService, d365WebApiService, deserializedQuestion);
                 }
-                requestsQuestionUpdate.Clear();
-                await CreateBusinessRule(_sectionId, appUserService, d365WebApiService, deserializedQuestion);
             }
         }
         catch (Exception exp)
