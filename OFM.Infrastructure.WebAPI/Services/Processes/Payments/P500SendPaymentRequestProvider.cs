@@ -288,7 +288,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null)
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
-            _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);
+            _cgiBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_batch_number).ToString("D9").Substring(0, 9);
             oracleBatchName = _BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13");
         }
         else
