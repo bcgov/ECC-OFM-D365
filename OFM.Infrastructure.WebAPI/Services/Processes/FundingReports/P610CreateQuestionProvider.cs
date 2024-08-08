@@ -610,7 +610,6 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
 
                         requestsQuestionCreationColumn.Add(new CreateRequest($"{entitySetNameQuestion}",
                                 new JsonObject(){
-                                 {ofm_question.Fields.ofm_name, column.QuestionName.Split('#')[1] },
                        { ofm_question.Fields.ofm_subtitle, column.QuestionSubtitle },
                             { ofm_question.Fields.ofm_source_question_id, column.QuestionSourcequestionIdentifier},
                            { ofm_question.Fields.ofm_choice_type,column.QuestionChoiceType},
