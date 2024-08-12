@@ -10,6 +10,7 @@ using System.Text.Json.Nodes;
 using System.Text;
 using ECC.Core.DataContext;
 using System.Text.Json;
+using System.Net;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
@@ -277,14 +278,14 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         #region Step 0.2: Get latest Oracle Batch Number
 
         var fiscalYearsData = await GetAllFiscalYearsDataAsync();
-       
+
         List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
         _currentFiscalYearId = DateTime.UtcNow.ToLocalPST().Date.MatchFiscalYear(fiscalYears).ToString();
         string oracleBatchName;
         var latestPaymentFileExchangeData = await GetDataAsync();
         var serializedPFXData = JsonSerializer.Deserialize<List<ofm_payment_file_exchange>>(latestPaymentFileExchangeData.Data.ToString());
 
-        if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null )
+        if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null)
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
             _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number)).ToString("D9").Substring(0, 9);
@@ -309,7 +310,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         // add invoice header for each organization and invoice lines for each facility
         foreach (var headeritem in grouppayment)
         {
-            var pay_method = (ecc_payment_method) headeritem.First().ofm_payment_method;
+            var pay_method = (ecc_payment_method)headeritem.First().ofm_payment_method;
             double invoiceamount = 0.00;
             List<InvoiceLines> invoiceLines = [];
 
@@ -365,7 +366,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                 SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
-                description = string.Concat(headeritem.First()?.ofm_facility?.name).PadRight(header.FieldLength("description")),// can be used to pass extra info
+                description = WebUtility.UrlDecode(headeritem.First()?.ofm_facility?.name ?? string.Empty).PadRight(header.FieldLength("description")),// can be used to pass extra info
                 flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
                 invoiceLines = invoiceLines
             });
@@ -390,16 +391,17 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         {
             _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9"); // Increase the CGI Batch Number by 1 
 
-            headeritem.ForEach(x => {
-             
+            headeritem.ForEach(x =>
+            {
+
                 foreach (var paydata in serializedPaymentData.Where(paydata => paydata.ofm_invoice_number == x.invoiceLines.First().invoiceNumber.TrimEnd()))
                 {
-                    
+
                     paydata.ofm_batch_number = _cgiBatchNumber;
                     paylinesToUpdate.Add(paydata);
                 }
             });
-             
+
             _controlAmount = (Double)headeritem.SelectMany(x => x.invoiceLines).ToList().Sum(x => Convert.ToDecimal(x.lineAmount));
             _controlCount = headeritem.SelectMany(x => x.invoiceLines).ToList().Count + headeritem.Count;
 
@@ -428,7 +430,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         if (!string.IsNullOrEmpty(inboxFileBytes))
         {
             bool savePFEResult = await SaveInboxFileOnNewPaymentFileExchangeRecord(appUserService, d365WebApiService, _BCCASApi.feederNumber, inboxFileBytes);
-            
+
             if (savePFEResult)
                 await MarkPaymentLinesAsProcessed(appUserService, d365WebApiService, paylinesToUpdate);
         }
@@ -503,7 +505,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     _logger.LogError(CustomLogEvent.Process, "Failed to update payment file exchange record with the new inbox document with the server error {responseBody}", pfeUpdateError.CleanLog());
 
                     return await Task.FromResult(false);
-                }               
+                }
             }
         }
 
