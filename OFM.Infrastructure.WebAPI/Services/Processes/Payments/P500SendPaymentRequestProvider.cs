@@ -10,7 +10,8 @@ using System.Text.Json.Nodes;
 using System.Text;
 using ECC.Core.DataContext;
 using System.Text.Json;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
@@ -288,7 +289,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null)
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
-            _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);
+            _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number)).ToString("D9").Substring(0, 9);
             oracleBatchName = _BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13");
         }
         else
@@ -366,10 +367,10 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                 SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
-                description = string.Concat(headeritem.First()?.ofm_facility?.name).PadRight(header.FieldLength("description")),// can be used to pass extra info
+                description = Regex.Replace(headeritem.First()?.ofm_facility?.name, @"[^\w $\-]", "").PadRight(header.FieldLength("description")),// can be used to pass extra info
                 flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
                 invoiceLines = invoiceLines
-            });
+            }); 
             _controlAmount = _controlAmount + invoiceamount;
             _controlCount++;
             _oracleBatchNumber++;
@@ -389,15 +390,16 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         // for each set of transaction create and upload inbox file in payment file exchange
         foreach (List<InvoiceHeader> headeritem in headerList)
         {
+            _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9"); // Increase the CGI Batch Number by 1 
+
             headeritem.ForEach(x =>
             {
+
                 foreach (var paydata in serializedPaymentData.Where(paydata => paydata.ofm_invoice_number == x.invoiceLines.First().invoiceNumber.TrimEnd()))
                 {
-
                     paydata.ofm_batch_number = _cgiBatchNumber;
                     paylinesToUpdate.Add(paydata);
                 }
-                // var payline= serializedPaymentData?.Where(paydata => paydata.ofm_invoice_number == x.invoiceNumber).Select(paydata => new { paydata, paydata.ofm_batch_number = _cgiBatchNumber });
             });
 
             _controlAmount = (Double)headeritem.SelectMany(x => x.invoiceLines).ToList().Sum(x => Convert.ToDecimal(x.lineAmount));
@@ -418,7 +420,6 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 InvoiceHeader = headeritem
             };
 
-            _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
             inboxFileBytes += template(data);
         }
 
@@ -505,9 +506,8 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
                     return await Task.FromResult(false);
                 }
+                }
             }
-        }
-
         return await Task.FromResult(true);
     }
 }
