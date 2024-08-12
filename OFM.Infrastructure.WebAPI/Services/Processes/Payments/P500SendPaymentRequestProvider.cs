@@ -357,11 +357,11 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 PONumber = string.Empty.PadRight(header.FieldLength("PONumber")),// sending blank as not used by feeder
                 invoiceDate = headeritem.First().ofm_invoice_date?.ToString("yyyyMMdd"), // set to current date
                 invoiceType = invoiceamount < 0 ? "CM" : "ST",// static to ST (standard invoice)
-                payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
+                payGroupLookup = (pay_method == ecc_payment_method.IMMEFT)? "IMM EFT N" : string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
                 remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
                 grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - (invoiceamount < 0 ? 1 : 0), '0'), // invoice amount come from OFM total base value.
                 CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
-                termsName = "Immediate".PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
+                termsName = _BCCASApi.InvoiceHeader.termsName.PadRight(header.FieldLength("termsName")),//setting it to immediate for successful testing, this needs to be dynamic going forward.
                 goodsDate = string.Empty.PadRight(header.FieldLength("goodsDate")),//optional field so set to null
                 invoiceRecDate = headeritem.First().ofm_invoice_received_date?.ToString("yyyyMMdd"),//ideally is is 4 days before current date
                 oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
@@ -397,7 +397,6 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
                 foreach (var paydata in serializedPaymentData.Where(paydata => paydata.ofm_invoice_number == x.invoiceLines.First().invoiceNumber.TrimEnd()))
                 {
-
                     paydata.ofm_batch_number = _cgiBatchNumber;
                     paylinesToUpdate.Add(paydata);
                 }
@@ -507,9 +506,8 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
                     return await Task.FromResult(false);
                 }
+                }
             }
-        }
-
         return await Task.FromResult(true);
     }
 }

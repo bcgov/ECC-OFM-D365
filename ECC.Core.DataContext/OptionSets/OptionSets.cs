@@ -4391,6 +4391,10 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("EFT", 0)]
 		EFT = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("IMM EFT", 2)]
+		IMMEFT = 3,
 	}
 	
 	/// <summary>
@@ -7134,6 +7138,35 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Denotes the mode of consultation a participant has in a conversation
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_ConsultModeType
+	{
+		
+		/// <summary>
+		/// Chat
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Chat", 0, null, "Chat")]
+		Chat = 0,
+		
+		/// <summary>
+		/// Chat And Voice
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Chat And Voice", 1, null, "Chat And Voice")]
+		ChatAndVoice = 1,
+		
+		/// <summary>
+		/// Voice
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Voice", 2, null, "Voice")]
+		Voice = 2,
+	}
+	
+	/// <summary>
 	/// State of the conversation record
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -7187,6 +7220,35 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Wrap-up", 4, "#009EB3", null, "Wrap-up")]
 		Wrapup = 5,
+	}
+	
+	/// <summary>
+	/// Denotes the level of access a participant has in a conversation
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_ConversationAccessType
+	{
+		
+		/// <summary>
+		/// Default
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Default", 0, null, "Default")]
+		Default = 0,
+		
+		/// <summary>
+		/// Private
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Private", 2, null, "Private")]
+		Private = 2,
+		
+		/// <summary>
+		/// Public
+		/// </summary>
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Public", 1, null, "Public")]
+		Public = 1,
 	}
 	
 	/// <summary>
@@ -7859,6 +7921,22 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Whether this entity is tagged for solution harvesting or not.
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_HarvestingTag
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Not Required", 0, "#0000ff")]
+		NotRequired = 192350000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Solution Harvesting", 1, "#0000ff")]
+		SolutionHarvesting = 192350001,
+	}
+	
+	/// <summary>
 	/// Indicates model's status
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -7972,6 +8050,26 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Not Started", 0, "#0000ff")]
 		NotStarted = 192350000,
+	}
+	
+	/// <summary>
+	/// Source of the Intent or Intent Attributes
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_intent_source
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Bootstrapping", 0, "#0000ff")]
+		Bootstrapping = 192350000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Manually Edited", 2, "#0000ff")]
+		ManuallyEdited = 192350002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Solution Harvesting", 1, "#0000ff")]
+		SolutionHarvesting = 192350001,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -10996,6 +11094,26 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("System - Agreement Schedule", 0)]
 		SystemAgreementSchedule = 690970005,
+	}
+	
+	/// <summary>
+	/// review state of intent or intent attributes
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum msdyn_reviewstate
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Approved", 1, "#0000ff")]
+		Approved = 192350001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Discarded", 2, "#0000ff")]
+		Discarded = 192350002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Pending", 0, "#0000ff")]
+		Pending = 192350000,
 	}
 	
 	/// <summary>

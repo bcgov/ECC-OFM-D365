@@ -1,4 +1,4 @@
-name: 5 PROD - Deploy Dynamics API
+name: 4 EFX - Deploy Dynamics API
 
 env:
   # 🖊️ EDIT your repository secrets to log into your OpenShift cluster and set up the context.
@@ -7,7 +7,7 @@ env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   # 🖊️ EDIT to set the kube context's namespace after login. Leave blank to use your user's default namespace.
-  OPENSHIFT_NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}-prod
+  OPENSHIFT_NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}-test
 
   # SPLUNK_TOKEN: ${{ secrets.SPLUNK_TOKEN }}
 
@@ -19,17 +19,17 @@ env:
 
   APP_NAME: 'ofm'
   REPO_NAME: 'ecc-ofm-d365'
-  #grabs the branch name from github dynamically
+  # Grabs the branch name from github dynamically
   BRANCH: ${{ github.ref_name }}
   IMAGE_NAME: 'ecc-ofm-d365api'
   APP_NAME_BACKEND: 'd365api'
-  # We have multiple environments in each openshift namespace dev, test in DEV and uat, efx in TEST (prod is standalone). This setting will help name the deployment config and routes for each.
-  APP_ENVIRONMENT: 'prod'
+  # We have multiple environments in each openshift namespace dev, test in DEV and uat, efx in TEST. This setting will help name the deployment config and routes for each.
+  APP_ENVIRONMENT: 'efx'
 
   NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}
 
-  MIN_REPLICAS: '3'
-  MAX_REPLICAS: '5'
+  MIN_REPLICAS: '2'
+  MAX_REPLICAS: '3'
   MIN_CPU: '50m'
   MAX_CPU: '250m'
   MIN_MEM: '200Mi'
@@ -43,9 +43,9 @@ on:
 
 jobs:
   openshift-ci-cd:
-    name: Deploy Backend to PROD
+    name: Deploy Backend to EFX
     runs-on: ubuntu-24.04
-    environment: prod
+    environment: efx
 
     outputs:
       ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
@@ -117,8 +117,8 @@ jobs:
           # Create the image stream if it doesn't exist
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
 
-          # Create tag for PROD env from DEV env image
-          oc tag ${{ env.NAMESPACE }}-dev/${{ env.IMAGE_NAME }}:${{ steps.get-latest-tag.outputs.tag }} ${{ env.NAMESPACE }}-prod/${{ env.IMAGE_NAME }}:${{ steps.get-latest-tag.outputs.tag }}
+          # Create tag for UAT env from DEV env image
+          oc tag ${{ env.NAMESPACE }}-dev/${{ env.IMAGE_NAME }}:${{ steps.get-latest-tag.outputs.tag }} ${{ env.NAMESPACE }}-test/${{ env.IMAGE_NAME }}:${{ steps.get-latest-tag.outputs.tag }}
 
           # Process and apply deployment template
           oc process \
