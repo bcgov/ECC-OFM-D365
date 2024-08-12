@@ -10,7 +10,6 @@ using System.Text.Json.Nodes;
 using System.Text;
 using ECC.Core.DataContext;
 using System.Text.Json;
-using OFM.Infrastructure.WebAPI.Models.Fundings;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
@@ -288,7 +287,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         if (serializedPFXData is not null && serializedPFXData.Count != 0 && serializedPFXData[0].ofm_batch_number != null )
         {
             _oracleBatchNumber = Convert.ToInt32(serializedPFXData[0].ofm_oracle_batch_name) + 1;
-            _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number) + 1).ToString("D9").Substring(0, 9);
+            _cgiBatchNumber = (Convert.ToInt32(serializedPFXData[0].ofm_batch_number)).ToString("D9").Substring(0, 9);
             oracleBatchName = _BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D13");
         }
         else
@@ -386,16 +385,11 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
         #region Step 2: Compose the inbox file string
         List<D365PaymentLine> paylinesToUpdate = new List<D365PaymentLine>();
-        int batchCountInFile = 0;
         // for each set of transaction create and upload inbox file in payment file exchange
         foreach (List<InvoiceHeader> headeritem in headerList)
         {
-            //CGI batch number will be incremented for more than one batch in a inbox file.
-            if(batchCountInFile > 0)
-            {
-                _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
-            }
-           
+            _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9"); // Increase the CGI Batch Number by 1 
+
             headeritem.ForEach(x => {
              
                 foreach (var paydata in serializedPaymentData.Where(paydata => paydata.ofm_invoice_number == x.invoiceLines.First().invoiceNumber.TrimEnd()))
@@ -404,7 +398,6 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     paydata.ofm_batch_number = _cgiBatchNumber;
                     paylinesToUpdate.Add(paydata);
                 }
-              // var payline= serializedPaymentData?.Where(paydata => paydata.ofm_invoice_number == x.invoiceNumber).Select(paydata => new { paydata, paydata.ofm_batch_number = _cgiBatchNumber });
             });
              
             _controlAmount = (Double)headeritem.SelectMany(x => x.invoiceLines).ToList().Sum(x => Convert.ToDecimal(x.lineAmount));
@@ -425,9 +418,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 InvoiceHeader = headeritem
             };
 
-           // _cgiBatchNumber = ((Convert.ToInt32(_cgiBatchNumber)) + 1).ToString("D9");
             inboxFileBytes += template(data);
-            batchCountInFile++;
         }
 
         #endregion
