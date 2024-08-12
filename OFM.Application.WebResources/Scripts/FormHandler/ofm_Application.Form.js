@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 //Create Namespace Object 
 var organizationid;
@@ -428,7 +428,7 @@ OFM.Application.Form = {
     },
 
     showBanner: function (executionContext) {
-        //debugger;
+        debugger;
         var formContext = executionContext.getFormContext();
         var roomSplitIndicator = formContext.getAttribute("ofm_room_split_indicator").getValue();
         var pcmIndicator = formContext.getAttribute("ofm_pcm_indicator").getValue();
@@ -467,6 +467,7 @@ OFM.Application.Form = {
         formContext.ui.tabs.get("tab_9").sections.get("tab_9_banner").setVisible(pcmIndicator);
         formContext.getControl("ofm_room_split_banner").setVisible(roomSplitIndicator);
         formContext.getControl("ofm_pcm_banner").setVisible(pcmIndicator);
+        formContext.getControl("ofm_pcm_banner1").setVisible(pcmIndicator);
         formContext.getControl("ofm_familyprovider_banner").setVisible(providerType === 2);
         formContext.getControl("ofm_unionizedsite_banner").setVisible(unionizedFlag === 1);
         if (status == 0 && statusReason != 6)
