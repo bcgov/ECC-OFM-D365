@@ -255,13 +255,14 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
             DateTime revisedInvoiceDate = DateTime.Today.Date.AddBusinessDays(_BCCASApi.DaysToCorrectPayments, holidaysList);
             DateTime revisedInvoiceReceivedDate = revisedInvoiceDate.AddDays(-4);
-            DateTime revisedEffectiveDate = TimeExtensions.GetCFSEffectiveDate(revisedInvoiceDate, holidaysList);
+            DateTime revisedEffectiveDate = revisedInvoiceDate;
 
             if (line != null && header != null)
             {
                 string casResponse = (line?.ILCode != "0000") ? string.Concat("Error:", line?.ILCode, " ", line?.ILError) : string.Empty;
                 casResponse += (header?.IHCode != "0000") ? string.Concat(header?.IHCode, " ", header?.IHError) : string.Empty;
                 //Check if payment faced error in processing.
+
                 if ( header?.IHCode != "0000")
                 {
                     var subject = pay.ofm_name;
