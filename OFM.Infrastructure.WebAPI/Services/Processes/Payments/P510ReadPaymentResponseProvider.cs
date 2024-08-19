@@ -262,7 +262,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                 string casResponse = (line?.ILCode != "0000") ? string.Concat("Error:", line?.ILCode, " ", line?.ILError) : string.Empty;
                 casResponse += (header?.IHCode != "0000") ? string.Concat(header?.IHCode, " ", header?.IHError) : string.Empty;
                 //Check if payment faced error in processing.
-                if (line?.ILCode != "0000" || header?.IHCode != "0000")
+                if ( header?.IHCode != "0000")
                 {
                     var subject = pay.ofm_name;
                     //create Integration log with an error message.
@@ -274,9 +274,9 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                     {ofm_payment.Fields.ofm_cas_response, casResponse},
                     {ofm_payment.Fields.statecode,(int)((line?.ILCode=="0000" &&header?.IHCode=="0000") ?ofm_payment_statecode.Inactive:ofm_payment_statecode.Active)},
                     {ofm_payment.Fields.statuscode,(int)((line?.ILCode=="0000" && header?.IHCode=="0000")?ofm_payment_StatusCode.Paid:ofm_payment_StatusCode.ProcessingError)},
-                    {ofm_payment.Fields.ofm_revised_invoice_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceDate.ToString("yyyy-MM-dd"): null},
-                    {ofm_payment.Fields.ofm_revised_invoice_received_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedInvoiceReceivedDate.ToString("yyyy-MM-dd"):null },
-                    {ofm_payment.Fields.ofm_revised_effective_date,(line?.ILCode!="0000" && header?.IHCode!="0000")?revisedEffectiveDate.ToString("yyyy-MM-dd"):null }
+                    {ofm_payment.Fields.ofm_revised_invoice_date,( header?.IHCode!="0000")?revisedInvoiceDate.ToString("yyyy-MM-dd"): null},
+                    {ofm_payment.Fields.ofm_revised_invoice_received_date,( header?.IHCode!="0000")?revisedInvoiceReceivedDate.ToString("yyyy-MM-dd"):null },
+                    {ofm_payment.Fields.ofm_revised_effective_date,(header?.IHCode!="0000")?revisedEffectiveDate.ToString("yyyy-MM-dd"):null }
                 };
 
                 updatePayRequests.Add(new D365UpdateRequest(new D365EntityReference(ofm_payment.EntityLogicalCollectionName, pay.ofm_paymentid), payToUpdate));
