@@ -49,7 +49,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     // Get related Application ID
                     if (entity["ofm_application"] is EntityReference applicationReference)
                     {
-                        //Get related Application id and FA date 
+                        //Get related Application id and state code
                         var applicationId = entity.GetAttributeValue<EntityReference>("ofm_application").Id;
                         tracingService.Trace("{0}", "applicationId: ", applicationId);
 
