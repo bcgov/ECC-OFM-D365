@@ -43,6 +43,7 @@ OFM.Account.OrgFacility.Form = {
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
                 this.showBanner(executionContext);
+                this.notForProfitSection(executionContext);
                 break;
 
             case 3: //readonly
@@ -55,6 +56,7 @@ OFM.Account.OrgFacility.Form = {
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
                 this.showBanner(executionContext);
+                this.notForProfitSection(executionContext);
                 break;
 
             case 4: //disable
@@ -502,6 +504,20 @@ OFM.Account.OrgFacility.Form = {
 
             formContext.ui.tabs.get("tab_Overview").sections.get("tab_Overview_section_33").setVisible(reviewFlag);
             formContext.getControl("ofm_review_underway_banner").setVisible(reviewFlag);
+        }
+    },
+
+    notForProfitSection: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var businessTypeAttribute = formContext.getAttribute("ofm_business_type");
+        if (businessTypeAttribute != null) {
+            var businessType = businessTypeAttribute.getValue();
+            if (businessType == 2) {
+                formContext.ui.tabs.get("tab_Overview").sections.get("tab_Overview_section_nfp").setVisible(true);
+            }
+            else
+                formContext.ui.tabs.get("tab_Overview").sections.get("tab_Overview_section_nfp").setVisible(false);
         }
     }
 }
