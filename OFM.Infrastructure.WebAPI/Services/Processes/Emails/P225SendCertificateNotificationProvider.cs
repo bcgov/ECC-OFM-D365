@@ -165,7 +165,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 245).TemplateNumber);
                 var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
-                string? subject = templateobj?.title;
+                string? subject = templateobj?.subjectsafehtml;
                 string? emaildescription = templateobj?.safehtml;
                 emaildescription = emaildescription?.Replace("{Record_Name}", _staffs?[0].Name);
                 emaildescription = emaildescription?.Replace("{Provider_Name}", _staffs?[0].ProviderName);
