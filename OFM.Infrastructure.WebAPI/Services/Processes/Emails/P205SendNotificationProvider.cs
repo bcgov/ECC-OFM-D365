@@ -129,6 +129,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
                   <entity name="template">
                     <attribute name="title" />
+                     <attribute name="subjectsafehtml" />
                     <attribute name="templatetypecode" />
                     <attribute name="safehtml" />
                     <attribute name="languagecode" />
@@ -252,7 +253,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             if (serializedDataTemplate.Count > 0)
             {
                 var templateobj = serializedDataTemplate.FirstOrDefault();
-                subject = templateobj.title;
+                subject = templateobj.subjectsafehtml;
                 emaildescription = templateobj.safehtml;
             }
         }
