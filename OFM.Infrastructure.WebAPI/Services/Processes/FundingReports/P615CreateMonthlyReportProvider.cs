@@ -6,6 +6,7 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Net;
 using System.Text.Json.Nodes;
+using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 
@@ -37,8 +38,8 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                                     <attribute name="statecode" />
                                     <attribute name="statuscode" />
                                     <filter>
-                                      <condition attribute="statecode" operator="eq" value="{ECC.Core.DataContext.ofm_funding_statecode.Active}" />
-                                      <condition attribute="statuscode" operator="eq" value="{ECC.Core.DataContext.ofm_funding_StatusCode.Active}" />
+                                      <condition attribute="statecode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_funding_statecode.Active}" />
+                                      <condition attribute="statuscode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_funding_StatusCode.Active}" />
                                       <condition attribute="ofm_facility" operator="not-null" value="" />
                                     </filter>
                                   </entity>
@@ -214,6 +215,12 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                             """.CleanCRLF();
 
         var fiscalYearData = await GetReportDataAsync(requestFiscalYearUri);
+        if (fiscalYearData == null)
+        {
+            _logger.LogInformation(CustomLogEvent.Process, "Cannot find fiscal year data.");
+            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        }
+
         var fiscalYear = fiscalYearData.Data.AsArray().FirstOrDefault()?["ofm_fiscal_yearid"];
 
         //fetch the template
@@ -222,6 +229,8 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
               <entity name="ofm_survey">
                 <filter>
                   <condition attribute="ofm_start_date" operator="le" value="{monthEndDateInUTC}" />
+                  <condition attribute="statecode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_survey_statecode.Active}" />
+                  <condition attribute="statuscode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_survey_StatusCode.Active}" />
                 </filter>
               </entity>
             </fetch>
@@ -232,12 +241,26 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         var reportTemplateData = await GetReportDataAsync(requestReportTemplateUri);
         var serializedReportTemplateDate = System.Text.Json.JsonSerializer.Deserialize<List<ECC.Core.DataContext.ofm_survey>>(reportTemplateData.Data, Setup.s_writeOptionsForLogs);
         var reportTemplate = serializedReportTemplateDate.Where(t => t.ofm_end_date == null || t.ofm_end_date >= monthEndDateInUTC).FirstOrDefault();
+        if(reportTemplate  == null)
+        {
+            _logger.LogInformation(CustomLogEvent.Process, "Cannot find report template.");
+            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        }
         var reportTempateId = reportTemplate.Id;
 
 
         //Convert the report Month
         var reportMonth = ConvertMonthToFiscalMonth(monthEndDateInPST.Month);
+
         var duedateInUTC = monthEndDateInUTC.AddMonths(1);
+
+        if (!batchFlag)
+        {
+            var duedateMonth = monthEndDateInUTC.AddMonths(1);
+            var duedateInPST = new DateTime(duedateMonth.Year, duedateMonth.Month, DateTime.DaysInMonth(duedateMonth.Year, duedateMonth.Month), 23, 59, 00);
+            duedateInUTC = duedateInPST.ToUTC();
+        }
+
 
         //Start date
         var startdateInPST = new DateTime(monthEndDateInPST.Year, monthEndDateInPST.Month, 1).ToString("yyyy-MM-dd");
