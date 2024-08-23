@@ -48,6 +48,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
     public string Title { get; set; } = $"Calculation Breakdowns at {TimeExtensions.GetCurrentPSTDateTime()} (PST)";
     public string Category => TrackerCategory.Calculator.ToString();
     public string TrackingDetails { get; set; } = string.Empty;
+    public string NonHRTrackingDetails { get; set; } = string.Empty;
     public string StatusMessage { get; set; } = string.Empty;
 
     public JsonObject TrackerMessage
@@ -55,14 +56,20 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
         get
         {
             string details = TrackingDetails;
+            string nonHRDetails = NonHRTrackingDetails;
             if (TrackingDetails.Length > maxLength)
                 details = TrackingDetails[..(maxLength - 1)];
 
+            if (NonHRTrackingDetails.Length > maxLength)
+                nonHRDetails = NonHRTrackingDetails[..(maxLength - 1)];
+
             return new JsonObject() {
+                { "ofm_tracking_number",  string.Concat("FA-",_funding?.ofm_funding_number) },
                 { "ofm_title", Title },
                 { "ofm_description", details }, // Ensure the tracking details does not exceed the characters limit (100,000).
                 { "ofm_regardingid_ofm_funding@odata.bind", $"/ofm_fundings({_regardingId})"},
-                { "ofm_category", Category }
+                { "ofm_category", Category },
+                { "ofm_non_hr_description", nonHRDetails } // Ensure the tracking details does not exceed the characters limit (100,000).
             };
         }
     }
@@ -82,7 +89,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
             var rawFTEs = actionsLog.GroupBy(act => act.LicenceType).Select(sdd => new
             {
                 //sdd.First().Step,
-                sdd.First().LicenceType,
+                sdd.First().LicenceTypeName,
                 Spaces = sdd.Max(licenceDetail => licenceDetail.Spaces),
                 RawITE = sdd.Max(licenceDetail => licenceDetail.RawITE),
                 RawECE = sdd.Max(licenceDetail => licenceDetail.RawECE),
@@ -97,10 +104,10 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                     Total = "Total",
                     LicenceType = "Licence Category", // Values are Type A, B or C
                     Spaces = "Facility Spaces",
-                    ITE = "RawITE",
-                    ECE = "RawECE",
-                    ECEA = "RawECEA",
-                    RA = "RawRA",
+                    ITE = "CCLR ITE/SNE",
+                    ECE = "CCLR ECE",
+                    ECEA = "CCLR ECEA",
+                    RA = "CCLR RA",
                 },
                 steps = rawFTEs,
                 footer = new
@@ -125,13 +132,17 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
             var adjustedFTEs = actionsLog.GroupBy(act => act.LicenceType).Select(ld => new
             {
                 //sdd.First().Step,
-                ld.First().LicenceType,
+                ld.First().LicenceTypeName,
                 Spaces = ld.Max(licenceDetail => licenceDetail.Spaces),
                 ITE = Math.Round(ld.Max(licenceDetail => licenceDetail.AdjustedITE), 2, MidpointRounding.AwayFromZero),
                 ECE = Math.Round(ld.Max(licenceDetail => licenceDetail.AdjustedECE), 2, MidpointRounding.AwayFromZero),
                 ECEA = Math.Round(ld.Max(licenceDetail => licenceDetail.AdjustedECEA), 2, MidpointRounding.AwayFromZero),
                 RA = Math.Round(ld.Max(licenceDetail => licenceDetail.AdjustedRA), 2, MidpointRounding.AwayFromZero),
-                FTERatio = Math.Round(ld.Max(licenceDetail => licenceDetail.AnnualCareHoursFTERatio), 2, MidpointRounding.AwayFromZero)
+                FTERatio = Math.Round(ld.Max(licenceDetail => licenceDetail.AnnualCareHoursFTERatio), 2, MidpointRounding.AwayFromZero),
+                Total = Math.Round(ld.Max(licenceDetail => licenceDetail.AdjustedITE), 2, MidpointRounding.AwayFromZero) +
+                    Math.Round(ld.Max(licenceDetail => licenceDetail.AdjustedECE), 2, MidpointRounding.AwayFromZero) +
+                    Math.Round(ld.Max(licenceDetail => licenceDetail.AdjustedECEA), 2, MidpointRounding.AwayFromZero) +
+                    Math.Round(ld.Max(licenceDetail => licenceDetail.AdjustedRA), 2, MidpointRounding.AwayFromZero)
             });
 
             var value = new
@@ -141,11 +152,12 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                     Total = "Total",
                     LicenceType = "Licence Category", // Values are Type A, B or C
                     Spaces = "Facility Spaces",
-                    ITE = "ITE",
+                    ITE = "ITE/SNE",
                     ECE = "ECE",
                     ECEA = "ECEA",
                     RA = "RA",
-                    FTERatio = "FTE Adjustment Ratio"
+                    FTERatio = "FTE Adjustment Ratio",
+                    TotalFTEs = "Total FTEs"
                 },
                 steps = adjustedFTEs,
                 footer = new
@@ -175,7 +187,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                 {
                     Total = "Total",
                     AdjustedFTEs = "Adjusted FTEs",
-                    ParentFees = "Parent Fees ($)",
+                    ParentFees = "Projected Parent Fees ($)",
                 },
                 footer = new
                 {
@@ -291,7 +303,8 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                                         				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.ECE}}}</th>
                                         				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.ECEA}}}</th>
                                         				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.RA}}}</th>
-                                        				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.FTERatio}}}</th>                             
+                                        				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.FTERatio}}}</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.TotalFTEs}}}</th>
                                         			</tr>
                                         		</thead>
                                         		<tbody>                             
@@ -326,7 +339,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                                         		</thead>                                        		
                                         		<tfoot>
                                         			<tr style="text-align: center; vertical-align: middle;">
-                                        				<td>{{{HRSummaryData.footer.Total}}}</td>
+                                        				<th scope="row">{{{HRSummaryData.footer.Total}}}</th>
                                         				<td>{{{HRSummaryData.footer.AdjustedFTEs}}}</td>
                                         				<td>{{{HRSummaryData.footer.ParentFees}}}</td>
                                         			</tr>
@@ -339,16 +352,16 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                                                 <table border="1px solid black" cellspacing="0" cellpadding="3px">
                                                 <caption style="background-color:lightgrey;font-weight:bold;padding:3px;">Non-HR Funding Rates</caption>
                                                 <thead>
-                                                    <tr style="background-color:lightgrey;text-align:center;vertical-align:middle;">
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Steps</th>
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Min Spaces</th>
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Max Spaces</th>
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Ownership</th>
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Programming<br/>($/space)</th>
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Administrative<br/>($/space)</th>
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Operational<br/>($/space)</th>
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Facility<br/>($/space)</th>
-                                                        <th scope="col" style="padding-left:10px;padding-right:10px;">Total Cost<br/>($/space)</th>
+                                                    <tr style="text-align:center;vertical-align:middle;">
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Steps</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Min Spaces</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Max Spaces</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Ownership</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Programming<br/>($/space)</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Administrative<br/>($/space)</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Operational<br/>($/space)</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Facility<br/>($/space)</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">Total Cost<br/>($/space)</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>                             
@@ -395,13 +408,13 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                                         """;
 
     private string RawFTEsPartialSource => """
-                                    <tr style="text-align:center;vertical-align:middle;"><td>{{LicenceType}}</td><td>{{Spaces}}</td><td>{{RawITE}}</td><td>{{RawECE}}</td><td>{{RawECEA}}</td><td>{{RawRA}}</td></tr>
+                                    <tr style="text-align:center;vertical-align:middle;"><td>{{LicenceTypeName}}</td><td>{{Spaces}}</td><td>{{RawITE}}</td><td>{{RawECE}}</td><td>{{RawECEA}}</td><td>{{RawRA}}</td></tr>
                                     """;
     private string AdjustedFTEsPartialSource => """
-                                    <tr style="text-align:center;vertical-align:middle;"><td>{{LicenceType}}</td><td>{{Spaces}}</td><td>{{ITE}}</td><td>{{ECE}}</td><td>{{ECEA}}</td><td>{{RA}}</td><td>{{FTERatio}}</td></tr>
+                                    <tr style="text-align:center;vertical-align:middle;"><td>{{LicenceTypeName}}</td><td>{{Spaces}}</td><td>{{ITE}}</td><td>{{ECE}}</td><td>{{ECEA}}</td><td>{{RA}}</td><td>{{FTERatio}}</td><td>{{Total}}</td></tr>
                                     """;
     private string NonHRRatesPartialSource => """
-                                    <tr style="background-color:lightgrey;text-align:center;vertical-align:middle;"><td>{{Step}}</td><td>{{MinSpaces}}</td><td>{{MaxSpaces}}</td><td>{{Ownership}}</td><td>{{Programming}}</td><td>{{Administrative}}</td><td>{{Operational}}</td><td>{{Facility}}</td><td>{{Total}}</td></tr>
+                                    <tr style="text-align:center;vertical-align:middle;"><td>{{Step}}</td><td>{{MinSpaces}}</td><td>{{MaxSpaces}}</td><td>{{Ownership}}</td><td>{{Programming}}</td><td>{{Administrative}}</td><td>{{Operational}}</td><td>{{Facility}}</td><td>{{Total}}</td></tr>
                                     """;
     private string NonHRAmountsPartialSource => """
                                     <tr style="text-align:center;vertical-align:middle;"><td>{{Step}}</td><td>{{AllocatedSpaces}}</td><td>{{Programming}}</td><td>{{Administrative}}</td><td>{{Operational}}</td><td>{{Facility}}</td><td>{{Total}}</td></tr>
@@ -441,7 +454,13 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
 
         string? facilityName = $"""<div style="text-align:center;font-size: 28px; font-weight: bold;">Facility: {_funding?.ofm_facility?.name}</div>""";
 
-        TrackingDetails = string.Concat(facilityName, rawFTEsResult, adjustedFTEsResult, hrSummaryResult, nonHRRatesResult, nonHRAmountsResult);
+        string? cclrRequirements = $"""<br/><br/><div style="text-align:center;font-size: 18px; font-weight: bold;">Child Care Licensing Regulation (CCLR) Staffing Ratios – Informational Purposes Only</div>""";
+
+        string? adjustedRatio = $"""<br/><div style="text-align:center;font-size: 18px; font-weight: bold;">Adjusted Child Care Staff Ratios</div>""";
+
+        TrackingDetails = string.Concat(facilityName, cclrRequirements, rawFTEsResult, adjustedRatio, adjustedFTEsResult, hrSummaryResult);
+
+        NonHRTrackingDetails = string.Concat(nonHRRatesResult, nonHRAmountsResult);
 
         List<HttpRequestMessage> createRequests = [];
 
@@ -493,7 +512,8 @@ public class CalculatorErrorTracker(ID365AppUserService appUserService, ID365Web
         foreach (var errorMessage in _fundingResult.Errors)
         {
             errorMessageRequests.Add(new CreateRequest(ofm_progress_tracker.EntitySetName,
-                    new JsonObject(){
+            new JsonObject(){
+                            { "ofm_tracking_number",  string.Concat("FA-",funding?.ofm_funding_number) },
                             { "ofm_title",Title },
                             { "ofm_category",Category },
                             { "ofm_tracking_details",errorMessage },
