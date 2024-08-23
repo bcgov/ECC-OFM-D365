@@ -64,7 +64,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                 nonHRDetails = NonHRTrackingDetails[..(maxLength - 1)];
 
             return new JsonObject() {
-                { "ofm_tracking_number",  string.Concat("FA-",_funding?.ofm_funding_number) },
+                { "ofm_tracking_number",  string.Concat("FA-",_funding?.ofm_funding_number,$"-{TimeExtensions.GetCurrentPSTDateTime()}(PST)") },
                 { "ofm_title", Title },
                 { "ofm_description", details }, // Ensure the tracking details does not exceed the characters limit (100,000).
                 { "ofm_regardingid_ofm_funding@odata.bind", $"/ofm_fundings({_regardingId})"},
@@ -299,11 +299,11 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                                         			<tr style="text-align: center; vertical-align: middle;">
                                         				<th scope="col">Group Size</th>
                                         				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.Spaces}}}</th>
+                                                        <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.FTERatio}}}</th>
                                         				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.ITE}}}</th>
                                         				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.ECE}}}</th>
                                         				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.ECEA}}}</th>
                                         				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.RA}}}</th>
-                                        				<th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.FTERatio}}}</th>
                                                         <th scope="col" style="background-color:white;padding-left:20px;padding-right:20px;">{{{AdjustedFTEsData.header.TotalFTEs}}}</th>
                                         			</tr>
                                         		</thead>
@@ -316,11 +316,11 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                                         			<tr style="text-align: center; vertical-align: middle;">
                                         				<th scope="row">Total</th>
                                         	            <td>{{{AdjustedFTEsData.footer.Spaces}}}</td>
+                                                        <td>{{{AdjustedFTEsData.footer.FTERatio}}}</td>
                                         				<td>{{{AdjustedFTEsData.footer.ITE}}}</td>
                                         				<td>{{{AdjustedFTEsData.footer.ECE}}}</td>
                                         				<td>{{{AdjustedFTEsData.footer.ECEA}}}</td>
                                         				<td>{{{AdjustedFTEsData.footer.RA}}}</td>
-                                                        <td>{{{AdjustedFTEsData.footer.FTERatio}}}</td>
                                         			</tr>
                                         		</tfoot>
                                         		</table>
@@ -411,7 +411,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
                                     <tr style="text-align:center;vertical-align:middle;"><td>{{LicenceTypeName}}</td><td>{{Spaces}}</td><td>{{RawITE}}</td><td>{{RawECE}}</td><td>{{RawECEA}}</td><td>{{RawRA}}</td></tr>
                                     """;
     private string AdjustedFTEsPartialSource => """
-                                    <tr style="text-align:center;vertical-align:middle;"><td>{{LicenceTypeName}}</td><td>{{Spaces}}</td><td>{{ITE}}</td><td>{{ECE}}</td><td>{{ECEA}}</td><td>{{RA}}</td><td>{{FTERatio}}</td><td>{{Total}}</td></tr>
+                                    <tr style="text-align:center;vertical-align:middle;"><td>{{LicenceTypeName}}</td><td>{{Spaces}}</td><td>{{FTERatio}}</td><td>{{ITE}}</td><td>{{ECE}}</td><td>{{ECEA}}</td><td>{{RA}}</td><td>{{Total}}</td></tr>
                                     """;
     private string NonHRRatesPartialSource => """
                                     <tr style="text-align:center;vertical-align:middle;"><td>{{Step}}</td><td>{{MinSpaces}}</td><td>{{MaxSpaces}}</td><td>{{Ownership}}</td><td>{{Programming}}</td><td>{{Administrative}}</td><td>{{Operational}}</td><td>{{Facility}}</td><td>{{Total}}</td></tr>
@@ -458,7 +458,9 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
 
         string? adjustedRatio = $"""<br/><div style="text-align:center;font-size: 18px; font-weight: bold;">Adjusted Child Care Staff Ratios</div>""";
 
-        TrackingDetails = string.Concat(facilityName, cclrRequirements, rawFTEsResult, adjustedRatio, adjustedFTEsResult, hrSummaryResult);
+        string? hrSummary = $"""<br/><div style="text-align:center;font-size: 18px; font-weight: bold;">HR Summary</div>""";
+
+        TrackingDetails = string.Concat(facilityName, cclrRequirements, rawFTEsResult, adjustedRatio, adjustedFTEsResult, hrSummary, hrSummaryResult);
 
         NonHRTrackingDetails = string.Concat(nonHRRatesResult, nonHRAmountsResult);
 
