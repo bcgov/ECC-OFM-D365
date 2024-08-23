@@ -1,7 +1,9 @@
 ﻿using ECC.Core.DataContext;
 using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Extensions;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
@@ -55,6 +57,14 @@ public class LicenceDetail : ofm_licence_detail
 
     private Guid LicenceTypeId => base.GetAttributeValue<Guid>(Fields.ofm_licence_detailid);
     public ecc_licence_type LicenceType => (ecc_licence_type)base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
+    public string LicenceTypeName => GetOptionSetMetadataDisplayName(LicenceType);
+    private string GetOptionSetMetadataDisplayName(ecc_licence_type value)
+    {
+        Type type = value.GetType();
+        FieldInfo fieldInfo = type.GetField(value.ToString());
+        var attribute=(OptionSetMetadataAttribute)fieldInfo.GetCustomAttribute(typeof(OptionSetMetadataAttribute));
+        return attribute?.Name;
+    }
     private int LicenceTypeNumber => base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
     public int Spaces => base.GetAttributeValue<int>(Fields.ofm_operational_spaces);
     private bool HasRoomSplit => base.GetAttributeValue<bool>(Fields.ofm_apply_room_split_condition);
