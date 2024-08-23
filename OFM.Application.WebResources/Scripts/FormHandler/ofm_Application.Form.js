@@ -1,8 +1,6 @@
 "use strict";
 
 //Create Namespace Object 
-var organizationid;
-var pageContext;
 var OFM = OFM || {};
 OFM.Application = OFM.Application || {};
 OFM.Application.Form = OFM.Application.Form || {};
@@ -12,7 +10,6 @@ OFM.Application.Form = {
     onLoad: function (executionContext) {
         //debugger;
         let formContext = executionContext.getFormContext();
-        pageContext = executionContext.getFormContext();
         switch (formContext.ui.getFormType()) {
             case 0: //undefined
                 break;
@@ -38,6 +35,7 @@ OFM.Application.Form = {
                 this.filterSubmittedByLookup(executionContext);
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
+                this.notForProfitSection(executionContext);
                 break;
 
             case 3: //readonly
@@ -46,6 +44,7 @@ OFM.Application.Form = {
                 this.hideVerificationTab(executionContext);
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
+                this.notForProfitSection(executionContext);
                 break;
 
             case 4: //disable
@@ -359,9 +358,29 @@ OFM.Application.Form = {
                         lookup[0].name = results["_parentaccountid_value@OData.Community.Display.V1.FormattedValue"];
                         lookup[0].entityType = results["_parentaccountid_value@Microsoft.Dynamics.CRM.lookuplogicalname"];
                         Xrm.Page.getAttribute("ofm_organization").setValue(lookup);
+                        Xrm.WebApi.retrieveRecord("account", results["_parentaccountid_value"], "?$select=ofm_business_type").then(
+
+                            function success(result) {
+                                console.log(result);
+                                if (result["ofm_business_type"] != null) {
+                                    var businessType = result["ofm_business_type"]; // Choice
+                                    if (businessType == 2)
+                                        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_7").setVisible(true);
+                                    else
+                                        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_7").setVisible(false);
+                                }
+                                else {
+                                    formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_7").setVisible(false);
+                                }
+                            },
+                            function (error) {
+                                console.log(error.message);
+                            }
+                        );
                     }
                     else {
                         Xrm.Page.getAttribute("ofm_organization").setValue(null);
+                        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_7").setVisible(false);
                     }
                 },
                 function (error) {
@@ -371,6 +390,7 @@ OFM.Application.Form = {
         }
         else {
             Xrm.Page.getAttribute("ofm_organization").setValue(null);
+            formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_7").setVisible(false);
         }
     },
 
@@ -536,5 +556,29 @@ OFM.Application.Form = {
                 }
             }
         }
+    },
+
+    notForProfitSection: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var organization = formContext.getAttribute("ofm_organization").getValue();
+        Xrm.WebApi.retrieveRecord("account", organization[0].id, "?$select=ofm_business_type").then(
+            function success(result) {
+                console.log(result);
+                if (result["ofm_business_type"] != null) {
+                    var businessType = result["ofm_business_type"]; // Choice
+                    if (businessType == 2)
+                        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_7").setVisible(true);
+                    else
+                        formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_7").setVisible(false);
+                }
+                else {
+                    formContext.ui.tabs.get("tab_6").sections.get("tab_6_section_7").setVisible(false);
+                }
+            },
+            function (error) {
+                console.log(error.message);
+            }
+        );
     }
 }
