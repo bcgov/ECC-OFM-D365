@@ -161,7 +161,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 var lastName = contactobj?.ofm_last_name;
 
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
-                string? subject = templateobj?.subjectsafehtml;
+                string? subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
                 string? emaildescription = templateobj?.safehtml;
                 string? emailBody = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
                 string regardingData = string.Empty;
