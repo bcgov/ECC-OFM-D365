@@ -650,7 +650,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
            .ToList();
         var templateData = await _emailRepository.GetTemplateDataAsync(_NotificationSettings.EmailTemplates.First(t => t.TemplateNumber == 400).TemplateNumber);
         var serializedtemplateData = JsonSerializer.Deserialize<List<D365Template>>(templateData.Data.ToString());
-        string? subject = serializedtemplateData?.Select(s => s.subjectsafehtml).FirstOrDefault();
+        string? subject = _emailRepository.StripHTML(serializedtemplateData?.Select(s => s.subjectsafehtml).FirstOrDefault());
         string? emaildescription = serializedtemplateData?.Select(sh => sh.safehtml).FirstOrDefault();
 
         List<Guid> recipientsList = new List<Guid>();

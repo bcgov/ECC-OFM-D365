@@ -4,6 +4,7 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -15,6 +16,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
     private readonly NotificationSettings _notificationSettings;
     private readonly ID365AppUserService _appUserService;
     private readonly ID365WebApiService _d365webapiservice;
+    private readonly IEmailRepository _emailRepository;
     private readonly ILogger _logger;
     private readonly TimeProvider _timeProvider;
     private ProcessData? _data;
@@ -22,11 +24,12 @@ public class P205SendNotificationProvider : ID365ProcessProvider
     private ProcessParameter? _processParams;
     private string _requestUri = string.Empty;
 
-    public P205SendNotificationProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
+    public P205SendNotificationProvider(IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, IEmailRepository emailRepository, TimeProvider timeProvider)
     {
         _notificationSettings = notificationSettings.Value;
         _appUserService = appUserService;
         _d365webapiservice = d365WebApiService;
+        _emailRepository = emailRepository;
         _logger = loggerFactory.CreateLogger(LogCategory.Process);
         _timeProvider = timeProvider;
     }
@@ -253,7 +256,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
             if (serializedDataTemplate.Count > 0)
             {
                 var templateobj = serializedDataTemplate.FirstOrDefault();
-                subject = templateobj.subjectsafehtml;
+                subject = _emailRepository.StripHTML(templateobj.subjectsafehtml);
                 emaildescription = templateobj.safehtml;
             }
         }
