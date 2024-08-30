@@ -452,7 +452,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             { "ofm_amount", monthlyExpenseAmount},
                             { "ofm_payment_type", (int) ecc_payment_type.IrregularExpense },
                             { "ofm_application@odata.bind",$"/ofm_applications({baseApplication!.Id})" },
-                            { "ofm_funding@odata.bind", $"/ofm_fundings({baseApplication.ofm_application_funding?.First().Id})" },
+                            { "ofm_funding@odata.bind", $"/ofm_fundings({baseApplication.ofm_application_funding?.First().Id})" },//first funding to get end date for FA year.
                             { "ofm_invoice_date", invoiceDate.ToString("yyyy-MM-dd") },
                             { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
                             { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
