@@ -72,6 +72,81 @@ public record BCRegistrySearchResult
     }
 }
 
+
+public class BCRegistryBusinessResult
+{
+    public Business business { get; set; }
+}
+
+public class Business
+{
+    public bool adminFreeze { get; set; }
+    public Allowedactions allowedActions { get; set; }
+    public Alternatename[] alternateNames { get; set; }
+    public string arMaxDate { get; set; }
+    public string arMinDate { get; set; }
+    public object associationType { get; set; }
+    public object[] complianceWarnings { get; set; }
+    public string fiscalYearEndDate { get; set; }
+    public DateTime foundingDate { get; set; }
+    public bool goodStanding { get; set; }
+    public bool hasCorrections { get; set; }
+    public bool hasCourtOrders { get; set; }
+    public bool hasRestrictions { get; set; }
+    public string identifier { get; set; }
+    public bool inDissolution { get; set; }
+    public string lastAddressChangeDate { get; set; }
+    public string lastAnnualGeneralMeetingDate { get; set; }
+    public string lastAnnualReportDate { get; set; }
+    public string lastDirectorChangeDate { get; set; }
+    public DateTime lastLedgerTimestamp { get; set; }
+    public DateTime lastModified { get; set; }
+    public string legalName { get; set; }
+    public string legalType { get; set; }
+    public string naicsCode { get; set; }
+    public string naicsDescription { get; set; }
+    public string naicsKey { get; set; }
+    public DateTime nextAnnualReport { get; set; }
+    public bool noDissolution { get; set; }
+    public string startDate { get; set; }
+    public string state { get; set; }
+    public string submitter { get; set; }
+    public string taxId { get; set; }
+    public object[] warnings { get; set; }
+}
+
+public class Allowedactions
+{
+    public bool digitalBusinessCard { get; set; }
+    public Filing filing { get; set; }
+    public bool viewAll { get; set; }
+}
+
+public class Filing
+{
+    public string filingSubmissionLink { get; set; }
+    public Filingtype[] filingTypes { get; set; }
+}
+
+public class Filingtype
+{
+    public string displayName { get; set; }
+    public string feeCode { get; set; }
+    public string name { get; set; }
+    public string type { get; set; }
+}
+
+public class Alternatename
+{
+    public string entityType { get; set; }
+    public string identifier { get; set; }
+    public string name { get; set; }
+    public DateTime registeredDate { get; set; }
+    public string startDate { get; set; }
+    public string type { get; set; }
+}
+
+
 public record InvoiceHeader
 {
     public required string feederNumber { get; set; }
