@@ -435,6 +435,12 @@ public class ProviderStaff
 
     [JsonPropertyName("facility.ofm_primarycontact@OData.Community.Display.V1.FormattedValue")]
     public string FacilityContact_Name { get; set; }
+
+    [JsonPropertyName("application.ofm_facility@OData.Community.Display.V1.FormattedValue")]
+    public string Facility_Name { get; set; }
+
+    [property: JsonPropertyName("report.ofm_facility@OData.Community.Display.V1.FormattedValue")]
+    public string Facility_Name_Report { get { return Facility_Name; } set { Facility_Name = value; } }
 }
 
 #region External Parameters
