@@ -27,6 +27,7 @@ public record D365Facility
     public int? ofm_program { get; set; }
     public DateTime? ofm_program_start_date { get; set; }
     public int? ofm_ccof_requirement { get; set; }
+    public int? ofm_unionized { get; set; }
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
 
@@ -107,7 +108,8 @@ public class ProviderProfile
                         statuscode = facility.statuscode,
                         ofm_program = facility.ofm_program,
                         ofm_program_start_date = facility.ofm_program_start_date,
-                        ofm_ccof_requirement = facility.ofm_ccof_requirement
+                        ofm_ccof_requirement = facility.ofm_ccof_requirement,
+                        ofm_unionized = facility.ofm_unionized
                     },
                     ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
                     ofm_is_expense_authority = firstContact.ofm_facility_business_bceid[i].ofm_is_expense_authority,
@@ -181,6 +183,7 @@ public record ofm_Facility
     public int? ofm_program { get; set; }
     public DateTime? ofm_program_start_date { get; set; }
     public int? ofm_ccof_requirement { get; set; }
+    public int? ofm_unionized { get; set; }
 }
 
 public class Supplementary : ofm_allowance
