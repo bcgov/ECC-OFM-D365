@@ -85,6 +85,7 @@ public static class ProviderProfilesHandlers
                             <attribute name="name" />
                             <attribute name="ofm_ccof_requirement" />
                             <attribute name="ofm_program_start_date" />
+                            <attribute name="ofm_unionized" />
                             <filter>
                               <condition attribute="statuscode" operator="eq" value="1" />
                             </filter>
@@ -110,7 +111,7 @@ public static class ProviderProfilesHandlers
                     """;
      
             var requestUri = $"""
-                         contacts?$select=ofm_first_name,ofm_last_name,ccof_userid,ccof_username,contactid,emailaddress1,_ofm_portal_role_id_value,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_is_expense_authority,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,ofm_program,statecode,statuscode,name,ofm_ccof_requirement,ofm_program_start_date);$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode,ofm_program;$filter=(statuscode eq 1)),ofm_portal_role_id($select=ofm_portal_role_number)&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1) and (ofm_portal_role_id/ofm_portal_roleid ne null)
+                         contacts?$select=ofm_first_name,ofm_last_name,ccof_userid,ccof_username,contactid,emailaddress1,_ofm_portal_role_id_value,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_is_expense_authority,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,ofm_program,statecode,statuscode,name,ofm_ccof_requirement,ofm_program_start_date,ofm_unionized);$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode,ofm_program;$filter=(statuscode eq 1)),ofm_portal_role_id($select=ofm_portal_role_number)&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1) and (ofm_portal_role_id/ofm_portal_roleid ne null)
                          """;
 
             logger.LogDebug(CustomLogEvent.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
