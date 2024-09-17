@@ -236,6 +236,9 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
                         <attribute name="statuscode" />
                         <attribute name="statecode" />
                         <order attribute="ofm_version" descending="true" />
+                         <filter>
+                      <condition attribute="statecode" operator="eq" value="0" />
+                    </filter>
                       </entity>
                     </fetch>
                     """;
@@ -807,10 +810,10 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
            
             deserializedDataBR?.ForEach(br =>
             {
-                var parentQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.brSourceQuestion && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                var trueQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.TrueSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                var falseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.FalseSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
-                var hasResponseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.childSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active)?.ofm_questionid;
+                var parentQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.brSourceQuestion && q.surveyStatecode == (int)ofm_survey_statecode.Active && q.surveyVersion == latestVersion.ToString())?.ofm_questionid;
+                var trueQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.TrueSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active && q.surveyVersion == latestVersion.ToString())?.ofm_questionid;
+                var falseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.FalseSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active && q.surveyVersion == latestVersion.ToString())?.ofm_questionid;
+                var hasResponseQuestionId = deserializedQuestiondata.FirstOrDefault(q => q.ofm_source_question_id == br.childSourcequestionIdentifier && q.surveyStatecode == (int)ofm_survey_statecode.Active && q.surveyVersion == latestVersion.ToString())?.ofm_questionid;
                 requestsQuestionBRCreation.Add(new CreateRequest($"{entitySetNameQuestionBR}",
       new JsonObject()
       {
