@@ -29,7 +29,7 @@ OFM.Application.Form = {
                 this.filterExpenseAuthorityLookup(executionContext);
                 this.licenceCheck(executionContext);
                 this.showBanner(executionContext);
-                this.lockStatusReason(executionContext);
+                //this.lockStatusReason(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
                 this.hideVerificationTab(executionContext);
                 this.filterSubmittedByLookup(executionContext);
@@ -497,7 +497,7 @@ OFM.Application.Form = {
     lockStatusReason: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
-        if (formContext.getAttribute("statuscode").getValue() != 1) {
+        if (formContext.getAttribute("statuscode").getValue() == 6) {   //Approved
             var roles = Xrm.Utility.getGlobalContext().userSettings.roles.getAll();
             var disable = true;
             for (var i = 0; i < roles.length; i++) {
