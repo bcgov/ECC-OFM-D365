@@ -23,7 +23,7 @@ OFM.Supplementary.Form = {
 
             case 2: // update  
                 this.setAllowanceDetailVisibility(executionContext);
-                this.lockStatusReason(executionContext);
+                //this.lockStatusReason(executionContext);
                 this.validateStartDateEndDate(executionContext);
                 formContext.getAttribute("ofm_start_date").addOnChange(this.validateStartDateEndDate);
                 formContext.getAttribute("ofm_end_date").addOnChange(this.validateStartDateEndDate);
@@ -244,7 +244,7 @@ OFM.Supplementary.Form = {
     lockStatusReason: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
-        if (formContext.getAttribute("statuscode").getValue() != 1) {
+        if (formContext.getAttribute("statuscode").getValue() != 6) {  //Approved
             var roles = Xrm.Utility.getGlobalContext().userSettings.roles.getAll();
             var disable = true;
             for (var i = 0; i < roles.length; i++) {
