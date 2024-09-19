@@ -26,7 +26,7 @@ public record D365Facility
     public int statuscode { get; set; }
     public int? ofm_program { get; set; }
     public DateTime? ofm_program_start_date { get; set; }
-    public int? ofm_ccof_requirement { get; set; }
+    public bool? ofm_ccof_requirement { get; set; }
     public int? ofm_unionized { get; set; }
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
@@ -182,7 +182,7 @@ public record ofm_Facility
     public string? name { get; set; }
     public int? ofm_program { get; set; }
     public DateTime? ofm_program_start_date { get; set; }
-    public int? ofm_ccof_requirement { get; set; }
+    public bool? ofm_ccof_requirement { get; set; }
     public int? ofm_unionized { get; set; }
 }
 
