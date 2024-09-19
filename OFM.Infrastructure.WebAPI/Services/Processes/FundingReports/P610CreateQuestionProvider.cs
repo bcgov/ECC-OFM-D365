@@ -190,7 +190,7 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
                         <attribute name='ofm_fixed_response' />
                         <attribute name='ofm_source_question_id' />
                         <attribute name='ofm_fixed_data' />
-
+                        <attribute name='ofm_additional_info' />
                         <filter>
                           <condition attribute='ofm_source_question_id' operator='in'>";
             for (var i = 0; i < _questionIdentifier.Length; i++)
@@ -705,7 +705,9 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
     {
          if (question.QuestionSubtitle != null && question.QuestionSubtitle.ToLower().Contains("table"))
             return (int)ofm_ReportingQuestionType.Table;
-       else if ((bool)question.QuestionMultiline)
+        else if (question.QuestionSubtitle != null && question.QuestionSubtitle.ToLower().Contains("instruction"))
+            return (int)ofm_ReportingQuestionType.Instructions;
+        else if ((bool)question.QuestionMultiline)
             return (int)ofm_ReportingQuestionType.TextArea;
         else if (question.QuestionChoiceType == (int)msfp_question_msfp_choicetype.Multichoice)
             return (int)ofm_ReportingQuestionType.MultipleChoice;
@@ -749,7 +751,8 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
                                             //{ofm_question.Fields.ofm_occurence,(int)((getLatestPublishedVersion.ofm_occurence == null) ? ofm_question_ofm_occurence.Monthly:getLatestPublishedVersion.ofm_occurence) },
                                             {ofm_question.Fields.ofm_fixed_response, getLatestActiveVersion.ofm_fixed_response },
                                             {ofm_question.Fields.ofm_question_id, getLatestActiveVersion.ofm_question_id ?? null},
-                                            {ofm_question.Fields.ofm_fixed_data, getLatestActiveVersion.ofm_fixed_data ?? null}
+                                            {ofm_question.Fields.ofm_fixed_data, getLatestActiveVersion.ofm_fixed_data ?? null},
+                                            {ofm_question.Fields.ofm_additional_info, getLatestActiveVersion.ofm_additional_info ?? null}
                                            }));
                     }
 
