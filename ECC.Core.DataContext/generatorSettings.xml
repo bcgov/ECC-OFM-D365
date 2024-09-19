@@ -16,6 +16,7 @@
     <AddNewFilesToProject>true</AddNewFilesToProject>
     <AddOptionSetMetadataAttribute>true</AddOptionSetMetadataAttribute>
     <AdjustCasingForEnumOptions>false</AdjustCasingForEnumOptions>
+    <AttributeBlacklist />
     <BuilderSettingsJsonRelativePath>builderSettings.json</BuilderSettingsJsonRelativePath>
     <CamelCaseClassNames>false</CamelCaseClassNames>
     <CamelCaseCustomWords />
@@ -1638,6 +1639,7 @@ ofm_licence_detail:ofm_Licence_Detail</EntityAttributeSpecifiedNames>
     <MakeReadonlyFieldsEditable>false</MakeReadonlyFieldsEditable>
     <MakeResponseActionsEditable>true</MakeResponseActionsEditable>
     <LocalOptionSetFormat>{0}_{1}</LocalOptionSetFormat>
+    <MakeReferenceTypesNullable>false</MakeReferenceTypesNullable>
     <ModelBuilderLogLevel>2</ModelBuilderLogLevel>
     <OptionSetLanguageCodeOverride
       xsi:nil="true" />
@@ -1706,5 +1708,5 @@ VoiceMail</TokenCapitalizationOverrides>
   <SuppressGeneratedCodeAttribute>true</SuppressGeneratedCodeAttribute>
   <SettingsVersion>2.2024.2.1</SettingsVersion>
   <UpdateBuilderSettingsJson>true</UpdateBuilderSettingsJson>
-  <Version>2.2024.2.1</Version>
+  <Version>2.2024.5.16</Version>
 </Config>
