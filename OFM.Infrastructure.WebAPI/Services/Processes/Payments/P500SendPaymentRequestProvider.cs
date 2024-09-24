@@ -370,7 +370,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                 SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
-                description = Regex.Replace(headeritem.First()?.ofm_facility?.name, @"[^\w $\-]", "").PadRight(header.FieldLength("description")).Substring(0,60),// can be used to pass extra info
+                description = Regex.Replace(headeritem.First()?.ofm_facility?.name, @"[^\w $\-]", "").PadRight(header.FieldLength("description")).Substring(0, header.FieldLength("description")),// can be used to pass extra info
                 flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
                 invoiceLines = invoiceLines
             });; 
