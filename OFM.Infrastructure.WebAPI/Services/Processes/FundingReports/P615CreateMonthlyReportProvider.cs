@@ -198,7 +198,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         var monthEndDateInUTC = monthEndDateInPST.ToUTC();
 
         //Set the fiscal year and duedate
-        //fetch the current fiscal year
+        //fetch the current fiscal year -> fiscal year startDate and endDate are not DateOnly
         var fiscalYearFetchXML = $"""
             <fetch distinct="true">
               <entity name="ofm_fiscal_year">
@@ -223,12 +223,12 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
         var fiscalYear = fiscalYearData.Data.AsArray().FirstOrDefault()?["ofm_fiscal_yearid"];
 
-        //fetch the template
+        //fetch the template -> template startDate and endDate are DateOnly -> PST Date
         var reportTemplateFetchXML = $"""
             <fetch distinct="true">
               <entity name="ofm_survey">
                 <filter>
-                  <condition attribute="ofm_start_date" operator="le" value="{monthEndDateInUTC}" />
+                  <condition attribute="ofm_start_date" operator="on-or-before" value="{monthEndDateInPST}" />
                   <condition attribute="statecode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_survey_statecode.Active}" />
                   <condition attribute="statuscode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_survey_StatusCode.Active}" />
                 </filter>
@@ -240,7 +240,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                             """.CleanCRLF();
         var reportTemplateData = await GetReportDataAsync(requestReportTemplateUri);
         var serializedReportTemplateDate = System.Text.Json.JsonSerializer.Deserialize<List<ECC.Core.DataContext.ofm_survey>>(reportTemplateData.Data, Setup.s_writeOptionsForLogs);
-        var reportTemplate = serializedReportTemplateDate.Where(t => t.ofm_end_date == null || t.ofm_end_date >= monthEndDateInUTC).FirstOrDefault();
+        var reportTemplate = serializedReportTemplateDate.Where(t => t.ofm_end_date == null || t.ofm_end_date?.Date >= monthEndDateInPST.Date).FirstOrDefault();
         if(reportTemplate  == null)
         {
             _logger.LogInformation(CustomLogEvent.Process, "Cannot find report template.");
