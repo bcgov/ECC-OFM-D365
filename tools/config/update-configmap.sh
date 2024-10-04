@@ -11,6 +11,7 @@ readonly D365_RECIPIENTS=$8
 readonly D365_BC_REGISTRY_API=$9
 readonly D365_BCCAS_API_URL=${10}
 readonly D365_CGI_BATCH_NUMBER=${11}
+readonly D365_INVOICE_LINES_DISTRIBUTION_ACK=${12}
 
 SERVER_FRONTEND="https://ofm-frontend-$ENV_VAL-$OPENSHIFT_NAMESPACE.apps.silver.devops.gov.bc.ca"
 if [ "$ENV_VAL" = "prod" ]; then
@@ -296,7 +297,7 @@ D365_CONFIGURATION=$(jq << JSON
       "InvoiceLines": {
         "linetransactionType": "IL",
         "lineCode": "D",
-        "distributionACK": "0622265006500650822007400000000000",
+        "distributionACK": "$D365_INVOICE_LINES_DISTRIBUTION_ACK",
         "unitPrice": "000000000000.00",
         "quantity": "0000000.00",
         "committmentLine": "0000"
