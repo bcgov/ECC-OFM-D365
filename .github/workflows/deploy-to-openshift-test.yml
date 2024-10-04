@@ -163,7 +163,8 @@ jobs:
                 /tmp/recipients \
                 /tmp/bc_registry_api \
                 ${{ secrets.D365_BCCAS_API_URL }} \
-                ${{ secrets.D365_CGI_BATCH_NUMBER }}
+                ${{ secrets.D365_CGI_BATCH_NUMBER }} \
+                ${{ secrets.D365_INVOICE_LINES_DISTRIBUTION_ACK }}
 
           # Start rollout (if necessary) and follow it
           oc rollout latest dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
