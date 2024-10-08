@@ -26,7 +26,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Error",
-    "OFM.Portal.ProviderProfile": "Error",
+    "OFM.Portal.ProviderProfile": "Warning",
     "OFM.D365.Process": "Error",
     "OFM.D365.Batch": "Error",
     "Microsoft.AspNetCore": "Error"
@@ -56,7 +56,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Warning",
-    "OFM.Portal.ProviderProfile": "Error",
+    "OFM.Portal.ProviderProfile": "Warning",
     "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Warning",
     "Microsoft.AspNetCore": "Warning"
@@ -86,7 +86,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Error",
-    "OFM.Portal.ProviderProfile": "Error",
+    "OFM.Portal.ProviderProfile": "Warning",
     "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Error",
     "Microsoft.AspNetCore": "Error"
