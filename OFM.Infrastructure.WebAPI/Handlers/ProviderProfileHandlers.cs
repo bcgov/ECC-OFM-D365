@@ -156,13 +156,13 @@ public static class ProviderProfilesHandlers
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    logger.LogWarning(CustomLogEvent.ProviderProfile, "User not found.");
+                    logger.LogWarning(CustomLogEvent.ProviderProfile, "User not found. [userName: {userName} | userId: {userId}]", userName, string.IsNullOrEmpty(userId) ? "NA" : userId);
 
                     return TypedResults.NotFound($"User not found.");
                 }
                 if (currentValue?.AsArray().Count > 1)
                 {
-                    logger.LogWarning(CustomLogEvent.ProviderProfile, "Multiple profiles found.");
+                    logger.LogWarning(CustomLogEvent.ProviderProfile, "Multiple profiles found. [userName: {userName} | userId: {userId}]", userName, string.IsNullOrEmpty(userId) ? "NA" : userId);
 
                     return TypedResults.Unauthorized();
                 }
@@ -175,7 +175,7 @@ public static class ProviderProfilesHandlers
                 serializedProfile!.First().ofm_facility_business_bceid is null ||
                 serializedProfile!.First().ofm_facility_business_bceid!.Length == 0)
             {
-                logger.LogWarning(CustomLogEvent.ProviderProfile, "Organization or facility permissions not found.");
+                logger.LogWarning(CustomLogEvent.ProviderProfile, "Organization or facility permissions not found.[userName: {userName} | userId: {userId}]", userName, string.IsNullOrEmpty(userId) ? "NA" : userId);
                 return TypedResults.Unauthorized();
             }
 
