@@ -121,7 +121,7 @@ public static class ProviderProfilesHandlers
 
             logger.LogDebug(CustomLogEvent.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
 
-            var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
+            var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, pageSize:200, requestUrl: requestUri);
 
             var endTime = timeProvider.GetTimestamp();
 
