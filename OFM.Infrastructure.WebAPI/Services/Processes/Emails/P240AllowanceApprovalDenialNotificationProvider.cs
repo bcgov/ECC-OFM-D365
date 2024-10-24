@@ -64,6 +64,7 @@ public class P240AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
                     <attribute name="ofm_retroactive_date" />
                     <attribute name="ofm_retroactive_amount" />
                     <attribute name="ofm_funding_amount" />
+                    <attribute name="ofm_funding_number" />
                         <filter>
                           <condition attribute="ofm_allowanceid" operator="eq" value="{_allowanceId}" />
                         </filter>

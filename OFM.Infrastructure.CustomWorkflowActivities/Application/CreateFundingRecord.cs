@@ -98,11 +98,12 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
 
                         //generate the application funding number Base
                         tracingService.Trace("***Update Funding Number Base" + ofmFundingNumberBase);
-                        Entity newudpate = new Entity();
-                        newudpate.LogicalName = entity.LogicalName;
-                        newudpate["ofm_applicationid"] = entity["ofm_applicationid"];
-                        newudpate["ofm_funding_number_base"] = ofmFundingNumberBase;
-                        service.Update(newudpate);
+                        Entity newupdate = new Entity();
+                        newupdate.LogicalName = entity.LogicalName;
+                        newupdate["ofm_applicationid"] = entity["ofm_applicationid"];
+                        newupdate["ofm_funding_number_base"] = ofmFundingNumberBase;
+                        newupdate["ofm_funding_version_number"] = 0;
+                        service.Update(newupdate);
 
                         //  Create first Funding record
                         Entity newFundingRecord = new Entity("ofm_funding");
@@ -120,37 +121,42 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                         tracingService.Trace("\nStart resubmit logic implement, logical name: {0}, id:{1}", entity.LogicalName, entity.Id);
                         var fetchData = new
                         {
-                            ofm_application = recordId.ToString(),
-                            statecode = "0"
+                            ofm_application = recordId.ToString()
                         };
                         fetchXml = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                         <fetch>
-                                          <entity name=""ofm_funding"">
-                                            <attribute name=""ofm_application"" />
-                                            <attribute name=""statecode"" />
-                                            <attribute name=""statuscode"" />
-                                            <attribute name=""ofm_version_number"" />
+                                          <entity name=""ofm_application"">
+                                            <attribute name=""ofm_funding_number_base"" />
+                                            <attribute name=""ofm_funding_version_number"" />
                                             <filter>
-                                              <condition attribute=""ofm_application"" operator=""eq"" value=""{fetchData.ofm_application}"" />
-                                              <condition attribute=""statecode"" operator=""eq"" value=""{fetchData.statecode}"" />
+                                              <condition attribute=""ofm_applicationid"" operator=""eq"" value=""{fetchData.ofm_application}"" />
                                             </filter>
-                                            <order attribute=""ofm_version_number"" descending=""true"" />
                                           </entity>
                                         </fetch>";
 
-                        EntityCollection fundingRecords = service.RetrieveMultiple(new FetchExpression(fetchXml));
-                        if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null)
+                        EntityCollection applicationRecord = service.RetrieveMultiple(new FetchExpression(fetchXml));
+                        tracingService.Trace("application count: " + applicationRecord.Entities.Count);
+                        if (applicationRecord.Entities.Count > 0 && applicationRecord[0] != null)
                         {
-                            var id = fundingRecords[0].Id;
-                            tracingService.Trace("\nResubmission, create new funding records:" + id);
+                            tracingService.Trace("\nModification, create new funding records, current version: " + applicationRecord[0].GetAttributeValue<int>("ofm_funding_version_number"));
                             Entity newFundingRecord = new Entity("ofm_funding");
-                            newFundingRecord["ofm_version_number"] = fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1;
-                            newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-" + (fundingRecords[0].GetAttributeValue<int>("ofm_version_number") + 1).ToString("00"); // Primary coloumn
+                            var newVersionNumber = applicationRecord[0].GetAttributeValue<int>("ofm_funding_version_number") + 1;
+                            newFundingRecord["ofm_version_number"] = newVersionNumber;
+                            newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-" + newVersionNumber.ToString("00"); // Primary coloumn
                             newFundingRecord["ofm_application"] = new EntityReference("ofm_application", recordId);
                             newFundingRecord["ofm_rate_schedule"] = (rateSchedualId == null || rateSchedualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchedualId);
                             //newFundingRecord["statuscode"] = new OptionSetValue((int) ofm_funding_StatusCode.FAReview);
                             service.Create(newFundingRecord);
-                            
+
+
+                            //Update application version number
+                            Entity newupdate = new Entity();
+                            newupdate.LogicalName = entity.LogicalName;
+                            newupdate["ofm_applicationid"] = entity["ofm_applicationid"];
+                            newupdate["ofm_funding_version_number"] = newVersionNumber;
+                            service.Update(newupdate);
+
+
                             tracingService.Trace("\nThis is a resubmisstion.Create Funding records successfully.");
                         }
                     }
