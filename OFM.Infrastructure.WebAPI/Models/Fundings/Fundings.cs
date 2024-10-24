@@ -147,6 +147,7 @@ public class SupplementaryApplication : ofm_allowance
     public new decimal? ofm_transport_odometer { get; set; }
     public new decimal? ofm_monthly_amount { get; set; }
     public new decimal? ofm_retroactive_amount { get; set; }
+    public string? ofm_funding_number { get; set; }
     public new SupplementarySchedule? ofm_supplementary_schedule { get; set; }
     public string? _ofm_application_value { get; set; }   
     [property: JsonPropertyName("con.ofm_first_name")]
