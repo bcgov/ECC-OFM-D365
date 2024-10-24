@@ -360,7 +360,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 PONumber = string.Empty.PadRight(header.FieldLength("PONumber")),// sending blank as not used by feeder
                 invoiceDate = headeritem.First().ofm_revised_invoice_date?.ToString("yyyyMMdd") ?? headeritem.First().ofm_invoice_date?.ToString("yyyyMMdd"), // set to current date
                 invoiceType = invoiceamount < 0 ? "CM" : "ST",// static to ST (standard invoice)
-                payGroupLookup = (pay_method == ecc_payment_method.IMMEFT)? "IMM EFT N" : string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
+                payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
                 remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
                 grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - (invoiceamount < 0 ? 1 : 0), '0'), // invoice amount come from OFM total base value.
                 CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
