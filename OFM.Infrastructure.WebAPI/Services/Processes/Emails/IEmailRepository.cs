@@ -308,7 +308,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
         //var allowanceStatusReason = allowance.statuscode;
         Guid applicationPrimaryContact = (Guid)allowance._ofm_contact_value != null ? (Guid)allowance._ofm_contact_value : Guid.Empty;
         Guid submittedBy = allowance._ofm_summary_submittedby_value != null ? (Guid)allowance._ofm_summary_submittedby_value : Guid.Empty;
-        var fundingNumber = allowance.ofm_funding_number_base;
+        var fundingNumber = allowance.ofm_funding_number;
         var effectiveDate = allowance.ofm_start_date;
         var retroActiveDate = allowance.ofm_retroactive_date;
         var VIN = allowance.ofm_transport_vehicle_vin;
