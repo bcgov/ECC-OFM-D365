@@ -6205,38 +6205,6 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_on_k12_school_grounds_or_board_affiliated")]
-		public virtual ecc_ynempty? ofm_on_k12_school_grounds_or_board_affiliated
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return ((ecc_ynempty?)(EntityOptionSetEnum.GetEnum(this, "ofm_on_k12_school_grounds_or_board_affiliated")));
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_on_k12_school_grounds_or_board_affiliated", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_on_k12_school_grounds_or_board_affiliatedname")]
-		public string ofm_on_k12_school_grounds_or_board_affiliatedname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("ofm_on_k12_school_grounds_or_board_affiliated"))
-				{
-					return this.FormattedValues["ofm_on_k12_school_grounds_or_board_affiliated"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_on_reserve")]
 		public virtual ecc_ynempty? ofm_on_reserve
 		{
@@ -24977,21 +24945,6 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_accb_participation")]
-		public virtual ecc_ynempty? ofm_accb_participation
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return ((ecc_ynempty?)(EntityOptionSetEnum.GetEnum(this, "ofm_accb_participation")));
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_accb_participation", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
-			}
-		}
-		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_accb_participationname")]
 		public string ofm_accb_participationname
 		{
@@ -26408,53 +26361,6 @@ namespace ECC.Core.DataContext
 				{
 					return default(string);
 				}
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provide_actual_expenses")]
-		public virtual ecc_ynempty? ofm_provide_actual_expenses
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return ((ecc_ynempty?)(EntityOptionSetEnum.GetEnum(this, "ofm_provide_actual_expenses")));
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_provide_actual_expenses", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provide_actual_expensesname")]
-		public string ofm_provide_actual_expensesname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("ofm_provide_actual_expenses"))
-				{
-					return this.FormattedValues["ofm_provide_actual_expenses"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provide_previous_fy_financial_statements")]
-		public virtual ecc_ynempty? ofm_provide_previous_fy_financial_statements
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return ((ecc_ynempty?)(EntityOptionSetEnum.GetEnum(this, "ofm_provide_previous_fy_financial_statements")));
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_provide_previous_fy_financial_statements", value.HasValue ? new Microsoft.Xrm.Sdk.OptionSetValue((int)value) : null);
 			}
 		}
 		
