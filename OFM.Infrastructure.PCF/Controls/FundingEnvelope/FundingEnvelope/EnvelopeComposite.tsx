@@ -154,9 +154,9 @@ export const EnvelopeCompositeControl = React.memo(
                         <Label>{pcfContext.formatting.formatCurrency(((HRTotal_Colum04 + NonHRTotal_Colum04)/12))}</Label> 
                     </td>
                 </tr>
-                <tr style={{textAlign: "left", verticalAlign: "top"}}>
-                    <td>
-                        <Label style={{textAlign: "left", fontWeight: "bolder", fontSize:15}}>Year 2 & 3</Label>
+                <tr style={{verticalAlign: "top", fontWeight: "bold"}}>
+                    <td style={{textAlign: "left", minWidth:"280px", fontSize:15}}>
+                        <Label style={{textAlign: "left", fontWeight: "bold"}}>Post Year 1</Label>
                     </td>
                     <td>
                         <Label>{pcfContext.formatting.formatCurrency((((HRTotal_Colum04 + NonHRTotal_Colum04) - (HRTotal_Colum03 + NonHRTotal_Colum03))/12))}</Label>
