@@ -15642,38 +15642,6 @@ namespace ECC.Core.DataContext
 		Inactive = 2,
 	}
 	
-	/// <summary>
-	/// Status of the OFM System Message
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_system_message_statecode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 0,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 1,
-	}
-	
-	/// <summary>
-	/// Reason for the status of the OFM System Message
-	/// </summary>
-	[System.Runtime.Serialization.DataContractAttribute()]
-	public enum ofm_system_message_StatusCode
-	{
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Active", 0)]
-		Active = 1,
-		
-		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Inactive", 1)]
-		Inactive = 2,
-	}
-	
 	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_verification_checklist_status
 	{
