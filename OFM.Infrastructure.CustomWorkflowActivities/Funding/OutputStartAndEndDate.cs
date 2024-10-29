@@ -33,7 +33,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
             //Create an Organization Service
             IOrganizationServiceFactory serviceFactory = executionContext.GetExtension<IOrganizationServiceFactory>();
             IOrganizationService service = serviceFactory.CreateOrganizationService(context.InitiatingUserId);
-            tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: OutputStartAndEndDate", DateTime.Now.ToLongTimeString());
+            tracingService.Trace("{0} {1}", "Start Custom Workflow Activity: OutputStartAndEndDate", DateTime.Now.ToLongTimeString());
             var application = this.application.Get(executionContext);
             try
             {
@@ -120,9 +120,23 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                         calculatedStartDate = localTime.AddMonths(2);
                         calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
                     }
-                    var tempDate = calculatedStartDate.AddYears(3).AddDays(-1);
+                    var tempDate = new DateTime();
+                    var cutOffDate = new DateTime(2024, 10, 01); //FA Start Date after Oct 1, 2024 should have 2 year term instead of 3)
+                    tracingService.Trace("Funding Start Date: {0}", calculatedStartDate);
+                    tracingService.Trace("Funding CutOff Date: {0}. Funding start date after October 1, 2024, will have 2 years instead of 3 years funding terms", cutOffDate);
+
+                    if (calculatedStartDate > cutOffDate)
+                    {
+                        tempDate = calculatedStartDate.AddYears(2).AddDays(-1);
+                    }
+                    else
+                    {
+                        tempDate = calculatedStartDate.AddYears(3).AddDays(-1);
+                    }
+
                     var calculatedEndDate = new DateTime(tempDate.Year, tempDate.Month, tempDate.Day, 23, 59, 0);
-                   
+                    tracingService.Trace("Funding End Date: {0}", calculatedEndDate);
+
                     startDate.Set(executionContext, calculatedStartDate);
                     endDate.Set(executionContext, calculatedEndDate);
                     roomSplit.Set(executionContext, licenceDetails.Entities.Count > 0);
