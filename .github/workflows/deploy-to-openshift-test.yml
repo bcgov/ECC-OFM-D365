@@ -114,9 +114,6 @@ jobs:
           oc rollout cancel dc/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }} 2> /dev/null \
             || true && echo "No rollout in progress"
 
-          # Create tag for TEST env from DEV env image
-          # oc tag ${{ env.NAMESPACE }}-dev/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.BRANCH }}:${{ inputs.tag }} ${{ env.NAMESPACE }}-test/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.BRANCH }}:${{ inputs.tag }}
-
           # Process and apply deployment template
           oc process \
             -f tools/openshift/d365api.dc.yaml \
