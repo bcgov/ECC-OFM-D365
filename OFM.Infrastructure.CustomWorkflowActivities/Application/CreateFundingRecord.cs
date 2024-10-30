@@ -27,10 +27,10 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
             tracingService.Trace("Begin creating funding record, recordId: {0}, ofmFundingNumberBase:{1} ", recordId, ofmFundingNumberBase);
             try
             {
-                Entity entity = service.Retrieve("ofm_application", recordId, new ColumnSet("ofm_funding_number_base", "statuscode"));
+                Entity entity = service.Retrieve("ofm_application", recordId, new ColumnSet("ofm_funding_number_base", "statuscode", "ofm_facility"));
                 OptionSetValue statusReason = entity.GetAttributeValue<OptionSetValue>("statuscode");
                 int statusReasonValue = statusReason.Value;
-                tracingService.Trace("Checking condtions StatusReason value:{0}, ofmFundingNumberBase:{1} ", statusReasonValue, ofmFundingNumberBase);
+                tracingService.Trace("Checking condtions StatusReason value:{0}, ofmFundingNumberBase:{1}, facility:{2} ", statusReasonValue, ofmFundingNumberBase, ((EntityReference)entity["ofm_facility"]).Id);
                 if (entity != null && entity.Attributes.Count > 0)
                 {
                     DateTime currentDate = DateTime.UtcNow;
@@ -111,7 +111,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                         newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-00"; // Primary coloumn
                         newFundingRecord["ofm_application"] = new EntityReference("ofm_application", recordId);
                         newFundingRecord["ofm_rate_schedule"] = (rateSchedualId == null || rateSchedualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchedualId);
-
+                        newFundingRecord["ofm_facility"] = new EntityReference(((EntityReference)entity["ofm_facility"]).LogicalName, ((EntityReference)entity["ofm_facility"]).Id);
                         service.Create(newFundingRecord);
 
                         tracingService.Trace("\nUpdate Agreement Number Base and create first Funding record successfully.");
@@ -145,7 +145,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                             newFundingRecord["ofm_funding_number"] = ofmFundingNumberBase + "-" + newVersionNumber.ToString("00"); // Primary coloumn
                             newFundingRecord["ofm_application"] = new EntityReference("ofm_application", recordId);
                             newFundingRecord["ofm_rate_schedule"] = (rateSchedualId == null || rateSchedualId == Guid.Empty) ? null : new EntityReference("ofm_rate_schedule", rateSchedualId);
-                            //newFundingRecord["statuscode"] = new OptionSetValue((int) ofm_funding_StatusCode.FAReview);
+                            newFundingRecord["ofm_facility"] = new EntityReference(((EntityReference)entity["ofm_facility"]).LogicalName, ((EntityReference)entity["ofm_facility"]).Id);
                             service.Create(newFundingRecord);
 
 
