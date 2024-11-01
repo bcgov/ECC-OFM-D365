@@ -393,7 +393,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
 
 
-            DateTime invoiceDate = paymentDate.ToLocalPST().Date.GetPreviousBusinessDay(holidaysList);
+            DateTime invoiceDate = paymentDate.GetPreviousBusinessDay(holidaysList);
             DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
             DateTime effectiveDate = invoiceDate;
             Guid fiscalYear = invoiceDate.MatchFiscalYear(fiscalYears);
