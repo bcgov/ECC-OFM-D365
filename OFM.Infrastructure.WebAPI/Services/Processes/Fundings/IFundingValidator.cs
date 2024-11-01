@@ -160,10 +160,8 @@ public class MustHaveValidLicenceRule : IFundingValidator<Funding>
         }
 
         var licenceCount = funding.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
-                                                                                             licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= DateTime.UtcNow.ToLocalPST().Date &&
-                                                                                             (licence.ofm_end_date is null ||
-                                                                                             licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= DateTime.UtcNow.ToLocalPST().Date))?.
-                                                                                             Count();
+        licence.ofm_start_date <= ((funding.ofm_application!.ofm_summary_submittedon)?.ToLocalPST().Date ?? (funding.ofm_application!.createdon)?.ToLocalPST().Date ?? new DateTime()) &&
+        (licence.ofm_end_date is null || licence.ofm_end_date >= ((funding.ofm_application!.ofm_summary_submittedon)?.ToLocalPST().Date ?? (funding.ofm_application!.createdon)?.ToLocalPST().Date ?? new DateTime())))?.Count();
 
         if (licenceCount == 0)
             throw new ValidationException(

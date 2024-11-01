@@ -54,8 +54,8 @@ public class FundingCalculator : IFundingCalculator
         get
         {
             IEnumerable<Licence>? activeLicences = _funding?.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
-                                                                                                         licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= ApplicationSubmittedOn.ToLocalPST().Date &&
-                                                                                                         (licence.ofm_end_date is null || licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= ApplicationSubmittedOn.ToLocalPST().Date));
+                                                                                                         licence.ofm_start_date <= ApplicationSubmittedOn.ToLocalPST().Date &&
+                                                                                                         (licence.ofm_end_date is null || licence.ofm_end_date >= ApplicationSubmittedOn.ToLocalPST().Date));
 
             IEnumerable<LicenceDetail>? licenceDetails = activeLicences?
                                 .SelectMany(licence => licence?.ofm_licence_licencedetail!)
