@@ -478,18 +478,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
             DateTime effectiveDate = invoiceDate;
 
-            if (approvedSA.ofm_retroactive_date is not null)
-            {
-                // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
-                // Invoice received date is always the last business date of previous month except for first payment of the First funding year, it is 5 business day after the last business day of the last month.
-                //invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
-                //invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
-                //effectiveDate = invoiceDate;
-                invoiceDate = paymentDate.GetFirstDayOfFollowingMonth(holidaysList);
-                invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
-                effectiveDate = invoiceDate;
-            }
-
             Guid fiscalYear = invoiceDate.MatchFiscalYear(fiscalYears);
 
             var payload = new JsonObject()
@@ -544,17 +532,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
-                if (approvedSA.ofm_retroactive_date is not null)
-                {
-                    // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
-                    // Invoice received date is always the last business date of previous month except for first payment of the First funding year, it is 5 business day after the last business day of the last month.
-                    //invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
-                    //invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
-                    //effectiveDate = invoiceDate;
-                    invoiceDate = paymentDate.GetFirstDayOfFollowingMonth(holidaysList);
-                    invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
-                    effectiveDate = invoiceDate;
-                }
 
                 Guid? fiscalYear = invoiceDate.MatchFiscalYear(fiscalYears);
                 var paymentToCreate = new JsonObject()
