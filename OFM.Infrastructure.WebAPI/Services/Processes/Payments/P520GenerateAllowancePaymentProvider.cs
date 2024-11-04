@@ -10,6 +10,7 @@ using System.Text.Json;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using OFM.Infrastructure.WebAPI.Messages;
 using Microsoft.Extensions.Options;
+using Microsoft.Xrm.Sdk;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 {
@@ -334,6 +335,24 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
             _baseApplicationId = deserializedApplicationData.First().Id;
+           
+            Funding? funding = deserializedApplicationData.First()?.ofm_application_funding?.FirstOrDefault();
+            if (funding is null)
+            {
+                _logger.LogError(CustomLogEvent.Process, "Unable to retrieve Funding record with Id {FundingId}", processParams.Funding!.FundingId);
+                return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+            }
+            var fundingEndDate = funding.ofm_end_date;
+            if (fundingEndDate is null)
+            {
+                _logger.LogError(CustomLogEvent.Process, "Unable to retrieve Funding record with Id {ofm_end_date}", fundingEndDate);
+                return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+            }
+            var intermediateDate = fundingEndDate.Value.AddYears(-2);
+            var firstAnniversary = intermediateDate;
+            intermediateDate = fundingEndDate.Value.AddYears(-1);
+            var secondAnniversary = intermediateDate;
+          
             ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
             _allPayments = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
             if (_allPayments is not null && _allPayments.Count > 0)
@@ -358,7 +377,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             #endregion
 
             await ProcessSupportNeedsOrIndigenousPayments(deserializedApplicationData.First(), approvedSA, processParams, fiscalYears, holidaysList);
-            await ProcessTransportationPayments(deserializedApplicationData.First(), approvedSA, processParams, fiscalYears, holidaysList);
+            await ProcessTransportationPayments(deserializedApplicationData.First(), approvedSA, processParams, fiscalYears, holidaysList,firstAnniversary, secondAnniversary, fundingEndDate);
 
             _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the supplementary application {allowanceId}", processParams.SupplementaryApplication!.allowanceId);
 
@@ -378,18 +397,32 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
-        private async Task<JsonObject> ProcessTransportationPayments(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList)
+        private async Task<JsonObject> ProcessTransportationPayments(Application baseApplication, SupplementaryApplication approvedSA, ProcessParameter processParams, List<D365FiscalYear> fiscalYears, List<DateTime> holidaysList,DateTime firstAnniversaryDate, DateTime secondAnniversaryDate, DateTime? fundingEndDate)
         {
             if (approvedSA.ofm_allowance_type == ecc_allowance_type.Transportation)
             {
-                // Process future payments
-                await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, approvedSA.ofm_monthly_amount!.Value, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
+                if ((approvedSA.ofm_start_date.Value.Month == firstAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == firstAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == secondAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == secondAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == fundingEndDate?.Month && approvedSA.ofm_start_date.Value.Year == fundingEndDate?.Year))
+                {
+                    int retroActiveMonthsCount = approvedSA.ofm_retroactive_date!.HasValue ? (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month : 0;
+                    decimal retroActiveAmount = retroActiveMonthsCount > 0 ? approvedSA.ofm_monthly_amount!.Value * retroActiveMonthsCount : 0;
+                    var endTermLumpSumPayment = approvedSA.ofm_monthly_amount!.Value + retroActiveAmount;
+                    await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, endTermLumpSumPayment, false, ecc_payment_type.Transportation, baseApplication!, processParams, fiscalYears, holidaysList);
 
-                // Process retroactive payment
-                int retroActiveMonthsCount = approvedSA.ofm_retroactive_date!.HasValue ? (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month : 0;
-                await ProcessRetroActivePayment(baseApplication!, approvedSA, processParams, fiscalYears, holidaysList, approvedSA.ofm_monthly_amount!.Value, retroActiveMonthsCount);
-               
-                _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
+                    _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
+                }
+                else
+                {
+                    // Process future payments
+                    await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, approvedSA.ofm_monthly_amount!.Value, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList);
+                    // Process retroactive payment
+                    int retroActiveMonthsCount = approvedSA.ofm_retroactive_date!.HasValue ? (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month : 0;
+                    await ProcessRetroActivePayment(baseApplication!, approvedSA, processParams, fiscalYears, holidaysList, approvedSA.ofm_monthly_amount!.Value, retroActiveMonthsCount);
+
+                    _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
+                }
+                
+
+              
 
             }
 
@@ -440,7 +473,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                     List<D365FiscalYear> fiscalYears,
                                                                     List<DateTime> holidaysList)
         {
-            DateTime invoiceDate = (paymentDate == approvedSA.ofm_start_date!.Value) ? paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+            //DateTime invoiceDate = (paymentDate == approvedSA.ofm_start_date!.Value) ? paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+            DateTime invoiceDate = paymentDate.GetFirstDayOfFollowingMonth(holidaysList);
             DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
             DateTime effectiveDate = invoiceDate;
 
@@ -448,8 +482,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
                 // Invoice received date is always the last business date of previous month except for first payment of the First funding year, it is 5 business day after the last business day of the last month.
-                invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
-                invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                //invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
+                //invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                //effectiveDate = invoiceDate;
+                invoiceDate = paymentDate.GetFirstDayOfFollowingMonth(holidaysList);
+                invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 effectiveDate = invoiceDate;
             }
 
@@ -493,15 +530,17 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                     ecc_payment_type paymentType,
                                                                     ProcessParameter processParams,
                                                                     List<D365FiscalYear> fiscalYears,
-                                                                    List<DateTime> holidaysList)
+                                                                    List<DateTime> holidaysList
+                                                                    )
         {
             List<HttpRequestMessage> createPaymentRequests = [];
             int nextLineNumber = await GetNextInvoiceLineNumber();
 
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {
-
-                DateTime invoiceDate = (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+               
+                    //  DateTime invoiceDate = (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                DateTime invoiceDate = paymentDate.GetFirstDayOfFollowingMonth(holidaysList);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
@@ -509,8 +548,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 {
                     // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
                     // Invoice received date is always the last business date of previous month except for first payment of the First funding year, it is 5 business day after the last business day of the last month.
-                    invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
-                    invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                    //invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
+                    //invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                    //effectiveDate = invoiceDate;
+                    invoiceDate = paymentDate.GetFirstDayOfFollowingMonth(holidaysList);
+                    invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                     effectiveDate = invoiceDate;
                 }
 
