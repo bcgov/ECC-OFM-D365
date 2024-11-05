@@ -56,6 +56,11 @@ jobs:
       SELECTOR: ${{ steps.deploy-and-expose.outputs.selector }}
 
     steps:
+      - name: Print Workflow Dispatch Inputs and Env Vars
+        uses: shayki5/print-workflow-dispatch-inputs@v1
+        with:
+          add_to_summary: 'true'
+          print_env_vars: 'false'
       - name: Check for required secrets
         uses: actions/github-script@v6
         with:
