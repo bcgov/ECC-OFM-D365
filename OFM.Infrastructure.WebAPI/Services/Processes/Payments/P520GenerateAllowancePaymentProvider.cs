@@ -341,15 +341,31 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
             var fundingEndDate = funding.ofm_end_date;
+            var fundingStartDate = funding.ofm_start_date;
+            DateTime intermediateDate;
+            DateTime firstAnniversary;
+            DateTime secondAnniversary;
             if (fundingEndDate is null)
             {
                 _logger.LogError(CustomLogEvent.Process, "Unable to retrieve Funding record with Id {ofm_end_date}", fundingEndDate);
                 return ProcessResult.Completed(ProcessId).SimpleProcessResult;
             }
-            var intermediateDate = fundingEndDate.Value.AddYears(-2);
-            var firstAnniversary = intermediateDate;
-            intermediateDate = fundingEndDate.Value.AddYears(-1);
-            var secondAnniversary = intermediateDate;
+
+            //Two year contract or three year contract
+            if (fundingEndDate.Value.Year - fundingStartDate.Value.Year == 2)
+            {
+                intermediateDate = fundingEndDate.Value.AddYears(-1);
+                firstAnniversary = intermediateDate;
+                secondAnniversary = fundingEndDate.Value;
+            }
+            else
+            {
+                intermediateDate = fundingEndDate.Value.AddYears(-2);
+                firstAnniversary = intermediateDate;
+                intermediateDate = fundingEndDate.Value.AddYears(-1);
+                secondAnniversary = intermediateDate;
+            }
+            
             ProcessData allPaymentsData = await GetAllPaymentsByApplicationIdDataAsync();
             _allPayments = JsonSerializer.Deserialize<List<D365PaymentLine>>(allPaymentsData.Data.ToString());
             if (_allPayments is not null && _allPayments.Count > 0)
