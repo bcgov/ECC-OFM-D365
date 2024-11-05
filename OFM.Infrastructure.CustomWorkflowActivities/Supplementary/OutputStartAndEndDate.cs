@@ -145,12 +145,28 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     tracingService.Trace("{0}{1}", "Funding Start Date: ", fundingStartDate);
                     tracingService.Trace("{0}{1}", "Funding End Date: ", fundingEndDate);
 
-                    var intermediateDate = fundingEndDate.AddYears(-2);
-                    var firstAnniversary = intermediateDate;
-                    intermediateDate = fundingEndDate.AddYears(-1);
-                    var secondAnniversary = intermediateDate;
+                    var firstAnniversary = new DateTime();
+                    var secondAnniversary = new DateTime();
+                    var intermediateDate = new DateTime();
+
+                    //Two year contract or three year contract
+                    if (fundingEndDate.Year - fundingStartDate.Year  == 2)
+                    {
+                        intermediateDate = fundingEndDate.AddYears(-1);
+                        firstAnniversary = intermediateDate;
+                        secondAnniversary = fundingEndDate;
+                    }
+                    else
+                    {
+                        intermediateDate = fundingEndDate.AddYears(-2);
+                        firstAnniversary = intermediateDate;
+                        intermediateDate = fundingEndDate.AddYears(-1);
+                        secondAnniversary = intermediateDate;
+                    }
+
                     tracingService.Trace("{0}{1}", "Funding firstAnniversary Date: ", firstAnniversary);
                     tracingService.Trace("{0}{1}", "Funding secondAnniversary Date: ", secondAnniversary);
+                    tracingService.Trace("{0}{1}", "Funding year term: ", fundingEndDate.Year - fundingStartDate.Year);
 
                     //Applied One month rule: 
                     var oneMonthbeforeAnniversary = new DateTime();
@@ -162,7 +178,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     {
                         oneMonthbeforeAnniversary = secondAnniversary.AddMonths(-1);
                     }
-                    else
+                    else if (renewalTerm == 3)
                     {
                         oneMonthbeforeAnniversary = fundingEndDate.AddMonths(-1);
                     }
