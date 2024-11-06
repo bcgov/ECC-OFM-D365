@@ -486,7 +486,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
             DateTime effectiveDate = invoiceDate;
 
-            Guid fiscalYear = invoiceDate.MatchFiscalYear(fiscalYears);
+            Guid fiscalYear = invoiceDate.AddMonths(-1).MatchFiscalYear(fiscalYears);
 
             var payload = new JsonObject()
             {
@@ -538,7 +538,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
-                Guid? fiscalYear = invoiceDate.MatchFiscalYear(fiscalYears);
+                Guid? fiscalYear = invoiceDate.AddMonths(-1).MatchFiscalYear(fiscalYears);
                 var paymentToCreate = new JsonObject()
                     {
                         { "ofm_invoice_line_number", nextLineNumber++ },
