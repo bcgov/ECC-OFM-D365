@@ -150,11 +150,15 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     var intermediateDate = new DateTime();
 
                     //Two year contract or three year contract
-                    if (fundingEndDate.Year - fundingStartDate.Year  == 2)
+                    var threeYear = new DateTime();
+                    threeYear = fundingStartDate.AddYears(3).AddDays(-1);
+                    tracingService.Trace("{0}{1}", "threeYear: ", threeYear);
+                    if (fundingEndDate < threeYear)
                     {
                         intermediateDate = fundingEndDate.AddYears(-1);
                         firstAnniversary = intermediateDate;
                         secondAnniversary = fundingEndDate;
+                        tracingService.Trace("{0}", "Funding 2-year term");
                     }
                     else
                     {
@@ -162,11 +166,11 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                         firstAnniversary = intermediateDate;
                         intermediateDate = fundingEndDate.AddYears(-1);
                         secondAnniversary = intermediateDate;
+                        tracingService.Trace("{0}", "Funding 3-year term");
                     }
 
                     tracingService.Trace("{0}{1}", "Funding firstAnniversary Date: ", firstAnniversary);
                     tracingService.Trace("{0}{1}", "Funding secondAnniversary Date: ", secondAnniversary);
-                    tracingService.Trace("{0}{1}", "Funding year term: ", fundingEndDate.Year - fundingStartDate.Year);
 
                     //Applied One month rule: 
                     var oneMonthbeforeAnniversary = new DateTime();
