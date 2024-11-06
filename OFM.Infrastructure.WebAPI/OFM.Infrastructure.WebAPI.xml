@@ -563,6 +563,11 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.msfp_survey"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_ack_codesSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_ack_codes"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_allowanceSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_allowance"/> entities.
@@ -3913,6 +3918,11 @@
             Shows who last updated the record on behalf of another user.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Email.msdyn_emailengagementinteractions">
+            <summary>
+            Email engagement interactions
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Email.msdyn_recipientlist">
             <summary>
             Individual email will be sent to each recipient.
@@ -4882,6 +4892,127 @@
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.msfp_survey.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_ack_codes.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_ack_codes entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_ack_codes.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.ofm_ack_codesid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.statecode">
+            <summary>
+            Status of the ACK Codes
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.statuscode">
+            <summary>
+            Reason for the status of the ACK Codes
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_ack_codes.team_ofm_ack_codes">
+            <summary>
+            N:1 team_ofm_ack_codes
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_ack_codes.#ctor(System.Object)">
             <summary>
             Constructor for populating via LINQ queries given a LINQ anonymous type
             <param name="anonymousType">LINQ anonymous type.</param>
@@ -13579,6 +13710,11 @@
             1:N team_msfp_survey
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_ack_codes">
+            <summary>
+            1:N team_ofm_ack_codes
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_allowance">
             <summary>
             1:N team_ofm_allowance
@@ -15802,6 +15938,26 @@
             Source of the Intent or Intent Attributes
             </summary>
         </member>
+        <member name="F:ECC.Core.DataContext.msdyn_InviteStatus.Created">
+            <summary>
+            The customer feedback survey invite has been created
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_InviteStatus.Invalid">
+            <summary>
+            The customer feedback survey invite is invalid
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_InviteStatus.Responded">
+            <summary>
+            The customer feedback survey invite has been responded
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_InviteStatus.Sent">
+            <summary>
+            The customer feedback survey invite has been sent
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.msdyn_IoTAggregation">
             <summary>
             Calculated measurements
@@ -15890,6 +16046,21 @@
         <member name="F:ECC.Core.DataContext.msdyn_liveworkitemeventtype.SkillIdentified">
             <summary>
             This event is triggered when a skill is updated during chat.
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_mcsBotStatus.Disconnected">
+            <summary>
+            The bot is disconnected
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_mcsBotStatus.InProgress">
+            <summary>
+            The bot is still provisioning
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_mcsBotStatus.Ready">
+            <summary>
+            The bot is ready
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_MLmodeltype">
@@ -16135,6 +16306,11 @@
         <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.CustomerEndConversation">
             <summary>
             CustomerEndConversation
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.CustomerReconnect">
+            <summary>
+            CustomerReconnect
             </summary>
         </member>
         <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.CustomerRejoin">
@@ -16877,6 +17053,56 @@
             Bot Session is resolved
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.msdyn_sessionoutcomereason">
+            <summary>
+            Bot Session Outcome Reason option
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.agentTransferConfiguredByAuthor">
+            <summary>
+            Creator or author of the Bot configures the bot to transfer to agent
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.agentTransferFromQuestionMaxAttempts">
+            <summary>
+            In Question node maximum attempts are reached but Bot could not help and proposes to transfer to agent
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.agentTransferRequestedByUser">
+            <summary>
+            Actual user of the Bot decides to raise an agent transfer
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.agentTransferWithoutError">
+            <summary>
+            Agent transfer without errors
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.noError">
+            <summary>
+            No error found
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.resolved">
+            <summary>
+            Session Outcome is resolved
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.systemError">
+            <summary>
+            System Error is the last error in entire conversation
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.userError">
+            <summary>
+            User Exception is the last error in entire conversation
+            </summary>
+        </member>
+        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.userExit">
+            <summary>
+            Normal user exit
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.msdyn_smstemplate_Category">
             <summary>
             category can be User/Contact/Account/Lead/Opportunity
@@ -17280,6 +17506,16 @@
         <member name="T:ECC.Core.DataContext.officedocument_DocumentType">
             <summary>
             Option set for selecting the type of the office document.
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_ack_codes_statecode">
+            <summary>
+            Status of the ACK Codes
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_ack_codes_StatusCode">
+            <summary>
+            Reason for the status of the ACK Codes
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_allowance_statecode">

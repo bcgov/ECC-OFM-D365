@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
@@ -38,6 +39,7 @@ public class Funding : ofm_funding
     public new decimal? ofm_envelope_programming { get; set; }
     public new decimal? ofm_envelope_programming_pf { get; set; }
     public new decimal? ofm_envelope_programming_proj { get; set; }
+    public new string? ofm_cohort { get; set; }
     public Guid? _ofm_provider_approver_value { get; set; }
     public new SpaceAllocation[]? ofm_funding_spaceallocation { get; set; }
     public new Facility? ofm_facility { get; set; }

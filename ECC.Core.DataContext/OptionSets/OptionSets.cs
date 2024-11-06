@@ -2083,6 +2083,10 @@ namespace ECC.Core.DataContext
 		CCFRI = 100000005,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("CCFRI AFS Unlock", 8)]
+		CCFRIAFSUnlock = 100000008,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("CCFRI NMF RFI", 7)]
 		CCFRINMFRFI = 100000007,
 		
@@ -13673,6 +13677,38 @@ namespace ECC.Core.DataContext
 	}
 	
 	/// <summary>
+	/// Status of the ACK Codes
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_ack_codes_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the ACK Codes
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_ack_codes_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 2,
+	}
+	
+	/// <summary>
 	/// Status of the Allowance
 	/// </summary>
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -17252,19 +17288,19 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Case", 2)]
+		[OptionSetMetadataAttribute("Case", 1)]
 		Case = 112,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Lead", 3)]
+		[OptionSetMetadataAttribute("Lead", 0)]
 		Lead = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Order", 1)]
+		[OptionSetMetadataAttribute("Order", 2)]
 		Order = 1088,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Quote", 0)]
+		[OptionSetMetadataAttribute("Quote", 3)]
 		Quote = 1084,
 	}
 	
