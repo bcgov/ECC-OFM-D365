@@ -200,9 +200,9 @@ public static class TimeExtensions
 
         return lastDayOfPaymentMonth;
     }
-    public static DateTime GetFirstDayOfFollowingMonth(this DateTime PaymentDate, List<DateTime> holidays)
+    public static DateTime GetFirstDayOfFollowingNextMonth(this DateTime PaymentDate, List<DateTime> holidays)
     {
-        DateTime firstDayOfNextMonth = new DateTime(PaymentDate.Year, PaymentDate.Month, 1).AddMonths(1);
+        DateTime firstDayOfNextMonth = new DateTime(PaymentDate.Year, PaymentDate.Month, 1).AddMonths(2);
         // Iterate backward to find the last business day of that payment month.
         while (firstDayOfNextMonth.DayOfWeek == DayOfWeek.Saturday ||
                 firstDayOfNextMonth.DayOfWeek == DayOfWeek.Sunday ||
