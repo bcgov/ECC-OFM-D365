@@ -121,7 +121,7 @@ public static class ProviderProfilesHandlers
 
             logger.LogDebug(CustomLogEvent.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
 
-            var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
+            var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, pageSize:200, requestUrl: requestUri);
 
             var endTime = timeProvider.GetTimestamp();
 
@@ -178,11 +178,15 @@ public static class ProviderProfilesHandlers
                 logger.LogWarning(CustomLogEvent.ProviderProfile, "Organization or facility permissions not found.[userName: {userName} | userId: {userId}]", userName, string.IsNullOrEmpty(userId) ? "NA" : userId);
                 return TypedResults.Unauthorized();
             }
+            logger.LogDebug(CustomLogEvent.ProviderProfile, "profile: {serializedProfile}", serializedProfile);
 
             #endregion
 
             ProviderProfile portalProfile = new();
             portalProfile.MapProviderProfile(serializedProfile!);
+
+            logger.LogDebug(CustomLogEvent.ProviderProfile, "portalProfile: {portalProfile}", portalProfile);
+
             if (string.IsNullOrEmpty(portalProfile.ccof_userid) && !string.IsNullOrEmpty(userId))
             {
                 // Update the contact in Dataverse with the userid

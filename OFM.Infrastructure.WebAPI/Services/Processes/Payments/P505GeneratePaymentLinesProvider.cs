@@ -503,6 +503,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 }
                 Guid fiscalYearId = invoiceDate.MatchFiscalYear(fiscalYears);
 
+                var FAYear = (invoiceReceivedDate < startDate.AddYears(1)) ? 1 :
+                (invoiceReceivedDate < startDate.AddYears(2)) ? 2 :
+                (invoiceReceivedDate < startDate.AddYears(3)) ? 3 : 0;
                 var paymentToCreate = new JsonObject()
                 {
                     { "ofm_invoice_line_number", lineNumber++ },
@@ -515,7 +518,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     { "ofm_invoice_date", invoiceDate.ToString("yyyy-MM-dd") },
                     { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
                     { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
-                    { "ofm_payment_manual_review", manualReview }
+                    { "ofm_payment_manual_review", manualReview },
+                    { "ofm_fayear", FAYear.ToString() }
+
                 };
                 if (regardingid is not null && !string.IsNullOrEmpty(regardingTableSet))
                 {
