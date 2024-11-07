@@ -52,9 +52,9 @@ export const EnvelopeCompositeControl = React.memo(
     let HRTotal_Colum04 = dataHR.reduce((a,v) =>  a = a + v.column04.control.raw! , 0 );
     let NonHRTotal_Colum04 = (dataNonHR.reduce((a, v) => a = a + v.column04.control.raw!, 0));
 
-        //console.log(dataHR);
-        //console.log(dataNonHR);
-        //console.log(grandTotal);
+        console.log(dataHR);
+        console.log(dataNonHR);
+        console.log(grandTotal);
     
     const infoText =" (plus % inflation as defined by ministry)";
 
@@ -81,7 +81,7 @@ export const EnvelopeCompositeControl = React.memo(
                                         <Label style={{textAlign: "left", fontWeight: "bold"}}>&#160;&#160;{val.column01}</Label>
                                     </td>
                                     <td>
-                                        <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw! - val.column03.control.raw!)}</Label>
+                                        <Label>{pcfContext.formatting.formatCurrency(val.column02.control.raw!)}</Label>
                                     </td>
                                     <td>
                                         <Label>{pcfContext.formatting.formatCurrency(val.column03.control.raw!)}</Label>
@@ -99,7 +99,7 @@ export const EnvelopeCompositeControl = React.memo(
                                 <Label>&#160;&#160;{val.column01}</Label>
                             </td>
                             <td>
-                                <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw! - val.column03.control.raw!)}</Label>                             
+                                <Label>{pcfContext.formatting.formatCurrency(val.column02.control.raw!)}</Label>                             
                             </td>
                             <td>
                                 <Label>{pcfContext.formatting.formatCurrency(val.column03.control.raw!)}</Label>
@@ -117,7 +117,7 @@ export const EnvelopeCompositeControl = React.memo(
                                 <Label>{val.column01}</Label>
                               </td>
                               <td>
-                                <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw! - val.column03.control.raw!)}</Label>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column02.control.raw!)}</Label>
                               </td>
                               <td>
                                 <Label>{pcfContext.formatting.formatCurrency(val.column03.control.raw!)}</Label>
@@ -137,7 +137,7 @@ export const EnvelopeCompositeControl = React.memo(
                                     <Label style={{ textAlign: "left", fontWeight: "bolder", fontSize: 15 }}>{val.column01}</Label>
                                 </td>
                                 <td>
-                                    <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw! - val.column03.control.raw!)}</Label>
+                                    <Label>{pcfContext.formatting.formatCurrency(val.column02.control.raw!)}</Label>
                                 </td>
                                 <td>
                                     <Label>{pcfContext.formatting.formatCurrency(val.column03.control.raw!)}</Label>
