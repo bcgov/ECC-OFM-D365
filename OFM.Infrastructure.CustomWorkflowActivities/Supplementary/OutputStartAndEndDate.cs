@@ -37,7 +37,15 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
             tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: Supplementary OutputStartAndEndDate", DateTime.Now.ToLongTimeString());
             var recordId = supplementary.Get(executionContext);
 
-            /* One month rule: 
+
+            /* 15 days rule: 
+             * If the submit date is <15th of the month, then the supplementary date is the 1st of the month following, 
+             * if the submit date is >=15th of the month, then the supplementary date is the 1st of the next month following 
+             * UNLESS the SP has an active supplementary of the same type, THEN the start date is the 1st day after the Active supplementary expires.
+             */
+
+
+            /* One month rule for within 45 days: 
              * If submission date is within the last month of the current term, start date = submission date
              * If submission date is before the last month of the current term, start date = the first date of next month.
              * UNLESS the SP has an active supplementary of the same type, THEN the start date is the 1st day after the Active supplementary expires.
@@ -133,14 +141,6 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     var fundingResult = service.RetrieveMultiple(fundingQuery).Entities.OrderByDescending(t => t.GetAttributeValue<int>("ofm_version_number")).FirstOrDefault();
                     var fundingStartDate = fundingResult.GetAttributeValue<DateTime>("ofm_start_date");
                     var fundingEndDate = fundingResult.GetAttributeValue<DateTime>("ofm_end_date");
-                    /*                    var convertedStartDate = TimeZoneInfo.ConvertTimeFromUtc(fundingStartDate, TimeZoneInfo
-                                            .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
-                                            .standardname)).FirstOrDefault().ToString()));
-                                        var convertedEndDate = TimeZoneInfo.ConvertTimeFromUtc(fundingEndDate, TimeZoneInfo
-                                            .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
-                                            .standardname)).FirstOrDefault().ToString()));*/
-
-
 
                     tracingService.Trace("{0}{1}", "Funding Start Date: ", fundingStartDate);
                     tracingService.Trace("{0}{1}", "Funding End Date: ", fundingEndDate);
@@ -172,37 +172,60 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     tracingService.Trace("{0}{1}", "Funding firstAnniversary Date: ", firstAnniversary);
                     tracingService.Trace("{0}{1}", "Funding secondAnniversary Date: ", secondAnniversary);
 
-                    //Applied One month rule: 
+                    var potentialStartDate = new DateTime();
+
+                    //Applied One month rule if within 45 days: 
                     var oneMonthbeforeAnniversary = new DateTime();
+                    var twoMonthbeforeAnniversary = new DateTime();
                     if (renewalTerm == 1)
                     {
-                        oneMonthbeforeAnniversary = firstAnniversary.AddMonths(-1);
+                        intermediateDate = firstAnniversary.AddMonths(-1);
+                        twoMonthbeforeAnniversary = new DateTime(intermediateDate.Year, intermediateDate.Month, 1, 0, 0, 0);
+                        oneMonthbeforeAnniversary = new DateTime(firstAnniversary.Year, firstAnniversary.Month, 1, 0, 0, 0);
                     }
                     else if (renewalTerm == 2)
                     {
-                        oneMonthbeforeAnniversary = secondAnniversary.AddMonths(-1);
+                        intermediateDate = secondAnniversary.AddMonths(-1);
+                        twoMonthbeforeAnniversary = new DateTime(intermediateDate.Year, intermediateDate.Month, 1, 0, 0, 0);
+                        oneMonthbeforeAnniversary = new DateTime(secondAnniversary.Year, secondAnniversary.Month, 1, 0, 0, 0);
                     }
                     else if (renewalTerm == 3)
                     {
-                        oneMonthbeforeAnniversary = fundingEndDate.AddMonths(-1);
+                        twoMonthbeforeAnniversary = new DateTime(intermediateDate.Year, intermediateDate.Month, 1, 0, 0, 0);
+                        oneMonthbeforeAnniversary = new DateTime(fundingEndDate.Year, fundingEndDate.Month, 1, 0, 0, 0);
                     }
 
                     tracingService.Trace("{0}{1}", "One Month before Anniversary: ", oneMonthbeforeAnniversary);
+                    tracingService.Trace("{0}{1}", "Two Month before Anniversary: ", twoMonthbeforeAnniversary);
 
-                    var potentialStartDate = new DateTime();
 
                     //compare submission time and oneMonthbeforeAnniversary
                     //if submission time is greater than one month before Anniversary
-                    if (convertedSubmittedOn > oneMonthbeforeAnniversary)
+                    if (convertedSubmittedOn >= oneMonthbeforeAnniversary)
                     {
                         //potentialStartDate = submission date
                         potentialStartDate = new DateTime(convertedSubmittedOn.Year, convertedSubmittedOn.Month, convertedSubmittedOn.Day, 0, 0, 0);
                     }
-                    else
-                    {
-                        //potentialStartDate= 1st day of next month
+                    else if (convertedSubmittedOn >= twoMonthbeforeAnniversary)
+                    {   //potentialStartDate= 1st day of next month (last month)
                         potentialStartDate = convertedSubmittedOn.AddMonths(1);
                         potentialStartDate = new DateTime(potentialStartDate.Year, potentialStartDate.Month, 1, 0, 0, 0);
+                    }
+                    else
+                    {
+                        var day = Convert.ToDateTime(convertedSubmittedOn).Day;
+                        //Applied 15 days rule
+                        if (day < 15)
+                        {
+                            potentialStartDate = convertedSubmittedOn.AddMonths(1);
+                            potentialStartDate = new DateTime(potentialStartDate.Year, potentialStartDate.Month, 1, 0, 0, 0);
+                        }
+                        else
+                        {
+                            potentialStartDate = convertedSubmittedOn.AddMonths(2);
+                            potentialStartDate = new DateTime(potentialStartDate.Year, potentialStartDate.Month, 1, 0, 0, 0);
+                        }
+
                     }
 
                     //Start Date Rules:
