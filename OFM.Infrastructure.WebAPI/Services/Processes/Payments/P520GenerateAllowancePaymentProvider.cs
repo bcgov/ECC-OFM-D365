@@ -413,7 +413,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             if (approvedSA.ofm_allowance_type == ecc_allowance_type.Transportation)
             {
-                if ((approvedSA.ofm_start_date.Value.Month == firstAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == firstAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == secondAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == secondAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == fundingEndDate?.Month && approvedSA.ofm_start_date.Value.Year == fundingEndDate?.Year))
+                if (CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value,firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value))
+            
                 {
                     int retroActiveMonthsCount = approvedSA.ofm_retroactive_date!.HasValue ? (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month : 0;
                     decimal retroActiveAmount = retroActiveMonthsCount > 0 ? approvedSA.ofm_monthly_amount!.Value * retroActiveMonthsCount : 0;
@@ -484,13 +485,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                     DateTime secondAnniversaryDate,
                                                                     DateTime? fundingEndDate)
         {
-            DateTime invoiceDate = ((approvedSA.ofm_start_date.Value.Month == firstAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == firstAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == secondAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == secondAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == fundingEndDate?.Month && approvedSA.ofm_start_date.Value.Year == fundingEndDate?.Year)) ? paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList) : (paymentDate == approvedSA.ofm_start_date!.Value) ? paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+            DateTime invoiceDate = ((CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)) ? paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList) : (paymentDate == approvedSA.ofm_start_date!.Value) ? paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays));
             DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
             DateTime effectiveDate = invoiceDate;
 
 
 
-            if (approvedSA.ofm_retroactive_date is not null && !(approvedSA.ofm_start_date.Value.Month == firstAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == firstAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == secondAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == secondAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == fundingEndDate?.Month && approvedSA.ofm_start_date.Value.Year == fundingEndDate?.Year))
+            if (approvedSA.ofm_retroactive_date is not null && !(CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)))
             {
                 // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
                 // Invoice received date is always the last business date of previous month except for first payment of the First funding year, it is 5 business day after the last business day of the last month.
@@ -551,13 +552,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {
 
-                DateTime invoiceDate = ((approvedSA.ofm_start_date.Value.Month == firstAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == firstAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == secondAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == secondAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == fundingEndDate?.Month && approvedSA.ofm_start_date.Value.Year == fundingEndDate?.Year)) ? paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList) : (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                DateTime invoiceDate = ((CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)) ? paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList) : (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays));
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
 
 
-                if (approvedSA.ofm_retroactive_date is not null && !(approvedSA.ofm_start_date.Value.Month == firstAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == firstAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == secondAnniversaryDate.Month && approvedSA.ofm_start_date.Value.Year == secondAnniversaryDate.Year) || (approvedSA.ofm_start_date.Value.Month == fundingEndDate?.Month && approvedSA.ofm_start_date.Value.Year == fundingEndDate?.Year))
+                if (approvedSA.ofm_retroactive_date is not null && !(CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)))
                 {
                     // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
                     // Invoice received date is always the last business date of previous month except for first payment of the First funding year, it is 5 business day after the last business day of the last month.
@@ -613,6 +614,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
 
             return await Task.FromResult(nextLineNumber);
+        }
+
+        private static bool CheckSubmissionIsWithinLast45days(DateTime submittedDate, DateTime anniversayDate)
+        {
+            DateTime cutoffDate = anniversayDate.AddDays(-45);
+
+            return submittedDate >= cutoffDate;
         }
     }
 }
