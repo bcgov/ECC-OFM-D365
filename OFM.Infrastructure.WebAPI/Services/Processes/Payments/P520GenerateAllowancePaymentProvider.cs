@@ -485,11 +485,16 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                     DateTime secondAnniversaryDate,
                                                                     DateTime? fundingEndDate)
         {
-            DateTime invoiceDate = ((CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)) ? paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList) : (paymentDate == approvedSA.ofm_start_date!.Value) ? paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays));
+            DateTime invoiceDate = (paymentDate == approvedSA.ofm_start_date!.Value) ? paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
             DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
             DateTime effectiveDate = invoiceDate;
-
-
+            //this applies if supplementary application is submitted within 45 days.
+            if ((CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)))
+            {
+                 invoiceReceivedDate = paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList);
+                 invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                 effectiveDate = invoiceDate;
+            }
 
             if (approvedSA.ofm_retroactive_date is not null && !(CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)))
             {
@@ -500,7 +505,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 effectiveDate = invoiceDate;
             }
 
-            Guid fiscalYear = invoiceDate.AddMonths(-1).MatchFiscalYear(fiscalYears);
+            Guid fiscalYear = paymentDate.MatchFiscalYear(fiscalYears);
 
             var payload = new JsonObject()
             {
@@ -552,11 +557,16 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {
 
-                DateTime invoiceDate = ((CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)) ? paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList) : (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays));
+                DateTime invoiceDate = (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
-
-
+                //this applies if supplementary application is submitted within 45 days.
+                if ((CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)))
+                {
+                    invoiceReceivedDate = paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList);
+                    invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                    effectiveDate = invoiceDate;
+                }
 
                 if (approvedSA.ofm_retroactive_date is not null && !(CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) || CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value)))
                 {
@@ -567,7 +577,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     effectiveDate = invoiceDate;
                 }
 
-                Guid? fiscalYear = invoiceDate.AddMonths(-1).MatchFiscalYear(fiscalYears);
+                Guid? fiscalYear = startDate.MatchFiscalYear(fiscalYears);
                 var paymentToCreate = new JsonObject()
                     {
                         { "ofm_invoice_line_number", nextLineNumber++ },
