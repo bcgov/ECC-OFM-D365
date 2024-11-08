@@ -68,14 +68,18 @@ OFM.Application.Form = {
         var facilityId = formContext.getAttribute("ofm_facility").getValue() ? formContext.getAttribute("ofm_facility").getValue()[0].id : null;
         var submittedOnDate = formContext.getAttribute("ofm_summary_submittedon").getValue();
         if (submittedOnDate != null) {
+            submittedOnDate.setMinutes(submittedOnDate.getMinutes() - submittedOnDate.getTimezoneOffset());
             var date = submittedOnDate.toISOString();
         }
-        else
-            var date = formContext.getAttribute("createdon").getValue() != null ?
-                formContext.getAttribute("createdon").getValue().toISOString() : new Date();
+        else {
+            var createdOn = formContext.getAttribute("createdon").getValue() != null ?
+                formContext.getAttribute("createdon").getValue() : new Date();
+            createdOn.setMinutes(createdOn.getMinutes() - createdOn.getTimezoneOffset());
+            var date = createdOn.toISOString();
+        }
         if (facilityId != null) {
             var conditionFetchXML = "";
-            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ((ofm_end_date eq null and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "')) or (Microsoft.Dynamics.CRM.OnOrAfter(PropertyName='ofm_end_date',PropertyValue='" + date + "') and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "'))))").then(
+            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=((_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ofm_start_date le " + date + ") or (ofm_end_date eq null and ofm_end_date ge " + date + "))").then(
                 function success(results) {
                     console.log(results);
                     if (results.entities.length > 0) {
