@@ -176,6 +176,13 @@ public class BusinessClosure
     public string _createdby_value { get; set; }
     public int msdyn_selectedyear { get; set; }
 }
+public class StatHolidays
+{
+    public string ofm_stat_holidayid { get; set; }
+
+    public string ofm_date_observed { get; set; }
+
+}
 
 public class SupplementarySchedule : ofm_supplementary_schedule
 {

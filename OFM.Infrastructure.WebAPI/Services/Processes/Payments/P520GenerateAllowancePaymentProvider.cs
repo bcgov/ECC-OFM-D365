@@ -102,20 +102,20 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 var fetchXml = $$"""
                     <fetch>
-                      <entity name="msdyn_businessclosure">
-                        <attribute name="msdyn_starttime" />
+                      <entity name="ofm_stat_holiday">
+                        <attribute name="ofm_date_observed" />
                       </entity>
                     </fetch>
                     """;
 
                 var requestUri = $"""
-                         msdyn_businessclosures?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_stat_holidaies?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
                 return requestUri;
             }
         }
-
+      
         public string ApplicationRequestUri
         {
             get
@@ -383,8 +383,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
-            var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
-            List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
+            
+            var closures = JsonSerializer.Deserialize<List<StatHolidays>>(businessClosuresData.Data.ToString());
+            List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.ofm_date_observed)).ToList();
 
             #endregion
 
