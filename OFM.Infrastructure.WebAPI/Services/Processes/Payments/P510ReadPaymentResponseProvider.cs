@@ -60,19 +60,20 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
         {
             var fetchXml = $$"""
                     <fetch>
-                      <entity name="msdyn_businessclosure">
-                        <attribute name="msdyn_starttime" />
+                      <entity name="ofm_stat_holiday">
+                        <attribute name="ofm_date_observed" />
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         msdyn_businessclosures?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_stat_holidaies?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
             return requestUri;
         }
     }
+    
     public string PaymentInProcessUri
     {
         get
@@ -324,9 +325,8 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
 
     private static List<DateTime> GetStartTimes(string jsonData)
     {
-        var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(jsonData);
-
-        List<DateTime> startTimeList = closures.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
+        var closures = JsonSerializer.Deserialize<List<ofm_stat_holiday>>(jsonData);
+        List<DateTime> startTimeList = closures!.Select(closure => (DateTime)closure.ofm_date_observed).ToList();
 
         return startTimeList;
     }

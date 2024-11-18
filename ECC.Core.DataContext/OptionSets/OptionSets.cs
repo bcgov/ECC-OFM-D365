@@ -1300,6 +1300,23 @@ namespace ECC.Core.DataContext
 		Stage3AFC = 100000005,
 	}
 	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ccof_agreement_status
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("I accept", 0, "#0000ff")]
+		Iaccept = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("I decline", 2, "#0000ff")]
+		Idecline = 3,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("I want to upload supporting documents", 1, "#0000ff")]
+		Iwanttouploadsupportingdocuments = 2,
+	}
+	
 	/// <summary>
 	/// Indicates the type of approval for approved parent fees
 	/// </summary>
@@ -1450,6 +1467,23 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Stage 3 (AFC)", 7, "#0000ff")]
 		Stage3AFC = 100000007,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ccof_CCFRIUnlockNotificationType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("AFS", 1)]
+		AFS = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Standard", 0)]
+		Standard = 100000000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Standard and AFS", 2)]
+		StandardandAFS = 100000002,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -2083,6 +2117,10 @@ namespace ECC.Core.DataContext
 		CCFRI = 100000005,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("CCFRI AFS Enable", 9)]
+		CCFRIAFSEnable = 100000009,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("CCFRI AFS Unlock", 8)]
 		CCFRIAFSUnlock = 100000008,
 		
@@ -2450,6 +2488,10 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Greek", 22)]
 		Greek = 1032,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Hebrew", 28)]
+		Hebrew = 1037,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Hindi", 15)]
@@ -4101,6 +4143,22 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Vancouver Coastal Health", 4)]
 		VancouverCoastalHealth = 5,
+	}
+	
+	/// <summary>
+	/// Holiday Type
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ecc_holiday_type
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("BC Only", 1)]
+		BCOnly = 2,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Standard", 0)]
+		Standard = 1,
 	}
 	
 	/// <summary>
@@ -14368,6 +14426,37 @@ namespace ECC.Core.DataContext
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_funding_clauses
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute(@"additional educational programming- the Recipient offered additional educational programming through third party contractors with expertise in providing such programing for purchase prior to the Cutoff Date and may continue to offer such additional educational programming on the same terms and conditions as it did prior to the Cutoff Date;", 3)]
+		additionaleducationalprogrammingtheRecipientofferedadditionaleducationalprogrammingthroughthirdpartycontractorswithexpertiseinprovidingsuchprogramingforpurchasepriortotheCutoffDateandmaycontinuetooffersuchadditionaleducationalprogrammingonthesametermsandconditionsasitdidpriortotheCutoffDate = 506580003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute(@"custom transportation- the Recipient offered custom transportation to transport a child to and from their home (or another location requested by their Parent) and the Child Care Centre and may continue to offer custom transportation on the same terms and conditions as it did prior to the Cutoff Date.  For certainty, custom transportation does not include transportation that is paid for by a Transportation Allowance;", 4)]
+		customtransportationtheRecipientofferedcustomtransportationtotransportachildtoandfromtheirhomeoranotherlocationrequestedbytheirParentandtheChildCareCentreandmaycontinuetooffercustomtransportationonthesametermsandconditionsasitdidpriortotheCutoffDateForcertaintycustomtransportationdoesnotincludetransportationthatispaidforbyaTransportationAllowance = 506580004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute(@"extracurricular activities- the Recipient offered certain extracurricular activities through third party contractors with expertise in providing such activities for purchase prior to the Cutoff Date and may continue to offer such extracurricular activities on the same terms and conditions as it did prior to the Cutoff Date;", 2)]
+		extracurricularactivitiestheRecipientofferedcertainextracurricularactivitiesthroughthirdpartycontractorswithexpertiseinprovidingsuchactivitiesforpurchasepriortotheCutoffDateandmaycontinuetooffersuchextracurricularactivitiesonthesametermsandconditionsasitdidpriortotheCutoffDate = 506580002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("meals- the Recipient offered a meal program for purchase prior to the Cutoff Date" +
+			" and may continue to offer a meal program on the same terms and conditions as it" +
+			" did prior to the Cutoff Date;", 0)]
+		mealstheRecipientofferedamealprogramforpurchasepriortotheCutoffDateandmaycontinuetoofferamealprogramonthesametermsandconditionsasitdidpriortotheCutoffDate = 506580000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Not Applicable", 5)]
+		NotApplicable = 506580005,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute(@"uniforms- the Recipient offered uniforms to be worn at the Child Care Centre for purchase prior to the Cutoff Date and may continue to offer uniforms on the same terms and conditions as it did prior to the Cutoff Date.  Uniforms do not include safety equipment such as matching t-shirts for offsite trips or a supply of clothing available at the Child Care Centre;", 1)]
+		uniformstheRecipientoffereduniformstobewornattheChildCareCentreforpurchasepriortotheCutoffDateandmaycontinuetoofferuniformsonthesametermsandconditionsasitdidpriortotheCutoffDateUniformsdonotincludesafetyequipmentsuchasmatchingtshirtsforoffsitetripsorasupplyofclothingavailableattheChildCareCentre = 506580001,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ofm_funding_envelopes
 	{
 		
@@ -15475,6 +15564,38 @@ namespace ECC.Core.DataContext
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Inactive", 1, "#0000ff")]
+		Inactive = 2,
+	}
+	
+	/// <summary>
+	/// Status of the Statutory Holiday
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_stat_holiday_statecode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 0,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
+		Inactive = 1,
+	}
+	
+	/// <summary>
+	/// Reason for the status of the Statutory Holiday
+	/// </summary>
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ofm_stat_holiday_StatusCode
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Active", 0)]
+		Active = 1,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Inactive", 1)]
 		Inactive = 2,
 	}
 	
@@ -17288,19 +17409,19 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Case", 1)]
+		[OptionSetMetadataAttribute("Case", 2)]
 		Case = 112,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Lead", 0)]
+		[OptionSetMetadataAttribute("Lead", 3)]
 		Lead = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Order", 2)]
+		[OptionSetMetadataAttribute("Order", 1)]
 		Order = 1088,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Quote", 3)]
+		[OptionSetMetadataAttribute("Quote", 0)]
 		Quote = 1084,
 	}
 	

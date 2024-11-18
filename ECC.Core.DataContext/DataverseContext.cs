@@ -535,6 +535,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_stat_holiday"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_stat_holiday> ofm_stat_holidaySet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_stat_holiday>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_subcategory"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_subcategory> ofm_subcategorySet
