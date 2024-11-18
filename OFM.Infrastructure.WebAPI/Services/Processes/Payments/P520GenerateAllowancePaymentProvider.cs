@@ -384,9 +384,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
             
-            var closures = JsonSerializer.Deserialize<List<StatHolidays>>(businessClosuresData.Data.ToString());
-            List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.ofm_date_observed)).ToList();
-
+            var closures = JsonSerializer.Deserialize<List<ofm_stat_holiday>>(businessClosuresData.Data.ToString());
+            List<DateTime> holidaysList = closures!.Select(closure => (DateTime)closure.ofm_date_observed).ToList();
             #endregion
 
             await ProcessSupportNeedsOrIndigenousPayments(deserializedApplicationData.First(), approvedSA, processParams, fiscalYears, holidaysList, firstAnniversary, secondAnniversary, fundingEndDate);

@@ -359,9 +359,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
-            var closures = JsonSerializer.Deserialize<List<StatHolidays>>(businessClosuresData.Data.ToString());
-            List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.ofm_date_observed)).ToList();
-
+            var closures = JsonSerializer.Deserialize<List<ofm_stat_holiday>>(businessClosuresData.Data.ToString());
+            List<DateTime> holidaysList = closures!.Select(closure => (DateTime)closure.ofm_date_observed).ToList();
             #endregion
 
             switch (expenseInfo.ofm_payment_frequency)

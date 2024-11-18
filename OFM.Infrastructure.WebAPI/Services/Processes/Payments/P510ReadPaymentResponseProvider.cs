@@ -325,9 +325,8 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
 
     private static List<DateTime> GetStartTimes(string jsonData)
     {
-        var closures = JsonSerializer.Deserialize<List<StatHolidays>>(jsonData);
-
-        List<DateTime> startTimeList = closures.Select(closure => DateTime.Parse(closure.ofm_date_observed)).ToList();
+        var closures = JsonSerializer.Deserialize<List<ofm_stat_holiday>>(jsonData);
+        List<DateTime> startTimeList = closures!.Select(closure => (DateTime)closure.ofm_date_observed).ToList();
 
         return startTimeList;
     }
