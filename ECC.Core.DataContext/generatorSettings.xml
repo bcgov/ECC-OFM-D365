@@ -1607,6 +1607,7 @@ ofm_request_category|
 ofm_section|
 ofm_space_allocation|
 ofm_standing_history|
+ofm_stat_holiday|
 ofm_subcategory|
 ofm_supplementary_schedule|
 ofm_survey|
@@ -1708,7 +1709,7 @@ VoiceMail</TokenCapitalizationOverrides>
   <Namespace>ECC.Core.DataContext</Namespace>
   <ServiceContextName>DataverseContext</ServiceContextName>
   <SuppressGeneratedCodeAttribute>true</SuppressGeneratedCodeAttribute>
-  <SettingsVersion>2.2024.2.1</SettingsVersion>
+  <SettingsVersion>2.2024.5.16</SettingsVersion>
   <UpdateBuilderSettingsJson>true</UpdateBuilderSettingsJson>
-  <Version>2.2024.5.16</Version>
+  <Version>2.2024.10.16</Version>
 </Config>
