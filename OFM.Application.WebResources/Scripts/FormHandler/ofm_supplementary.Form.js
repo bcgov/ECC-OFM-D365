@@ -170,6 +170,7 @@ OFM.Supplementary.Form = {
               <attribute name="ofm_start_date" />
               <filter>
                 <condition attribute="statecode" operator="eq" value="0" />
+                <condition attribute="ofm_version_number" operator="eq" value="0" />
               </filter>
               <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner">
                 <link-entity name="ofm_allowance" from="ofm_application" to="ofm_applicationid">
@@ -188,8 +189,8 @@ OFM.Supplementary.Form = {
                     var fundingStartDateStr = result.entities[0]["ofm_start_date"];
                     var fundingEndDateStr = result.entities[0]["ofm_end_date"];
 
-                    var fundingStartDate = new Date(fundingStartDateStr);
-                    var fundingEndDate = new Date(fundingEndDateStr);
+                    var fundingStartDate = new Date(fundingStartDateStr + "T08:00:00.000Z");
+                    var fundingEndDate = new Date(fundingEndDateStr + "T08:00:00.000Z");
 
                     //1. The start date cannot be before the FA start date
                     if (startDate.getTime() < fundingStartDate.getTime()) {
@@ -244,7 +245,7 @@ OFM.Supplementary.Form = {
     lockStatusReason: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
-        if (formContext.getAttribute("statuscode").getValue() != 6) {  //Approved
+        if (formContext.getAttribute("statuscode").getValue() != 1) {
             var roles = Xrm.Utility.getGlobalContext().userSettings.roles.getAll();
             var disable = true;
             for (var i = 0; i < roles.length; i++) {
@@ -274,9 +275,9 @@ OFM.Supplementary.Form = {
         Xrm.Navigation.openConfirmDialog(confirmStrings, confirmOptions).then(
             function (success) {
                 if (success.confirmed) {
-                    formContext.getAttribute("statuscode").setValue(6);                                    // 6 = Approved
+                    formContext.getAttribute("statuscode").setValue(6); // 6 = Approved
                     formContext.data.entity.save();
-                } 
+                }
             },
             function (error) {
                 Xrm.Navigation.openErrorDialog({ message: error });
