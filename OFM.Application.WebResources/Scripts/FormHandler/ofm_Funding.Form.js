@@ -246,8 +246,10 @@ OFM.Funding.Form = {
                         formContext.getAttribute("ofm_ops_approver").setValue(currentUser);                     // set lookup to current user
                         formContext.getAttribute("ofm_ops_supervisor_approval_date").setValue(currentDateTime); // set now() to approval date	
                         formContext.getControl("ofm_ops_manager_approval").setDisabled(true);                   // lock the approval field
-                        formContext.getControl("ofm_pcm_validated").setDisabled(true);                          // lock PCM validated field 
-                        formContext.data.entity.save();
+                        formContext.data.save().then(
+                            function () {
+                                formContext.getControl("ofm_pcm_validated").setDisabled(true);                  // lock PCM validated field if successfully saved
+                            });
                     }
                     else {
                         formContext.getAttribute("ofm_ops_manager_approval").setValue(1);                       // pending
