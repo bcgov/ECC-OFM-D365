@@ -325,6 +325,7 @@ OFM.Funding.Form = {
 
         if (status == 2 && isAdmin != true) {
             formContext.getControl("ofm_ops_manager_approval").setDisabled(true);                       // lock the approval field
+            formContext.getControl("ofm_pcm_validated").setDisabled(true);                              // lock PCM Validated field
         }
 
         var approver = formContext.getAttribute("ofm_ops_approver").getValue();
