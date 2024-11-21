@@ -187,7 +187,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             _logger.LogDebug(CustomLogEvent.Process, nameof(GetBusinessClosuresDataAsync));
 
-            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri);
+            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri, false, 0, true);
 
             if (!response.IsSuccessStatusCode)
             {

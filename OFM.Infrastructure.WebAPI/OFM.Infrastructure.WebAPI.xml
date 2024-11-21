@@ -763,6 +763,11 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_standing_history"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_stat_holidaySet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_stat_holiday"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_subcategorySet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_subcategory"/> entities.
@@ -12532,6 +12537,162 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_stat_holiday">
+            <summary>
+            MyCCS Statutory Holiday Record
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_stat_holiday.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_stat_holiday entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_stat_holiday.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_caption">
+            <summary>
+            MyCCS Statutory Holiday record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_date_observed">
+            <summary>
+            Date Observed (if holiday falls on weekend)
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_holiday_date">
+            <summary>
+            Stat Day
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_holiday_type">
+            <summary>
+            Type
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_name">
+            <summary>
+            Holiday Name
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_selected_year">
+            <summary>
+            Selected Year
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_stat_holidayid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.statecode">
+            <summary>
+            Status of the Statutory Holiday
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.statuscode">
+            <summary>
+            Reason for the status of the Statutory Holiday
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.team_ofm_stat_holiday">
+            <summary>
+            N:1 team_ofm_stat_holiday
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_stat_holiday.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.ofm_subcategory.Fields">
             <summary>
             Available fields, a the time of codegen, for the ofm_subcategory entity
@@ -13908,6 +14069,11 @@
         <member name="P:ECC.Core.DataContext.Team.team_ofm_standing_history">
             <summary>
             1:N team_ofm_standing_history
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_stat_holiday">
+            <summary>
+            1:N team_ofm_stat_holiday
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_subcategory">
@@ -15316,6 +15482,11 @@
         <member name="T:ECC.Core.DataContext.ecc_health_authorities">
             <summary>
             Health Authorities
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ecc_holiday_type">
+            <summary>
+            Holiday Type
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ecc_inclusion_policy">
@@ -17926,6 +18097,16 @@
         <member name="T:ECC.Core.DataContext.ofm_standing_history_StatusCode">
             <summary>
             Reason for the status of the Standing History
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_stat_holiday_statecode">
+            <summary>
+            Status of the Statutory Holiday
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_stat_holiday_StatusCode">
+            <summary>
+            Reason for the status of the Statutory Holiday
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_subcategory_statecode">

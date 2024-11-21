@@ -149,7 +149,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
     {
         _logger.LogDebug(CustomLogEvent.Process, nameof(GetBusinessClosuresDataAsync));
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri, false, 0, true);
 
         if (!response.IsSuccessStatusCode)
         {
