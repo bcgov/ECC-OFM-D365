@@ -62,6 +62,11 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                     <fetch>
                       <entity name="ofm_stat_holiday">
                         <attribute name="ofm_date_observed" />
+                        <attribute name="ofm_holiday_type" />
+                        <attribute name="ofm_stat_holidayid" />
+                        <filter>
+                          <condition attribute="ofm_holiday_type" operator="eq" value="2" />
+                        </filter>
                       </entity>
                     </fetch>
                     """;
