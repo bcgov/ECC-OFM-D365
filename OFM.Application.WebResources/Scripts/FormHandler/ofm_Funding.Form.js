@@ -593,7 +593,7 @@ OFM.Funding.Form = {
         var visable = false;
         var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
         userRoles.forEach(function hasRole(item, index) {
-            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC") {
+            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC" || item.name === "OFM - PCM") {
                 visable = true;
             }
         });
