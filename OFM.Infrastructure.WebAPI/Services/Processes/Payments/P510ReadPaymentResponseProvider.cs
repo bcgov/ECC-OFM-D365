@@ -60,19 +60,25 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
         {
             var fetchXml = $$"""
                     <fetch>
-                      <entity name="msdyn_businessclosure">
-                        <attribute name="msdyn_starttime" />
+                      <entity name="ofm_stat_holiday">
+                        <attribute name="ofm_date_observed" />
+                        <attribute name="ofm_holiday_type" />
+                        <attribute name="ofm_stat_holidayid" />
+                        <filter>
+                          <condition attribute="ofm_holiday_type" operator="eq" value="2" />
+                        </filter>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         msdyn_businessclosures?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_stat_holidaies?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
             return requestUri;
         }
     }
+    
     public string PaymentInProcessUri
     {
         get
@@ -148,7 +154,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
     {
         _logger.LogDebug(CustomLogEvent.Process, nameof(GetBusinessClosuresDataAsync));
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri, false, 0, true);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -324,9 +330,8 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
 
     private static List<DateTime> GetStartTimes(string jsonData)
     {
-        var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(jsonData);
-
-        List<DateTime> startTimeList = closures.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
+        var closures = JsonSerializer.Deserialize<List<ofm_stat_holiday>>(jsonData);
+        List<DateTime> startTimeList = closures!.Select(closure => (DateTime)closure.ofm_date_observed).ToList();
 
         return startTimeList;
     }

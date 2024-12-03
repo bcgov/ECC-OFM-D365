@@ -133,14 +133,19 @@ OFM.Supplementary.Form = {
         The end date cannot be after the FA end date
     */
     validateStartDateEndDate: function (executionContext) {
-        // debugger;
+        debugger;
         var formContext = executionContext.getFormContext();
         var startDateStr = formContext.getAttribute("ofm_start_date").getValue();
         var endDateStr = formContext.getAttribute("ofm_end_date").getValue();
 
         if (startDateStr != null && endDateStr != null) {
+
             var startDate = new Date(startDateStr);
             var endDate = new Date(endDateStr);
+
+            console.log(startDate.toISOString());
+            console.log(endDate.toISOString());
+
             var expectedEndDate = new Date(startDateStr);
             expectedEndDate.setFullYear(expectedEndDate.getFullYear() + 1);
 
@@ -189,18 +194,24 @@ OFM.Supplementary.Form = {
                     var fundingStartDateStr = result.entities[0]["ofm_start_date"];
                     var fundingEndDateStr = result.entities[0]["ofm_end_date"];
 
-                    var fundingStartDate = new Date(fundingStartDateStr + "T08:00:00.000Z");
-                    var fundingEndDate = new Date(fundingEndDateStr + "T08:00:00.000Z");
+                    var startDateTimediff = new Date(fundingStartDateStr + "T00:00:00.000Z").getTimezoneOffset() * 60 * 1000;
+                    var endtDateTimediff = new Date(fundingEndDateStr + "T00:00:00.000Z").getTimezoneOffset() * 60 * 1000;
+
+                    var fundingStartDate = new Date(fundingStartDateStr + "T00:00:00.000Z").getTime() + startDateTimediff;
+                    var fundingEndDate = new Date(fundingEndDateStr + "T00:00:00.000Z").getTime() + endtDateTimediff;
+
+                    console.log(fundingStartDate);
+                    console.log(fundingEndDate);
 
                     //1. The start date cannot be before the FA start date
-                    if (startDate.getTime() < fundingStartDate.getTime()) {
+                    if (startDate.getTime() < fundingStartDate) {
                         formContext.getControl("ofm_start_date").setNotification("The start date cannot be before the FA start date", "rule_1");
                     } else {
                         formContext.getControl("ofm_start_date").clearNotification("rule_1");
                     }
 
                     //3. The end date cannot be after the FA end date
-                    if (endDate.getTime() > fundingEndDate.getTime()) {
+                    if (endDate.getTime() > fundingEndDate) {
                         formContext.getControl("ofm_end_date").setNotification("The end date cannot be after the FA end date", "rule_3");
                     } else {
                         formContext.getControl("ofm_end_date").clearNotification("rule_3");
@@ -275,7 +286,7 @@ OFM.Supplementary.Form = {
         Xrm.Navigation.openConfirmDialog(confirmStrings, confirmOptions).then(
             function (success) {
                 if (success.confirmed) {
-                    formContext.getAttribute("statuscode").setValue(6); // 6 = Approved
+                    formContext.getAttribute("statuscode").setValue(6);                                    // 6 = Approved
                     formContext.data.entity.save();
                 }
             },
