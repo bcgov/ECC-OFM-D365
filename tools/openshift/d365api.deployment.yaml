@@ -1,0 +1,191 @@
+---
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: '${REPO_NAME}-template'
+metadata:
+  name: '${REPO_NAME}-d365api-deployment'
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: '${APP_NAME}-d365api-${BRANCH}'
+        branch: '${BRANCH}'
+      name: '${APP_NAME}-d365api-${ENVIRONMENT}'
+    spec:
+      replicas: ${{MIN_REPLICAS}}
+      selector:
+        matchLabels:
+          app: '${APP_NAME}-d365api-${BRANCH}'
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 25%
+          maxSurge: 25%
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          labels:
+            app: '${APP_NAME}-d365api-${BRANCH}'
+        spec:
+          containers:
+            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api:${TAG}
+              imagePullPolicy: Always
+              volumeMounts:
+                # - name: tls-certs
+                #   mountPath: '/etc/tls-certs'
+                #   readOnly: true
+                - name: log-storage
+                  mountPath: /logs
+                - name: config-env
+                  mountPath: /app/appsettings.json
+                  subPath: appsettings.json
+              livenessProbe:
+                initialDelaySeconds: 20
+                failureThreshold: 5
+                httpGet:
+                  path: '/api/Health'
+                  port: 5091
+                  scheme: HTTP
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+              name: '${APP_NAME}-d365api-${ENVIRONMENT}'
+              ports:
+                - containerPort: 5091
+                  protocol: TCP
+                - containerPort: 443
+                  protocol: TCP
+              readinessProbe:
+                initialDelaySeconds: 10
+                failureThreshold: 5
+                httpGet:
+                  path: '/api/Health'
+                  port: 5091
+                  scheme: HTTP
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+              resources:
+                requests:
+                  cpu: '${MIN_CPU}'
+                  memory: '${MIN_MEM}'
+                limits:
+                  cpu: '${MAX_CPU}'
+                  memory: '${MAX_MEM}'
+          volumes:
+            - name: log-storage
+              emptyDir: {}
+            - name: config-env
+              configMap:
+                name: ofm-d365api-${ENVIRONMENT}-config-map
+          # - name: tls-certs
+          #   secret:
+          #     secretName: ofm-backend-cert
+      test: false
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        service.alpha.openshift.io/serving-cert-secret-name: 'ofm-backend-cert'
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: '${APP_NAME}-d365api-${BRANCH}'
+      name: '${APP_NAME}-d365api-${ENVIRONMENT}'
+    spec:
+      ports:
+        - name: 5091-tcp
+          port: 5091
+          protocol: TCP
+          targetPort: 5091
+        - name: 443-https
+          port: 443
+          protocol: TCP
+          targetPort: 443
+      selector:
+        app: '${APP_NAME}-d365api-${BRANCH}'
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: '${APP_NAME}-d365api-${ENVIRONMENT}'
+      labels:
+        app: '${APP_NAME}-d365api-${BRANCH}'
+      annotations:
+        openshift.io/host.generated: 'true'
+        router.openshift.io/cookie-same-site: 'Strict'
+        haproxy.router.openshift.io/ip_whitelist: >-
+          ${HAPROXY_IP_WHITELIST}
+    spec:
+      to:
+        kind: Service
+        name: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        weight: 100
+      port:
+        targetPort: 5091-tcp
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+      wildcardPolicy: None
+  - apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    metadata:
+      name: '${APP_NAME}-d365api-${ENVIRONMENT}-cpu-autoscaler'
+    spec:
+      scaleTargetRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        name: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        subresource: scale
+      minReplicas: ${{MIN_REPLICAS}}
+      maxReplicas: ${{MAX_REPLICAS}}
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 90
+parameters:
+  - name: REPO_NAME
+    description: Application repository name
+    required: true
+  - name: BRANCH
+    description: Job identifier (i.e. 'pr-5' OR 'master')
+    required: true
+  - name: NAMESPACE
+    description: Target namespace reference (i.e. 'k8vopl-dev')
+    required: true
+  - name: ENVIRONMENT
+    description: The environment being created ('dev', 'test', 'uat', 'prod')
+    required: true
+  - name: APP_NAME
+    description: Application name
+    required: true
+  - name: TAG
+    description: The identifying tag for this specific deployment
+    required: true
+  - name: MIN_REPLICAS
+    description: The minimum amount of replicas
+    required: true
+  - name: MAX_REPLICAS
+    description: The maximum amount of replicas
+    required: true
+  - name: MIN_CPU
+    description: The minimum amount of cpu
+    required: true
+  - name: MAX_CPU
+    description: The maximum amount of cpu
+    required: true
+  - name: MIN_MEM
+    description: The minimum amount of memory
+    required: true
+  - name: MAX_MEM
+    description: The maximum amount of memory
+    required: true
+  - name: HAPROXY_IP_WHITELIST
+    description: List of ip addresses delimited by space for access to api. (ex. 12.12.123.12 13.13.123.13). use * to allow access to all.
+    required: true
