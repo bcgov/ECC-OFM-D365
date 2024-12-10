@@ -209,7 +209,11 @@ public class FundingCalculator : IFundingCalculator
                     .NextValidator(new MustHaveValidApplicationStatusRule())
                     .NextValidator(new MustHaveValidOwnershipTypeRule())
                     .NextValidator(new MustHaveValidLicenceRule())
-                    .NextValidator(new MustHaveAtLeastOneValidLicenceDetailRule());
+                    .NextValidator(new MustHaveAtLeastOneValidLicenceDetailRule())
+                    .NextValidator(new MustHaveAtLeastOneOperationalSpaceRule())
+                    .NextValidator(new MustHaveWeeksInOperationRule())
+                    .NextValidator(new MustHaveHoursOfOperationRule())
+                    .NextValidator(new MustHaveDaysOfWeekRule());
         try
         {
             fundingRules.Validate(_funding);
