@@ -6,6 +6,7 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
+using System.Net;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails;
@@ -139,16 +140,19 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                       </filter>
                                     </filter>
                                     <link-entity name="contact" from="contactid" to="ofm_contact" link-type="inner" alias="contact">
-                                      <attribute name="emailaddress1"" />
+                                      <attribute name="emailaddress1" />
                                     </link-entity>
                                   </entity>
                                 </fetch>
                                 """;
 
-                var assistancerequestUri = $"""                                
-                                ofm_assistance_requests?$select=ofm_assistance_requestid,ofm_name,ofm_subject,ofm_submission_time,_ofm_contact_value,ofm_is_read&$expand=ofm_contact($select=emailaddress1)
-                                &$filter=(Microsoft.Dynamics.CRM.LastXDays(PropertyName='ofm_submission_time',PropertyValue=30) and ofm_contact_method eq 1 and _ofm_contact_value ne null and statecode eq 0 and ofm_is_read eq false and (statuscode eq 3 or statuscode eq 4)) and (ofm_contact/contactid ne null)
-                                """;
+                //var assistancerequestUri = $"""                                
+                //                ofm_assistance_requests?$select=ofm_assistance_requestid,ofm_name,ofm_subject,ofm_submission_time,_ofm_contact_value,ofm_is_read&$expand=ofm_contact($select=emailaddress1)
+                //                &$filter=(Microsoft.Dynamics.CRM.LastXDays(PropertyName='ofm_submission_time',PropertyValue=30) and ofm_contact_method eq 1 and _ofm_contact_value ne null and statecode eq 0 and ofm_is_read eq false and (statuscode eq 3 or statuscode eq 4)) and (ofm_contact/contactid ne null)
+                //                """;
+                var assistancerequestUri = $"""
+                                   ofm_assistance_requests?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                                   """;
 
                 _assistanceRequestUri = assistancerequestUri.CleanCRLF();
             }
