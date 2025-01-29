@@ -117,8 +117,6 @@ public class P200EmailReminderProvider : ID365ProcessProvider
 
             if (string.IsNullOrEmpty(_assistanceRequestUri))
             {
-
-                //for reference only
                 var fetchXml = $"""
                                 <fetch>
                                   <entity name="ofm_assistance_request">
@@ -146,10 +144,6 @@ public class P200EmailReminderProvider : ID365ProcessProvider
                                 </fetch>
                                 """;
 
-                //var assistancerequestUri = $"""                                
-                //                ofm_assistance_requests?$select=ofm_assistance_requestid,ofm_name,ofm_subject,ofm_submission_time,_ofm_contact_value,ofm_is_read&$expand=ofm_contact($select=emailaddress1)
-                //                &$filter=(Microsoft.Dynamics.CRM.LastXDays(PropertyName='ofm_submission_time',PropertyValue=30) and ofm_contact_method eq 1 and _ofm_contact_value ne null and statecode eq 0 and ofm_is_read eq false and (statuscode eq 3 or statuscode eq 4)) and (ofm_contact/contactid ne null)
-                //                """;
                 var assistancerequestUri = $"""
                                    ofm_assistance_requests?fetchXml={WebUtility.UrlEncode(fetchXml)}
                                    """;
