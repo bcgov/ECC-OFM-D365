@@ -213,6 +213,17 @@ public record D365Template
     public string? templatecode { get; set; }
 }
 
+public record D365AssistanceRequest
+{
+    public string? ofm_assistance_requestid { get; set; }
+    public string? ofm_name { get; set; }
+    public string? ofm_subject { get; set; }
+    public DateTime? ofm_submission_time { get; set; }
+    public string? _ofm_contact_value { get; set; }
+    public bool? ofm_is_read { get; set; }
+    [property: JsonPropertyName("contact.emailaddress1")]
+    public string? emailaddress1 { get; set; }
+}
 public record D365Email
 {
     public string? activityid { get; set; }
