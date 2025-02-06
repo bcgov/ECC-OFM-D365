@@ -2,9 +2,12 @@
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System;
 using System.Net;
+using System.Reflection.PortableExecutable;
 using System.Text.Json.Nodes;
 using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
@@ -282,14 +285,12 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             //Create a new report
             var newReportRequest = new CreateRequest("ofm_survey_responses", reportData);
+            newReportRequest.Headers.Add("Prefer", "return=representation");
             requests.Add(newReportRequest);
         }
 
         var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);
 
-        var endTime = _timeProvider.GetTimestamp();
-
-        _logger.LogInformation(CustomLogEvent.Process, "Create Monthly report process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
 
         if (batchResult.Errors.Any())
         {
@@ -299,6 +300,103 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             return result.SimpleProcessResult;
         }
+
+
+        #region Step 2: Copy Response from previous month
+        var createdReports = batchResult.Result;
+        var previousMonth = new DateTime(monthEndDateInPST.Year, monthEndDateInPST.Month, 1).AddMonths(-1);
+
+        List<HttpRequestMessage> questionResponseRequests = [];
+
+        foreach (var report in createdReports)
+        {
+            var uid = report["ofm_survey_responseid"].ToString();
+            var facId = report["_ofm_facility_value"].ToString();
+
+            //get the question responses from report
+            var previousHRQuestionResponseXML = $"""
+                    <fetch version="1.0" mapping="logical" distinct="true" no-lock="true">
+                      <entity name="ofm_question_response">
+                        <attribute name="ofm_response_text" />
+                        <attribute name="ofm_row_id" />
+                        <attribute name="ofm_header" />
+                        <attribute name="ofm_question" />
+                        <link-entity name="ofm_survey_response" from="ofm_survey_responseid" to="ofm_survey_response">
+                          <attribute name="ofm_response_id" />
+                          <attribute name="ofm_facility" />
+                          <attribute name="ofm_start_date" />
+                          <attribute name="ofm_submitted_on" />
+                          <filter>
+                            <condition attribute="ofm_facility" operator="eq" value="{facId}" />
+                            <condition attribute="ofm_start_date" operator="on" value="{previousMonth}" />
+                            <condition attribute="ofm_submitted_on" operator="not-null" value="" />
+                          </filter>
+                        </link-entity>
+                        <link-entity name="ofm_question" from="ofm_questionid" to="ofm_question">
+                          <attribute name="ofm_questionid" />
+                          <filter>
+                            <condition attribute="ofm_question_id" operator="in">
+                                <value>QID104</value>
+                                <value>QID104_1_3_1</value>
+                                <value>QID104_1_4_1</value>
+                                <value>QID104_1_1</value>
+                                <value>QID104_1_2</value>
+                                <value>QID104_1_5</value>
+                                <value>QID108</value>
+                                <value>QID111</value>
+                                <value>QID111_1_1</value>
+                                <value>QID132</value>
+                                <value>QID133</value>
+                                <value>QID133_10_TEXT</value>
+                                <value>QID79</value>
+                                <value>QID_39</value>
+                                <value>QID79_1_1</value>
+                            </condition>
+                          </filter>
+                        </link-entity>
+                      </entity>
+                    </fetch>
+                    """;
+                var previousHRQuestionResponseUri = $"""
+                            ofm_question_responses?fetchXml={WebUtility.UrlEncode(previousHRQuestionResponseXML)}
+                            """.CleanCRLF();
+                var previousHRQuestionResponseData = await GetReportDataAsync(previousHRQuestionResponseUri);
+                var serializedPreviousHRQuestionResponseData = System.Text.Json.JsonSerializer.Deserialize<List<QuestionResponse>>(previousHRQuestionResponseData.Data, Setup.s_writeOptionsForLogs);
+
+                foreach(var questionResponse in serializedPreviousHRQuestionResponseData)
+                {
+                        var newQuestionResponse = new JsonObject
+                        {
+                            {"ofm_survey_response@odata.bind", $"/ofm_survey_responses({uid})"},
+                            {"ofm_question@odata.bind", $"/ofm_questions({questionResponse.ofm_questionid})" },
+                            {"ofm_header@odata.bind", String.IsNullOrEmpty(questionResponse.ofm_headerid)? null:$"/ofm_questions({questionResponse.ofm_headerid})" },
+                            {"ofm_row_id", questionResponse.ofm_row_id},
+                            {"ofm_response_text", questionResponse.ofm_response_text}
+                        };
+
+                        //Create a new report
+                        var newQuestionResponseRequest = new CreateRequest("ofm_question_responses", newQuestionResponse);
+                        questionResponseRequests.Add(newQuestionResponseRequest);
+                }
+        }
+
+        var questionResponseBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, questionResponseRequests, null);
+
+        var endTime = _timeProvider.GetTimestamp();
+
+        _logger.LogInformation(CustomLogEvent.Process, "Create Monthly report process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
+
+
+        if (questionResponseBatchResult.Errors.Any())
+        {
+            var result = ProcessResult.Failure(ProcessId, questionResponseBatchResult.Errors, questionResponseBatchResult.TotalProcessed, questionResponseBatchResult.TotalRecords);
+
+            _logger.LogError(CustomLogEvent.Process, "Copy HR response process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
+
+            return result.SimpleProcessResult;
+        }
+
+        #endregion
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
