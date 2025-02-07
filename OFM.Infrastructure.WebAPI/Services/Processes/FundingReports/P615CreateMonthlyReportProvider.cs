@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
@@ -146,7 +147,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
         _processParams = processParams;
 
-        if (_processParams == null || _processParams.FundingReport == null || _processParams.FundingReport.BatchFlag == null)
+        if (_processParams == null || _processParams.FundingReport == null || _processParams.FundingReport.BatchFlag == null || _processParams.FundingReport.HRQuestions == null)
         {
             _logger.LogError(CustomLogEvent.Process, "BatchFlag is missing.");
             throw new Exception("BatchFlag is missing.");
@@ -305,6 +306,8 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         #region Step 2: Copy Response from previous month
         var createdReports = batchResult.Result;
         var previousMonth = new DateTime(monthEndDateInPST.Year, monthEndDateInPST.Month, 1).AddMonths(-1);
+        var hrQuestionIds = _processParams.FundingReport.HRQuestions.Split(",");
+        var hrQuestionIdsXML = "<value>" + String.Join("</value>\r\n            <value>", hrQuestionIds) + "</value>";
 
         List<HttpRequestMessage> questionResponseRequests = [];
 
@@ -336,21 +339,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                           <attribute name="ofm_questionid" />
                           <filter>
                             <condition attribute="ofm_question_id" operator="in">
-                                <value>QID104</value>
-                                <value>QID104_1_3_1</value>
-                                <value>QID104_1_4_1</value>
-                                <value>QID104_1_1</value>
-                                <value>QID104_1_2</value>
-                                <value>QID104_1_5</value>
-                                <value>QID108</value>
-                                <value>QID111</value>
-                                <value>QID111_1_1</value>
-                                <value>QID132</value>
-                                <value>QID133</value>
-                                <value>QID133_10_TEXT</value>
-                                <value>QID79</value>
-                                <value>QID_39</value>
-                                <value>QID79_1_1</value>
+                              {hrQuestionIdsXML}
                             </condition>
                           </filter>
                         </link-entity>
@@ -378,6 +367,12 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                         var newQuestionResponseRequest = new CreateRequest("ofm_question_responses", newQuestionResponse);
                         questionResponseRequests.Add(newQuestionResponseRequest);
                 }
+        }
+
+        if(questionResponseRequests.Count == 0)
+        {
+            _logger.LogInformation(CustomLogEvent.Process, "Cannot find HR questions responses.");
+            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
 
         var questionResponseBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, questionResponseRequests, null);
