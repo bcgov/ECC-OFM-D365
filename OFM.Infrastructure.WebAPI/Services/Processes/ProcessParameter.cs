@@ -67,7 +67,6 @@ public record ProcessParameter
     [property: JsonPropertyName("dataImportId")]
     public Guid? DataImportId { get; set; }
 
-
     #region Inner Parameter Record Objects
 
     public record PaymentParameter
@@ -178,6 +177,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("facilityId")]
         public string? FacilityId { get; set; }
+
+        [property: JsonPropertyName("hrQuestions")]
+        public string? HRQuestions { get; set; }
     }
 
     #endregion

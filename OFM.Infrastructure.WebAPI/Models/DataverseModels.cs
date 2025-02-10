@@ -457,6 +457,15 @@ public class ProviderStaff
     public string Facility_Name_Report { get { return Facility_Name; } set { Facility_Name = value; } }
 }
 
+public class QuestionResponse : ofm_question_response
+{
+    [property: JsonPropertyName("_ofm_question_value")]
+    public string ofm_questionid { get; set; }
+    [property: JsonPropertyName("_ofm_header_value")]
+    public string ofm_headerid { get; set; }
+}
+
+
 #region External Parameters
 
 #endregion

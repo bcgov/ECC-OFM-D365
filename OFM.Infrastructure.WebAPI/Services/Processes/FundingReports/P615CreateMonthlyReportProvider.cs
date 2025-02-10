@@ -1,10 +1,14 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System;
 using System.Net;
+using System.Reflection.PortableExecutable;
 using System.Text.Json.Nodes;
 using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
@@ -19,6 +23,9 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
     private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
     private ProcessParameter? _processParams;
+    private string _facId;
+    private DateTime _previousMonth;
+    private string _hrQuestionIdsXML;
 
     public Int16 ProcessId => Setup.Process.FundingReports.CreateMonthlyReportId;
     public string ProcessName => Setup.Process.FundingReports.CreateMonthlyReportName;
@@ -51,6 +58,49 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                                 """;
 
             return requestUri.CleanCRLF();
+        }
+    }
+
+    public string HRQuestionResponseUri
+    {
+        get
+        {
+            // Note: Get the active funding record
+            //for reference only
+            var fetchXml = $"""
+                                <fetch version="1.0" mapping="logical" distinct="true" no-lock="true">
+                                  <entity name="ofm_question_response">
+                                    <attribute name="ofm_response_text" />
+                                    <attribute name="ofm_row_id" />
+                                    <attribute name="ofm_header" />
+                                    <attribute name="ofm_question" />
+                                    <link-entity name="ofm_survey_response" from="ofm_survey_responseid" to="ofm_survey_response">
+                                      <attribute name="ofm_response_id" />
+                                      <attribute name="ofm_facility" />
+                                      <attribute name="ofm_start_date" />
+                                      <attribute name="ofm_submitted_on" />
+                                      <filter>
+                                        <condition attribute="ofm_facility" operator="eq" value="{_facId}" />
+                                        <condition attribute="ofm_start_date" operator="on" value="{_previousMonth}" />
+                                        <condition attribute="ofm_submitted_on" operator="not-null" value="" />
+                                      </filter>
+                                    </link-entity>
+                                    <link-entity name="ofm_question" from="ofm_questionid" to="ofm_question">
+                                      <attribute name="ofm_questionid" />
+                                      <filter>
+                                        <condition attribute="ofm_question_id" operator="in">
+                                          {_hrQuestionIdsXML}
+                                        </condition>
+                                      </filter>
+                                    </link-entity>
+                                  </entity>
+                                </fetch>
+                                """;
+
+            var previousHRQuestionResponseUri = $"""
+                            ofm_question_responses?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """.CleanCRLF();
+            return previousHRQuestionResponseUri;
         }
     }
 
@@ -143,7 +193,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
         _processParams = processParams;
 
-        if (_processParams == null || _processParams.FundingReport == null || _processParams.FundingReport.BatchFlag == null)
+        if (_processParams == null || _processParams.FundingReport == null || _processParams.FundingReport.BatchFlag == null || _processParams.FundingReport.HRQuestions == null)
         {
             _logger.LogError(CustomLogEvent.Process, "BatchFlag is missing.");
             throw new Exception("BatchFlag is missing.");
@@ -282,14 +332,12 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             //Create a new report
             var newReportRequest = new CreateRequest("ofm_survey_responses", reportData);
+            newReportRequest.Headers.Add("Prefer", "return=representation");
             requests.Add(newReportRequest);
         }
 
         var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);
 
-        var endTime = _timeProvider.GetTimestamp();
-
-        _logger.LogInformation(CustomLogEvent.Process, "Create Monthly report process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
 
         if (batchResult.Errors.Any())
         {
@@ -299,6 +347,64 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             return result.SimpleProcessResult;
         }
+
+
+        #region Step 2: Copy Response from previous month
+        var createdReports = batchResult.Result;
+        _previousMonth = new DateTime(monthEndDateInPST.Year, monthEndDateInPST.Month, 1).AddMonths(-1);
+        var hrQuestionIds = _processParams.FundingReport.HRQuestions.Split(",");
+        _hrQuestionIdsXML = "<value>" + String.Join("</value>\r\n            <value>", hrQuestionIds) + "</value>";
+
+        List<HttpRequestMessage> questionResponseRequests = [];
+
+        foreach (var report in createdReports)
+        {
+            var uid = report["ofm_survey_responseid"].ToString();
+            _facId = report["_ofm_facility_value"].ToString();
+
+            var previousHRQuestionResponseData = await GetReportDataAsync(HRQuestionResponseUri);
+            var serializedPreviousHRQuestionResponseData = System.Text.Json.JsonSerializer.Deserialize<List<QuestionResponse>>(previousHRQuestionResponseData.Data, Setup.s_writeOptionsForLogs);
+
+            foreach(var questionResponse in serializedPreviousHRQuestionResponseData)
+            {
+                    var newQuestionResponse = new JsonObject
+                    {
+                        {"ofm_survey_response@odata.bind", $"/ofm_survey_responses({uid})"},
+                        {"ofm_question@odata.bind", $"/ofm_questions({questionResponse.ofm_questionid})" },
+                        {"ofm_header@odata.bind", String.IsNullOrEmpty(questionResponse.ofm_headerid)? null:$"/ofm_questions({questionResponse.ofm_headerid})" },
+                        {"ofm_row_id", questionResponse.ofm_row_id},
+                        {"ofm_response_text", questionResponse.ofm_response_text}
+                    };
+
+                    //Create a new report
+                    var newQuestionResponseRequest = new CreateRequest("ofm_question_responses", newQuestionResponse);
+                    questionResponseRequests.Add(newQuestionResponseRequest);
+            }
+        }
+
+        if(questionResponseRequests.Count == 0)
+        {
+            _logger.LogInformation(CustomLogEvent.Process, "Cannot find HR questions responses.");
+            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+        }
+
+        var questionResponseBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, questionResponseRequests, null);
+
+        var endTime = _timeProvider.GetTimestamp();
+
+        _logger.LogInformation(CustomLogEvent.Process, "Create Monthly report process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
+
+
+        if (questionResponseBatchResult.Errors.Any())
+        {
+            var result = ProcessResult.Failure(ProcessId, questionResponseBatchResult.Errors, questionResponseBatchResult.TotalProcessed, questionResponseBatchResult.TotalRecords);
+
+            _logger.LogError(CustomLogEvent.Process, "Copy HR response process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
+
+            return result.SimpleProcessResult;
+        }
+
+        #endregion
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
