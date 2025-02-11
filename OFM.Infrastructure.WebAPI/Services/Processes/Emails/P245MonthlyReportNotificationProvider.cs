@@ -47,23 +47,59 @@ public class P245MonthlyReportNotificationProvider : ID365ProcessProvider
     {
         get
         {
-            var fetchXml = $"""
+            var fetchXml = String.Empty;
+            if ((bool)_processParams?.FundingReport?.BatchFlag)
+            {
+                fetchXml = $"""
                     <fetch version="1.0" mapping="logical" distinct="true" no-lock="true">
                       <entity name="contact">
                         <attribute name="emailaddress1" />
                         <attribute name="ofm_first_name" />
                         <attribute name="ofm_last_name" />
+                        <attribute name="contactid" />
                         <link-entity name="account" from="ofm_primarycontact" to="contactid">
                           <link-entity name="ofm_survey_response" from="ofm_facility" to="accountid">
                             <filter>
-                              <condition attribute="createdon" operator="on" value="{}" />
-                              <condition attribute="ofm_start_date" operator="on" value="{_processParams.Notification.startDate}" />
+                              <condition attribute="createdon" operator="on" value="{DateTime.UtcNow}" />
+                              <condition attribute="ofm_start_date" operator="on" value="{_processParams?.Notification?.ReportStartDate}" />
                             </filter>
                           </link-entity>
                         </link-entity>
                       </entity>
                     </fetch>
                     """;
+            }
+            else
+            {
+                if (_processParams.FundingReport.FacilityId == null)
+                {
+                    _logger.LogError(CustomLogEvent.Process, "Facility id is missing.");
+                    throw new Exception("Facility id is missing.");
+                }
+
+                fetchXml = $"""
+                    <fetch distinct="true">
+                      <entity name="contact">
+                        <attribute name="emailaddress1" />
+                        <attribute name="ofm_first_name" />
+                        <attribute name="ofm_last_name" />
+                        <attribute name="contactid" />
+                        <link-entity name="account" from="ofm_primarycontact" to="contactid">
+                          <attribute name="name" />
+                          <filter>
+                            <condition attribute="accountid" operator="eq" value="{_processParams.FundingReport.FacilityId}" />
+                          </filter>
+                          <link-entity name="ofm_survey_response" from="ofm_facility" to="accountid">
+                            <filter>
+                              <condition attribute="createdon" operator="on" value="{DateTime.UtcNow}" />
+                              <condition attribute="ofm_start_date" operator="on" value="{_processParams?.Notification?.ReportStartDate}" />
+                            </filter>
+                          </link-entity>
+                        </link-entity>
+                      </entity>
+                    </fetch>
+                    """;
+            }
 
             var requestUri = $"""
                          contacts?fetchXml={WebUtility.UrlEncode(fetchXml)}
@@ -111,8 +147,16 @@ public class P245MonthlyReportNotificationProvider : ID365ProcessProvider
         _processParams = processParams;
         var startTime = _timeProvider.GetTimestamp();
 
+
+        if (_processParams == null || _processParams.FundingReport == null || _processParams.FundingReport.BatchFlag == null || _processParams.Notification.ReportStartDate == null)
+        {
+            _logger.LogError(CustomLogEvent.Process, "_processParams is missing.");
+            throw new Exception("_processParams is missing.");
+
+        }
+
         IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
-        _informationCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.Information)
+        _informationCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.ActionRequired)
                                                 .Select(s => s.ofm_communication_typeid).FirstOrDefault();
 
         
@@ -123,14 +167,29 @@ public class P245MonthlyReportNotificationProvider : ID365ProcessProvider
             _logger.LogInformation("No records returned from FetchXml", deserializedData.Count);
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
-        var recipientsList = deserializedData.Select(contact => contact.Id).Distinct().ToList();
-        var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 215).TemplateNumber);
+
+        List<Guid> recipientsList = new List<Guid>();
+        // add contact safelist check code
+
+        deserializedData?.Select(contact => new {contact.contactid, contact.emailaddress1}).Distinct().ToList().ForEach(recipient =>
+        {
+            if (_notificationSettings.EmailSafeList.Enable &&
+                !_notificationSettings.EmailSafeList.Recipients.Any(x => x.Equals(recipient?.emailaddress1, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                recipientsList.Add(new Guid(_notificationSettings.EmailSafeList.DefaultContactId));
+            }
+            else
+            {
+                recipientsList.Add(new Guid($"{recipient.contactid}"));
+            }
+        });
+
+        var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 295).TemplateNumber);
         var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
         var templateobj = serializedDataTemplate?.FirstOrDefault();
         var subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
         var emaildescription = templateobj?.safehtml;
-
-        await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 245);
+        await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, new Guid(_notificationSettings.DefaultSenderId), _informationCommunicationType, appUserService, d365WebApiService, 245);
 
 
         var result = ProcessResult.Success(ProcessId, deserializedData!.Count);

@@ -104,6 +104,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("emailBody")]
         public string? EmailBody { get; set; }
+
+        [property: JsonPropertyName("reportStartDate")]
+        public DateTime? ReportStartDate { get; set; }
     }
 
     public record OrganizationParameter
