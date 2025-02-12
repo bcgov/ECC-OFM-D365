@@ -60,7 +60,7 @@ public class P245MonthlyReportNotificationProvider : ID365ProcessProvider
                         <link-entity name="account" from="ofm_primarycontact" to="contactid">
                           <link-entity name="ofm_survey_response" from="ofm_facility" to="accountid">
                             <filter>
-                              <condition attribute="createdon" operator="on" value="{DateTime.UtcNow}" />
+                              <condition attribute="createdon" operator="on" value="{DateTime.UtcNow.Date}" />
                               <condition attribute="ofm_start_date" operator="on" value="{_processParams?.Notification?.ReportStartDate}" />
                             </filter>
                           </link-entity>
@@ -91,7 +91,7 @@ public class P245MonthlyReportNotificationProvider : ID365ProcessProvider
                           </filter>
                           <link-entity name="ofm_survey_response" from="ofm_facility" to="accountid">
                             <filter>
-                              <condition attribute="createdon" operator="on" value="{DateTime.UtcNow}" />
+                              <condition attribute="createdon" operator="on" value="{DateTime.UtcNow.Date}" />
                               <condition attribute="ofm_start_date" operator="on" value="{_processParams?.Notification?.ReportStartDate}" />
                             </filter>
                           </link-entity>
