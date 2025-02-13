@@ -459,10 +459,10 @@ public class ProviderStaff
 
 public class QuestionResponse : ofm_question_response
 {
-    [property: JsonPropertyName("_ofm_question_value")]
-    public string ofm_questionid { get; set; }
-    [property: JsonPropertyName("_ofm_header_value")]
-    public string ofm_headerid { get; set; }
+    [property: JsonPropertyName("question.ofm_question_id")]
+    public string ofm_question_qid { get; set; }
+    [property: JsonPropertyName("header.ofm_question_id")]
+    public string ofm_header_qid { get; set; }
 }
 
 
