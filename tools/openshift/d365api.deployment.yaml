@@ -33,7 +33,7 @@ objects:
             app: '${APP_NAME}-d365api-${ENVIRONMENT}'
         spec:
           containers:
-            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api:${TAG}
+            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api-${BRANCH}:${TAG}
               imagePullPolicy: Always
               volumeMounts:
                 # - name: tls-certs
