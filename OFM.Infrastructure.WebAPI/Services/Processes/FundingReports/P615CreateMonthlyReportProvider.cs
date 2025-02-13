@@ -104,7 +104,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             // Note: Get the active funding record
             //for reference only
             var fetchXml = $"""
-                                <fetch version="1.0" mapping="logical" savedqueryid="5e597ee6-139c-49f4-ae01-2efb6a6b9f2b" no-lock="false" distinct="true">
+                                <fetch version="1.0" mapping="logical" no-lock="true" distinct="true">
                                   <entity name="ofm_question_response">
                                     <attribute name="ofm_response_text" />
                                     <link-entity name="ofm_survey_response" link-type="inner" from="ofm_survey_responseid" to="ofm_survey_response">
