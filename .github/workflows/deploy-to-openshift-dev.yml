@@ -152,8 +152,7 @@ jobs:
           # Create the image stream if it doesn't exist
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
 
-          oc tag ${{ steps.push-image-backend.outputs.registry-path }} \
-            ${{ env.IMAGE_NAME }}-${{ env.BRANCH }}:${{ env.TAG }}
+          oc tag ${{ steps.push-image-backend.outputs.registry-path }} ${{ env.IMAGE_NAME }}:${{ env.TAG }}
 
           # Process and apply deployment template
           oc process \
