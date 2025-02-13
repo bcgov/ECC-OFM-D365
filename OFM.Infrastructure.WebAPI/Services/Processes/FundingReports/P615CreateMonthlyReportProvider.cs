@@ -26,6 +26,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
     private string _facId;
     private DateTime _previousMonth;
     private string _hrQuestionIdsXML;
+    private Guid _reportTemplateId;
 
     public Int16 ProcessId => Setup.Process.FundingReports.CreateMonthlyReportId;
     public string ProcessName => Setup.Process.FundingReports.CreateMonthlyReportName;
@@ -61,6 +62,41 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         }
     }
 
+    public string HRQuestionTemplateUri
+    {
+        get
+        {
+            // Note: Get the active funding record
+            //for reference only
+            var fetchXml = $"""
+                                <fetch distinct="true">
+                                  <entity name="ofm_question">
+                                    <attribute name="ofm_question_id" />
+                                    <attribute name="ofm_header" />
+                                    <attribute name="ofm_questionid" />
+                                    <filter>
+                                      <condition attribute="ofm_question_id" operator="in">
+                                        {_hrQuestionIdsXML}
+                                      </condition>
+                                    </filter>
+                                    <link-entity name="ofm_section" from="ofm_sectionid" to="ofm_section">
+                                      <link-entity name="ofm_survey" from="ofm_surveyid" to="ofm_survey">
+                                        <filter>
+                                          <condition attribute="ofm_surveyid" operator="eq" value="{_reportTemplateId}" />
+                                        </filter>
+                                      </link-entity>
+                                    </link-entity>
+                                  </entity>
+                                </fetch>
+                                """;
+
+            var hrQuestionTemplateUri = $"""
+                            ofm_questions?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                            """.CleanCRLF();
+            return hrQuestionTemplateUri;
+        }
+    }
+
     public string HRQuestionResponseUri
     {
         get
@@ -68,31 +104,33 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             // Note: Get the active funding record
             //for reference only
             var fetchXml = $"""
-                                <fetch version="1.0" mapping="logical" distinct="true" no-lock="true">
+                                <fetch version="1.0" mapping="logical" savedqueryid="5e597ee6-139c-49f4-ae01-2efb6a6b9f2b" no-lock="false" distinct="true">
                                   <entity name="ofm_question_response">
                                     <attribute name="ofm_response_text" />
-                                    <attribute name="ofm_row_id" />
-                                    <attribute name="ofm_header" />
-                                    <attribute name="ofm_question" />
-                                    <link-entity name="ofm_survey_response" from="ofm_survey_responseid" to="ofm_survey_response">
-                                      <attribute name="ofm_response_id" />
-                                      <attribute name="ofm_facility" />
-                                      <attribute name="ofm_start_date" />
-                                      <attribute name="ofm_submitted_on" />
-                                      <filter>
+                                    <link-entity name="ofm_survey_response" link-type="inner" from="ofm_survey_responseid" to="ofm_survey_response">
+                                      <filter type="and">
                                         <condition attribute="ofm_facility" operator="eq" value="{_facId}" />
                                         <condition attribute="ofm_start_date" operator="on" value="{_previousMonth}" />
-                                        <condition attribute="ofm_submitted_on" operator="not-null" value="" />
+                                        <condition attribute="ofm_submitted_on" operator="not-null" />
                                       </filter>
                                     </link-entity>
-                                    <link-entity name="ofm_question" from="ofm_questionid" to="ofm_question">
-                                      <attribute name="ofm_questionid" />
+                                    <link-entity name="ofm_question" from="ofm_questionid" to="ofm_question" link-type="outer" alias="question">
+                                      <attribute name="ofm_question_id" />
                                       <filter>
                                         <condition attribute="ofm_question_id" operator="in">
-                                          {_hrQuestionIdsXML}
+                                         {_hrQuestionIdsXML}
                                         </condition>
                                       </filter>
+                                      <link-entity name="ofm_section" from="ofm_sectionid" to="ofm_section">
+                                        <filter>
+                                          <condition attribute="ofm_section_title" operator="begins-with" value="Human" />
+                                        </filter>
+                                      </link-entity>
                                     </link-entity>
+                                    <link-entity name="ofm_question" from="ofm_questionid" to="ofm_header" link-type="outer" alias="header" visible="false">
+                                      <attribute name="ofm_question_id" />
+                                    </link-entity>
+                                    <attribute name="ofm_row_id" />
                                   </entity>
                                 </fetch>
                                 """;
@@ -103,7 +141,6 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             return previousHRQuestionResponseUri;
         }
     }
-
 
     public async Task<ProcessData> GetDataAsync()
     {
@@ -153,7 +190,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to query fiscal year with the server error {responseBody}", responseBody.CleanLog());
+            _logger.LogError(CustomLogEvent.Process, "Failed to query result with the server error {responseBody}", responseBody.CleanLog());
 
             return await Task.FromResult(new ProcessData(string.Empty));
         }
@@ -165,7 +202,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         {
             if (currentValue?.AsArray().Count == 0)
             {
-                _logger.LogInformation(CustomLogEvent.Process, "No fiscal year found with query {requestUri}", uri.CleanLog());
+                _logger.LogInformation(CustomLogEvent.Process, "No result found with query {requestUri}", uri.CleanLog());
             }
             d365Result = currentValue!;
         }
@@ -296,7 +333,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             _logger.LogInformation(CustomLogEvent.Process, "Cannot find report template.");
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
-        var reportTempateId = reportTemplate.Id;
+        _reportTemplateId = reportTemplate.Id;
 
 
         //Convert the report Month
@@ -323,7 +360,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             var reportData = new JsonObject
             {
                 {"ofm_facility@odata.bind", $"/accounts({facility})"},
-                {"ofm_survey@odata.bind", $"/ofm_surveies({reportTempateId})" },
+                {"ofm_survey@odata.bind", $"/ofm_surveies({_reportTemplateId})" },
                 {"ofm_fiscal_year@odata.bind", $"/ofm_fiscal_years({fiscalYear})" },
                 {"ofm_report_month", reportMonth},
                 {"ofm_duedate", duedateInUTC },
@@ -355,6 +392,11 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         var hrQuestionIds = _processParams.FundingReport.HRQuestions.Split(",");
         _hrQuestionIdsXML = "<value>" + String.Join("</value>\r\n            <value>", hrQuestionIds) + "</value>";
 
+        //Get question template for current report template
+
+        var hrQuestionTemplateData = await GetReportDataAsync(HRQuestionTemplateUri);
+        var serializedHRQuestionTemplateData = System.Text.Json.JsonSerializer.Deserialize<List<Question>>(hrQuestionTemplateData.Data, Setup.s_writeOptionsForLogs);
+
         List<HttpRequestMessage> questionResponseRequests = [];
 
         foreach (var report in createdReports)
@@ -367,12 +409,16 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             foreach(var questionResponse in serializedPreviousHRQuestionResponseData)
             {
-                    var newQuestionResponse = new JsonObject
+
+                var questionTemplateId = $"/ofm_questions({serializedHRQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_question_qid).FirstOrDefault().ofm_questionid})";
+                var headerTemplateId = String.IsNullOrEmpty(questionResponse.ofm_header_qid) ? null:$"/ofm_questions({serializedHRQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_header_qid).FirstOrDefault().ofm_questionid})";
+
+                var newQuestionResponse = new JsonObject
                     {
                         {"ofm_survey_response@odata.bind", $"/ofm_survey_responses({uid})"},
-                        {"ofm_question@odata.bind", $"/ofm_questions({questionResponse.ofm_questionid})" },
-                        {"ofm_header@odata.bind", String.IsNullOrEmpty(questionResponse.ofm_headerid)? null:$"/ofm_questions({questionResponse.ofm_headerid})" },
-                        {"ofm_row_id", questionResponse.ofm_row_id},
+                        {"ofm_question@odata.bind", questionTemplateId },
+                        {"ofm_header@odata.bind", headerTemplateId },
+                        {"ofm_row_id", questionResponse.ofm_row_id },
                         {"ofm_response_text", questionResponse.ofm_response_text}
                     };
 
