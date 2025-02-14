@@ -6,7 +6,7 @@ env:
   OPENSHIFT_NAMESPACE: ${{ secrets.OFM_NAMESPACE_NO_ENV }}-dev
 
   REPO_NAME: 'ecc-ofm'
-  BRANCH: ${{ github.ref_name }}
+  BRANCH: ${{ lower(github.ref_name) }}
   APP_NAME_BACKEND: 'd365api'
 
 on:

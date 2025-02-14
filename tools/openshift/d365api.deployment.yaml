@@ -13,7 +13,7 @@ objects:
         openshift.io/generated-by: OpenShiftNewApp
       labels:
         app: '${APP_NAME}-d365api-${ENVIRONMENT}'
-        branch: '${BRANCH}'
+        branch: '${lower(BRANCH)}'
       name: '${APP_NAME}-d365api-${ENVIRONMENT}'
     spec:
       replicas: ${{MIN_REPLICAS}}
