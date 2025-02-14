@@ -22,7 +22,7 @@ env:
 
   APP_NAME: 'ofm'
   REPO_NAME: 'ecc-ofm-d365'
-  BRANCH: ${{ github.ref_name,, }}
+  BRANCH: ${{ github.ref_name }}
   IMAGE_NAME: 'ecc-ofm-d365api'
   APP_NAME_BACKEND: 'd365api'
   # We have multiple environments in each openshift namespace dev, test in DEV and uat, efx in TEST. This setting will help name the deployment config and routes for each.
