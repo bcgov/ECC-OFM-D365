@@ -123,8 +123,12 @@ jobs:
           # Create the image stream if it doesn't exist
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
 
+          BRANCH_DOWNCASE=$(echo '${{ env.BRANCH }}' | tr '[A-Z]' '[a-z]')
+
           # Create tag for EFX env from DEV env image
-          oc tag ${{ env.NAMESPACE }}-dev/${{ env.IMAGE_NAME }}-${{ env.BRANCH }}:${{ inputs.tag }} ${{ env.NAMESPACE }}-test/${{ env.IMAGE_NAME }}-${{ env.BRANCH }}:${{ inputs.tag }}
+          oc tag \
+            ${{ env.NAMESPACE }}-dev/${{ env.IMAGE_NAME }}-$BRANCH_DOWNCASE:${{ inputs.tag }} \
+            ${{ env.NAMESPACE }}-test/${{ env.IMAGE_NAME }}-$BRANCH_DOWNCASE:${{ inputs.tag }}
 
           # Process and apply deployment template
           oc process \
@@ -132,6 +136,7 @@ jobs:
             -p APP_NAME=${{ env.APP_NAME }} \
             -p REPO_NAME=${{ env.REPO_NAME }} \
             -p BRANCH=${{ env.BRANCH }} \
+            -p BRANCH_DOWNCASE="$BRANCH_DOWNCASE" \
             -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} \
             -p TAG=${{ inputs.tag }} \
             -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} \

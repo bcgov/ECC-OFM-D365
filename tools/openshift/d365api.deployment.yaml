@@ -33,7 +33,7 @@ objects:
             app: '${APP_NAME}-d365api-${ENVIRONMENT}'
         spec:
           containers:
-            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api-${BRANCH}:${TAG}
+            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api-${BRANCH_DOWNCASE}:${TAG}
               imagePullPolicy: Always
               volumeMounts:
                 # - name: tls-certs
@@ -155,6 +155,9 @@ parameters:
     required: true
   - name: BRANCH
     description: Job identifier (i.e. 'pr-5' OR 'master')
+    required: true
+  - name: BRANCH_DOWNCASE
+    description: Job identifier (i.e. 'pr-5' OR 'master'), but in lowercase letters only
     required: true
   - name: NAMESPACE
     description: Target namespace reference (i.e. 'k8vopl-dev')

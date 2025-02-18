@@ -119,12 +119,15 @@ jobs:
           oc rollout cancel deployment/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }} 2> /dev/null \
             || true && echo "No rollout in progress"
 
+          BRANCH_DOWNCASE=$(echo '${{ env.BRANCH }}' | tr '[A-Z]' '[a-z]')
+
           # Process and apply deployment template
           oc process \
             -f tools/openshift/d365api.deployment.yaml \
             -p APP_NAME=${{ env.APP_NAME }} \
             -p REPO_NAME=${{ env.REPO_NAME }} \
             -p BRANCH=${{ env.BRANCH }} \
+            -p BRANCH_DOWNCASE="$BRANCH_DOWNCASE" \
             -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} \
             -p TAG=${{ inputs.tag }} \
             -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} \
