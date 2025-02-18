@@ -185,7 +185,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, uri);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, uri, isProcess:true);
 
         if (!response.IsSuccessStatusCode)
         {
