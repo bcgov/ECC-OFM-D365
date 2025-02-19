@@ -27,6 +27,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
     private DateTime _previousMonth;
     private string _hrQuestionIdsXML;
     private Guid _reportTemplateId;
+    private DateTime firstOfCurrentMonth;
 
     public Int16 ProcessId => Setup.Process.FundingReports.CreateMonthlyReportId;
     public string ProcessName => Setup.Process.FundingReports.CreateMonthlyReportName;
@@ -49,13 +50,14 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                                       <condition attribute="statecode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_funding_statecode.Active}" />
                                       <condition attribute="statuscode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_funding_StatusCode.Active}" />
                                       <condition attribute="ofm_facility" operator="not-null" value="" />
+                                      <condition attribute="ofm_start_date" operator="le" value="{firstOfCurrentMonth}" />
                                     </filter>
                                   </entity>
                                 </fetch>
                                 """;
 
             var requestUri = $"""                                
-                                ofm_fundings?$select=ofm_end_date,_ofm_facility_value,ofm_funding_number,ofm_start_date,statecode,statuscode&$filter=(statecode eq {(int)ECC.Core.DataContext.ofm_funding_statecode.Active} and statuscode eq {(int)ECC.Core.DataContext.ofm_funding_StatusCode.Active} and _ofm_facility_value ne null)
+                                ofm_fundings?fetchXml={WebUtility.UrlEncode(fetchXml)}
                                 """;
 
             return requestUri.CleanCRLF();
@@ -245,6 +247,8 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         DateTime monthEndDate = new DateTime();
         DateTime monthEndDateInPST = new DateTime();
 
+        var currentMonthPST = currentUTC.ToLocalPST().AddMonths(-1);
+        firstOfCurrentMonth = new DateTime(currentMonthPST.Year, currentMonthPST.Month, 1, 23, 59, 59);
 
         //batch create the monthly report
         if (batchFlag)
