@@ -62,4 +62,4 @@ jobs:
 
           oc tag \
             ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-$BRANCH_DOWNCASE:latest \
-            ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-$BRANCH_DOWNCASE:{{ github.event.inputs.version }}
+            ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-$BRANCH_DOWNCASE:${{ github.event.inputs.version }}
