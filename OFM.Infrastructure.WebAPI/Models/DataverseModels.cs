@@ -394,12 +394,12 @@ public record D365Reporting
 
 }
 
-public class D365FiscalYear: ofm_fiscal_year
+public class D365FiscalYear : ofm_fiscal_year
 {
     public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
-public class ExpenseApplication: ofm_expense
+public class ExpenseApplication : ofm_expense
 {
     public new decimal? ofm_amount { get; set; }
 }
@@ -463,6 +463,11 @@ public class QuestionResponse : ofm_question_response
     public string ofm_question_qid { get; set; }
     [property: JsonPropertyName("header.ofm_question_id")]
     public string ofm_header_qid { get; set; }
+}
+
+public class TopUp : ofm_top_up_fund
+{
+    public new decimal? ofm_programming_amount { get; set; }
 }
 
 
