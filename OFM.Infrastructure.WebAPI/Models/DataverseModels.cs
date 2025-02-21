@@ -394,12 +394,12 @@ public record D365Reporting
 
 }
 
-public class D365FiscalYear: ofm_fiscal_year
+public class D365FiscalYear : ofm_fiscal_year
 {
     public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
-public class ExpenseApplication: ofm_expense
+public class ExpenseApplication : ofm_expense
 {
     public new decimal? ofm_amount { get; set; }
 }
