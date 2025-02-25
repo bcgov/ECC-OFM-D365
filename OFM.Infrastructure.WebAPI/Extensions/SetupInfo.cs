@@ -101,6 +101,9 @@ public static class Setup
 
             public const Int16 GeneratePaymentLinesForSupplementaryAllowanceId = 520;
             public const string GeneratePaymentLinesForSupplementaryAllowanceName = "Generate Payment Lines for Irregular Expense";
+
+            public const Int16 GenerateTopUpPaymentId = 525;
+            public const string GenerateTopUpPaymentName = "Generate Payment Lines for Top-Up";
         }
 
         public static class FundingReports
