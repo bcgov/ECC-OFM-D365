@@ -10,6 +10,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 {
@@ -413,24 +414,22 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             //set the payment start date
             var paymentStartDate = new DateTime();
+            int numberOfMonths = (endDate.Year - startDate.Year) * 12 + endDate.Month - startDate.Month + (endDate.Day >= startDate.Day ? 1 : 0);
 
-            if(startDate.Date == funding.ofm_start_date.Value.Date)
+            if (startDate.Date == funding.ofm_start_date.Value.Date)
             {
                 paymentStartDate = startDate;
             }
             else
             {
                 var temp = new DateTime();
-
                 if (startDate.Day <= 15)
                 {
                     temp = startDate.AddMonths(1);
-                    endDate = endDate.AddMonths(1);
                 }
                 else
                 {
                     temp = startDate.AddMonths(2);
-                    endDate = endDate.AddMonths(2);
                 }
 
                 paymentStartDate = new DateTime(temp.Year, temp.Month, 1);
@@ -439,8 +438,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             var totalFunding = topUp.ofm_programming_amount.Value;
 
-            int numberOfMonths = (endDate.Year - paymentStartDate.Year) * 12 + endDate.Month - paymentStartDate.Month + 1;
-
             decimal monthlyAmount = totalFunding / numberOfMonths;
 
 
@@ -448,21 +445,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             Int32 lineNumber = await GetNextInvoiceLineNumber();
 
-            for (DateTime paymentDate = paymentStartDate; paymentDate <= endDate || numberOfMonths > 0; paymentDate = paymentDate.AddMonths(1), numberOfMonths--)
+            for (DateTime paymentDate = paymentStartDate; numberOfMonths > 0; paymentDate = paymentDate.AddMonths(1), numberOfMonths--)
             {
                 DateTime invoiceDate = (paymentDate == paymentStartDate && paymentStartDate.Date == funding.ofm_start_date.Value.Date) ? paymentStartDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
-/*                if (processParams.Funding!.IsMod!.Value)
-                {
-                    // Date calculation logic is different for mid-year supp application. Overriding regular date logic above
-                    // Invoice received date is always the last business date of previous month except for first payment of the First funding year, it is 5 business day after the last business day of the last month.
-                    invoiceReceivedDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList);
-                    invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
-                    effectiveDate = invoiceDate;
-                }
-*/
                 Guid fiscalYearId = invoiceDate.MatchFiscalYear(fiscalYears);
 
                 var FAYear = (invoiceReceivedDate < funding.ofm_start_date.Value.AddYears(1)) ? 1 :
