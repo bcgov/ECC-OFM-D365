@@ -798,6 +798,11 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_system_message"/> entities.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_top_up_fundSet">
+            <summary>
+            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_top_up_fund"/> entities.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.TeamSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.Team"/> entities.
@@ -1186,6 +1191,11 @@
             Select the legal designation or other business type of the account for contracts or reporting purposes.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Account.ccof_good_standing_status">
+            <summary>
+            CCOF Good Standing Status
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Account.ccof_instructionnumber">
             <summary>
             CCOF
@@ -1504,6 +1514,66 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_accb_providerid">
             <summary>
             ACCB provider ID
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address10_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address11_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address12_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address13_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address3_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address4_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address5_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address6_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address7_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address8_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address9_legal_description">
+            <summary>
+            Legal Description
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_address1_legal_description">
+            <summary>
+            Legal Description
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_address10_city">
@@ -2294,6 +2364,11 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_payment_facility_account">
             <summary>
             1:N ofm_payment_facility_account
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Account.ofm_top_up_fund_facility">
+            <summary>
+            1:N ofm_top_up_fund_facility
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.Referencingaccount_master_account">
@@ -3931,6 +4006,11 @@
         <member name="P:ECC.Core.DataContext.Email.msdyn_recipientlist">
             <summary>
             Individual email will be sent to each recipient.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Email.msdyn_sentimentreason">
+            <summary>
+            Sentiment Reason
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Email.notifications">
@@ -8427,6 +8507,11 @@
             New Allocation Date
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_notified_expense_authority">
+            <summary>
+            If EA has been notified when Funding is submitted
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_provider_approver">
             <summary>
             The associated contact
@@ -8545,6 +8630,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_payment_funding">
             <summary>
             1:N ofm_payment_funding
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_top_up_funding">
+            <summary>
+            1:N ofm_top_up_funding
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_licencedetail">
@@ -9736,6 +9826,11 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_funding">
             <summary>
             N:1 ofm_payment_funding
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_top_up_fund">
+            <summary>
+            N:1 ofm_payment_top_up_fund
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.team_ofm_payment">
@@ -13671,6 +13766,157 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
+        <member name="T:ECC.Core.DataContext.ofm_top_up_fund.Fields">
+            <summary>
+            Available fields, a the time of codegen, for the ofm_top_up_fund entity
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_top_up_fund.#ctor">
+            <summary>
+            Default Constructor.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.createdby">
+            <summary>
+            Unique identifier of the user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.createdon">
+            <summary>
+            Date and time when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.createdonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who created the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.exchangerate">
+            <summary>
+            Exchange rate for the currency associated with the entity with respect to the base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.importsequencenumber">
+            <summary>
+            Sequence number of the import that created this record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.modifiedby">
+            <summary>
+            Unique identifier of the user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.modifiedon">
+            <summary>
+            Date and time when the record was modified.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.modifiedonbehalfby">
+            <summary>
+            Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_programming_amount_base">
+            <summary>
+            Value of the Programming Amount in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_top_up_fundid">
+            <summary>
+            Unique identifier for entity instances
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.overriddencreatedon">
+            <summary>
+            Date and time that the record was migrated.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ownerid">
+            <summary>
+            Owner Id
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owneridname">
+            <summary>
+            Name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owneridyominame">
+            <summary>
+            Yomi name of the owner
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owningbusinessunit">
+            <summary>
+            Unique identifier for the business unit that owns the record
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owningteam">
+            <summary>
+            Unique identifier for the team that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owninguser">
+            <summary>
+            Unique identifier for the user that owns the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.statecode">
+            <summary>
+            Status of the Topup Fund
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.statuscode">
+            <summary>
+            Reason for the status of the Topup Fund
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.timezoneruleversionnumber">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.transactioncurrencyid">
+            <summary>
+            Unique identifier of the currency associated with the entity.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.utcconversiontimezonecode">
+            <summary>
+            Time zone code that was in use when the record was created.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.versionnumber">
+            <summary>
+            Version Number
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_payment_top_up_fund">
+            <summary>
+            1:N ofm_payment_top_up_fund
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_top_up_fund_facility">
+            <summary>
+            N:1 ofm_top_up_fund_facility
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_top_up_funding">
+            <summary>
+            N:1 ofm_top_up_funding
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.team_ofm_top_up_fund">
+            <summary>
+            N:1 team_ofm_top_up_fund
+            </summary>
+        </member>
+        <member name="M:ECC.Core.DataContext.ofm_top_up_fund.#ctor(System.Object)">
+            <summary>
+            Constructor for populating via LINQ queries given a LINQ anonymous type
+            <param name="anonymousType">LINQ anonymous type.</param>
+            </summary>
+        </member>
         <member name="T:ECC.Core.DataContext.Team">
             <summary>
             Collection of system users that routinely collaborate. Teams can be used to simplify record sharing and provide team members with common access to organization data when team members belong to different Business Units.
@@ -14104,6 +14350,11 @@
         <member name="P:ECC.Core.DataContext.Team.team_ofm_system_message">
             <summary>
             1:N team_ofm_system_message
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Team.team_ofm_top_up_fund">
+            <summary>
+            1:N team_ofm_top_up_fund
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.Team.#ctor(System.Object)">
@@ -18167,6 +18418,16 @@
         <member name="T:ECC.Core.DataContext.ofm_system_message_StatusCode">
             <summary>
             Reason for the status of the OFM System Message
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_top_up_fund_statecode">
+            <summary>
+            Status of the Topup Fund
+            </summary>
+        </member>
+        <member name="T:ECC.Core.DataContext.ofm_top_up_fund_StatusCode">
+            <summary>
+            Reason for the status of the Topup Fund
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.OnlineMeetingType">
