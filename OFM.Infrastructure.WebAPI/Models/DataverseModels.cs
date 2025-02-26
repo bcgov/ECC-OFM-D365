@@ -457,6 +457,11 @@ public class ProviderStaff
     public string Facility_Name_Report { get { return Facility_Name; } set { Facility_Name = value; } }
 }
 
+public class TopUp : ofm_top_up_fund
+{
+    public new decimal? ofm_programming_amount { get; set; }
+}
+
 #region External Parameters
 
 #endregion
