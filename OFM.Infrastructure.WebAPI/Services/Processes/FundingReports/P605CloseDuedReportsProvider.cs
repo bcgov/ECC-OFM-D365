@@ -41,7 +41,7 @@ public class P605CloseDuedReportsProvider : ID365ProcessProvider
                                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
                                   <entity name="ofm_survey_response">
                                     <filter>
-                                      <condition attribute="ofm_duedate" operator="on" value="{currentDateInUTC}" />
+                                      <condition attribute="ofm_duedate" operator="lt" value="{currentDateInUTC}" />
                                       <condition attribute="statecode" operator="eq" value="0" />
                                     </filter>
                                   </entity>
@@ -49,7 +49,7 @@ public class P605CloseDuedReportsProvider : ID365ProcessProvider
                                 """;
 
             var requestUri = $"""                                
-                                ofm_survey_responses?$filter=(Microsoft.Dynamics.CRM.On(PropertyName='ofm_duedate',PropertyValue='{currentDateInUTC}') and statecode eq 0)
+                                ofm_survey_responses?$filter=(ofm_duedate lt {currentDateInUTC} and statecode eq 0)
                                 """;
 
             return requestUri.CleanCRLF();
