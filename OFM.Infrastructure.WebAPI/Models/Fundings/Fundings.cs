@@ -80,7 +80,6 @@ public class RateSchedule : ofm_rate_schedule
     public new decimal? ofm_parent_fee_per_month_ft { get; set; }
     public new decimal? ofm_parent_fee_per_day_ft { get; set; }
     public new decimal? ofm_parent_fee_per_month_pt { get; set; }
-    public new decimal? ofm_parent_fee_per_day_pt_school_age { get; set; }
     public new FundingRate[]? ofm_rateschedule_fundingrate { get; set; }
     public new CCLRRatio[]? ofm_rateschedule_cclr { get; set; }
     public new decimal? ofm_average_benefit_load { get; set; }
