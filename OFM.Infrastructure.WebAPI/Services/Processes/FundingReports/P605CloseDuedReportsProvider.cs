@@ -5,6 +5,7 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System.Net;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
@@ -43,13 +44,14 @@ public class P605CloseDuedReportsProvider : ID365ProcessProvider
                                     <filter>
                                       <condition attribute="ofm_duedate" operator="lt" value="{currentDateInUTC}" />
                                       <condition attribute="statecode" operator="eq" value="0" />
+                                      <condition attribute="ofm_unlock" operator="eq" value="0" />
                                     </filter>
                                   </entity>
                                 </fetch>
                                 """;
 
             var requestUri = $"""                                
-                                ofm_survey_responses?$filter=(ofm_duedate lt {currentDateInUTC} and statecode eq 0)
+                                ofm_survey_responses?fetchXml={WebUtility.UrlEncode(fetchXml)}
                                 """;
 
             return requestUri.CleanCRLF();
@@ -123,20 +125,33 @@ public class P605CloseDuedReportsProvider : ID365ProcessProvider
             requests.Add(new D365UpdateRequest(new D365EntityReference("ofm_survey_responses", new Guid(reportId)), deactivateReportBody));
         }
 
-        var batchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, requests, null);
+
+
+        var batchRequest = requests.Select((x, i) => new { Index = i, Value = x }).GroupBy(x => x.Index / 1000).Select(x => x.Select(v => v.Value).ToList()).ToList();
+        List<BatchResult> batchResults = [];
+        var numOfRequest = requests.Count;
+        
+        foreach (var batch in batchRequest)
+        {
+            batchResults.Add(await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batch, null));
+
+        }
 
         var endTime = _timeProvider.GetTimestamp();
 
-        _logger.LogInformation(CustomLogEvent.Process, "Close past due report process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
-
-        if (batchResult.Errors.Any())
+        foreach(var batchResult in batchResults)
         {
-            var result = ProcessResult.Failure(ProcessId, batchResult.Errors, batchResult.TotalProcessed, batchResult.TotalRecords);
+            if (batchResult.Errors.Any())
+            {
+                var result = ProcessResult.Failure(ProcessId, batchResult.Errors, batchResult.TotalProcessed, batchResult.TotalRecords);
 
-            _logger.LogError(CustomLogEvent.Process, "Close past due report process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
+                _logger.LogError(CustomLogEvent.Process, "Close past due report process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
 
-            return result.SimpleProcessResult;
+                return result.SimpleProcessResult;
+            }
         }
+
+        _logger.LogInformation(CustomLogEvent.Process, "Close past due report process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
     }
