@@ -227,6 +227,10 @@ D365_CONFIGURATION=$(jq << JSON
       {
         "TemplateNumber": 285,
         "Description": "TransportationAllowanceDenied"
+      },
+      {
+        "TemplateNumber": 295,
+        "Description": " NewMonthlyReportOpen"
       }
     ],
     "CommunicationTypes": {
