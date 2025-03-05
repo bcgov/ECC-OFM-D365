@@ -61,6 +61,8 @@ public class FundingCalculator : IFundingCalculator
                                 .SelectMany(licence => licence?.ofm_licence_licencedetail!)
                                 .Where(licenceDetail => licenceDetail.statuscode == ofm_licence_detail_StatusCode.Active);
 
+            var multiplePartTimeSAFlag = licenceDetails.Where(licence => (licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup1 || licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup2 || licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup3) && licence.ofm_care_type == ecc_care_types.PartTime).Count() > 1;
+
             // NOTE: If a facility has duplicate care types/licence types with the same address (e.g. seasonal schedules),
             // the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
             if (ApplyDuplicateCareTypesCondition)
@@ -89,6 +91,7 @@ public class FundingCalculator : IFundingCalculator
                 ld.RateSchedule = _rateSchedule;
                 ld.ApplyRoomSplitCondition = ApplyRoomSplitCondition;
                 ld.NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation;
+                ld.MultiplePartTimeSchoolAge = multiplePartTimeSAFlag;
             }
 
             return licenceDetails;
