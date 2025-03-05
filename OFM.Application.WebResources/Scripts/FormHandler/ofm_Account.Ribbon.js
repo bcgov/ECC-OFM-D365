@@ -66,9 +66,11 @@ OFM.Account.Ribbon = {
             if (primaryControl.getAttribute("ofm_bypass_bc_registry_good_standing") != null) {
                 bypassFlag = !(Xrm.Page.getAttribute('ofm_bypass_bc_registry_good_standing').getValue());
             }
+            else if (primaryControl.getAttribute('ccof_bypass_goodstanding_check') != null) {
+                bypassFlag = !(Xrm.Page.getAttribute('ccof_bypass_goodstanding_check').getValue());
+            }
         }
-        var formLabel = primaryControl.ui.formSelector.getCurrentItem().getLabel();
-        if (formLabel == "Organization Information" && visable) {
+        if (primaryControl.getAttribute("ccof_typeoforganization") != null && visable) {
             var businessType = primaryControl.getAttribute("ccof_typeoforganization").getValue();
             visable = businessType == 100000002 ? true : false;
         }
