@@ -61,12 +61,17 @@ public class FundingCalculator : IFundingCalculator
                                 .SelectMany(licence => licence?.ofm_licence_licencedetail!)
                                 .Where(licenceDetail => licenceDetail.statuscode == ofm_licence_detail_StatusCode.Active);
 
-            var multiplePartTimeSAFlag = licenceDetails.Where(licence => (licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup1 || licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup2 || licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup3) && licence.ofm_care_type == ecc_care_types.PartTime).Count() > 1;
+            var partTimeSA1Flag = licenceDetails.Where(licence => (licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup1 && licence.ofm_care_type == ecc_care_types.PartTime)).Count() >= 1;
+            var partTimeSA2Flag = licenceDetails.Where(licence => (licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup2 && licence.ofm_care_type == ecc_care_types.PartTime)).Count() >= 1;
+            var partTimeSA3Flag = licenceDetails.Where(licence => (licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup3 && licence.ofm_care_type == ecc_care_types.PartTime)).Count() >= 1;
+
+            var multiplePartTimeSAFlag = (partTimeSA1Flag && partTimeSA2Flag) || (partTimeSA2Flag && partTimeSA3Flag) || (partTimeSA1Flag && partTimeSA3Flag);
 
             // NOTE: If a facility has duplicate care types/licence types with the same address (e.g. seasonal schedules),
             // the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
             if (ApplyDuplicateCareTypesCondition)
             {
+
                 var groupedlicenceDetails = licenceDetails?
                                             .GroupBy(ltype => ltype.ofm_licence_type, (ltype, licenceGroup) =>
                                             {
@@ -79,10 +84,10 @@ public class FundingCalculator : IFundingCalculator
                                                 grouped.RateSchedule = _rateSchedule;
                                                 grouped.ApplyRoomSplitCondition = ApplyRoomSplitCondition;
                                                 grouped.NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation;
+                                                grouped.MultiplePartTimeSchoolAge = multiplePartTimeSAFlag;
 
                                                 return grouped;
                                             });
-
                 return groupedlicenceDetails;
             }
 
