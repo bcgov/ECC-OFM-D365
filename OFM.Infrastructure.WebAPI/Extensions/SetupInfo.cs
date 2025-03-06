@@ -55,6 +55,10 @@ public static class Setup
             public const Int16 CreateAllowanceApprovalDenialNotificationId = 240;
             public const string CreateAllowanceApprovalDenialNotificationName = "Create email and pdf for supplementary Approval/Denial";
 
+            public const Int16 CreateTopUpNotificationId = 250;
+            public const string CreateTopUpNotificationName = "Create email and pdf for TopUp";
+
+
             public const Int16 CreateMonthlyReportNotificationId = 245;
             public const string CreateMonthlyReportNotificationName = "Create email for Published Monthly Report";
         }
