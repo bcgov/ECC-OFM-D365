@@ -43,6 +43,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
                         <attribute name="ofm_parent_fee_per_month_ft" />
                         <attribute name="ofm_parent_fee_per_month_pt" />
                         <attribute name="ofm_parent_fee_per_day_pt_school_age" />
+                        <attribute name="ofm_parent_fee_per_month_pt_school_age" />
                         <attribute name="ofm_start_date" />
                         <attribute name="createdon" />
                         <attribute name="ofm_average_benefit_load" />
