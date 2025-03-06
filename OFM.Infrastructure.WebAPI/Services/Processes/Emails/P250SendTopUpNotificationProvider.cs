@@ -50,10 +50,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                       <attribute name="statuscode" />
                       <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application">
                         <attribute name="ofm_contact" />
-                        <link-entity name="contact" from="contactid" to="ofm_contact" link-type="outer">
-                          <attribute name="ofm_first_name" />
-                          <attribute name="ofm_last_name" />
-                        </link-entity>
+                        <attribute name="ofm_expense_authority" />
                       </link-entity>
                     </link-entity>
                   </entity>
@@ -61,40 +58,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 """;
 
                 var requestUri = $"""
-                         ofm_expenses?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_top_up_funds?$select=ofm_end_date,_ofm_facility_value,_ofm_funding_value,ofm_name,ofm_programming_amount,ofm_start_date,statuscode,ofm_top_up_fundid&$expand=ofm_funding($select=statecode,statuscode;$expand=ofm_application($select=_ofm_contact_value,_ofm_expense_authority_value))&$filter=(ofm_top_up_fundid eq {_processParams.Topup.TopupId})
                          """;
                 return requestUri.CleanCRLF();
             }
         }
 
-        /// <summary>
-        /// To frame ContactRequestUri
-        /// </summary>
-        /// <param name="contactId">GUID of contact</param>
-        /// <returns>ContactRequestUri</returns>
-        public string ContactRequestUri(string contactId)
-        {
-
-            var fetchXml = $"""
-                    <fetch distinct="true" no-lock="true">
-                      <entity name="contact">
-                        <attribute name="contactid" />
-                        <attribute name="ofm_first_name" />
-                        <attribute name="ofm_last_name" />
-                        <filter>
-                           <condition attribute="contactid" operator="eq" value="{contactId}" />
-                        </filter>
-                      </entity>
-                    </fetch>
-                    """;
-
-            var requestUri = $"""
-                         contacts?fetchXml={WebUtility.UrlEncode(fetchXml)}
-                         """;
-
-            return requestUri;
-
-        }
         public async Task<ProcessData> GetDataAsync()
         {
             HttpResponseMessage response = new HttpResponseMessage();
@@ -130,15 +99,14 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
-            
+            _processParams = processParams;
+
             if (_processParams == null || _processParams.Topup == null || _processParams.Topup.TopupId == null)
             {
                 _logger.LogError(CustomLogEvent.Process, "TopupId is missing.");
                 throw new Exception("TopupId is missing.");
 
             }
-
-            _processParams = processParams;
 
             var localData = await GetDataAsync();
 
@@ -176,11 +144,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
                 _logger.LogInformation("Got the Template", serializedDataTemplate.Count);
 
-                var localDataContact = await GetContactDataAsync(mainApplicantContact.ToString());
-                var deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localDataContact.Data.ToString());
-                var contactobj = deserializedData?.FirstOrDefault();
-                var firstName = contactobj?.ofm_first_name;
-                var lastName = contactobj?.ofm_last_name;
+                var expenseAuthorityContact = topUpData.ofm_funding?.ofm_application?._ofm_expense_authority_value;
+                var primaryContact = topUpData.ofm_funding.ofm_application._ofm_contact_value;
 
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
                 string? subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
@@ -189,34 +154,18 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 subject = subject.Replace("#FANumber#", fundingNumber);
                 string regardingData = string.Empty;
 
-                Guid mainApplicantContact = localData.Data[0]["ofm_assistance_request.ofm_contact"] != null ? (Guid)localData.Data[0]["ofm_assistance_request.ofm_contact"] : Guid.Empty;
-                Guid facilityContact = localData.Data[0]["ofm_application.ofm_contact"] != null ? (Guid)localData.Data[0]["ofm_application.ofm_contact"] : Guid.Empty;
-
-                if (mainApplicantContact != Guid.Empty)
+                if (expenseAuthorityContact != null && expenseAuthorityContact != Guid.Empty)
                 {
-                    recipientsList.Add(mainApplicantContact);
-                    regardingData = statusReason == (int)ofm_expense_StatusCode.Approved ? string.Format("{0}#ofm_expense", _processParams.ExpenseApplication.expenseId) : string.Empty;
-
-                    await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235, regardingData);
+                    recipientsList.Add((Guid)expenseAuthorityContact);
+                    regardingData = string.Format("{0}#ofm_top_up_funds", _processParams?.Topup?.TopupId);
+                    await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 250, regardingData);
 
                 }
-
-                if (facilityContact != Guid.Empty && facilityContact != mainApplicantContact)
+                else if(primaryContact != null && primaryContact != Guid.Empty)
                 {
-                    recipientsList.Clear();
-                    recipientsList.Add(facilityContact);
-
-                    regardingData = statusReason == (int)ofm_expense_StatusCode.Approved && mainApplicantContact == Guid.Empty ? string.Format("{0}#ofm_expense", _processParams.ExpenseApplication.expenseId) : string.Empty;
-
-                    localDataContact = await GetContactDataAsync(facilityContact.ToString());
-                    deserializedData = JsonSerializer.Deserialize<List<D365Contact>>(localDataContact.Data.ToString());
-                    contactobj = deserializedData?.FirstOrDefault();
-                    firstName = contactobj?.ofm_first_name;
-                    lastName = contactobj?.ofm_last_name;
-
-                
-
-                    await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235, regardingData);
+                    recipientsList.Add((Guid)primaryContact);
+                    regardingData = string.Format("{0}#ofm_top_up_funds", _processParams?.Topup?.TopupId);
+                    await _emailRepository.CreateAndUpdateEmail(subject, emaildescription, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 250, regardingData);
                 }
 
             }
@@ -224,43 +173,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
 
             #endregion
-        }
-
-        /// <summary>
-        /// To get contact details
-        /// </summary>
-        /// <param name="contactId">GUID of contact</param>
-        /// <returns>Contact details</returns>
-        public async Task<ProcessData> GetContactDataAsync(string contactId)
-        {
-            _logger.LogDebug(CustomLogEvent.Process, "GetContactDataAsync");
-
-            var contactRequestUri = this.ContactRequestUri(contactId);
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, contactRequestUri);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError(CustomLogEvent.Process, "Failed to query Contact records with the server error {responseBody}", responseBody.CleanLog());
-
-                return await Task.FromResult(new ProcessData(string.Empty));
-            }
-
-            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-            JsonNode d365Result = string.Empty;
-            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-            {
-                if (currentValue?.AsArray().Count == 0)
-                {
-                    _logger.LogInformation(CustomLogEvent.Process, "No Contact records found with query {requestUri}", contactRequestUri.CleanLog());
-                }
-                d365Result = currentValue!;
-            }
-
-            _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
-
-            return await Task.FromResult(new ProcessData(d365Result));
         }
     }
 }

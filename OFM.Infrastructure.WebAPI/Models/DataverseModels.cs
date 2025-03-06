@@ -460,6 +460,7 @@ public class ProviderStaff
 public class TopUp : ofm_top_up_fund
 {
     public new decimal? ofm_programming_amount { get; set; }
+    public Funding? ofm_funding { get; set; }
 }
 
 #region External Parameters
