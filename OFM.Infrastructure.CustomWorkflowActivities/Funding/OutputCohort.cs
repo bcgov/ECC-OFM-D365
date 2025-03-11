@@ -41,43 +41,9 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                 };
 
                 Entity d365Application = ((RetrieveResponse)service.Execute(applicationRequest)).Entity;
-                tracingService.Trace("{0}{1}", "Application id", application.Id);
-                
                 if (d365Application != null && d365Application.Attributes.Count > 0 && d365Application.Attributes.Contains(ofm_application.Fields.ofm_summary_submittedon))
                 {
                     var submittedOn = d365Application.GetAttributeValue<DateTime>(ofm_application.Fields.ofm_summary_submittedon);
-                    tracingService.Trace("{0}{1}", "Application ofm_summary_submittedon", submittedOn);
-
-
-                    RetrieveRequest timeZoneCode = new RetrieveRequest
-                    {
-                        ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode }),
-                        Target = new EntityReference(UserSettings.EntityLogicalName, context.InitiatingUserId)
-                    };
-
-                    Entity timeZoneResult = ((RetrieveResponse)service.Execute(timeZoneCode)).Entity;
-
-                    var timeZoneQuery = new QueryExpression()
-                    {
-                        EntityName = TimeZoneDefinition.EntityLogicalName,
-                        ColumnSet = new ColumnSet(TimeZoneDefinition.Fields.standardname),
-                        Criteria = new FilterExpression
-                        {
-                            Conditions =
-                                {
-                                    new ConditionExpression(TimeZoneDefinition.Fields.timezonecode, ConditionOperator.Equal,((UserSettings)timeZoneResult).timezonecode)
-                                }
-                        }
-                    };
-
-                    var result = service.RetrieveMultiple(timeZoneQuery);
-
-                    var submittedOnPST = TimeZoneInfo.ConvertTimeFromUtc(submittedOn, TimeZoneInfo
-                        .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
-                        .standardname)).FirstOrDefault().ToString()));
-
-                    tracingService.Trace("{0}{1}", "Application submittedOnPST", submittedOnPST);
-
 
                     //Get the intake based on application submitted on time, intake could be closed when funding is approved so status not in the filter
                     //Intakes will not be overlapped, the result is unique
@@ -91,8 +57,8 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                     <attribute name=""statecode"" />
                                                     <attribute name=""statuscode"" />
                                                     <filter>
-                                                        <condition attribute=""ofm_start_date"" operator=""le"" value=""{submittedOnPST}"" />
-                                                        <condition attribute=""ofm_end_date"" operator=""ge"" value=""{submittedOnPST}"" />
+                                                        <condition attribute=""ofm_start_date"" operator=""le"" value=""{submittedOn}"" />
+                                                        <condition attribute=""ofm_end_date"" operator=""ge"" value=""{submittedOn}"" />
                                                     </filter>
                                                     </entity>
                                                 </fetch>";
@@ -104,6 +70,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                     }
 
                     cohort.Set(executionContext, cohortNum);
+                    tracingService.Trace("{0}{1}", "Intake", intake[0].GetAttributeValue<string>("ofm_caption"));
                     tracingService.Trace("{0}{1}", "Cohort", cohortNum);
                 }
             }
