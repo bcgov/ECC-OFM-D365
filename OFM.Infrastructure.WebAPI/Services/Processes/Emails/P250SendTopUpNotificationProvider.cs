@@ -42,6 +42,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     <attribute name="ofm_start_date" />
                     <attribute name="statuscode" />
                     <attribute name="ofm_top_up_fundid" />
+                    <attribute name="ofm_funding_number" />
                     <filter>
                       <condition attribute="ofm_top_up_fundid" operator="eq" value="{_processParams.Topup.TopupId}" />
                     </filter>
@@ -58,8 +59,32 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 """;
 
                 var requestUri = $"""
-                         ofm_top_up_funds?$select=ofm_end_date,_ofm_facility_value,_ofm_funding_value,ofm_name,ofm_programming_amount,ofm_start_date,statuscode,ofm_top_up_fundid&$expand=ofm_funding($select=statecode,statuscode;$expand=ofm_application($select=_ofm_contact_value,_ofm_expense_authority_value))&$filter=(ofm_top_up_fundid eq {_processParams.Topup.TopupId})
+                         ofm_top_up_funds?$select=ofm_funding_number,ofm_end_date,_ofm_facility_value,_ofm_funding_value,ofm_name,ofm_programming_amount,ofm_start_date,statuscode,ofm_top_up_fundid&$expand=ofm_funding($select=statecode,statuscode;$expand=ofm_application($select=_ofm_contact_value,_ofm_expense_authority_value))&$filter=(ofm_top_up_fundid eq {_processParams.Topup.TopupId})
                          """;
+                return requestUri.CleanCRLF();
+            }
+        }
+
+        private string RetrieveApprovalNotification
+        {
+            get
+            {
+                // Note: FetchXMl limit is 5000 records per request
+                var fetchXml = $"""
+                <fetch>
+                  <entity name="email">
+                    <attribute name="subject" />
+                    <filter>
+                      <condition attribute="ofm_regarding_data" operator="eq" value="{string.Format("{0}#ofm_top_up_funds", _processParams?.Topup?.TopupId)}" />
+                    </filter>
+                  </entity>
+                </fetch>
+                """;
+
+                var requestUri = $"""
+                         emails?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         """;
+
                 return requestUri.CleanCRLF();
             }
         }
@@ -89,6 +114,34 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 {
                     _logger.LogInformation(CustomLogEvent.Process, "No top-up found with query {requestUri}", RetrieveTopUp.CleanLog());
                 }
+                d365Result = currentValue!;
+            }
+
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+            return await Task.FromResult(new ProcessData(d365Result));
+        }
+
+        public async Task<ProcessData> GetApprovalNotification()
+        {
+            _logger.LogDebug(CustomLogEvent.Process, nameof(GetApprovalNotification));
+
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveApprovalNotification, false, 0, true);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to query notification record information with the server error {responseBody}", responseBody.CleanLog());
+
+                return await Task.FromResult(new ProcessData(string.Empty));
+            }
+
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+            JsonNode d365Result = string.Empty;
+            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+            {
+
                 d365Result = currentValue!;
             }
 
@@ -137,7 +190,49 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             if (statusReason == ofm_top_up_fund_StatusCode.Draft || statusReason == ofm_top_up_fund_StatusCode.Approved)
             {
                 _logger.LogInformation("Entered statusReason:", statusReason);
-                
+
+                var faState = topUpData.ofm_funding.statecode;
+                if (faState == ofm_funding_statecode.Inactive)
+                {
+                    _logger.LogError(CustomLogEvent.Process, "Funding is Inactive with Id {FundingId}", processParams.Funding!.FundingId);
+                    return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                }
+
+
+                //If the status is approved, need to check FA status and if previous notification generated
+                if (statusReason == ofm_top_up_fund_StatusCode.Approved)
+                {
+                    var faStatus = topUpData.ofm_funding.statuscode;
+                    if(faStatus != ofm_funding_StatusCode.Active)
+                    {
+                        _logger.LogError(CustomLogEvent.Process, "Funding is not active with Id {FundingId}", processParams.Funding!.FundingId);
+                        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                    }
+
+                    var approvalNotification = await GetApprovalNotification();
+
+                    if (approvalNotification.Data.AsArray().Count > 0)
+                    {
+                        var notifications = approvalNotification.Data.AsArray().Where(notification => notification["subject"].ToString().Contains("Final")).ToList();
+                        if(notifications.Count > 0)
+                        {
+                            _logger.LogError(CustomLogEvent.Process, "Approval Notification is sent with TopUp {TopUpId}", processParams.Topup!.TopupId);
+                            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                        }
+                    }
+                }
+
+                if (statusReason == ofm_top_up_fund_StatusCode.Draft)
+                {
+
+                    var faStatus = topUpData.ofm_funding.statuscode;
+                    if (faStatus == ofm_funding_StatusCode.Draft || faStatus == ofm_funding_StatusCode.FAReview)
+                    {
+                        _logger.LogError(CustomLogEvent.Process, "Funding is still in Draft or Review with Id {FundingId}", processParams.Funding!.FundingId);
+                        return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                    }
+                }
+
                 // Get template details to create emails.                
                 var localDataTemplate = await _emailRepository.GetTemplateDataAsync(Int32.Parse(_processParams.Notification.TemplateNumber));
 
@@ -150,7 +245,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
                 string? subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
                 string? emaildescription = templateobj?.safehtml;
-                string? fundingNumber = localData.Data[0]?["ofm_funding_number"]?.ToString();
+                string? fundingNumber = topUpData.ofm_funding_number;
                 subject = subject.Replace("#FANumber#", fundingNumber);
                 string regardingData = string.Empty;
 
