@@ -570,7 +570,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {
 
-                DateTime invoiceDate = /*(paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : */paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                DateTime invoiceDate = paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
