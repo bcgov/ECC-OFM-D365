@@ -266,7 +266,8 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             // april report
             //Run at PST May 1 1AM -> Min 1 month -> April 1 1AM
-            monthEndDate = currentUTC.ToLocalPST().AddMonths(-1);
+            var test = currentUTC.AddMonths(-2);
+            monthEndDate = test.ToLocalPST().AddMonths(-1);
             monthEndDateInPST = new DateTime(monthEndDate.Year, monthEndDate.Month, DateTime.DaysInMonth(monthEndDate.Year, monthEndDate.Month), 23, 59, 00);
         }
         else
@@ -343,14 +344,16 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         //Convert the report Month
         var reportMonth = ConvertMonthToFiscalMonth(monthEndDateInPST.Month);
 
-        var duedateInUTC = monthEndDateInUTC.AddMonths(1);
+        var duedateInPST = monthEndDateInPST.AddMonths(1);
+        var duedateInUTC = new DateTime(duedateInPST.Year, duedateInPST.Month, DateTime.DaysInMonth(duedateInPST.Year, duedateInPST.Month), 23, 59, 00).ToUTC();
 
-        if (!batchFlag)
+
+/*        if (!batchFlag)
         {
             var duedateMonth = monthEndDateInUTC.AddMonths(1);
-            var duedateInPST = new DateTime(duedateMonth.Year, duedateMonth.Month, DateTime.DaysInMonth(duedateMonth.Year, duedateMonth.Month), 23, 59, 00);
+            duedateInPST = new DateTime(duedateMonth.Year, duedateMonth.Month, DateTime.DaysInMonth(duedateMonth.Year, duedateMonth.Month), 23, 59, 00);
             duedateInUTC = duedateInPST.ToUTC();
-        }
+        }*/
 
 
         //Start date
