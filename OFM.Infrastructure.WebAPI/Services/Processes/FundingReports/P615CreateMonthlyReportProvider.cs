@@ -266,8 +266,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             // april report
             //Run at PST May 1 1AM -> Min 1 month -> April 1 1AM
-            var test = currentUTC.AddMonths(-2);
-            monthEndDate = test.ToLocalPST().AddMonths(-1);
+            monthEndDate = currentUTC.ToLocalPST().AddMonths(-1);
             monthEndDateInPST = new DateTime(monthEndDate.Year, monthEndDate.Month, DateTime.DaysInMonth(monthEndDate.Year, monthEndDate.Month), 23, 59, 00);
         }
         else
