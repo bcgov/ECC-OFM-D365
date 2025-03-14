@@ -457,12 +457,21 @@ public class ProviderStaff
     public string Facility_Name_Report { get { return Facility_Name; } set { Facility_Name = value; } }
 }
 
+public class QuestionResponse : ofm_question_response
+{
+    [property: JsonPropertyName("question.ofm_question_id")]
+    public string ofm_question_qid { get; set; }
+    [property: JsonPropertyName("header.ofm_question_id")]
+    public string ofm_header_qid { get; set; }
+}
+
 public class TopUp : ofm_top_up_fund
 {
     public new decimal? ofm_programming_amount { get; set; }
     public Funding? ofm_funding { get; set; }
     public string ofm_funding_number { get; set; }
 }
+
 
 #region External Parameters
 

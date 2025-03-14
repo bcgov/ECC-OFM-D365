@@ -61,6 +61,7 @@ services.AddScoped<ID365ProcessProvider, P225SendCertificateNotificationProvider
 services.AddScoped<ID365ProcessProvider, P230SendApplicationNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P235SendExpenseApplicationNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P240AllowanceApprovalDenialNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P245MonthlyReportNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P250SendTopUpNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
