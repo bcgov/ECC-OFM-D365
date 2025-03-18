@@ -490,7 +490,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                                                                     DateTime secondAnniversaryDate,
                                                                     DateTime? fundingEndDate)
         {
-            DateTime invoiceDate = paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+            DateTime invoiceDate = paymentDate.GetPreviousBusinessDay(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
             DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
             DateTime effectiveDate = invoiceDate;
             //this applies if supplementary application is submitted within last 45 days to last 30 days.
@@ -570,7 +570,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {
 
-                DateTime invoiceDate = paymentDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                DateTime invoiceDate = paymentDate.GetPreviousBusinessDay(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
 
