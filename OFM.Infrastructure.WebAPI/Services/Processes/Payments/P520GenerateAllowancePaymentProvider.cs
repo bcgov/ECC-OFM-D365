@@ -497,13 +497,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             if (((CheckSubmissionIsWithinLastMonth(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) &&  approvedSA.ofm_renewal_term == 1) || (CheckSubmissionIsWithinLastMonth(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) && approvedSA.ofm_renewal_term == 2) || (CheckSubmissionIsWithinLastMonth(approvedSA.ofm_submittedon.Value, fundingEndDate.Value) && approvedSA.ofm_renewal_term == 3)))
             {
-                invoiceReceivedDate = paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList);
+                invoiceReceivedDate = paymentDate.GetLastDayOfNextMonth(holidaysList);
                 invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 effectiveDate = invoiceDate;
             }
             else if (((CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) && approvedSA.ofm_renewal_term == 1) || (CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) && approvedSA.ofm_renewal_term == 2) || (CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value) && approvedSA.ofm_renewal_term == 3)))
             {
-                invoiceReceivedDate = paymentDate.GetFirstDayOfFollowingMonth(holidaysList);
+                invoiceReceivedDate = paymentDate.GetLastDayOfMonth(holidaysList);
                 invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 effectiveDate = invoiceDate;
             }
@@ -577,12 +577,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 //this applies if supplementary application is submitted within 45 days.
                  if (((CheckSubmissionIsWithinLastMonth(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) && approvedSA.ofm_renewal_term == 1) || (CheckSubmissionIsWithinLastMonth(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) && approvedSA.ofm_renewal_term == 2) || (CheckSubmissionIsWithinLastMonth(approvedSA.ofm_submittedon.Value, fundingEndDate.Value) && approvedSA.ofm_renewal_term == 3)))
                 {
-                    invoiceReceivedDate = paymentDate.GetFirstDayOfFollowingNextMonth(holidaysList);
+                    invoiceReceivedDate = paymentDate.GetLastDayOfNextMonth(holidaysList);
                     invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                     effectiveDate = invoiceDate;
                 }else if (((CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, firstAnniversaryDate) && approvedSA.ofm_renewal_term == 1) || (CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, secondAnniversaryDate) && approvedSA.ofm_renewal_term == 2) || (CheckSubmissionIsWithinLast45days(approvedSA.ofm_submittedon.Value, fundingEndDate.Value) && approvedSA.ofm_renewal_term == 3)))
                 {
-                    invoiceReceivedDate = paymentDate.GetFirstDayOfFollowingMonth(holidaysList);
+                    invoiceReceivedDate = paymentDate.GetLastDayOfMonth(holidaysList);
                     invoiceDate = invoiceReceivedDate.GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                     effectiveDate = invoiceDate;
                 }
