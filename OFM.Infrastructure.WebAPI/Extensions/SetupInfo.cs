@@ -57,6 +57,9 @@ public static class Setup
 
             public const Int16 CreateMonthlyReportNotificationId = 245;
             public const string CreateMonthlyReportNotificationName = "Create email for Published Monthly Report";
+
+            public const Int16 CreateTopUpNotificationId = 250;
+            public const string CreateTopUpNotificationName = "Create email for TopUp";
         }
 
         public static class Fundings
