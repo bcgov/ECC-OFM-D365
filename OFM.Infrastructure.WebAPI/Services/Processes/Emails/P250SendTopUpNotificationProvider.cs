@@ -65,7 +65,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             }
         }
 
-        private string RetrieveApprovalNotification
+        private string RetrieveTopUpNotification
         {
             get
             {
@@ -122,11 +122,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             return await Task.FromResult(new ProcessData(d365Result));
         }
 
-        public async Task<ProcessData> GetApprovalNotification()
+        public async Task<ProcessData> GetTopupNotification()
         {
-            _logger.LogDebug(CustomLogEvent.Process, nameof(GetApprovalNotification));
+            _logger.LogDebug(CustomLogEvent.Process, nameof(GetTopupNotification));
 
-            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveApprovalNotification, false, 0, true);
+            var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveTopUpNotification, false, 0, true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -209,12 +209,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
                     }
 
-                    var approvalNotification = await GetApprovalNotification();
+                    var topUpNotification = await GetTopupNotification();
 
-                    if (approvalNotification.Data.AsArray().Count > 0)
+                    if (topUpNotification.Data.AsArray().Count > 0)
                     {
-                        var notifications = approvalNotification.Data.AsArray().Where(notification => notification["subject"].ToString().Contains("Final")).ToList();
-                        if(notifications.Count > 0)
+                        var approvalNotifications = topUpNotification.Data.AsArray().Where(notification => notification["subject"].ToString().Contains("Final")).ToList();
+                        if(approvalNotifications.Count > 0)
                         {
                             _logger.LogError(CustomLogEvent.Process, "Approval Notification is sent with TopUp {TopUpId}", processParams.Topup!.TopupId);
                             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
@@ -230,6 +230,18 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     {
                         _logger.LogError(CustomLogEvent.Process, "Funding is still in Draft or Review with Id {FundingId}", processParams.Funding!.FundingId);
                         return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                    }
+
+                    var topUpNotification = await GetTopupNotification();
+
+                    if (topUpNotification.Data.AsArray().Count > 0)
+                    {
+                        var draftNotifications = topUpNotification.Data.AsArray().Where(notification => notification["subject"].ToString().Contains("Draft")).ToList();
+                        if (draftNotifications.Count > 0)
+                        {
+                            _logger.LogError(CustomLogEvent.Process, "Draft Notification is sent with TopUp {TopUpId}", processParams.Topup!.TopupId);
+                            return ProcessResult.Completed(ProcessId).SimpleProcessResult;
+                        }
                     }
                 }
 
