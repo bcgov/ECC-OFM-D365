@@ -462,6 +462,14 @@ public class TopUp : ofm_top_up_fund
     public new decimal? ofm_programming_amount { get; set; }
 }
 
+public class QuestionResponse : ofm_question_response
+{
+    [property: JsonPropertyName("question.ofm_question_id")]
+    public string ofm_question_qid { get; set; }
+    [property: JsonPropertyName("header.ofm_question_id")]
+    public string ofm_header_qid { get; set; }
+}
+
 #region External Parameters
 
 #endregion
