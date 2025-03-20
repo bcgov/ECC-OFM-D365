@@ -25,8 +25,8 @@ public class FundingCalculator : IFundingCalculator
     public readonly IFundingRepository _fundingRepository;
     private readonly IEnumerable<RateSchedule> _rateSchedules;
     private readonly Funding _funding;
-    private const decimal EHT_UPPER_THRESHHOLD = 1_500_000m; //Todo: Load from rate schedule
-    private const decimal EHT_LOWER_THRESHHOLD = 500_000m; //Todo: Load from rate schedule
+    private const decimal EHT_UPPER_THRESHOLD = 1_500_000m; //Todo: Load from rate schedule
+    private const decimal EHT_LOWER_THRESHOLD = 500_000m; //Todo: Load from rate schedule
     private RateSchedule? _rateSchedule;
     private FundingResult? _fundingResult;
     private List<NonHRStepAction> _noneHRStepActions = [];
@@ -128,14 +128,26 @@ public class FundingCalculator : IFundingCalculator
         get
         {
             var taxData = new { OwnershipType, TotalEHTRenumeration };
-            var EHTFunding = taxData switch
+            var EHTProfitLowerThreshold = _rateSchedule?.ofm_eht_minimum_cost_for_profit ?? EHT_LOWER_THRESHOLD;
+            var EHTProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_for_profit ?? EHT_UPPER_THRESHOLD;
+            var EHTNonProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_not_for_profit ?? EHT_UPPER_THRESHOLD;
+            var EHTFunding = 0m;
+
+            if(taxData == null)
             {
-                { OwnershipType: ecc_Ownership.Private, TotalEHTRenumeration: > EHT_LOWER_THRESHHOLD, TotalEHTRenumeration: <= EHT_UPPER_THRESHHOLD } => ((_rateSchedule?.ofm_for_profit_eht_over_500k ?? 0m) / 100) * (TotalEHTRenumeration - EHT_LOWER_THRESHHOLD),
-                { OwnershipType: ecc_Ownership.Private, TotalEHTRenumeration: > EHT_UPPER_THRESHHOLD } => ((_rateSchedule?.ofm_for_profit_eht_over_1_5m ?? 0m) / 100) * TotalEHTRenumeration,
-                { OwnershipType: ecc_Ownership.Notforprofit, TotalEHTRenumeration: > EHT_UPPER_THRESHHOLD } => ((_rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m) / 100) * (TotalEHTRenumeration - EHT_UPPER_THRESHHOLD),
-                null => throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with a null value"),
-                _ => 0m
-            };
+                throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with a null value");
+            }
+
+            if (taxData.OwnershipType == ecc_Ownership.Private && (taxData.TotalEHTRenumeration <= EHTProfitUpperThreshold) && (taxData.TotalEHTRenumeration > EHTProfitLowerThreshold))
+            {
+                EHTFunding = ((_rateSchedule?.ofm_for_profit_eht_over_500k ?? 0m) / 100) * (TotalEHTRenumeration - EHTProfitLowerThreshold);
+            }else if(taxData.OwnershipType == ecc_Ownership.Private && (taxData.TotalEHTRenumeration > EHTProfitUpperThreshold))
+            {
+                EHTFunding = ((_rateSchedule?.ofm_for_profit_eht_over_1_5m ?? 0m) / 100) * TotalEHTRenumeration;
+            }else if(taxData.OwnershipType == ecc_Ownership.Notforprofit && (taxData.TotalEHTRenumeration > EHTNonProfitUpperThreshold))
+            {
+                EHTFunding = ((_rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m) / 100) * (TotalEHTRenumeration - EHTNonProfitUpperThreshold);
+            }
 
             return EHTFunding;
         }
