@@ -138,7 +138,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                         }
                     };
 
-                    var fundingResult = service.RetrieveMultiple(fundingQuery).Entities.OrderByDescending(t => t.GetAttributeValue<int>("ofm_version_number")).FirstOrDefault();
+                    var fundingResult = service.RetrieveMultiple(fundingQuery).Entities.OrderBy(t => t.GetAttributeValue<int>("ofm_version_number")).FirstOrDefault();
                     var fundingStartDate = fundingResult.GetAttributeValue<DateTime>("ofm_start_date");
                     var fundingEndDate = fundingResult.GetAttributeValue<DateTime>("ofm_end_date");
 
@@ -191,6 +191,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     }
                     else if (renewalTerm == 3)
                     {
+                        intermediateDate = fundingEndDate.AddMonths(-1);
                         twoMonthbeforeAnniversary = new DateTime(intermediateDate.Year, intermediateDate.Month, 1, 0, 0, 0);
                         oneMonthbeforeAnniversary = new DateTime(fundingEndDate.Year, fundingEndDate.Month, 1, 0, 0, 0);
                     }
@@ -232,7 +233,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
                     //if renewal term (FA year) is 1: dont need to check previous supplication application, follow one month rule
                     if (renewalTerm == 1)
                     {
-                        finalStartDate = potentialStartDate;
+                        finalStartDate = potentialStartDate < fundingStartDate ? fundingStartDate : potentialStartDate;
                     }
                     else
                     {
@@ -339,7 +340,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Supplementary
 
                             if (renewalTerm == 1)
                             {
-                                finalStartDate = potentialStartDate;
+                                finalStartDate = potentialStartDate < fundingStartDate ? fundingStartDate : potentialStartDate;
                             }
                             else if (renewalTerm == 2)
                             {
