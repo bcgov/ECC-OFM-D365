@@ -25,8 +25,8 @@ public class FundingCalculator : IFundingCalculator
     public readonly IFundingRepository _fundingRepository;
     private readonly IEnumerable<RateSchedule> _rateSchedules;
     private readonly Funding _funding;
-    private const decimal EHT_UPPER_THRESHHOLD = 1_500_000m; //Todo: Load from rate schedule
-    private const decimal EHT_LOWER_THRESHHOLD = 500_000m; //Todo: Load from rate schedule
+    private const decimal EHT_UPPER_THRESHOLD = 1_500_000m; //Todo: Load from rate schedule
+    private const decimal EHT_LOWER_THRESHOLD = 500_000m; //Todo: Load from rate schedule
     private RateSchedule? _rateSchedule;
     private FundingResult? _fundingResult;
     private List<NonHRStepAction> _noneHRStepActions = [];
@@ -115,6 +115,7 @@ public class FundingCalculator : IFundingCalculator
     private decimal TotalStaffingCost => LicenceDetails.Sum(ld => ld.StaffingCost);
     private decimal TotalProjectedBenefitsCostPerYear => LicenceDetails.Sum(ld => ld.ProjectedBenefitsCostPerYear);
     private decimal TotalHRRenumeration => LicenceDetails.Sum(ld => ld.HRRenumeration);
+    private decimal TotalEHTRenumeration => LicenceDetails.Sum(ld => ld.StaffingCost + ld.ProjectedBenefitsCostPerYear + ld.ProfessionalDevelopmentHours);
 
     private decimal TotalProfessionalDevelopmentHours => LicenceDetails.Sum(ld => ld.ProfessionalDevelopmentHours);
     private decimal TotalProfessionalDevelopmentExpenses => LicenceDetails.Sum(ld => ld.ProfessionalDevelopmentExpenses);
@@ -126,17 +127,31 @@ public class FundingCalculator : IFundingCalculator
     {
         get
         {
-            var taxData = new { OwnershipType, TotalHRRenumeration };
-            var ehtRate = taxData switch
-            {
-                { OwnershipType: ecc_Ownership.Private, TotalHRRenumeration: > EHT_LOWER_THRESHHOLD, TotalHRRenumeration: <= EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_for_profit_eht_over_500k ?? 0m,
-                { OwnershipType: ecc_Ownership.Private, TotalHRRenumeration: > EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_for_profit_eht_over_1_5m ?? 0m,
-                { OwnershipType: ecc_Ownership.Notforprofit, TotalHRRenumeration: > EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m,
-                null => throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with a null value"),
-                _ => 0m
-            };
+            var taxData = new { OwnershipType, TotalEHTRenumeration };
+            var EHTProfitLowerThreshold = _rateSchedule?.ofm_eht_minimum_cost_for_profit ?? EHT_LOWER_THRESHOLD;
+            var EHTProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_for_profit ?? EHT_UPPER_THRESHOLD;
+            var EHTNonProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_not_for_profit ?? EHT_UPPER_THRESHOLD;
+            var EHTFunding = 0m;
 
-            return (ehtRate / 100) * TotalHRRenumeration;
+            if (taxData == null)
+            {
+                throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with a null value");
+            }
+
+            if (taxData.OwnershipType == ecc_Ownership.Private && (taxData.TotalEHTRenumeration <= EHTProfitUpperThreshold) && (taxData.TotalEHTRenumeration > EHTProfitLowerThreshold))
+            {
+                EHTFunding = ((_rateSchedule?.ofm_for_profit_eht_over_500k ?? 0m) / 100) * (TotalEHTRenumeration - EHTProfitLowerThreshold);
+            }
+            else if (taxData.OwnershipType == ecc_Ownership.Private && (taxData.TotalEHTRenumeration > EHTProfitUpperThreshold))
+            {
+                EHTFunding = ((_rateSchedule?.ofm_for_profit_eht_over_1_5m ?? 0m) / 100) * TotalEHTRenumeration;
+            }
+            else if (taxData.OwnershipType == ecc_Ownership.Notforprofit && (taxData.TotalEHTRenumeration > EHTNonProfitUpperThreshold))
+            {
+                EHTFunding = ((_rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m) / 100) * (TotalEHTRenumeration - EHTNonProfitUpperThreshold);
+            }
+
+            return EHTFunding;
         }
     }
 
@@ -204,7 +219,7 @@ public class FundingCalculator : IFundingCalculator
     //private int TotalSpaces => LicenceDetails.Sum(ld => ld.ofm_operational_spaces!.Value);
     private decimal TotalAdjustedNonHRSpaces => LicenceDetails.Sum(ld => ld.AdjustedNonHRSpaces);
     private decimal TotalParentFees => LicenceDetails.Sum(ld => ld.ParentFees);
-    private decimal TotalProjectedFundingCost => TotalHRRenumeration + TotalNonHRCost;
+    private decimal TotalProjectedFundingCost => TotalHRRenumeration + EmployerHealthTax + TotalNonHRCost;
 
     #endregion
 
