@@ -187,6 +187,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("facilityId")]
         public string? FacilityId { get; set; }
+
+        [property: JsonPropertyName("hrQuestions")]
+        public string? HRQuestions { get; set; }
     }
 
     #endregion
