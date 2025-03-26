@@ -187,7 +187,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 
             #region CreateDraftEmailNotification
 
-            if (statusReason == ofm_top_up_fund_StatusCode.Draft || statusReason == ofm_top_up_fund_StatusCode.Approved)
+            if (statusReason == ofm_top_up_fund_StatusCode.InReview || statusReason == ofm_top_up_fund_StatusCode.Approved)
             {
                 _logger.LogInformation("Entered statusReason:", statusReason);
 
@@ -222,7 +222,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     }
                 }
 
-                if (statusReason == ofm_top_up_fund_StatusCode.Draft)
+                if (statusReason == ofm_top_up_fund_StatusCode.InReview)
                 {
 
                     var faStatus = topUpData.ofm_funding.statuscode;
