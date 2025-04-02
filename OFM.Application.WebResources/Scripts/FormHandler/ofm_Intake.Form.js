@@ -187,5 +187,29 @@ OFM.Intake.Form = {
         }else{
             formContext.getControl("ofm_cohort").clearNotification("validation_rule");
         }
+    },
+    validateUniqueCohort: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var cohort = formContext.getAttribute("ofm_cohortid").getValue();
+        var cohortid;
+
+        if (cohort !== null) {
+            var cohortid = cohort[0].id.replace("{", "").replace("}", "")
+            Xrm.WebApi.retrieveMultipleRecords("ofm_intake", "?$select=ofm_intakeid&$filter=(_ofm_cohortid_value eq " + cohortid +")").then(
+                function success(result) {
+                    if (result.entities.length > 0) {
+                        formContext.getControl("ofm_cohortid").setNotification("This cohort is already applied to an intake", "cohortid_validation_rule");
+                    }
+                    else {
+                        formContext.getControl("ofm_cohortid").clearNotification("cohortid_validation_rule");
+                    }
+                },
+                function (error) {
+                    console.log(error.message);
+                }
+            );
+        }
+        formContext.getControl("ofm_cohortid").clearNotification("cohortid_validation_rule");
     }
 };
