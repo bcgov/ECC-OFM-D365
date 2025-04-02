@@ -188,7 +188,7 @@ OFM.Intake.Form = {
             formContext.getControl("ofm_cohort").clearNotification("validation_rule");
         }
     },
-    validateUniqueCohortPerIntake: function (executionContext) {
+    validateUniqueCohort: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
         var cohort = formContext.getAttribute("ofm_cohortid").getValue();
