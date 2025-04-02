@@ -198,7 +198,7 @@ OFM.Intake.Form = {
             var cohortid = cohort[0].id.replace("{", "").replace("}", "")
             Xrm.WebApi.retrieveMultipleRecords("ofm_intake", "?$select=ofm_intakeid&$filter=(_ofm_cohortid_value eq " + cohortid +")").then(
                 function success(result) {
-                    if (result.entities.length >= 0) {
+                    if (result.entities.length > 0) {
                         formContext.getControl("ofm_cohortid").setNotification("This cohort is already applied to an intake", "cohortid_validation_rule");
                     }
                     else {
