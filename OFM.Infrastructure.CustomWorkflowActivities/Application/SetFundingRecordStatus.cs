@@ -63,19 +63,72 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Application
                     EntityCollection fundingRecords = service.RetrieveMultiple(new FetchExpression(fetchXml));
 
                     //Change Active Funding record status: Draft (1) --> FA Review (3)
+                    //Recalculate Start Date and End Date for FA, rule: Adding two month (Verified anytime between January 1-31, the funding details record start date will be March 1.)
                     if (fundingRecords.Entities.Count > 0 && fundingRecords[0] != null)
                     {
                         var id = fundingRecords[0].Id;
                         tracingService.Trace("\nActive funding record to be updated with FA Review status: " + id);
 
+                        //Get the current time
+                        RetrieveRequest timeZoneCode = new RetrieveRequest
+                        {
+                            ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode }),
+                            Target = new EntityReference(UserSettings.EntityLogicalName, context.InitiatingUserId)
+                        };
+
+                        Entity timeZoneResult = ((RetrieveResponse)service.Execute(timeZoneCode)).Entity;
+
+                        var timeZoneQuery = new QueryExpression()
+                        {
+                            EntityName = TimeZoneDefinition.EntityLogicalName,
+                            ColumnSet = new ColumnSet(TimeZoneDefinition.Fields.standardname),
+                            Criteria = new FilterExpression
+                            {
+                                Conditions =
+                                {
+                                    new ConditionExpression(TimeZoneDefinition.Fields.timezonecode, ConditionOperator.Equal,((UserSettings)timeZoneResult).timezonecode)
+                                }
+                            }
+                        };
+
+                        var result = service.RetrieveMultiple(timeZoneQuery);
+
+                        var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo
+                            .FindSystemTimeZoneById(result.Entities.Select(t => t.GetAttributeValue<string>(TimeZoneDefinition.Fields
+                            .standardname)).FirstOrDefault().ToString()));
+
+                        //Start Date: Adding two months to current time
+                       var calculatedStartDate = localTime.AddMonths(2);
+                       calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
+
+
+                        var tempDate = new DateTime();
+                        var cutOffDate = new DateTime(2024, 10, 01); //FA Start Date after Oct 1, 2024 should have 2 year term instead of 3)
+                        tracingService.Trace("Funding Start Date: {0}", calculatedStartDate);
+                        tracingService.Trace("Funding CutOff Date: {0}. Funding start date after October 1, 2024, will have 2 years instead of 3 years funding terms", cutOffDate);
+
+                        if (calculatedStartDate > cutOffDate)
+                        {
+                            tempDate = calculatedStartDate.AddYears(2).AddDays(-1);
+                        }
+                        else
+                        {
+                            tempDate = calculatedStartDate.AddYears(3).AddDays(-1);
+                        }
+
+                        var calculatedEndDate = new DateTime(tempDate.Year, tempDate.Month, tempDate.Day, 23, 59, 0);
+
+
                         var entityToUpdate = new ofm_funding
                         {
                             Id = id,
-                            statuscode = ofm_funding_StatusCode.FAReview
+                            statuscode = ofm_funding_StatusCode.FAReview,
+                            ofm_start_date = calculatedStartDate,
+                            ofm_end_date = calculatedEndDate
                         };
                         service.Update(entityToUpdate);
 
-                        tracingService.Trace("\nChange sucessfully active funding detail record status from Draft to FA review.");
+                        tracingService.Trace("\nChange sucessfully active funding detail record status from Draft to FA review and Recalculate start date");
                     }
                     else
                     {
