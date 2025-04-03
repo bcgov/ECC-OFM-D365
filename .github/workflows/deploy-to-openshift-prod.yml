@@ -124,7 +124,7 @@ jobs:
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
 
           # Create tag for PROD env from DEV env image
-          oc tag ${{ env.NAMESPACE }}-dev/${{ env.IMAGE_NAME }}:${{ inputs.tag }} ${{ env.NAMESPACE }}-prod/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
+          oc tag ${{ env.NAMESPACE }}-dev/${{ env.IMAGE_NAME }}-${{ env.BRANCH }}:${{ inputs.tag }} ${{ env.NAMESPACE }}-prod/${{ env.IMAGE_NAME }}-${{ env.BRANCH }}:${{ inputs.tag }}
 
           # Process and apply deployment template
           oc process \

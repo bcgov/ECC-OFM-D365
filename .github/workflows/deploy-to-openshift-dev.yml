@@ -152,7 +152,8 @@ jobs:
           # Create the image stream if it doesn't exist
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
 
-          oc tag ${{ steps.push-image-backend.outputs.registry-path }} ${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          oc tag ${{ steps.push-image-backend.outputs.registry-path }} \
+            ${{ env.IMAGE_NAME }}-${{ env.BRANCH }}:${{ env.TAG }}
 
           # Process and apply deployment template
           oc process \
@@ -212,6 +213,6 @@ jobs:
           oc rollout status deployment/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }}
 
       - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.8.0
+        uses: zaproxy/action-full-scan@v0.12.0
         with:
           target: 'https://${{ env.HOST_ROUTE }}'

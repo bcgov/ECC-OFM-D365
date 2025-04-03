@@ -213,6 +213,17 @@ public record D365Template
     public string? templatecode { get; set; }
 }
 
+public record D365AssistanceRequest
+{
+    public string? ofm_assistance_requestid { get; set; }
+    public string? ofm_name { get; set; }
+    public string? ofm_subject { get; set; }
+    public DateTime? ofm_submission_time { get; set; }
+    public string? _ofm_contact_value { get; set; }
+    public bool? ofm_is_read { get; set; }
+    [property: JsonPropertyName("contact.emailaddress1")]
+    public string? emailaddress1 { get; set; }
+}
 public record D365Email
 {
     public string? activityid { get; set; }
@@ -383,12 +394,12 @@ public record D365Reporting
 
 }
 
-public class D365FiscalYear: ofm_fiscal_year
+public class D365FiscalYear : ofm_fiscal_year
 {
     public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
-public class ExpenseApplication: ofm_expense
+public class ExpenseApplication : ofm_expense
 {
     public new decimal? ofm_amount { get; set; }
 }
@@ -444,6 +455,19 @@ public class ProviderStaff
 
     [property: JsonPropertyName("report.ofm_facility@OData.Community.Display.V1.FormattedValue")]
     public string Facility_Name_Report { get { return Facility_Name; } set { Facility_Name = value; } }
+}
+
+public class TopUp : ofm_top_up_fund
+{
+    public new decimal? ofm_programming_amount { get; set; }
+}
+
+public class QuestionResponse : ofm_question_response
+{
+    [property: JsonPropertyName("question.ofm_question_id")]
+    public string ofm_question_qid { get; set; }
+    [property: JsonPropertyName("header.ofm_question_id")]
+    public string ofm_header_qid { get; set; }
 }
 
 #region External Parameters
