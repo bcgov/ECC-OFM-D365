@@ -38,6 +38,10 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
             var funding = this.funding.Get(executionContext);
             var funding_start_date = this.funding_start_date.Get(executionContext);
 
+            tracingService.Trace("{0}{1}", "application: ", application);
+            tracingService.Trace("{0}{1}", "funding: ", funding);
+            tracingService.Trace("{0}{1}", "funding_start_date:", funding_start_date);
+
             //Get the active topup
 
             try
@@ -54,7 +58,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                         // Add 2 conditions to ofm_top_up_fund
                         Conditions =
                         {
-                            new ConditionExpression("statuscode", ConditionOperator.Equal, ECC.Core.DataContext.ofm_top_up_fund_StatusCode.Approved),
+                            new ConditionExpression("statuscode", ConditionOperator.Equal, (int)ECC.Core.DataContext.ofm_top_up_fund_StatusCode.Approved),
                             new ConditionExpression("ofm_end_date", ConditionOperator.GreaterEqual, funding_start_date) //Compare the topup end date and funding mod start date
                         }
                     },
@@ -81,7 +85,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                         // Add 1 conditions to ofm_application
                                         Conditions =
                                         {
-                                            new ConditionExpression("ofm_applicationid", ConditionOperator.Equal, application)
+                                            new ConditionExpression("ofm_applicationid", ConditionOperator.Equal, application.Id)
                                         }
                                     }
                                 }
