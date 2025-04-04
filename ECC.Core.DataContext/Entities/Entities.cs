@@ -109,8 +109,13 @@ namespace ECC.Core.DataContext
 			public const string ccof_accounttype = "ccof_accounttype";
 			public const string ccof_accounttypename = "ccof_accounttypename";
 			public const string ccof_approveduntil = "ccof_approveduntil";
+			public const string ccof_bypass_goodstanding_check = "ccof_bypass_goodstanding_check";
+			public const string ccof_bypass_goodstanding_check_reason = "ccof_bypass_goodstanding_check_reason";
+			public const string ccof_bypass_goodstanding_checkname = "ccof_bypass_goodstanding_checkname";
+			public const string ccof_consecutivestartdate = "ccof_consecutivestartdate";
 			public const string ccof_contractstatus = "ccof_contractstatus";
 			public const string ccof_contractstatusname = "ccof_contractstatusname";
+			public const string ccof_duration = "ccof_duration";
 			public const string ccof_everreceivedfundingundertheccofprogram = "ccof_everreceivedfundingundertheccofprogram";
 			public const string ccof_everreceivedfundingundertheccofprogramname = "ccof_everreceivedfundingundertheccofprogramname";
 			public const string ccof_facilityenddate = "ccof_facilityenddate";
@@ -130,6 +135,10 @@ namespace ECC.Core.DataContext
 			public const string ccof_instructionnumber = "ccof_instructionnumber";
 			public const string ccof_is_facility_address_entered_manually = "ccof_is_facility_address_entered_manually";
 			public const string ccof_is_facility_address_entered_manuallyname = "ccof_is_facility_address_entered_manuallyname";
+			public const string ccof_is_facility_address_same_as_org = "ccof_is_facility_address_same_as_org";
+			public const string ccof_is_facility_address_same_as_orgname = "ccof_is_facility_address_same_as_orgname";
+			public const string ccof_is_facility_contact_same_as_org = "ccof_is_facility_contact_same_as_org";
+			public const string ccof_is_facility_contact_same_as_orgname = "ccof_is_facility_contact_same_as_orgname";
 			public const string ccof_is_mailing_address_same = "ccof_is_mailing_address_same";
 			public const string ccof_is_mailing_address_samename = "ccof_is_mailing_address_samename";
 			public const string ccof_is_org_mailing_address_entered_manually = "ccof_is_org_mailing_address_entered_manually";
@@ -1916,6 +1925,68 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_bypass_goodstanding_check")]
+		public System.Nullable<bool> ccof_bypass_goodstanding_check
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("ccof_bypass_goodstanding_check");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ccof_bypass_goodstanding_check", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_bypass_goodstanding_check_reason")]
+		public string ccof_bypass_goodstanding_check_reason
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ccof_bypass_goodstanding_check_reason");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ccof_bypass_goodstanding_check_reason", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_bypass_goodstanding_checkname")]
+		public string ccof_bypass_goodstanding_checkname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ccof_bypass_goodstanding_check"))
+				{
+					return this.FormattedValues["ccof_bypass_goodstanding_check"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_consecutivestartdate")]
+		public System.Nullable<System.DateTime> ccof_consecutivestartdate
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("ccof_consecutivestartdate");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ccof_consecutivestartdate", value);
+			}
+		}
+		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_contractstatus")]
 		public virtual ccof_ContractStatus? ccof_contractstatus
 		{
@@ -1945,6 +2016,16 @@ namespace ECC.Core.DataContext
 				{
 					return default(string);
 				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_duration")]
+		public System.Nullable<decimal> ccof_duration
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ccof_duration");
 			}
 		}
 		
@@ -2243,6 +2324,70 @@ namespace ECC.Core.DataContext
 				if (this.FormattedValues.Contains("ccof_is_facility_address_entered_manually"))
 				{
 					return this.FormattedValues["ccof_is_facility_address_entered_manually"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_is_facility_address_same_as_org")]
+		public System.Nullable<bool> ccof_is_facility_address_same_as_org
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("ccof_is_facility_address_same_as_org");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ccof_is_facility_address_same_as_org", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_is_facility_address_same_as_orgname")]
+		public string ccof_is_facility_address_same_as_orgname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ccof_is_facility_address_same_as_org"))
+				{
+					return this.FormattedValues["ccof_is_facility_address_same_as_org"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_is_facility_contact_same_as_org")]
+		public System.Nullable<bool> ccof_is_facility_contact_same_as_org
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<bool>>("ccof_is_facility_contact_same_as_org");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ccof_is_facility_contact_same_as_org", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ccof_is_facility_contact_same_as_orgname")]
+		public string ccof_is_facility_contact_same_as_orgname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ccof_is_facility_contact_same_as_org"))
+				{
+					return this.FormattedValues["ccof_is_facility_contact_same_as_org"];
 				}
 				else
 				{
@@ -9474,6 +9619,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_contact_account = "ofm_contact_account";
 			public const string ofm_contact_applications = "ofm_contact_applications";
 			public const string ofm_contact_funding = "ofm_contact_funding";
+			public const string ofm_contact_funding_decliner = "ofm_contact_funding_decliner";
 			public const string ofm_contact_survey_response = "ofm_contact_survey_response";
 			public const string ofm_createdby_application = "ofm_createdby_application";
 			public const string ofm_expenseauthority_application = "ofm_expenseauthority_application";
@@ -15784,6 +15930,24 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// 1:N ofm_contact_funding_decliner
+		/// </summary>
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_contact_funding_decliner")]
+		public System.Collections.Generic.IEnumerable<ECC.Core.DataContext.ofm_funding> ofm_contact_funding_decliner
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntities<ECC.Core.DataContext.ofm_funding>("ofm_contact_funding_decliner", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntities<ECC.Core.DataContext.ofm_funding>("ofm_contact_funding_decliner", null, value);
+			}
+		}
+		
+		/// <summary>
 		/// 1:N ofm_contact_survey_response
 		/// </summary>
 		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_contact_survey_response")]
@@ -16227,6 +16391,7 @@ namespace ECC.Core.DataContext
 			public const string owninguser = "owninguser";
 			public const string parentactivityid = "parentactivityid";
 			public const string parentactivityidname = "parentactivityidname";
+			public const string parentsensitivitylabelid = "parentsensitivitylabelid";
 			public const string postponeemailprocessinguntil = "postponeemailprocessinguntil";
 			public const string prioritycode = "prioritycode";
 			public const string prioritycodename = "prioritycodename";
@@ -16253,6 +16418,9 @@ namespace ECC.Core.DataContext
 			public const string sendersaccount = "sendersaccount";
 			public const string sendersaccountname = "sendersaccountname";
 			public const string sendersaccountyominame = "sendersaccountyominame";
+			public const string sensitivitylabelid = "sensitivitylabelid";
+			public const string sensitivitylabelidname = "sensitivitylabelidname";
+			public const string sensitivitylabelinfo = "sensitivitylabelinfo";
 			public const string senton = "senton";
 			public const string serviceid = "serviceid";
 			public const string serviceidname = "serviceidname";
@@ -18515,6 +18683,19 @@ namespace ECC.Core.DataContext
 		/// <summary>
 		/// For internal use only.
 		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("parentsensitivitylabelid")]
+		public System.Nullable<System.Guid> parentsensitivitylabelid
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.Guid>>("parentsensitivitylabelid");
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("postponeemailprocessinguntil")]
 		public System.Nullable<System.DateTime> postponeemailprocessinguntil
 		{
@@ -18935,6 +19116,59 @@ namespace ECC.Core.DataContext
 				{
 					return default(string);
 				}
+			}
+		}
+		
+		/// <summary>
+		/// The sensitivity label assigned to the Email.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("sensitivitylabelid")]
+		public Microsoft.Xrm.Sdk.EntityReference sensitivitylabelid
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("sensitivitylabelid");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("sensitivitylabelid", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("sensitivitylabelidname")]
+		public string sensitivitylabelidname
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("sensitivitylabelid"))
+				{
+					return this.FormattedValues["sensitivitylabelid"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		/// <summary>
+		/// For internal use only.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("sensitivitylabelinfo")]
+		public string sensitivitylabelinfo
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("sensitivitylabelinfo");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("sensitivitylabelinfo", value);
 			}
 		}
 		
@@ -42976,6 +43210,7 @@ namespace ECC.Core.DataContext
 			public const string ofm_clausesname = "ofm_clausesname";
 			public const string ofm_cohort = "ofm_cohort";
 			public const string ofm_contact_funding = "ofm_contact_funding";
+			public const string ofm_contact_funding_decliner = "ofm_contact_funding_decliner";
 			public const string ofm_declaration = "ofm_declaration";
 			public const string ofm_declarationname = "ofm_declarationname";
 			public const string ofm_end_date = "ofm_end_date";
@@ -42985,66 +43220,99 @@ namespace ECC.Core.DataContext
 			public const string ofm_envelope_administrative_pf_base = "ofm_envelope_administrative_pf_base";
 			public const string ofm_envelope_administrative_proj = "ofm_envelope_administrative_proj";
 			public const string ofm_envelope_administrative_proj_base = "ofm_envelope_administrative_proj_base";
+			public const string ofm_envelope_administrative_proj_topup = "ofm_envelope_administrative_proj_topup";
+			public const string ofm_envelope_administrative_topup = "ofm_envelope_administrative_topup";
+			public const string ofm_envelope_administrative_topup_base = "ofm_envelope_administrative_topup_base";
 			public const string ofm_envelope_facility = "ofm_envelope_facility";
 			public const string ofm_envelope_facility_base = "ofm_envelope_facility_base";
 			public const string ofm_envelope_facility_pf = "ofm_envelope_facility_pf";
 			public const string ofm_envelope_facility_pf_base = "ofm_envelope_facility_pf_base";
 			public const string ofm_envelope_facility_proj = "ofm_envelope_facility_proj";
 			public const string ofm_envelope_facility_proj_base = "ofm_envelope_facility_proj_base";
+			public const string ofm_envelope_facility_proj_topup = "ofm_envelope_facility_proj_topup";
+			public const string ofm_envelope_facility_topup = "ofm_envelope_facility_topup";
+			public const string ofm_envelope_facility_topup_base = "ofm_envelope_facility_topup_base";
 			public const string ofm_envelope_grand_total = "ofm_envelope_grand_total";
 			public const string ofm_envelope_grand_total_base = "ofm_envelope_grand_total_base";
 			public const string ofm_envelope_grand_total_pf = "ofm_envelope_grand_total_pf";
 			public const string ofm_envelope_grand_total_pf_base = "ofm_envelope_grand_total_pf_base";
 			public const string ofm_envelope_grand_total_proj = "ofm_envelope_grand_total_proj";
 			public const string ofm_envelope_grand_total_proj_base = "ofm_envelope_grand_total_proj_base";
+			public const string ofm_envelope_grand_total_proj_topup = "ofm_envelope_grand_total_proj_topup";
+			public const string ofm_envelope_grand_total_topup = "ofm_envelope_grand_total_topup";
+			public const string ofm_envelope_grand_total_topup_base = "ofm_envelope_grand_total_topup_base";
 			public const string ofm_envelope_hr_benefits = "ofm_envelope_hr_benefits";
 			public const string ofm_envelope_hr_benefits_base = "ofm_envelope_hr_benefits_base";
 			public const string ofm_envelope_hr_benefits_pf = "ofm_envelope_hr_benefits_pf";
 			public const string ofm_envelope_hr_benefits_pf_base = "ofm_envelope_hr_benefits_pf_base";
 			public const string ofm_envelope_hr_benefits_proj = "ofm_envelope_hr_benefits_proj";
 			public const string ofm_envelope_hr_benefits_proj_base = "ofm_envelope_hr_benefits_proj_base";
+			public const string ofm_envelope_hr_benefits_proj_topup = "ofm_envelope_hr_benefits_proj_topup";
+			public const string ofm_envelope_hr_benefits_topup = "ofm_envelope_hr_benefits_topup";
+			public const string ofm_envelope_hr_benefits_topup_base = "ofm_envelope_hr_benefits_topup_base";
 			public const string ofm_envelope_hr_employerhealthtax = "ofm_envelope_hr_employerhealthtax";
 			public const string ofm_envelope_hr_employerhealthtax_base = "ofm_envelope_hr_employerhealthtax_base";
 			public const string ofm_envelope_hr_employerhealthtax_pf = "ofm_envelope_hr_employerhealthtax_pf";
 			public const string ofm_envelope_hr_employerhealthtax_pf_base = "ofm_envelope_hr_employerhealthtax_pf_base";
 			public const string ofm_envelope_hr_employerhealthtax_proj = "ofm_envelope_hr_employerhealthtax_proj";
 			public const string ofm_envelope_hr_employerhealthtax_proj_base = "ofm_envelope_hr_employerhealthtax_proj_base";
+			public const string ofm_envelope_hr_employerhealthtax_proj_topup = "ofm_envelope_hr_employerhealthtax_proj_topup";
+			public const string ofm_envelope_hr_employerhealthtax_topup = "ofm_envelope_hr_employerhealthtax_topup";
+			public const string ofm_envelope_hr_employerhealthtax_topup_base = "ofm_envelope_hr_employerhealthtax_topup_base";
 			public const string ofm_envelope_hr_prodevexpenses = "ofm_envelope_hr_prodevexpenses";
 			public const string ofm_envelope_hr_prodevexpenses_base = "ofm_envelope_hr_prodevexpenses_base";
 			public const string ofm_envelope_hr_prodevexpenses_pf = "ofm_envelope_hr_prodevexpenses_pf";
 			public const string ofm_envelope_hr_prodevexpenses_pf_base = "ofm_envelope_hr_prodevexpenses_pf_base";
 			public const string ofm_envelope_hr_prodevexpenses_proj = "ofm_envelope_hr_prodevexpenses_proj";
 			public const string ofm_envelope_hr_prodevexpenses_proj_base = "ofm_envelope_hr_prodevexpenses_proj_base";
+			public const string ofm_envelope_hr_prodevexpenses_proj_topup = "ofm_envelope_hr_prodevexpenses_proj_topup";
+			public const string ofm_envelope_hr_prodevexpenses_topup = "ofm_envelope_hr_prodevexpenses_topup";
+			public const string ofm_envelope_hr_prodevexpenses_topup_base = "ofm_envelope_hr_prodevexpenses_topup_base";
 			public const string ofm_envelope_hr_prodevhours = "ofm_envelope_hr_prodevhours";
 			public const string ofm_envelope_hr_prodevhours_base = "ofm_envelope_hr_prodevhours_base";
 			public const string ofm_envelope_hr_prodevhours_pf = "ofm_envelope_hr_prodevhours_pf";
 			public const string ofm_envelope_hr_prodevhours_pf_base = "ofm_envelope_hr_prodevhours_pf_base";
 			public const string ofm_envelope_hr_prodevhours_proj = "ofm_envelope_hr_prodevhours_proj";
 			public const string ofm_envelope_hr_prodevhours_proj_base = "ofm_envelope_hr_prodevhours_proj_base";
+			public const string ofm_envelope_hr_prodevhours_proj_topup = "ofm_envelope_hr_prodevhours_proj_topup";
+			public const string ofm_envelope_hr_prodevhours_topup = "ofm_envelope_hr_prodevhours_topup";
+			public const string ofm_envelope_hr_prodevhours_topup_base = "ofm_envelope_hr_prodevhours_topup_base";
 			public const string ofm_envelope_hr_total = "ofm_envelope_hr_total";
 			public const string ofm_envelope_hr_total_base = "ofm_envelope_hr_total_base";
 			public const string ofm_envelope_hr_total_pf = "ofm_envelope_hr_total_pf";
 			public const string ofm_envelope_hr_total_pf_base = "ofm_envelope_hr_total_pf_base";
 			public const string ofm_envelope_hr_total_proj = "ofm_envelope_hr_total_proj";
 			public const string ofm_envelope_hr_total_proj_base = "ofm_envelope_hr_total_proj_base";
+			public const string ofm_envelope_hr_total_proj_topup = "ofm_envelope_hr_total_proj_topup";
+			public const string ofm_envelope_hr_total_topup = "ofm_envelope_hr_total_topup";
+			public const string ofm_envelope_hr_total_topup_base = "ofm_envelope_hr_total_topup_base";
 			public const string ofm_envelope_hr_wages_paidtimeoff = "ofm_envelope_hr_wages_paidtimeoff";
 			public const string ofm_envelope_hr_wages_paidtimeoff_base = "ofm_envelope_hr_wages_paidtimeoff_base";
 			public const string ofm_envelope_hr_wages_paidtimeoff_pf = "ofm_envelope_hr_wages_paidtimeoff_pf";
 			public const string ofm_envelope_hr_wages_paidtimeoff_pf_base = "ofm_envelope_hr_wages_paidtimeoff_pf_base";
 			public const string ofm_envelope_hr_wages_paidtimeoff_proj = "ofm_envelope_hr_wages_paidtimeoff_proj";
 			public const string ofm_envelope_hr_wages_paidtimeoff_proj_base = "ofm_envelope_hr_wages_paidtimeoff_proj_base";
+			public const string ofm_envelope_hr_wages_paidtimeoff_proj_topup = "ofm_envelope_hr_wages_paidtimeoff_proj_topup";
+			public const string ofm_envelope_hr_wages_paidtimeoff_topup = "ofm_envelope_hr_wages_paidtimeoff_topup";
+			public const string ofm_envelope_hr_wages_paidtimeoff_topup_base = "ofm_envelope_hr_wages_paidtimeoff_topup_base";
 			public const string ofm_envelope_operational = "ofm_envelope_operational";
 			public const string ofm_envelope_operational_base = "ofm_envelope_operational_base";
 			public const string ofm_envelope_operational_pf = "ofm_envelope_operational_pf";
 			public const string ofm_envelope_operational_pf_base = "ofm_envelope_operational_pf_base";
 			public const string ofm_envelope_operational_proj = "ofm_envelope_operational_proj";
 			public const string ofm_envelope_operational_proj_base = "ofm_envelope_operational_proj_base";
+			public const string ofm_envelope_operational_proj_topup = "ofm_envelope_operational_proj_topup";
+			public const string ofm_envelope_operational_topup = "ofm_envelope_operational_topup";
+			public const string ofm_envelope_operational_topup_base = "ofm_envelope_operational_topup_base";
 			public const string ofm_envelope_programming = "ofm_envelope_programming";
 			public const string ofm_envelope_programming_base = "ofm_envelope_programming_base";
 			public const string ofm_envelope_programming_pf = "ofm_envelope_programming_pf";
 			public const string ofm_envelope_programming_pf_base = "ofm_envelope_programming_pf_base";
 			public const string ofm_envelope_programming_proj = "ofm_envelope_programming_proj";
 			public const string ofm_envelope_programming_proj_base = "ofm_envelope_programming_proj_base";
+			public const string ofm_envelope_programming_proj_topup = "ofm_envelope_programming_proj_topup";
+			public const string ofm_envelope_programming_topup = "ofm_envelope_programming_topup";
+			public const string ofm_envelope_programming_topup_base = "ofm_envelope_programming_topup_base";
 			public const string ofm_facility = "ofm_facility";
 			public const string ofm_facilityname = "ofm_facilityname";
 			public const string ofm_facilityyominame = "ofm_facilityyominame";
@@ -43076,8 +43344,6 @@ namespace ECC.Core.DataContext
 			public const string ofm_modifications = "ofm_modifications";
 			public const string ofm_monthly_province_base_funding_y1 = "ofm_monthly_province_base_funding_y1";
 			public const string ofm_new_allocation_date = "ofm_new_allocation_date";
-			public const string ofm_notified_expense_authority = "ofm_notified_expense_authority";
-			public const string ofm_notified_expense_authorityname = "ofm_notified_expense_authorityname";
 			public const string ofm_ops_approver = "ofm_ops_approver";
 			public const string ofm_ops_approvername = "ofm_ops_approvername";
 			public const string ofm_ops_approveryominame = "ofm_ops_approveryominame";
@@ -43103,12 +43369,17 @@ namespace ECC.Core.DataContext
 			public const string ofm_pdf_original_funding_start_date = "ofm_pdf_original_funding_start_date";
 			public const string ofm_pdf_provider_fa_approval_date = "ofm_pdf_provider_fa_approval_date";
 			public const string ofm_previous_mods = "ofm_previous_mods";
+			public const string ofm_proj_total_monthly_base_funding_topup = "ofm_proj_total_monthly_base_funding_topup";
 			public const string ofm_projected_monthly_parent_fees_y1 = "ofm_projected_monthly_parent_fees_y1";
 			public const string ofm_projected_total_monthly_base_funding_y1 = "ofm_projected_total_monthly_base_funding_y1";
 			public const string ofm_provider_approval_date = "ofm_provider_approval_date";
 			public const string ofm_provider_approver = "ofm_provider_approver";
 			public const string ofm_provider_approvername = "ofm_provider_approvername";
 			public const string ofm_provider_approveryominame = "ofm_provider_approveryominame";
+			public const string ofm_provider_decline_date = "ofm_provider_decline_date";
+			public const string ofm_provider_decliner = "ofm_provider_decliner";
+			public const string ofm_provider_declinername = "ofm_provider_declinername";
+			public const string ofm_provider_declineryominame = "ofm_provider_declineryominame";
 			public const string ofm_rate_schedule = "ofm_rate_schedule";
 			public const string ofm_rate_schedulename = "ofm_rate_schedulename";
 			public const string ofm_rateschedule_funding = "ofm_rateschedule_funding";
@@ -43777,6 +44048,44 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_administrative_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_administrative_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_administrative_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_administrative_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_administrative_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_administrative_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_administrative_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Administrative Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_administrative_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_administrative_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_administrative_topup_base");
+			}
+		}
+		
 		/// <summary>
 		/// Facility - Annual Province Base Funding
 		/// </summary>
@@ -43867,6 +44176,44 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_facility_proj_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_facility_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_facility_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_facility_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_facility_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_facility_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_facility_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_facility_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Facility Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_facility_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_facility_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_facility_topup_base");
 			}
 		}
 		
@@ -43963,6 +44310,44 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_grand_total_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_grand_total_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_grand_total_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_grand_total_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_grand_total_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_grand_total_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_grand_total_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Total Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_grand_total_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_grand_total_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_grand_total_topup_base");
+			}
+		}
+		
 		/// <summary>
 		/// Benefits - Annual Province Base Funding
 		/// </summary>
@@ -44053,6 +44438,44 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_benefits_proj_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_benefits_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_hr_benefits_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_hr_benefits_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_benefits_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_benefits_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_benefits_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_hr_benefits_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Benefits Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_benefits_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_benefits_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_benefits_topup_base");
 			}
 		}
 		
@@ -44149,6 +44572,44 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_employerhealthtax_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_hr_employerhealthtax_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_hr_employerhealthtax_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_employerhealthtax_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_employerhealthtax_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_employerhealthtax_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_hr_employerhealthtax_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Employer Health Tax Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_employerhealthtax_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_employerhealthtax_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_employerhealthtax_topup_base");
+			}
+		}
+		
 		/// <summary>
 		/// Professional Development Expenses - Annual Province Base Funding 
 		/// </summary>
@@ -44239,6 +44700,44 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_prodevexpenses_proj_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_prodevexpenses_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_hr_prodevexpenses_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_hr_prodevexpenses_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_prodevexpenses_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_prodevexpenses_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_prodevexpenses_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_hr_prodevexpenses_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Professional Development Expenses Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_prodevexpenses_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_prodevexpenses_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_prodevexpenses_topup_base");
 			}
 		}
 		
@@ -44335,6 +44834,44 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_prodevhours_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_hr_prodevhours_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_hr_prodevhours_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_prodevhours_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_prodevhours_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_prodevhours_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_hr_prodevhours_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Professional Development Hours Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_prodevhours_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_prodevhours_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_prodevhours_topup_base");
+			}
+		}
+		
 		/// <summary>
 		/// Instructional Human Resources - Annual Province Base Funding 
 		/// </summary>
@@ -44425,6 +44962,44 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_total_proj_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_total_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_hr_total_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_hr_total_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_total_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_total_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_total_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_hr_total_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Instructional Human Resources Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_total_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_total_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_total_topup_base");
 			}
 		}
 		
@@ -44521,6 +45096,44 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_wages_paidtimeoff_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_hr_wages_paidtimeoff_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_hr_wages_paidtimeoff_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_wages_paidtimeoff_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_wages_paidtimeoff_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_wages_paidtimeoff_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_hr_wages_paidtimeoff_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Wages & Paid Time Off Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_hr_wages_paidtimeoff_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_hr_wages_paidtimeoff_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_hr_wages_paidtimeoff_topup_base");
+			}
+		}
+		
 		/// <summary>
 		/// Operational - Annual Province Base Funding
 		/// </summary>
@@ -44614,6 +45227,44 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_operational_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_operational_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_operational_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_operational_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_operational_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_operational_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_operational_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Operational Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_operational_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_operational_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_operational_topup_base");
+			}
+		}
+		
 		/// <summary>
 		/// Programming - Annual Province Base Funding 
 		/// </summary>
@@ -44704,6 +45355,44 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_programming_proj_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_programming_proj_topup")]
+		public System.Nullable<decimal> ofm_envelope_programming_proj_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_envelope_programming_proj_topup");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_programming_topup")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_programming_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_programming_topup");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_envelope_programming_topup", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the Programming Topup in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_envelope_programming_topup_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_envelope_programming_topup_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_envelope_programming_topup_base");
 			}
 		}
 		
@@ -45130,41 +45819,6 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
-		/// <summary>
-		/// If EA has been notified when Funding is submitted
-		/// </summary>
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_notified_expense_authority")]
-		public System.Nullable<bool> ofm_notified_expense_authority
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				return this.GetAttributeValue<System.Nullable<bool>>("ofm_notified_expense_authority");
-			}
-			[System.Diagnostics.DebuggerNonUserCode()]
-			set
-			{
-				this.SetAttributeValue("ofm_notified_expense_authority", value);
-			}
-		}
-		
-		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_notified_expense_authorityname")]
-		public string ofm_notified_expense_authorityname
-		{
-			[System.Diagnostics.DebuggerNonUserCode()]
-			get
-			{
-				if (this.FormattedValues.Contains("ofm_notified_expense_authority"))
-				{
-					return this.FormattedValues["ofm_notified_expense_authority"];
-				}
-				else
-				{
-					return default(string);
-				}
-			}
-		}
-		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_ops_approver")]
 		public Microsoft.Xrm.Sdk.EntityReference ofm_ops_approver
 		{
@@ -45508,6 +46162,16 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_proj_total_monthly_base_funding_topup")]
+		public System.Nullable<decimal> ofm_proj_total_monthly_base_funding_topup
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<decimal>>("ofm_proj_total_monthly_base_funding_topup");
+			}
+		}
+		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_projected_monthly_parent_fees_y1")]
 		public System.Nullable<decimal> ofm_projected_monthly_parent_fees_y1
 		{
@@ -45587,6 +46251,73 @@ namespace ECC.Core.DataContext
 				if (this.FormattedValues.Contains("ofm_provider_approver"))
 				{
 					return this.FormattedValues["ofm_provider_approver"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provider_decline_date")]
+		public System.Nullable<System.DateTime> ofm_provider_decline_date
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<System.Nullable<System.DateTime>>("ofm_provider_decline_date");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_provider_decline_date", value);
+			}
+		}
+		
+		/// <summary>
+		/// The associated contact
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provider_decliner")]
+		public Microsoft.Xrm.Sdk.EntityReference ofm_provider_decliner
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.EntityReference>("ofm_provider_decliner");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_provider_decliner", value);
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provider_declinername")]
+		public string ofm_provider_declinername
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_provider_decliner"))
+				{
+					return this.FormattedValues["ofm_provider_decliner"];
+				}
+				else
+				{
+					return default(string);
+				}
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provider_declineryominame")]
+		public string ofm_provider_declineryominame
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_provider_decliner"))
+				{
+					return this.FormattedValues["ofm_provider_decliner"];
 				}
 				else
 				{
@@ -46201,6 +46932,25 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.SetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_contact_funding", null, value);
+			}
+		}
+		
+		/// <summary>
+		/// N:1 ofm_contact_funding_decliner
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_provider_decliner")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("ofm_contact_funding_decliner")]
+		public ECC.Core.DataContext.Contact ofm_contact_funding_decliner
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_contact_funding_decliner", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetRelatedEntity<ECC.Core.DataContext.Contact>("ofm_contact_funding_decliner", null, value);
 			}
 		}
 		
@@ -51469,7 +52219,7 @@ namespace ECC.Core.DataContext
 		{
 		}
 		
-		public const string AlternateKeys = "ofm_name|ofm_sourceid";
+		public const string AlternateKeys = "ofm_funding,ofm_invoice_line_number|ofm_name|ofm_sourceid";
 		
 		/// <summary>
 		/// Default Constructor.
@@ -63360,10 +64110,14 @@ namespace ECC.Core.DataContext
 			public const string ofm_parent_fee_per_day_ft_base = "ofm_parent_fee_per_day_ft_base";
 			public const string ofm_parent_fee_per_day_pt = "ofm_parent_fee_per_day_pt";
 			public const string ofm_parent_fee_per_day_pt_base = "ofm_parent_fee_per_day_pt_base";
+			public const string ofm_parent_fee_per_day_pt_school_age = "ofm_parent_fee_per_day_pt_school_age";
+			public const string ofm_parent_fee_per_day_pt_school_age_base = "ofm_parent_fee_per_day_pt_school_age_base";
 			public const string ofm_parent_fee_per_month_ft = "ofm_parent_fee_per_month_ft";
 			public const string ofm_parent_fee_per_month_ft_base = "ofm_parent_fee_per_month_ft_base";
 			public const string ofm_parent_fee_per_month_pt = "ofm_parent_fee_per_month_pt";
 			public const string ofm_parent_fee_per_month_pt_base = "ofm_parent_fee_per_month_pt_base";
+			public const string ofm_parent_fee_per_month_pt_school_age = "ofm_parent_fee_per_month_pt_school_age";
+			public const string ofm_parent_fee_per_month_pt_school_age_base = "ofm_parent_fee_per_month_pt_school_age_base";
 			public const string ofm_pde_cultural_training = "ofm_pde_cultural_training";
 			public const string ofm_pde_cultural_training_base = "ofm_pde_cultural_training_base";
 			public const string ofm_pde_inclusion_training = "ofm_pde_inclusion_training";
@@ -64227,6 +64981,34 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_day_pt_school_age")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_day_pt_school_age
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_day_pt_school_age");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_parent_fee_per_day_pt_school_age", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the School Age Parent Fees Per Day (Part-Time)  in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_day_pt_school_age_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_day_pt_school_age_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_day_pt_school_age_base");
+			}
+		}
+		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_month_ft")]
 		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_month_ft
 		{
@@ -64280,6 +65062,34 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_month_pt_base");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_month_pt_school_age")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_month_pt_school_age
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_month_pt_school_age");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_parent_fee_per_month_pt_school_age", value);
+			}
+		}
+		
+		/// <summary>
+		/// Value of the School Age Parent Fee Per Month (Parent - Time)  in base currency.
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_parent_fee_per_month_pt_school_age_base")]
+		public Microsoft.Xrm.Sdk.Money ofm_parent_fee_per_month_pt_school_age_base
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<Microsoft.Xrm.Sdk.Money>("ofm_parent_fee_per_month_pt_school_age_base");
 			}
 		}
 		
@@ -75891,11 +76701,13 @@ namespace ECC.Core.DataContext
 			public const string ofm_facilityname = "ofm_facilityname";
 			public const string ofm_facilityyominame = "ofm_facilityyominame";
 			public const string ofm_funding = "ofm_funding";
+			public const string ofm_funding_number = "ofm_funding_number";
 			public const string ofm_fundingname = "ofm_fundingname";
 			public const string ofm_name = "ofm_name";
 			public const string ofm_payment_top_up_fund = "ofm_payment_top_up_fund";
 			public const string ofm_pcm_validated = "ofm_pcm_validated";
 			public const string ofm_pcm_validatedname = "ofm_pcm_validatedname";
+			public const string ofm_pdf_organization_name = "ofm_pdf_organization_name";
 			public const string ofm_programming_amount = "ofm_programming_amount";
 			public const string ofm_programming_amount_base = "ofm_programming_amount_base";
 			public const string ofm_start_date = "ofm_start_date";
@@ -75903,6 +76715,8 @@ namespace ECC.Core.DataContext
 			public const string ofm_top_up_fundid = "ofm_top_up_fundid";
 			public const string Id = "ofm_top_up_fundid";
 			public const string ofm_top_up_funding = "ofm_top_up_funding";
+			public const string ofm_top_up_pdf = "ofm_top_up_pdf";
+			public const string ofm_top_up_pdf_name = "ofm_top_up_pdf_name";
 			public const string overriddencreatedon = "overriddencreatedon";
 			public const string ownerid = "ownerid";
 			public const string owneridname = "owneridname";
@@ -76360,6 +77174,21 @@ namespace ECC.Core.DataContext
 			}
 		}
 		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_funding_number")]
+		public string ofm_funding_number
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_funding_number");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_funding_number", value);
+			}
+		}
+		
 		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_fundingname")]
 		public string ofm_fundingname
 		{
@@ -76421,6 +77250,24 @@ namespace ECC.Core.DataContext
 				{
 					return default(string);
 				}
+			}
+		}
+		
+		/// <summary>
+		/// Organization Name for Top Up PDF
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_pdf_organization_name")]
+		public string ofm_pdf_organization_name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<string>("ofm_pdf_organization_name");
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.SetAttributeValue("ofm_pdf_organization_name", value);
 			}
 		}
 		
@@ -76505,6 +77352,33 @@ namespace ECC.Core.DataContext
 			set
 			{
 				this.ofm_top_up_fundid = value;
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_top_up_pdf")]
+		public object ofm_top_up_pdf
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetAttributeValue<object>("ofm_top_up_pdf");
+			}
+		}
+		
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_top_up_pdf_name")]
+		public string ofm_top_up_pdf_name
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				if (this.FormattedValues.Contains("ofm_top_up_pdf"))
+				{
+					return this.FormattedValues["ofm_top_up_pdf"];
+				}
+				else
+				{
+					return default(string);
+				}
 			}
 		}
 		

@@ -1599,6 +1599,10 @@ namespace ECC.Core.DataContext
 		ContactInformationChange = 100000009,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Edit Existing Closure", 16)]
+		EditExistingClosure = 100000016,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Facility Address", 2)]
 		FacilityAddress = 100000002,
 		
@@ -1623,6 +1627,10 @@ namespace ECC.Core.DataContext
 		NewCategory = 100000014,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("New Closure", 15)]
+		NewClosure = 100000015,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Organization Mailing Address", 1)]
 		OrganizationMailingAddress = 100000001,
 		
@@ -1635,12 +1643,45 @@ namespace ECC.Core.DataContext
 		ParentFeeChangeMTFI = 100000007,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Remove a Closure", 17)]
+		RemoveaClosure = 100000017,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Service Detail Change", 6)]
 		ServiceDetailChange = 100000006,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Update Direct Deposit Information", 12)]
 		UpdateDirectDepositInformation = 100000012,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ccof_ChildCareCategories
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("0-18", 0)]
+		_018 = 100000000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("18-36", 1)]
+		_1836 = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("3Y-K", 2)]
+		_3YK = 100000002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("OOSC-G", 4)]
+		OOSCG = 100000004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("OOSC-K", 3)]
+		OOSCK = 100000003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("PRE", 5)]
+		PRE = 100000005,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -1671,6 +1712,39 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("No full-time fees for closures", 1, "#0000ff")]
 		Nofulltimefeesforclosures = 100000001,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ccof_ClosureStatus
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("APPROVED", 3)]
+		APPROVED = 100000003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("CANCELLED", 5)]
+		CANCELLED = 100000005,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("DENIED", 4)]
+		DENIED = 100000004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("DRAFT", 0)]
+		DRAFT = 100000000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("IN PROGRESS", 2)]
+		INPROGRESS = 100000002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Provider Removed", 6)]
+		ProviderRemoved = 100000006,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("SUBMITTED", 1)]
+		SUBMITTED = 100000001,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -1739,6 +1813,23 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Opt-Out", 1)]
 		OptOut = 100000001,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ccof_EmergencyClosureType
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Natural Disaster", 1)]
+		NaturalDisaster = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Other - at the discretion of the ministry", 2)]
+		Otheratthediscretionoftheministry = 100000002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Unplanned closures due to an evacuation order or similar restrictions", 0)]
+		Unplannedclosuresduetoanevacuationorderorsimilarrestrictions = 100000000,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -2192,6 +2283,31 @@ namespace ECC.Core.DataContext
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
+	public enum ccof_PaymentEligibility
+	{
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("CCFRI", 0)]
+		CCFRI = 100000000,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("CCFRI & CCOF", 1)]
+		CCFRICCOF = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("CCOF", 2)]
+		CCOF = 100000002,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("INELIGIBLE", 3)]
+		INELIGIBLE = 100000003,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("PENDING", 4)]
+		PENDING = 100000004,
+	}
+	
+	[System.Runtime.Serialization.DataContractAttribute()]
 	public enum ccof_pcf_unlocked_sections
 	{
 		
@@ -2623,6 +2739,10 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Portuguese (Brazilian)", 2)]
 		PortugueseBrazilian = 1046,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Portuguese (Portugal)", 29)]
+		PortuguesePortugal = 2070,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Russian", 17)]
@@ -5892,7 +6012,7 @@ namespace ECC.Core.DataContext
 		BookingTimestamp = 10618,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Case", 132)]
+		[OptionSetMetadataAttribute("Case", 133)]
 		Case = 112,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -5924,7 +6044,7 @@ namespace ECC.Core.DataContext
 		ConnectionRole = 3231,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Contact", 138)]
+		[OptionSetMetadataAttribute("Contact", 139)]
 		Contact = 2,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -5988,11 +6108,11 @@ namespace ECC.Core.DataContext
 		FunctionalLocation = 10168,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Functional Location Type", 134)]
+		[OptionSetMetadataAttribute("Functional Location Type", 135)]
 		FunctionalLocationType = 11343,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Functional Location Type Template Association", 136)]
+		[OptionSetMetadataAttribute("Functional Location Type Template Association", 137)]
 		FunctionalLocationTypeTemplateAssociation = 11345,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6144,11 +6264,11 @@ namespace ECC.Core.DataContext
 		LeadToOpportunitySalesProcess = 954,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Location Template Association", 135)]
+		[OptionSetMetadataAttribute("Location Template Association", 136)]
 		LocationTemplateAssociation = 11344,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("MobileSource", 133)]
+		[OptionSetMetadataAttribute("MobileSource", 134)]
 		MobileSource = 11237,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6232,6 +6352,10 @@ namespace ECC.Core.DataContext
 		ProductInventory = 10647,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Product Map", 131)]
+		ProductMap = 11774,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Product Relationship", 24)]
 		ProductRelationship = 1028,
 		
@@ -6256,7 +6380,7 @@ namespace ECC.Core.DataContext
 		PropertyInstance = 1333,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Property Location Association", 137)]
+		[OptionSetMetadataAttribute("Property Location Association", 138)]
 		PropertyLocationAssociation = 11346,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6372,7 +6496,7 @@ namespace ECC.Core.DataContext
 		WorkOrderIncident = 10672,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Work order not-to-exceed", 131)]
+		[OptionSetMetadataAttribute("Work order not-to-exceed", 132)]
 		Workordernottoexceed = 11159,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
@@ -6409,6 +6533,10 @@ namespace ECC.Core.DataContext
 		EmailFollowup = 100000002,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("GatherIntentDetails", 4)]
+		GatherIntentDetails = 100000004,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("KnowledgeArticleDraftReview", 0)]
 		KnowledgeArticleDraftReview = 100000000,
 		
@@ -6419,6 +6547,10 @@ namespace ECC.Core.DataContext
 		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("ResolveCase", 1)]
 		ResolveCase = 100000001,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("SuggestResolution", 5)]
+		SuggestResolution = 100000005,
 	}
 	
 	[System.Runtime.Serialization.DataContractAttribute()]
@@ -14061,6 +14193,10 @@ namespace ECC.Core.DataContext
 		Draft = 1,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
+		[OptionSetMetadataAttribute("Expired", 12, "#0000ff")]
+		Expired = 13,
+		
+		[System.Runtime.Serialization.EnumMemberAttribute()]
 		[OptionSetMetadataAttribute("Ineligible", 6, "#0000ff")]
 		Ineligible = 2,
 		
@@ -17652,19 +17788,19 @@ namespace ECC.Core.DataContext
 	{
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Case", 2)]
+		[OptionSetMetadataAttribute("Case", 1)]
 		Case = 112,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Lead", 3)]
+		[OptionSetMetadataAttribute("Lead", 2)]
 		Lead = 4,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Order", 1)]
+		[OptionSetMetadataAttribute("Order", 0)]
 		Order = 1088,
 		
 		[System.Runtime.Serialization.EnumMemberAttribute()]
-		[OptionSetMetadataAttribute("Quote", 0)]
+		[OptionSetMetadataAttribute("Quote", 3)]
 		Quote = 1084,
 	}
 	
