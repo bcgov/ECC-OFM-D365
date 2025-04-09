@@ -8,7 +8,7 @@ OFM.Application.Form = OFM.Application.Form || {};
 //Formload logic starts here
 OFM.Application.Form = {
     onLoad: function (executionContext) {
-        //debugger;
+        debugger;
         let formContext = executionContext.getFormContext();
         switch (formContext.ui.getFormType()) {
             case 0: //undefined
@@ -21,6 +21,7 @@ OFM.Application.Form = {
                 this.showBanner(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
                 this.filterSubmittedByLookup(executionContext);
+                this.showCCFRIParticipation(executionContext);
                 break;
 
             case 2: // update
@@ -36,6 +37,8 @@ OFM.Application.Form = {
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
                 this.notForProfitSection(executionContext);
+                this.showCCFRIParticipation(executionContext);
+                this.hideEligibilityTab(executionContext);
                 break;
 
             case 3: //readonly
@@ -45,6 +48,8 @@ OFM.Application.Form = {
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
                 this.notForProfitSection(executionContext);
+                this.showCCFRIParticipation(executionContext);
+                this.hideEligibilityTab(executionContext);
                 break;
 
             case 4: //disable
@@ -501,7 +506,7 @@ OFM.Application.Form = {
     lockStatusReason: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
-        if (formContext.getAttribute("statuscode").getValue() == 6) {   //Approved
+        if (formContext.getAttribute("statuscode").getValue() == 6) {  //Approved
             var roles = Xrm.Utility.getGlobalContext().userSettings.roles.getAll();
             var disable = true;
             for (var i = 0; i < roles.length; i++) {
@@ -584,5 +589,41 @@ OFM.Application.Form = {
                 console.log(error.message);
             }
         );
+    },
+    showCCFRIParticipation: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+        if (facility != null) {
+            facilityid = facility[0].id;
+            Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=ofm_program").then(
+                function success(results) {
+                    console.log(results);
+                    if (results["ofm_program"] === 2 || results["ofm_program"] === 4) {
+                        formContext.getControl("ofm_ccfri_participation").setVisible(true);
+
+                    }
+                    else {
+                        formContext.getControl("ofm_ccfri_participation").setVisible(false);
+                    }
+                },
+                function (error) {
+                    console.log(error.message);
+                }
+            );
+        }
+    },
+
+    hideEligibilityTab: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var applicationType = formContext.getAttribute("ofm_application_type").getValue();
+        if (applicationType == 1) { //NEW
+            formContext.ui.tabs.get("tab_11").setVisible(true);
+        }
+        else {
+            formContext.ui.tabs.get("tab_11").setVisible(false);
+        }
     }
 }
