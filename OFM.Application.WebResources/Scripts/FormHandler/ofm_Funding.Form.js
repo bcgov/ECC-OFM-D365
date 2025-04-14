@@ -742,5 +742,92 @@ OFM.Funding.Form = {
 
         gridContext.setFilterXml(fetchXml);
         gridContext.refresh();
+    },
+
+    validStartDateOverlappingExistingActiveFA: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var startDate = formContext.getAttribute("ofm_start_date").getValue();
+        if (facility !== null && startDate !== null ) {
+            var facilityGuid = facility[0].id.replace("{", "").replace("}", "");
+            var isoDate = startDate.toISOString();
+            var existingActiveFundingFetchXml = `?fetchXml=
+                            <fetch top='1'>
+                              <entity name='ofm_funding'>
+                                <attribute name='ofm_fundingid' />
+                                <attribute name='ofm_end_date' />
+                                <attribute name='ofm_start_date' />
+                                <attribute name='statecode' />
+                                <attribute name='statuscode' />
+                                <filter>
+                                  <condition attribute='ofm_version_number' operator='eq' value='0' />
+                                  <condition attribute='statuscode' operator='eq' value='8' />
+                                  <condition attribute='ofm_facility' operator='eq' value='` + facilityGuid + `' />
+                                  <condition attribute="ofm_end_date" operator="ge" value='` + isoDate + `' />
+                                </filter>
+                                <order attribute='createdon' descending='true' />
+                              </entity>
+                            </fetch>`;
+
+            Xrm.WebApi.retrieveMultipleRecords("ofm_funding", existingActiveFundingFetchXml).then(
+                function success(result) {
+                    if (result.entities.length > 0) {
+                        formContext.getControl("ofm_start_date").setNotification("Date overlapping with Current Active FA ", "existing_start_date_validation_rule");
+                    }
+                    else {
+                        formContext.getControl("ofm_start_date").clearNotification("existing_start_date_validation_rule");
+                    }
+                },
+                function (error) {
+                    console.log(error.message);
+                    formContext.getControl("ofm_start_date").clearNotification("existing_start_date_validation_rule");
+                }
+            );
+        }
+    },
+    validEndDateOverlappingExistingActiveFA: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var endDate = formContext.getAttribute("ofm_end_date").getValue();
+        if (facility !== null && endDate !== null) {
+            var facilityGuid = facility[0].id.replace("{", "").replace("}", "");
+            var isoDate = endDate.toISOString();
+            var existingActiveFundingFetchXml = `?fetchXml=
+                            <fetch top='1'>
+                              <entity name='ofm_funding'>
+                                <attribute name='ofm_fundingid' />
+                                <attribute name='ofm_end_date' />
+                                <attribute name='ofm_start_date' />
+                                <attribute name='statecode' />
+                                <attribute name='statuscode' />
+                                <filter>
+                                  <condition attribute='ofm_version_number' operator='eq' value='0' />
+                                  <condition attribute='statuscode' operator='eq' value='8' />
+                                  <condition attribute='ofm_facility' operator='eq' value='` + facilityGuid + `' />
+                                  <condition attribute="ofm_end_date" operator="ge" value='` + isoDate + `' />
+                                </filter>
+                                <order attribute='createdon' descending='true' />
+                              </entity>
+                            </fetch>`;
+
+            Xrm.WebApi.retrieveMultipleRecords("ofm_funding", existingActiveFundingFetchXml).then(
+                function success(result) {
+                    if (result.entities.length > 0) {
+                        formContext.getControl("ofm_end_date").setNotification("Overlapping with Current Active FA ", "existing_end_date_validation_rule");
+                    }
+                    else {
+                        formContext.getControl("ofm_end_date").clearNotification("existing_end_date_validation_rule");
+                    }
+                },
+                function (error) {
+                    console.log(error.message);
+                    formContext.getControl("ofm_end_date").clearNotification("existing_end_date_validation_rule");
+                }
+            );
+        }
     }
 }
