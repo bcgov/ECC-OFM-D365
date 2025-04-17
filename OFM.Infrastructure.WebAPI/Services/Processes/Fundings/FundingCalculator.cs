@@ -7,6 +7,7 @@ using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
@@ -65,22 +66,37 @@ public class FundingCalculator : IFundingCalculator
             // the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
             if (ApplyDuplicateCareTypesCondition)
             {
-                var groupedlicenceDetails = licenceDetails?
-                                            .GroupBy(ltype => ltype.ofm_licence_type, (ltype, licenceGroup) =>
-                                            {
-                                                var grouped = licenceGroup.First(); //Get the first occurence of the grouped licence details and override with the grouped hours and max spaces
-                                                grouped.ofm_operational_spaces = licenceGroup.Max(t => t.Spaces);
-                                                grouped.ofm_operation_hours_from = licenceGroup.Min(t => t.ofm_operation_hours_from);
-                                                grouped.ofm_operation_hours_to = licenceGroup.Max(t => t.ofm_operation_hours_to);
-                                                grouped.ofm_week_days = string.Join(",", licenceGroup.Select(t => t.ofm_week_days));
-                                                grouped.ofm_weeks_in_operation = licenceGroup.Sum(t => t.ofm_weeks_in_operation);
-                                                grouped.RateSchedule = _rateSchedule;
-                                                grouped.ApplyRoomSplitCondition = ApplyRoomSplitCondition;
-                                                grouped.NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation;
+                //var groupedlicenceDetails = licenceDetails?
+                //                            .GroupBy(ltype => ltype.ofm_licence_type, (ltype, licenceGroup) =>
+                //                            {
+                //                                var grouped = licenceGroup.First(); //Get the first occurence of the grouped licence details and override with the grouped hours and max spaces
+                //                                grouped.ofm_operational_spaces = licenceGroup.Max(t => t.Spaces);
+                //                                grouped.ofm_operation_hours_from = licenceGroup.Min(t => t.ofm_operation_hours_from);
+                //                                grouped.ofm_operation_hours_to = licenceGroup.Max(t => t.ofm_operation_hours_to);
+                //                                grouped.ofm_week_days = string.Join(",", licenceGroup.Select(t => t.ofm_week_days));
+                //                                grouped.ofm_weeks_in_operation = licenceGroup.Sum(t => t.ofm_weeks_in_operation);
+                //                                grouped.RateSchedule = _rateSchedule;
+                //                                grouped.ApplyRoomSplitCondition = ApplyRoomSplitCondition;
+                //                                grouped.NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation;
 
-                                                return grouped;
-                                            });
+                //                                return grouped;
+                //                            });
 
+                //return groupedlicenceDetails;
+                var groupedlicenceDetails = licenceDetails?.GroupBy(ltype => ltype.ofm_licence_type).Select(licenceGroup => new LicenceDetail
+                {
+                    ofm_licence_type = licenceGroup.Key,
+                    ofm_operational_spaces = licenceGroup.Sum(t => t.Spaces),
+                    ofm_operation_hours_from = licenceGroup.Min(t => t.ofm_operation_hours_from),
+                    ofm_operation_hours_to = licenceGroup.Max(t => t.ofm_operation_hours_to),
+                    ofm_week_days = string.Join(",", licenceGroup.Select(t => t.ofm_week_days)),
+                    ofm_weeks_in_operation = licenceGroup.Max(t => t.ofm_weeks_in_operation),
+                    ofm_care_type = licenceGroup.First().ofm_care_type,
+                    RateSchedule = _rateSchedule,
+                    ApplyRoomSplitCondition = ApplyRoomSplitCondition,
+                    NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation,
+
+                });
                 return groupedlicenceDetails;
             }
 
