@@ -39,12 +39,14 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
             {
                 RetrieveRequest applicationRequest = new RetrieveRequest
                 {
-                    ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon }),
+                    ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon, ofm_application.Fields.ofm_application_type,
+                        ofm_application.Fields.ofm_facility }),
                     Target = new EntityReference(application.LogicalName, application.Id)
                 };
 
                 Entity d365Application = ((RetrieveResponse)service.Execute(applicationRequest)).Entity;
-                if (d365Application != null && d365Application.Attributes.Count > 0 && d365Application.Attributes.Contains(ofm_application.Fields.ofm_summary_submittedon))
+                if (d365Application != null && d365Application.Attributes.Count > 0 && 
+                    d365Application.Attributes.Contains(ofm_application.Fields.ofm_summary_submittedon))
                 {
                     var fetchXMLLicenceDetails = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                                 <fetch>
@@ -110,17 +112,79 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
 
                     var day = Convert.ToDateTime(localTime).Day;
                     var calculatedStartDate = new DateTime();
-                    if (day < 15)
+                    var tempDate = new DateTime();
+
+                    //If Application Type = Renewal
+                    if (d365Application.Attributes.Contains(ofm_application.Fields.ofm_application_type) 
+                        && d365Application.GetAttributeValue<OptionSetValue>("ofm_application_type").Value == (int)ecc_application_type.Renewal)
                     {
-                        calculatedStartDate = localTime.AddMonths(1);
-                        calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
+                        tracingService.Trace("Renewal Application");
+
+                        if (d365Application.Attributes.Contains(ofm_application.Fields.ofm_facility))
+                        {
+                            var facilityId = d365Application.GetAttributeValue<EntityReference>("ofm_facility").Id.ToString();
+                            var currentFAExpiryDate = new DateTime();
+                            var submissionDatePlusBuffer = new DateTime();
+
+                            var fundingFetchXml = $@"<fetch top=""1"">
+                                                      <entity name=""ofm_funding"">
+                                                        <attribute name=""ofm_fundingid"" />
+                                                        <attribute name=""ofm_end_date"" />
+                                                        <attribute name=""ofm_start_date"" />
+                                                        <attribute name=""statecode"" />
+                                                        <attribute name=""statuscode"" />
+                                                        <filter>
+                                                          <condition attribute=""ofm_version_number"" operator=""eq"" value=""0"" />
+                                                          <condition attribute=""statuscode"" operator=""eq"" value=""8"" />
+                                                        </filter>
+                                                        <order attribute=""createdon"" descending=""true"" />
+                                                        <link-entity name=""ofm_application"" from=""ofm_applicationid"" to=""ofm_application"">
+                                                          <filter>
+                                                            <condition attribute=""ofm_facility"" operator=""eq"" value=""{facilityId}"" />
+                                                          </filter>
+                                                        </link-entity>
+                                                      </entity>
+                                                    </fetch>";
+
+                            EntityCollection currentActiveFunding = service.RetrieveMultiple(new FetchExpression(fundingFetchXml));
+                            if (currentActiveFunding != null && currentActiveFunding.Entities.Count > 0 && currentActiveFunding[0].GetAttributeValue<DateTime>("ofm_end_date") != null)
+                            {
+                                currentFAExpiryDate = currentActiveFunding[0].GetAttributeValue<DateTime>("ofm_end_date");
+                                tracingService.Trace("currentFAExpiryDate: {0}", currentFAExpiryDate);
+                                submissionDatePlusBuffer = localTime.AddDays(15);
+                                tracingService.Trace("submissionDatePlusBuffer: {0}", submissionDatePlusBuffer);
+
+                                //Date of Submit is greater than 15 days from current FA expiry
+                                if (submissionDatePlusBuffer <= currentFAExpiryDate)
+                                {
+                                    tracingService.Trace("Date of Submit is greater than 15 days from current FA expiry");
+                                    calculatedStartDate = currentFAExpiryDate.AddDays(1);
+                                    calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, calculatedStartDate.Day, 0, 0, 0);
+                                }
+                                else
+                                {
+                                    tracingService.Trace("Date of Submit is less than  15 days from current FA expiry");
+                                    calculatedStartDate = localTime.AddMonths(1);
+                                    calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        calculatedStartDate = localTime.AddMonths(2);
-                        calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
+                        tracingService.Trace("Non-Renewal Application");
+                        if (day < 15)
+                        {
+                            calculatedStartDate = localTime.AddMonths(1);
+                            calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
+                        }
+                        else
+                        {
+                            calculatedStartDate = localTime.AddMonths(2);
+                            calculatedStartDate = new DateTime(calculatedStartDate.Year, calculatedStartDate.Month, 1, 0, 0, 0);
+                        }
                     }
-                    var tempDate = new DateTime();
+                    
                     var cutOffDate = new DateTime(2024, 10, 01); //FA Start Date after Oct 1, 2024 should have 2 year term instead of 3)
                     tracingService.Trace("Funding Start Date: {0}", calculatedStartDate);
                     tracingService.Trace("Funding CutOff Date: {0}. Funding start date after October 1, 2024, will have 2 years instead of 3 years funding terms", cutOffDate);
