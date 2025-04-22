@@ -60,6 +60,12 @@ public static class Setup
 
             public const Int16 CreateTopUpNotificationId = 250;
             public const string CreateTopUpNotificationName = "Create email for TopUp";
+
+            public const Int16 CreateFundingExpiryRemindersId = 255;
+            public const string CreateFundingExpiryRemindersName = "Create Funding Expiry Reminders for Supplementary Application";
+            public const Int16 SendFundingExpiryNotificationsId = 260;
+            public const string SendFundingExpiryNotificationsName = "Create Funding Expiry Reminders for Supplementary Application";
+
         }
 
         public static class Fundings
