@@ -18,7 +18,8 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
         public InArgument<EntityReference> application { get; set; }
 
         [Output("Cohort")]
-        public OutArgument<string> cohort { get; set; }
+        [ReferenceTarget("ofm_cohort")]
+        public OutArgument<EntityReference> cohort { get; set; }
 
         protected override void Execute(CodeActivityContext executionContext)
         {
@@ -32,8 +33,8 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
             var application = this.application.Get(executionContext);
             try
             {
-                var cohortNum = String.Empty;
-                
+                EntityReference cohortNum = null;
+
                 RetrieveRequest applicationRequest = new RetrieveRequest
                 {
                     ColumnSet = new ColumnSet(new string[] { ofm_application.Fields.ofm_summary_submittedon }),
@@ -50,7 +51,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                     var fetchXMLIntake = $@"<?xml version=""1.0"" encoding=""utf-16""?>
                                                 <fetch>
                                                     <entity name=""ofm_intake"">
-                                                    <attribute name=""ofm_cohort"" />
+                                                    <attribute name=""ofm_cohortid"" />
                                                     <attribute name=""ofm_caption"" />
                                                     <attribute name=""ofm_end_date"" />
                                                     <attribute name=""ofm_start_date"" />
@@ -64,14 +65,14 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                 </fetch>";
 
                     EntityCollection intake = service.RetrieveMultiple(new FetchExpression(fetchXMLIntake));
-                    if(intake != null && intake.Entities.Count > 0)
+                    if (intake != null && intake.Entities.Count > 0)
                     {
-                        cohortNum = intake[0].GetAttributeValue<string>("ofm_cohort");
-                    }
+                        cohortNum = intake[0].GetAttributeValue<EntityReference>("ofm_cohortid");
 
-                    cohort.Set(executionContext, cohortNum);
-                    tracingService.Trace("{0}{1}", "Intake", intake[0].GetAttributeValue<string>("ofm_caption"));
-                    tracingService.Trace("{0}{1}", "Cohort", cohortNum);
+                        cohort.Set(executionContext, cohortNum);
+                        tracingService.Trace("{0}{1}", "Intake", intake[0].GetAttributeValue<string>("ofm_caption"));
+                        tracingService.Trace("{0}{1}", "Cohort", cohortNum.Name.ToString());
+                    }
                 }
             }
             catch (Exception ex)
