@@ -45,6 +45,7 @@ public class Funding : ofm_funding
     public new Facility? ofm_facility { get; set; }
     public new Application? ofm_application { get; set; }
     public new RateSchedule? ofm_rate_schedule { get; set; }
+    public string? _ofm_application_value { get; set; }
 }
 
 public class Facility : Account

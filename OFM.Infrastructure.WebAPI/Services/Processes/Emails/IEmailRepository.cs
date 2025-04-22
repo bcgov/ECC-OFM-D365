@@ -77,7 +77,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                     <attribute name="body" />
                     <order attribute="title" descending="false" />
                     <filter type="or">
-                      <condition attribute="ccof_templateid" operator="eq"  uitype="template" value="{_templateNumber}" />
+                      <condition attribute="ccof_templateid" operator="eq" value="{_templateNumber}" />
                           </filter>
                   </entity>
                 </fetch>

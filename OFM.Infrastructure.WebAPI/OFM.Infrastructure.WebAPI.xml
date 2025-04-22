@@ -506,6 +506,24 @@
             <param name="contactId">GUID of contact</param>
             <returns>Contact details</returns>
         </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P255CreateRenewalNotificationProvider">
+             <summary>
+            Generates the reminders for approved funding application for 30, 90 and 120 days before the expiry of the funding
+             Refer to : https://eccbc.atlassian.net/wiki/spaces/OOFMCC/pages/521405457/Send+Renewal+Notification
+             </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P255CreateRenewalNotificationProvider.#ctor(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,Microsoft.Extensions.Logging.ILoggerFactory,System.TimeProvider,Microsoft.Extensions.Options.IOptionsSnapshot{OFM.Infrastructure.WebAPI.Models.NotificationSettings})">
+             <summary>
+            Generates the reminders for approved funding application for 30, 90 and 120 days before the expiry of the funding
+             Refer to : https://eccbc.atlassian.net/wiki/spaces/OOFMCC/pages/521405457/Send+Renewal+Notification
+             </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P260SendRenewalRemindersProvider">
+            <summary>
+            Processes the reminders generated from P255CreateRenewalNotificationProvider Endpoint for applications where no renewal is not submitted in th eystem
+            Refer to : https://eccbc.atlassian.net/wiki/spaces/OOFMCC/pages/521405457/Send+Renewal+Notification
+            </summary>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles.P405VerifyGoodStandingBatchProvider.CreateTaskForNotGoodStandingFrom90Days(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,System.String)">
             <summary>
             if the org is in not good standing => Create a task for more than 90 days
@@ -3604,6 +3622,11 @@
             1:N ofm_contact_funding
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Contact.ofm_contact_funding_decliner">
+            <summary>
+            1:N ofm_contact_funding_decliner
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Contact.ofm_contact_survey_response">
             <summary>
             1:N ofm_contact_survey_response
@@ -4070,6 +4093,11 @@
             Parent Activity Name
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Email.parentsensitivitylabelid">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Email.postponeemailprocessinguntil">
             <summary>
             For internal use only.
@@ -4158,6 +4186,16 @@
         <member name="P:ECC.Core.DataContext.Email.sendersaccountyominame">
             <summary>
             Shows the name of the sender account yomi name 
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Email.sensitivitylabelid">
+            <summary>
+            The sensitivity label assigned to the Email.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Email.sensitivitylabelinfo">
+            <summary>
+            For internal use only.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Email.senton">
@@ -8188,6 +8226,11 @@
             Value of the Administrative (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_administrative_topup_base">
+            <summary>
+            Value of the Administrative Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_facility">
             <summary>
             Facility - Annual Province Base Funding
@@ -8216,6 +8259,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_facility_proj_base">
             <summary>
             Value of the Facility (Projected) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_facility_topup_base">
+            <summary>
+            Value of the Facility Topup in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_grand_total">
@@ -8248,6 +8296,11 @@
             Value of the Funding Total (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_grand_total_topup_base">
+            <summary>
+            Value of the Total Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_benefits">
             <summary>
             Benefits - Annual Province Base Funding
@@ -8276,6 +8329,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_benefits_proj_base">
             <summary>
             Value of the Benefits (Projected) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_benefits_topup_base">
+            <summary>
+            Value of the Benefits Topup in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_employerhealthtax">
@@ -8308,6 +8366,11 @@
             Value of the Employer Health Tax (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_employerhealthtax_topup_base">
+            <summary>
+            Value of the Employer Health Tax Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevexpenses">
             <summary>
             Professional Development Expenses - Annual Province Base Funding 
@@ -8336,6 +8399,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevexpenses_proj_base">
             <summary>
             Value of the Professional Development Expenses (Projected) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevexpenses_topup_base">
+            <summary>
+            Value of the Professional Development Expenses Topup in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevhours">
@@ -8368,6 +8436,11 @@
             Value of the Professional Development Hours (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevhours_topup_base">
+            <summary>
+            Value of the Professional Development Hours Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_total">
             <summary>
             Instructional Human Resources - Annual Province Base Funding 
@@ -8398,12 +8471,18 @@
             Value of the Instructional Human Resources (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_total_topup_base">
+            <summary>
+            Value of the Instructional Human Resources Topup in base currency.
+            </summary>
+        </member>
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_base" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_pf" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_pf_base" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_proj" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_proj_base" -->
+        <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_topup_base" -->
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_operational">
             <summary>
             Operational - Annual Province Base Funding
@@ -8434,6 +8513,11 @@
             Value of the Operational (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_operational_topup_base">
+            <summary>
+            Value of the Operational Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_programming">
             <summary>
             Programming - Annual Province Base Funding 
@@ -8462,6 +8546,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_programming_proj_base">
             <summary>
             Value of the Programming (Projected) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_programming_topup_base">
+            <summary>
+            Value of the Programming Topup in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_envelope">
@@ -8509,12 +8598,12 @@
             New Allocation Date
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_notified_expense_authority">
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_provider_approver">
             <summary>
-            If EA has been notified when Funding is submitted
+            The associated contact
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_provider_approver">
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_provider_decliner">
             <summary>
             The associated contact
             </summary>
@@ -8652,6 +8741,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_contact_funding">
             <summary>
             N:1 ofm_contact_funding
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_contact_funding_decliner">
+            <summary>
+            N:1 ofm_contact_funding_decliner
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_facility_account">
@@ -11708,6 +11802,11 @@
             Value of the Parent Fee Per Day (PT) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_parent_fee_per_day_pt_school_age_base">
+            <summary>
+            Value of the School Age Parent Fees Per Day (Part-Time)  in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_parent_fee_per_month_ft_base">
             <summary>
             Value of the Parent Fee Per Month (FT) in base currency.
@@ -11716,6 +11815,11 @@
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_parent_fee_per_month_pt_base">
             <summary>
             Value of the Parent Fee Per Month (PT) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_parent_fee_per_month_pt_school_age_base">
+            <summary>
+            Value of the School Age Parent Fee Per Month (Parent - Time)  in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_pde_cultural_training_base">
@@ -13816,6 +13920,11 @@
         <member name="P:ECC.Core.DataContext.ofm_top_up_fund.modifiedonbehalfby">
             <summary>
             Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_pdf_organization_name">
+            <summary>
+            Organization Name for Top Up PDF
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_programming_amount_base">
