@@ -39,13 +39,31 @@ public class Funding : ofm_funding
     public new decimal? ofm_envelope_programming { get; set; }
     public new decimal? ofm_envelope_programming_pf { get; set; }
     public new decimal? ofm_envelope_programming_proj { get; set; }
-    public new string? ofm_cohort { get; set; }
+    public new decimal? ofm_envelope_hr_prodevhours_topup { get; set; }
+    public new decimal? ofm_envelope_grand_total_topup { get; set; }
+    public new decimal? ofm_envelope_hr_wages_paidtimeoff_topup { get; set; }
+    public new decimal? ofm_envelope_programming_topup { get; set; }
+    public new decimal? ofm_envelope_hr_prodevexpenses_topup { get; set; }
+    public new decimal? ofm_envelope_hr_benefits_topup { get; set; }
+    public new decimal? ofm_envelope_operational_topup { get; set; }
+    public new decimal? ofm_envelope_hr_employerhealthtax_topup { get; set; }
+     public new decimal? ofm_envelope_hr_total_topup { get; set; }
+    public new decimal? ofm_envelope_administrative_topup { get; set; }
+     public new decimal? ofm_envelope_facility_topup { get; set; }
+    //public new string? ofm_cohort { get; set; }
+    public Guid? _ofm_cohortid_value { get; set; }
     public Guid? _ofm_provider_approver_value { get; set; }
     public new SpaceAllocation[]? ofm_funding_spaceallocation { get; set; }
     public new Facility? ofm_facility { get; set; }
     public new Application? ofm_application { get; set; }
     public new RateSchedule? ofm_rate_schedule { get; set; }
     public string? _ofm_application_value { get; set; }
+}
+
+public class Ack_Codes : ofm_ack_codes
+{
+    public Guid? _ofm_cohortid_value { get; set; }
+
 }
 
 public class Facility : Account
