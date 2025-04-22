@@ -246,64 +246,26 @@ public class P260SendRenewalRemindersProvider : ID365ProcessProvider
         {
             var contactId = reminderGroup.Key;
             //Get Reminders for Contact
-            
-                StringBuilder sbTable = new StringBuilder("<div style=\" overflow: auto;width: 100%;\" role=\"region\" tabindex=\"0\"><table style=\"text-align: center;border: 1px solid #dededf;    height: 100%;    width: 100%;    table-layout: fixed;    border-collapse: collapse;    border-spacing: 1px;    text-align: left;\" border=\"1\" border-style=\"solid\" rules=\"all\" width=\"100%\"><thead bgcolor=\"#eceff1\"><tr><th width=\"40%\" style=\"text-align: center;border: 1px solid #dededf;background-color: #eceff1;color: #000000;padding: 5px;\">Facility</th><th width=\"30%\" style=\"text-align: center;border: 1px solid #dededf;background-color: #eceff1;color: #000000;padding: 5px;\">Expiry Date</th><th width=\"30%\" style=\"text-align: center;border: 1px solid #dededf;background-color: #eceff1;color: #000000;padding: 5px;\">Renewal Deadline Date</th></tr></thead><tbody>");
-                var fundings = localDateFundings.Data.AsArray()
-                .Where(item => (Guid)item["contact.contactid"] == Guid.Parse(contactId)).ToArray();
-                if (!fundings.Any()) continue;
-                foreach (var funding in fundings)
-                {
-                    sbTable.Append($"<tr><td align=\"center\" style=\"text-align: center;border: 1px solid #dededf;background-color: #ffffff;   color: #000000;    padding: 5px;\">{funding?["account.name"]}</td><td align=\"center\"  style=\"text-align: center;border: 1px solid #dededf;    background-color: #ffffff;    color: #000000;    padding: 5px;\">{((DateTime)funding?["ofm_end_date"]).ToString("dddd, MMMM dd, yyyy")}</td><td align=\"center\"  style=\"text-align: center;border: 1px solid #dededf;    background-color: #ffffff; color: #000000;padding: 5px;\">{((DateTime)funding?["ofm_end_date"]).AddDays(-15).ToString("dddd, MMMM dd, yyyy")}</td></tr>");
 
-                }
-                sbTable.Append("</tbody></table></div>");
-                string tempEmaildescription = emaildescription;
-                tempEmaildescription = tempEmaildescription?.Replace("#FacilitiesExpiringFundings#", sbTable.ToString());
-                #region  Create the email notifications as Completed for each Contact               
-                var requestBody = new JsonObject(){
-                            {"subject",subject },
-                            {"description",tempEmaildescription},
-                            {"email_activity_parties", new JsonArray(){
-                                new JsonObject
-                                {
-                                   { "partyid_systemuser@odata.bind", $"/systemusers({_processParams.Notification.SenderId})"},
-                                    //{ "partyid_systemuser@odata.bind", $"/systemusers({_notificationSettings.DefaultSenderId})"},
-                                    { "participationtypemask", 1 } //From Email
-                                },
-                                new JsonObject
-                                {
-                                    { "partyid_contact@odata.bind", $"/contacts({contactId})" },
-                                    { "participationtypemask",   2 } //To Email                             
-                                }
-                            }},
-                            //{ "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"}
-                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({reminderCommunicationTypeid})"}
-                        };
+            StringBuilder sbTable = new StringBuilder("<div style=\" overflow: auto;width: 100%;\" role=\"region\" tabindex=\"0\"><table style=\"text-align: center;border: 1px solid #dededf;    height: 100%;    width: 100%;    table-layout: fixed;    border-collapse: collapse;    border-spacing: 1px;    text-align: left;\" border=\"1\" border-style=\"solid\" rules=\"all\" width=\"100%\"><thead bgcolor=\"#eceff1\"><tr><th width=\"40%\" style=\"text-align: center;border: 1px solid #dededf;background-color: #eceff1;color: #000000;padding: 5px;\">Facility</th><th width=\"30%\" style=\"text-align: center;border: 1px solid #dededf;background-color: #eceff1;color: #000000;padding: 5px;\">Expiry Date</th><th width=\"30%\" style=\"text-align: center;border: 1px solid #dededf;background-color: #eceff1;color: #000000;padding: 5px;\">Renewal Deadline Date</th></tr></thead><tbody>");
+            var fundings = localDateFundings.Data.AsArray()
+            .Where(item => (Guid)item["contact.contactid"] == Guid.Parse(contactId)).ToArray();
+            if (!fundings.Any()) continue;
+            foreach (var funding in fundings)
+            {
+                sbTable.Append($"<tr><td align=\"center\" style=\"text-align: center;border: 1px solid #dededf;background-color: #ffffff;   color: #000000;    padding: 5px;\">{funding?["account.name"]}</td><td align=\"center\"  style=\"text-align: center;border: 1px solid #dededf;    background-color: #ffffff;    color: #000000;    padding: 5px;\">{((DateTime)funding?["ofm_end_date"]).ToString("dddd, MMMM dd, yyyy")}</td><td align=\"center\"  style=\"text-align: center;border: 1px solid #dededf;    background-color: #ffffff; color: #000000;padding: 5px;\">{((DateTime)funding?["ofm_end_date"]).AddDays(-15).ToString("dddd, MMMM dd, yyyy")}</td></tr>");
 
-                var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "emails", requestBody.ToString());
-                if (!response.IsSuccessStatusCode)
-                {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    _logger.LogError(CustomLogEvent.Process, "Failed to create the email record with the server error {responseBody}", responseBody.CleanLog());
-                    continue;
-                }
-                var newEmail = await response.Content.ReadFromJsonAsync<JsonObject>();
-                var newEmailId = newEmail?["activityid"];
-                var emailStatement = $"emails({newEmailId})";
-                var payload = new JsonObject {
-                        { "ofm_sent_on", DateTime.UtcNow },
-                        { "statuscode", (int)Email_StatusCode.Completed },
-                        { "statecode", (int)email_statecode.Completed }};
-                var requestBody1 = JsonSerializer.Serialize(payload);
-                var patchResponse = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, emailStatement, requestBody1);
-                if (!patchResponse.IsSuccessStatusCode)
-                {
-                    var responseBody = await patchResponse.Content.ReadAsStringAsync();
-                    _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody.CleanLog());
-                    continue;
-                }
-                // compose deactive Reminder object
-                var reminderToUpdate = new JsonObject
+            }
+            sbTable.Append("</tbody></table></div>");
+            string tempEmaildescription = emaildescription;
+            tempEmaildescription = tempEmaildescription?.Replace("#FacilitiesExpiringFundings#", sbTable.ToString());
+            #region  Create the email notifications as Completed for each Contact  
+
+            var emailId = await _emailRepository.CreateAndUpdateEmail(subject, tempEmaildescription, new List<Guid> { Guid.Parse(contactId) }, _processParams.Notification.SenderId, reminderCommunicationTypeid, appUserService, d365WebApiService, 260);
+
+
+            // compose deactive Reminder object
+            var reminderToUpdate = new JsonObject
             {
                 { "statecode", 1 }
             };
@@ -311,18 +273,17 @@ public class P260SendRenewalRemindersProvider : ID365ProcessProvider
             {
                 updateRemindersRequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_reminders", (Guid)reminder["ofm_reminderid"]), reminderToUpdate));
             }
+            // Deactive reminders
+            var updateRemindersResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRemindersRequests, null);
+            if (updateRemindersResults.Errors.Any())
+            {
+                var sendNotificationError = ProcessResult.Failure(ProcessId, updateRemindersResults.Errors, updateRemindersResults.TotalProcessed, updateRemindersResults.TotalRecords);
+                _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
+
+                return await Task.FromResult(sendNotificationError.SimpleProcessResult);
+            }
             #endregion Create the email notifications as Completed for each Contact
-        }
-
-        // Deactive reminders
-        var updateRemindersResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateRemindersRequests, null);
-        if (updateRemindersResults.Errors.Any())
-        {
-            var sendNotificationError = ProcessResult.Failure(ProcessId, updateRemindersResults.Errors, updateRemindersResults.TotalProcessed, updateRemindersResults.TotalRecords);
-            _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
-
-            return await Task.FromResult(sendNotificationError.SimpleProcessResult);
-        }
+        }       
 
         var result = ProcessResult.Success(ProcessId, reminders.Count);
 

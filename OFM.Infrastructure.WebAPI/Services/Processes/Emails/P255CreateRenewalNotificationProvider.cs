@@ -35,6 +35,34 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 DateTime yesterdayUtc = todayUtc.AddDays(-1);
                 string todayUtcstr = todayUtc.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
                 string yesterdayUtcstr = yesterdayUtc.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture);
+
+                var fetchXml = $"""
+                <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
+                  <entity name="ofm_funding">
+                    <attribute name="createdon" />
+                    <attribute name="ofm_application" />
+                    <attribute name="ofm_fundingid" />
+                    <attribute name="ofm_end_date" />                   
+                    <attribute name="ofm_start_date" />
+                    <attribute name="ofm_ministry_approval_date" />
+                    <filter>
+                      <condition attribute="ofm_ministry_approval_date" operator="today" />
+                      <condition attribute="ofm_application" operator="not-null" />
+                      <condition attribute="ofm_end_date" operator="not-null" />
+                      <condition attribute="statuscode" operator="eq" value="8" />
+                       <condition attribute="statecode" operator="eq" value="0" />
+                    </filter>
+                <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="ofmapp">
+                <filter>
+                      <condition attribute="ofm_application_type" operator="eq" value="1" />
+
+                    </filter>
+                </link-entity>
+                  </entity>
+                </fetch>
+                """;
+
+
                 //all funding which are approved in last 1 day and are active in the system
                 var requestUri = $"""
                                ofm_fundings?$select=createdon,_ofm_application_value,ofm_fundingid,ofm_end_date,ofm_start_date,ofm_ministry_approval_date&$filter=(ofm_ministry_approval_date gt {yesterdayUtcstr} and ofm_ministry_approval_date lt {todayUtcstr} and _ofm_application_value ne null and ofm_end_date ne null and statuscode eq 8 and statecode eq 0 and ofm_application/ofm_application_type eq 1)
@@ -118,7 +146,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
 
             var startTime = _timeProvider.GetTimestamp();
 
-            #region step 1: get Funding applications created on today
+            #region step 1: get Funding applications approved today
             var fundingData = await GetDataAsync();
 
             if (String.IsNullOrEmpty(fundingData.Data.ToString()))
@@ -145,14 +173,14 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     }
                     var deserializedReminderData = JsonSerializer.Deserialize<List<ofm_reminders>>(reminderData.Data, Setup.s_writeOptionsForLogs);
 
-                    //if there is a reminder created for the term -> skip
+                    //if there is a reminder created for the Application -> SKIP
                     if (deserializedReminderData.Count > 0)
                     {
                         continue;
                     }
                     else
                     {
-                        //create the reminder for the year -> 3 reminders for each year
+                        //create the reminder for the year -> 3 reminders 
 
                         List<HttpRequestMessage> sendCreateReminderRequests = [];
 
