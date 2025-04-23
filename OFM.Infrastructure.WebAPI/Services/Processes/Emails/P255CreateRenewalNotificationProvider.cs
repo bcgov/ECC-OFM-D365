@@ -76,7 +76,48 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             }
         }
 
+        private string RetrieveAllActiveFundings
+        {
+            get
+            {
+                var fetchXml = $"""
+                <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="true">
+                  <entity name="ofm_funding">
+                    <attribute name="createdon" />
+                    <attribute name="ofm_application" />
+                    <attribute name="ofm_fundingid" />
+                    <attribute name="ofm_end_date" />                   
+                    <attribute name="ofm_start_date" />
+                    <attribute name="ofm_ministry_approval_date" />
+                    <filter>
+                      <condition attribute="ofm_application" operator="not-null" />
+                      <condition attribute="ofm_end_date" operator="not-null" />
+                      <condition attribute="statuscode" operator="eq" value="8" />
+                       <condition attribute="statecode" operator="eq" value="0" />
+                    </filter>
+                <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner" alias="ofmapp">
+                <filter>
+                      <condition attribute="ofm_application_type" operator="eq" value="1" />
 
+                    </filter>
+                </link-entity>
+                  </entity>
+                </fetch>
+                """;
+
+
+                //all funding which are approved in last 1 day and are active in the system
+                var requestUri = $"""
+                               ofm_fundings?$select=createdon,_ofm_application_value,ofm_fundingid,ofm_end_date,ofm_start_date,ofm_ministry_approval_date&$filter=(ofm_ministry_approval_date ne null and _ofm_application_value ne null and ofm_end_date ne null and statuscode eq 8 and statecode eq 0 and ofm_application/ofm_application_type eq 1)
+                               """;
+
+                //For testing in DEV
+                //var requestUri = $"""
+                //               ofm_fundings?$select=createdon,_ofm_application_value,ofm_fundingid,ofm_end_date,ofm_start_date,ofm_ministry_approval_date&$filter=_ofm_application_value ne null and ofm_end_date ne null and statuscode eq 8 and ofm_application/ofm_application_type eq 1
+                //               """;
+                return requestUri.CleanCRLF();
+            }
+        }
         public async Task<ProcessData> GetDataAsync()
         {
             _logger.LogDebug(CustomLogEvent.Process, "Calling SendRetrieveRequestAsync");
@@ -147,8 +188,15 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             var startTime = _timeProvider.GetTimestamp();
 
             #region step 1: get Funding applications approved today
-            var fundingData = await GetDataAsync();
-
+            ProcessData? fundingData = null;
+            if (_processParams?.CreateExistingFundingReminders == true)
+            {
+                fundingData = await GetReminderDataAsync(RetrieveAllActiveFundings);
+            }
+            else
+            {
+                fundingData = await GetDataAsync();
+            }
             if (String.IsNullOrEmpty(fundingData.Data.ToString()))
             {
                 return ProcessResult.Failure(ProcessId, new String[] { "Failed to query records" }, 0, 0).SimpleProcessResult;

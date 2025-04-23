@@ -70,6 +70,10 @@ public record ProcessParameter
     [property: JsonPropertyName("dataImportId")]
     public Guid? DataImportId { get; set; }
 
+    //created for P255 Create renewal reminders for Existing Fundings
+    [property: JsonPropertyName("createExistingFundingReminders")]
+    public bool? CreateExistingFundingReminders { get; set; }
+
     #region Inner Parameter Record Objects
 
     public record PaymentParameter
