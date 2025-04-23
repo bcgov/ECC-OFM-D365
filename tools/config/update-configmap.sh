@@ -296,7 +296,7 @@ D365_CONFIGURATION=$(jq << JSON
         "remittanceCode": "00",
         "CAD": "CAD",
         "termsName": "Immediate",
-        "payflag": "Y"
+        "payflag": "N"
       },
       "InvoiceLines": {
         "linetransactionType": "IL",
