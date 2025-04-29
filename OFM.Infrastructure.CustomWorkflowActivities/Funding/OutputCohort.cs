@@ -60,6 +60,7 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
                                                     <filter>
                                                         <condition attribute=""ofm_start_date"" operator=""le"" value=""{submittedOn}"" />
                                                         <condition attribute=""ofm_end_date"" operator=""ge"" value=""{submittedOn}"" />
+                                                        <condition attribute=""statuscode"" operator=""eq"" value=""1"" />
                                                     </filter>
                                                     </entity>
                                                 </fetch>";
