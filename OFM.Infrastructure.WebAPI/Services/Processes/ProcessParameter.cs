@@ -51,6 +51,9 @@ public record ProcessParameter
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
 
+    [property: JsonPropertyName("topup")]
+    public TopupParameter? Topup { get; set; }
+
     [property: JsonPropertyName("fundingReport")]
     public FundingReportParameter? FundingReport { get; set; }
 
@@ -66,6 +69,10 @@ public record ProcessParameter
 
     [property: JsonPropertyName("dataImportId")]
     public Guid? DataImportId { get; set; }
+
+    //created for P255 Create renewal reminders for Existing Fundings
+    [property: JsonPropertyName("createExistingFundingReminders")]
+    public bool? CreateExistingFundingReminders { get; set; }
 
     #region Inner Parameter Record Objects
 
@@ -156,6 +163,12 @@ public record ProcessParameter
 
         [property: JsonPropertyName("isMod")]
         public bool? IsMod { get; set; }
+    }
+
+    public record TopupParameter
+    {
+        [property: JsonPropertyName("topupId")]
+        public string? TopupId { get; set; }
     }
 
     public record CustomerVoiceProjectParameter

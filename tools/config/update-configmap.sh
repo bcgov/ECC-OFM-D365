@@ -165,6 +165,11 @@ D365_CONFIGURATION=$(jq << JSON
       "FirstReminderInDays": 60,
       "SecondReminderInDays": 30,
       "ThirdReminderInDays": 18
+    }, 
+  "FundingRenewalReminderOptions": {
+   "FirstReminderInDays": 120,
+   "SecondReminderInDays": 60,
+   "ThirdReminderInDays": 30
     },
     "DefaultSenderId": "$D365_DEFAULT_SENDER_ID",
     "EmailTemplates": [
@@ -227,7 +232,15 @@ D365_CONFIGURATION=$(jq << JSON
       {
         "TemplateNumber": 285,
         "Description": "TransportationAllowanceDenied"
-      }
+      },
+      {
+        "TemplateNumber": 295,
+        "Description": " NewMonthlyReportOpen"
+      },
+     {
+    "TemplateNumber": 310,
+    "Description": "RenewalNotification"
+    }
     ],
     "CommunicationTypes": {
       "Information": 1,
@@ -292,7 +305,7 @@ D365_CONFIGURATION=$(jq << JSON
         "remittanceCode": "00",
         "CAD": "CAD",
         "termsName": "Immediate",
-        "payflag": "Y"
+        "payflag": "N"
       },
       "InvoiceLines": {
         "linetransactionType": "IL",

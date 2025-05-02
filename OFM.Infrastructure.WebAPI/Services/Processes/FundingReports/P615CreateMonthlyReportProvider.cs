@@ -239,7 +239,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
         }
 
-        var batchFlag = (bool) _processParams.FundingReport.BatchFlag;
+        var batchFlag = (bool)_processParams.FundingReport.BatchFlag;
 
         List<string> facilities = [];
 
@@ -271,7 +271,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         }
         else
         {
-            if(_processParams.FundingReport.FacilityId == null)
+            if (_processParams.FundingReport.FacilityId == null)
             {
                 _logger.LogError(CustomLogEvent.Process, "Facility id is missing.");
                 throw new Exception("Facility id is missing.");
@@ -332,7 +332,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         var reportTemplateData = await GetReportDataAsync(requestReportTemplateUri);
         var serializedReportTemplateDate = System.Text.Json.JsonSerializer.Deserialize<List<ECC.Core.DataContext.ofm_survey>>(reportTemplateData.Data, Setup.s_writeOptionsForLogs);
         var reportTemplate = serializedReportTemplateDate.Where(t => t.ofm_end_date == null || t.ofm_end_date?.Date >= monthEndDateInPST.Date).FirstOrDefault();
-        if(reportTemplate  == null)
+        if (reportTemplate == null)
         {
             _logger.LogInformation(CustomLogEvent.Process, "Cannot find report template.");
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
@@ -343,14 +343,16 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         //Convert the report Month
         var reportMonth = ConvertMonthToFiscalMonth(monthEndDateInPST.Month);
 
-        var duedateInUTC = monthEndDateInUTC.AddMonths(1);
+        var duedateInPST = monthEndDateInPST.AddMonths(1);
+        var duedateInUTC = new DateTime(duedateInPST.Year, duedateInPST.Month, DateTime.DaysInMonth(duedateInPST.Year, duedateInPST.Month), 23, 59, 00).ToUTC();
 
-        if (!batchFlag)
+
+/*        if (!batchFlag)
         {
             var duedateMonth = monthEndDateInUTC.AddMonths(1);
-            var duedateInPST = new DateTime(duedateMonth.Year, duedateMonth.Month, DateTime.DaysInMonth(duedateMonth.Year, duedateMonth.Month), 23, 59, 00);
+            duedateInPST = new DateTime(duedateMonth.Year, duedateMonth.Month, DateTime.DaysInMonth(duedateMonth.Year, duedateMonth.Month), 23, 59, 00);
             duedateInUTC = duedateInPST.ToUTC();
-        }
+        }*/
 
 
         //Start date

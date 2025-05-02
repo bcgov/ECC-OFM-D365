@@ -1614,6 +1614,7 @@ ofm_survey|
 ofm_survey_response|
 ofm_system_configuration|
 ofm_system_message|
+ofm_top_up_fund|
 systemuser|
 team|
 timezonedefinition|
@@ -1709,7 +1710,7 @@ VoiceMail</TokenCapitalizationOverrides>
   <Namespace>ECC.Core.DataContext</Namespace>
   <ServiceContextName>DataverseContext</ServiceContextName>
   <SuppressGeneratedCodeAttribute>true</SuppressGeneratedCodeAttribute>
-  <SettingsVersion>2.2024.5.16</SettingsVersion>
+  <SettingsVersion>2.2024.10.16</SettingsVersion>
   <UpdateBuilderSettingsJson>true</UpdateBuilderSettingsJson>
   <Version>2.2024.10.16</Version>
 </Config>

@@ -494,7 +494,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {       
-                DateTime invoiceDate = (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                DateTime invoiceDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
                 
@@ -554,7 +554,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private async Task<JsonObject> CancelUnpaidPayments(List<D365PaymentLine> deserializedPaymentsData)
         {
             List<HttpRequestMessage> updatePaymentRequests = [];
-            List<D365PaymentLine> unpaidPayments = deserializedPaymentsData.Where(r => r.statuscode != ofm_payment_StatusCode.Paid && r.statuscode != ofm_payment_StatusCode.ProcessingPayment).ToList();
+            List<D365PaymentLine> unpaidPayments = deserializedPaymentsData.Where(r => r.statuscode != ofm_payment_StatusCode.Paid && r.statuscode != ofm_payment_StatusCode.ProcessingPayment && r.ofm_funding != null && r.ofm_funding.Id.ToString() == _processParams!.Funding!.FundingId!).ToList();
             if (unpaidPayments != null)
             {
                 foreach (var payment in unpaidPayments)

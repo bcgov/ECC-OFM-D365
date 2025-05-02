@@ -57,6 +57,15 @@ public static class Setup
 
             public const Int16 CreateMonthlyReportNotificationId = 245;
             public const string CreateMonthlyReportNotificationName = "Create email for Published Monthly Report";
+
+            public const Int16 CreateTopUpNotificationId = 250;
+            public const string CreateTopUpNotificationName = "Create email for TopUp";
+
+            public const Int16 CreateFundingExpiryRemindersId = 255;
+            public const string CreateFundingExpiryRemindersName = "Create Funding Expiry Reminders for Supplementary Application";
+            public const Int16 SendFundingExpiryNotificationsId = 260;
+            public const string SendFundingExpiryNotificationsName = "Create Funding Expiry Reminders for Supplementary Application";
+
         }
 
         public static class Fundings
@@ -102,6 +111,9 @@ public static class Setup
 
             public const Int16 GeneratePaymentLinesForSupplementaryAllowanceId = 520;
             public const string GeneratePaymentLinesForSupplementaryAllowanceName = "Generate Payment Lines for Irregular Expense";
+
+            public const Int16 GenerateTopUpPaymentId = 525;
+            public const string GenerateTopUpPaymentName = "Generate Payment Lines for Top-Up";
         }
 
         public static class FundingReports

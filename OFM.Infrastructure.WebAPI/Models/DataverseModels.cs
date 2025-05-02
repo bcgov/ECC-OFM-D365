@@ -191,12 +191,14 @@ public class Supplementary : ofm_allowance
     public string _ofm_application_value { get; set; }
 
 }
+
+
 public record ofm_reminders
 {
     public required string ofm_reminderid { get; set; }
     public int ofm_template_number { get; set; }
     public int statuscode { get; set; }
-    public int ofm_year_number { get; set; }
+    public int? ofm_year_number { get; set; }
 
     public DateTime ofm_due_date { get; set; }
 }
@@ -394,12 +396,12 @@ public record D365Reporting
 
 }
 
-public class D365FiscalYear: ofm_fiscal_year
+public class D365FiscalYear : ofm_fiscal_year
 {
     public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
-public class ExpenseApplication: ofm_expense
+public class ExpenseApplication : ofm_expense
 {
     public new decimal? ofm_amount { get; set; }
 }
@@ -457,6 +459,13 @@ public class ProviderStaff
     public string Facility_Name_Report { get { return Facility_Name; } set { Facility_Name = value; } }
 }
 
+public class TopUp : ofm_top_up_fund
+{
+    public new decimal? ofm_programming_amount { get; set; }
+    public Funding? ofm_funding { get; set; }
+    public string ofm_funding_number { get; set; }
+}
+
 public class QuestionResponse : ofm_question_response
 {
     [property: JsonPropertyName("question.ofm_question_id")]
@@ -464,7 +473,6 @@ public class QuestionResponse : ofm_question_response
     [property: JsonPropertyName("header.ofm_question_id")]
     public string ofm_header_qid { get; set; }
 }
-
 
 #region External Parameters
 

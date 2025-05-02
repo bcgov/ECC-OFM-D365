@@ -62,6 +62,9 @@ services.AddScoped<ID365ProcessProvider, P230SendApplicationNotificationProvider
 services.AddScoped<ID365ProcessProvider, P235SendExpenseApplicationNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P240AllowanceApprovalDenialNotificationProvider>();
 services.AddScoped<ID365ProcessProvider, P245MonthlyReportNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P250SendTopUpNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P255CreateRenewalNotificationProvider>();
+services.AddScoped<ID365ProcessProvider, P260SendRenewalRemindersProvider>();
 services.AddScoped<ID365ProcessProvider, P300BaseFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P305SupplementaryFundingProvider>();
 services.AddScoped<ID365ProcessProvider, P310CalculateDefaultAllocationProvider>();
@@ -74,6 +77,7 @@ services.AddScoped<ID365ProcessProvider, P505GeneratePaymentLinesProvider>();
 services.AddScoped<ID365ProcessProvider, P510ReadPaymentResponseProvider>();
 services.AddScoped<ID365ProcessProvider, P515GenerateIrregularPaymentProvider>();
 services.AddScoped<ID365ProcessProvider, P520GenerateAllowancePaymentProvider>();
+services.AddScoped<ID365ProcessProvider, P525GenerateTopUpPaymentProvider>();
 services.AddScoped<ID365ProcessProvider, P600CloneFundingReportResponse>();
 services.AddScoped<ID365ProcessProvider, P605CloseDuedReportsProvider>();
 services.AddScoped<ID365ProcessProvider, P610CreateQuestionProvider>();
