@@ -5682,6 +5682,16 @@
             Provider Type
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_renewalapplicationid">
+            <summary>
+            This field stores the next renewal funding application in the system
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_renewalapplicationstatus">
+            <summary>
+            Stores the status of the renewal application
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_secondary_contact">
             <summary>
             Unique identifier for Contact associated with Application.
@@ -5867,6 +5877,11 @@
             1:N ofm_application_reminder
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.Referencedofm_application_RenewalApplicationId">
+            <summary>
+            1:N ofm_application_RenewalApplicationId
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_document_application">
             <summary>
             1:N ofm_document_application
@@ -5890,6 +5905,11 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_request_application">
             <summary>
             1:N ofm_request_application
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.Referencingofm_application_RenewalApplicationId">
+            <summary>
+            N:1 ofm_application_RenewalApplicationId
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_contact_applications">
