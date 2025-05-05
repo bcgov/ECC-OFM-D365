@@ -547,6 +547,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
     public async Task<bool> SaveFundingAmountsAsync(IFundingResult fundingResult)
     {
         IFundingAmounts fm = fundingResult.FundingAmounts!;
+
         var newfundingAmounts = new
         {
             //Projected Amounts
@@ -592,8 +593,11 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
             ofm_envelope_grand_total_proj = fm.Projected_GrandTotal,
             ofm_envelope_grand_total_pf = fm.PF_GrandTotal,
             ofm_envelope_grand_total = fm.Base_GrandTotal,
-
+            
             ofm_calculated_on = fm.CalculatedOn,
+            ofm_adjusted_fte=fm.Adjusted_FTE
+           
+          
         };
 
         var statement = @$"ofm_fundings({_fundingId})";
