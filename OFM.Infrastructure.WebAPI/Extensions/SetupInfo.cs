@@ -25,7 +25,11 @@ public static class Setup
             public const Int16 CloseInactiveRequestsId = 100;
             public const string CloseInactiveRequestsName = "Cancel inactive requests";
         }
-
+        public static class ApplicationScore
+        {
+            public const Int16 ScoreCalculatorId = 800;
+            public const string ScoreCalculatorName = "Score Calculator";
+        }
         public static class Emails
         {
             public const Int16 SendEmailRemindersId = 200;

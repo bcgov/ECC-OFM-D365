@@ -73,6 +73,8 @@ public record ProcessParameter
     //created for P255 Create renewal reminders for Existing Fundings
     [property: JsonPropertyName("createExistingFundingReminders")]
     public bool? CreateExistingFundingReminders { get; set; }
+    [property: JsonPropertyName("lastTimeStamp")]
+    public DateTime? LastScoreCalculationTimeStamp { get; set; }
 
     #region Inner Parameter Record Objects
 

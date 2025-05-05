@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest>
+  <control namespace="ECC.PCF" constructor="PowerAppsGridCustomizer" version="0.0.29" display-name-key="PowerAppsGridCustomizer" description-key="PowerAppsGridCustomizer description" control-type="standard">
+    <property name="EventName" display-name-key="EventName" description-key="EventName" of-type="SingleLine.Text" usage="bound" required="true" />
+    <resources>
+      <code path="index.ts" order="1" />
+      <platform-library name="React" version="16.14.0" />
+      <platform-library name="Fluent" version="8.121.1" />
+    </resources>
+    <feature-usage>
+      <uses-feature name="WebAPI" required="true" />
+    </feature-usage>
+  </control>
+</manifest>
