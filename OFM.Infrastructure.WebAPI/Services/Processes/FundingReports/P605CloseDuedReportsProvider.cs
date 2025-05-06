@@ -129,7 +129,6 @@ public class P605CloseDuedReportsProvider : ID365ProcessProvider
 
         var batchRequest = requests.Select((x, i) => new { Index = i, Value = x }).GroupBy(x => x.Index / 1000).Select(x => x.Select(v => v.Value).ToList()).ToList();
         List<BatchResult> batchResults = [];
-        var numOfRequest = requests.Count;
         
         foreach (var batch in batchRequest)
         {
