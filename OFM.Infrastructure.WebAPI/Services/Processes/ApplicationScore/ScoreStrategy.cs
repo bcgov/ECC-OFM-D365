@@ -7,14 +7,14 @@ using System.Text.Json.Nodes;
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
 public interface IScoreStrategy
 {
-    Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData,PopulationCentre populationData, SchoolDistrict schoolDistrictData);
+    Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData,PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData);
 }
 
 // Concrete Strategies
 public class IncomeIndicatorStrategy(int comparisonOperator, string comparisonValue) : IScoreStrategy
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         if(incomeData == null) throw new ArgumentException($"No ACCB Income Data found for postal code: {schoolData.PostalCode}");
         var incomeIndicator = incomeData.MedianIncome;
@@ -26,7 +26,7 @@ public class Operational30SpacesStrategy(int comparisonOperator, string comparis
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         if (licenseData == null) throw new ArgumentException("No License found for the facility");
         if (licenseData.TotalChildCareSpaces <= 0 || licenseData.TotalChildCareSpaces == null) throw new ArgumentException("No Operational spaces found for the facility");
@@ -38,7 +38,7 @@ public class IncrementalSpacesStrategy(int comparisonOperator, string comparison
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         if (licenseData == null) throw new ArgumentException("No License found for the facility");
         if (licenseData.TotalChildCareSpaces <= 0 || licenseData.TotalChildCareSpaces == null) throw new ArgumentException("No Operational spaces found for the facility");
@@ -50,7 +50,7 @@ public class PreSchoolOperationalSpacesStrategy(int comparisonOperator, string c
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         if (licenseData == null) throw new ArgumentException("No License found for the facility");
         if (licenseData.TotalChildCareSpaces <= 0 || licenseData.TotalChildCareSpaces == null) throw new ArgumentException("No Operational spaces found for the facility");
@@ -66,7 +66,7 @@ public class IndigenousLedStrategy(int comparisonOperator, string comparisonValu
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         if (schoolData.IndigenousLead == null) throw new ArgumentException("Indigenous Flag is not set"); 
         return Task.FromResult(comparisonHandler.Handle(_operator, schoolData.IndigenousLead, comparisonValue));
@@ -76,7 +76,7 @@ public class IndigenousLedStrategy(int comparisonOperator, string comparisonValu
 public class ParentFeesStrategy(int comparisonOperator, string comparisonValue) : IScoreStrategy
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
 
         if (feeData == null) throw new ArgumentException("Approved Parent Fees are missing");
@@ -102,7 +102,7 @@ public class NotForProfitStrategy(int comparisonOperator, string comparisonValue
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         if (schoolData.DateOfIncorporation == null || schoolData.DateOfIncorporation == DateTime.MinValue) throw new ArgumentException("Date of Incorporation missing on the facility");
         if (schoolData.OpenMembership == null) throw new ArgumentException("OpenMembership is not set to Yes/No");
@@ -113,7 +113,7 @@ public class NotForProfitStrategy(int comparisonOperator, string comparisonValue
 
         var isNotForProfit = "No";
         if (schoolData.DateOfIncorporation.Value < DateTime.UtcNow.AddYears(-4))
-            if (schoolData.OpenMembership.Value && schoolData.BoardMembersUnpaid.Value && schoolData.BoardMembersMembership.Value && schoolData.BoardMembersUnpaid.Value && application.LetterOfSupportExists == true)
+            if (schoolData.OrganizationBusinessType?.ToLower() == "non-profit society" && schoolData.OpenMembership.Value && schoolData.BoardMembersUnpaid.Value && schoolData.BoardMembersMembership.Value && schoolData.BoardMembersUnpaid.Value && application.LetterOfSupportExists == true)
                 isNotForProfit = "Yes";
         return Task.FromResult(comparisonHandler.Handle(_operator, isNotForProfit, comparisonValue));
     }
@@ -122,7 +122,7 @@ public class PopulationCentreStrategy(int comparisonOperator, string comparisonV
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         if (populationData == null) throw new ArgumentException($"Poplation Centre is missing for city: '{schoolData.City}'");
         if (populationData.ProjectedPopulation == 0) throw new ArgumentException($"Projected Poplation Centre is missing for city: '{schoolData.City}'");
@@ -133,17 +133,17 @@ public class PublicInstitutionStrategy(int comparisonOperator, string comparison
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
-        var isPublic = schoolData.OrganizationBusinessType == "Public Institution (College/University)" || schoolData.OrganizationBusinessType == "Local Government/Municipality" || schoolData.OrganizationBusinessType == "Health Authority" || schoolData.OrganizationBusinessType == "School Board";
-        return Task.FromResult(comparisonHandler.Handle(_operator, isPublic ? "Yes": "No", comparisonValue));
+        
+        return Task.FromResult(comparisonHandler.Handle(_operator, string.IsNullOrEmpty(publicOrganizationData?.OrganizationName) ? "No": "Yes", comparisonValue));
     }
 }
 public class SchoolDistrictStrategy(int comparisonOperator, string comparisonValue) : IScoreStrategy
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         if (schoolDistrictData == null) throw new ArgumentException("School District is missing");
         var schoolDistrict = schoolDistrictData.SchoolDistrictFullName;
@@ -154,7 +154,7 @@ public class LocationStrategy(int comparisonOperator, string comparisonValue) : 
 {
     private string _operator => OperatorMapper.MapOperator(comparisonOperator);
 
-    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
+    public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, FundingApplication application, Facility schoolData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData, PublicOrganization publicOrganizationData)
     {
         DateTime? leaseStartDate = application.LeaseStartDate; 
         DateTime? leaseEndDate = application.LeaseEndDate;

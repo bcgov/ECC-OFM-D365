@@ -62,5 +62,33 @@ OFM.Application.Ribbon = {
                     console.log(Error);
                 }
             );
+    },
+    openRecalculateScoreWindow: function (primaryControl) {
+        var formContext = primaryControl;
+        var recordId = formContext.data.entity.getId().replace(/[{}]/g, "");
+        var window_width = 400;
+        var window_height = 300;
+        var pageInput = {
+            pageType: "custom",
+            name: "ofm_recalculateapplicationscore_17dc4",
+            entityName: "ofm_application",
+            recordId: recordId,
+        };
+        var navigationOptions = {
+            target: 2,
+            width: window_width,
+            height: window_height
+        };
+        Xrm.Navigation.navigateTo(pageInput, navigationOptions)
+            .then(
+                function () {
+                    formContext.data.refresh();
+                    console.log("Success");
+                }
+            ).catch(
+                function () {
+                    console.log(Error);
+                }
+            );
     }
 };

@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Handlers;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.ApplicationScore;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System;
@@ -26,7 +28,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
         {
             get
             {
-                // Note: FetchXMl limit is 5000 records per request
+                
                 var fetchXml = @$"<fetch version=""1.0"" output-format=""xml-platform"" mapping=""logical"" distinct=""true"">
                                   <entity name=""ofm_application_score_calculator"">
                                     <attribute name=""ofm_application_score_calculatorid"" />
@@ -71,16 +73,16 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
             {
 
                 var application = await dataverseRepository.GetFundingApplicationAsync(applicationId);
+                if (application == null) return (applicationId, false,$"ofm_application not found with Id = {applicationId}");
                 var applicationCalculator = await GetDataAsync();
                 if (String.IsNullOrEmpty(applicationCalculator.Data.ToString()))
                 {
                     throw new Exception("Failed to query records: No ofm_application_score_calculator exists in CRM");
                 }
-                var calculator = applicationCalculator.Data.AsArray().Where(c => c["intake.ofm_start_date"].GetValue<DateTime>() <= application?.SubmittedOn && c["intake.ofm_end_date"].GetValue<DateTime>() >= application?.SubmittedOn)?.FirstOrDefault();
+                var calculator = applicationCalculator.Data.AsArray().Where(c => c.AsObject().GetPropertyValue<DateTime>("intake.ofm_start_date") <= application?.SubmittedOn && c.AsObject().GetPropertyValue<DateTime>("intake.ofm_end_date") >= application?.SubmittedOn)?.FirstOrDefault();
                 if (calculator == null)
-                    throw new Exception(string.Format("Failed to query records: No ofm_application_score_calculator exists for application with id = {0} with submittedOn = {1}", applicationId, application.SubmittedOn));
-                var calculatorId = Guid.Parse(calculator["ofm_application_score_calculatorid"].ToString());
-                if (application == null) return (applicationId, false, "ofm_application not found.");
+                    throw new Exception(string.Format("Failed to query records: No ofm_application_score_calculator exists for application with id = {0} with submittedOn = {1} which does not match any ofm_intake", applicationId, application.SubmittedOn));
+                var calculatorId = Guid.Parse(calculator.AsObject().GetPropertyValue<string>("ofm_application_score_calculatorid"));
                 var facilityId = application.FacilityId ?? Guid.Empty;
                 if (facilityId == Guid.Empty) return (applicationId, false, "facility ID not found.");
 
@@ -88,12 +90,15 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 if (!scoreParameters.Any()) return (applicationId, false, "No score parameters found.");
 
                 var facilityData = await dataverseRepository.GetFacilityDataAsync(facilityId);
+                if (facilityData == null) { return (applicationId, false, $"ofm_application with Id = {applicationId} is missing a facility"); }
+
                 var licenseData = await dataverseRepository.GetLicenseDataAsync(facilityId);
                 var incomeData = await dataverseRepository.GetIncomeDataAsync(facilityData.PostalCode, calculatorId);
                 var feeData = await dataverseRepository.GetFeeDataAsync(facilityId);
                 var thresholdData = await dataverseRepository.GetThresholdDataAsync(facilityData.PostalCode, calculatorId);
-                var populationData = await dataverseRepository.GetPopulationDataAsync(facilityData.City);
-                var schoolDistrictData = await dataverseRepository.GetSchoolDistrictDataAsync(facilityData.PostalCode);
+                var populationData = await dataverseRepository.GetPopulationDataAsync(facilityData.City, calculatorId);
+                var schoolDistrictData = await dataverseRepository.GetSchoolDistrictDataAsync(facilityData.PostalCode, calculatorId);
+                var publicOrganizationData = await dataverseRepository.GetPublicOrganizationDataAsync(facilityData.OrganizationLegalName, calculatorId);
                 var scores = new List<JsonObject>();
                 var groupedParameters = scoreParameters.GroupBy(p => p.CategoryName);
                 foreach (var categoryGroup in groupedParameters)
@@ -105,6 +110,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                     {
                         var key = param.Key;
                         var operatorValue = param.ComparisonOperator ?? 0;
+                        var maxScore = param.MaxScore;
                         var operatorStr = OperatorMapper.MapOperator(operatorValue);
                         var comparisonValue = param.ComparisonValue;
                         var scoreValue = param.Score ?? 0;
@@ -116,12 +122,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                         try
                         {
                             _logger.LogInformation($"Evaluating strategy for category: {categoryName}, key: {key}");
-                            isMatch = await strategy.EvaluateAsync(comparisonChain, param, application, facilityData, licenseData, incomeData, feeData, thresholdData, populationData, schoolDistrictData);
+                            isMatch = await strategy.EvaluateAsync(comparisonChain, param, application, facilityData, licenseData, incomeData, feeData, thresholdData, populationData, schoolDistrictData, publicOrganizationData);
                             _logger.LogInformation($"Strategy evaluation result: {isMatch}");
                         }
                         catch (ArgumentException ex)
                         {
-                            _logger.LogError(CustomLogEvent.Process, $"Error calculating score for category {categoryName} in application {applicationId}: {ex.Message}");
+                            _logger.LogWarning(CustomLogEvent.Process, $"Error calculating score for category {categoryName} in application {applicationId}: {ex.Message}");
                             reason = ex.Message;
                         }
 
@@ -129,9 +135,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                         scoreData = new JsonObject
                         {
                             ["ofm_category"] = categoryName,
-                            ["ofm_application@odata.bind"] = $"ofm_applications({applicationId})",
+                            ["ofm_maximum_score"] = maxScore,
                             ["ofm_application@odata.bind"] = $"ofm_applications({applicationId})",
                             ["ofm_application_score_category@odata.bind"] = $"ofm_application_score_categories({scoreCategoryId})",
+                            ["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})",
                             ["ofm_score_processing_status"] = string.IsNullOrEmpty(reason) ? 2 : 3,
                             ["ofm_score_lastprocessed"] = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ")
                         };
@@ -213,7 +220,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
             var applicationsToProcess = new List<FundingApplication>();
             if (processParams.LastScoreCalculationTimeStamp.HasValue && processParams?.LastScoreCalculationTimeStamp.Value > new DateTime(1900, 1, 1, 0, 0, 0))
             {
-                var unprocessedApplications = await dataverseRepository.GetUnprocessedApplicationsAsync();
+                var unprocessedApplications = await dataverseRepository.GetUnprocessedApplicationsAsync(processParams.LastScoreCalculationTimeStamp.Value);
                 var modifiedApplications = await dataverseRepository.GetModifiedApplicationsAsync(processParams.LastScoreCalculationTimeStamp.Value);
                 applicationsToProcess = unprocessedApplications.Concat(modifiedApplications).DistinctBy(app => app.Id).ToList();
             }
@@ -240,6 +247,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
 
             }
             var processingResult = ProcessResult.Success(ProcessId, applicationsToProcess!.Count);
+            if (results != null  && results.Where(r => !r.IsSuccess).Any())
+            {
+                processingResult = ProcessResult.Failure(ProcessId, new List<string>(), results.Count(r => r.IsSuccess), applicationsToProcess!.Count);
+            }
+                        
             var serializeOptions = new JsonSerializerOptions
             {
                 WriteIndented = true,
