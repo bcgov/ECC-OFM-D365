@@ -14,16 +14,17 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
 public interface IDataverseRepository
 {
     Task<FundingApplication> GetFundingApplicationAsync(Guid applicationId);
-    Task<IEnumerable<FundingApplication>> GetUnprocessedApplicationsAsync();
+    Task<IEnumerable<FundingApplication>> GetUnprocessedApplicationsAsync(DateTime lastProcessedTime);
     Task<IEnumerable<FundingApplication>> GetModifiedApplicationsAsync(DateTime lastProcessedTime);
     Task<IEnumerable<ScoreParameter>> GetScoreParametersAsync(Guid calculatorId);
     Task<Facility> GetFacilityDataAsync(Guid schoolId);
     Task<LicenseSpaces> GetLicenseDataAsync(Guid schoolId);
     Task<ACCBIncomeIndicator> GetIncomeDataAsync(string postalCode, Guid calculatorId);
     Task<IEnumerable<ApprovedParentFee>> GetFeeDataAsync(Guid facilityId);
-    Task<PopulationCentre> GetPopulationDataAsync(string city);
+    Task<PopulationCentre> GetPopulationDataAsync(string city , Guid calculatorId);
     Task<IEnumerable<FortyPercentileThresholdFee>> GetThresholdDataAsync(string postalCode, Guid calculatorId);
-    Task<SchoolDistrict> GetSchoolDistrictDataAsync(string postalCode);
+    Task<SchoolDistrict> GetSchoolDistrictDataAsync(string postalCode, Guid calculatorId);
+    Task<PublicOrganization?> GetPublicOrganizationDataAsync(string organizationName, Guid calculatorId);
     Task CreateScoreAsync(JsonObject score);
     Task UpdateApplicationAsync(Guid applicationId, JsonObject application);
     Task UpsertApplicationScoreAsync(string Keys, JsonObject application);
@@ -40,9 +41,10 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         return new FundingApplication(json);
     }
 
-    public async Task<IEnumerable<FundingApplication>> GetUnprocessedApplicationsAsync()
+    public async Task<IEnumerable<FundingApplication>> GetUnprocessedApplicationsAsync(DateTime lastTime)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{DataverseQueries.UnprocessedApplicationsQuery}");
+        var formattedTime = lastTime.ToString("yyyy-MM-ddTHH:mm:ssZ");
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.UnprocessedApplicationsQuery, formattedTime)}");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         var values = json["value"]?.AsArray() ?? new JsonArray();
@@ -96,7 +98,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
 
     public async Task<ACCBIncomeIndicator?> GetIncomeDataAsync(string postalCode, Guid calculatorId)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.IncomeDataQuery, postalCode)}");
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.IncomeDataQuery, postalCode, calculatorId)}");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         var values = json["value"]?.AsArray() ?? new JsonArray();
@@ -150,21 +152,29 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         }
     }
 
-    public async Task<PopulationCentre?> GetPopulationDataAsync(string city)
+    public async Task<PopulationCentre?> GetPopulationDataAsync(string city, Guid calculatorId)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.PopulationCentreQuery, city)}");
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.PopulationCentreQuery, city, calculatorId)}");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         var values = json["value"]?.AsArray() ?? new JsonArray();
         return values.Any() ? new PopulationCentre(values.First().AsObject()) : null;
     }
-    public async Task<SchoolDistrict?> GetSchoolDistrictDataAsync(string postalCode)
+    public async Task<SchoolDistrict?> GetSchoolDistrictDataAsync(string postalCode, Guid calculatorId)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.SchoolDistrictQuery, postalCode)}");
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.SchoolDistrictQuery, postalCode, calculatorId)}");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         var values = json["value"]?.AsArray() ?? new JsonArray();
         return values.Any() ? new SchoolDistrict(values.First().AsObject()) : null;
+    }
+    public async Task<PublicOrganization?> GetPublicOrganizationDataAsync(string organizationName, Guid calculatorId)
+    {
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.PublicOrganizationQuery, organizationName, calculatorId)}");
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var values = json["value"]?.AsArray() ?? new JsonArray();
+        return values.Any() ? new PublicOrganization(values.First().AsObject()) : null;
     }
     
 }

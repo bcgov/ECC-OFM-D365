@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest>
+  <control namespace="ECC.PCF" constructor="ApplicationScoreGaugeControl" version="0.0.12" display-name-key="Application Score Gauge" description-key="Displays an application score as a gauge chart" control-type="standard">
+    <property name="score" display-name-key="Score" description-key="The score to display on the gauge" of-type="Whole.None" usage="bound" required="true" />
+    <property name="maxScore" display-name-key="MaxScore" description-key="The Max score to display on the gauge" of-type="Whole.None" usage="bound" required="true" />
+    <resources>
+      <code path="index.ts" order="1" />
+    </resources>
+    <feature-usage>
+      <uses-feature name="utility" required="true" />
+    </feature-usage>
+    <property name="highSegmentPercent" display-name-key="High Segment Percent" description-key="The Percentage of the Max score to be allotted to High Segment of Gauge" usage="input" required="true" of-type="Decimal" />
+    <property name="lowSegmentPercent" display-name-key="Low Segment Percent" usage="input" required="true" of-type="Decimal" />
+    <property name="mediumSegmentPercent" display-name-key="Medium Segment Percent" description-key="The Percentage of the Max score to be allotted to Medium Segment of Gauge" usage="input" required="true" of-type="Decimal" />
+    <property name="lowSegmentLabel" display-name-key="LowSegmentLabel" usage="input" required="true" of-type="SingleLine.Text" />
+    <property name="mediumSegmentLabel" display-name-key="Medium Segment Label" usage="input" required="true" of-type="SingleLine.Text" />
+    <property name="highSegmentLabel" display-name-key="High Segment Label" usage="input" required="true" of-type="SingleLine.Text" />
+  </control>
+</manifest>
