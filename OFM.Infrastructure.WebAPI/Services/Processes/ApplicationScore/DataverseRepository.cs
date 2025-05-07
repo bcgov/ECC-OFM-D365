@@ -170,7 +170,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task<PublicOrganization?> GetPublicOrganizationDataAsync(string organizationName, Guid calculatorId)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.SchoolDistrictQuery, organizationName, calculatorId)}");
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.PublicOrganizationQuery, organizationName, calculatorId)}");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         var values = json["value"]?.AsArray() ?? new JsonArray();

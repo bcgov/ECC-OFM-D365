@@ -145,14 +145,14 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
 
                                                   </entity>
                                                 </fetch>";
-        public const string PublicOrganizationQuery = $@"ofm_school_districts?fetchXml=
+        public const string PublicOrganizationQuery = $@"ofm_public_sector_organizations?fetchXml=
                                                 <fetch>
-                                                  <entity name=""ofm_public_organization"">
+                                                  <entity name=""ofm_public_sector_organization"">
                                                     <attribute name=""ofm_legal_name"" />
                                                     <filter>
                                                       <condition attribute=""ofm_legal_name"" operator=""eq"" value=""{{0}}"" />
                                                     </filter>
-<link-entity name=""ofm_po_asc"" from=""ofm_public_organizationid"" to=""ofm_public_organizationid"" alias=""asc"">
+<link-entity name=""ofm_asc_pso"" from=""ofm_public_sector_organizationid"" to=""ofm_public_sector_organizationid"" alias=""asc"">
                                                       <filter>
                                                         <condition attribute=""ofm_application_score_calculatorid"" operator=""eq"" value=""{{1}}"" />
                                                       </filter>
