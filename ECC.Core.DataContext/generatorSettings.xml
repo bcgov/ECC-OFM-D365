@@ -1567,9 +1567,15 @@ email|
 msfp_project|
 msfp_question|
 msfp_survey|
+ofm_accb|
 ofm_ack_codes|
 ofm_allowance|
 ofm_application|
+ofm_application_score|
+ofm_application_score_calculator|
+ofm_application_score_category|
+ofm_application_score_group|
+ofm_application_score_parameter|
 ofm_assistance_request|
 ofm_bceid_facility|
 ofm_cclr_ratio|
@@ -1593,6 +1599,7 @@ ofm_payment|
 ofm_payment_file_exchange|
 ofm_payment_request|
 ofm_pcm_review|
+ofm_population_centre|
 ofm_portal_permission|
 ofm_portal_privilege|
 ofm_portal_role|
@@ -1604,6 +1611,7 @@ ofm_question_response|
 ofm_rate_schedule|
 ofm_reminder|
 ofm_request_category|
+ofm_school_district|
 ofm_section|
 ofm_space_allocation|
 ofm_standing_history|
@@ -1710,7 +1718,7 @@ VoiceMail</TokenCapitalizationOverrides>
   <Namespace>ECC.Core.DataContext</Namespace>
   <ServiceContextName>DataverseContext</ServiceContextName>
   <SuppressGeneratedCodeAttribute>true</SuppressGeneratedCodeAttribute>
-  <SettingsVersion>2.2024.10.16</SettingsVersion>
+  <SettingsVersion>2.2025.4.20</SettingsVersion>
   <UpdateBuilderSettingsJson>true</UpdateBuilderSettingsJson>
-  <Version>2.2024.10.16</Version>
+  <Version>2.2025.4.20</Version>
 </Config>

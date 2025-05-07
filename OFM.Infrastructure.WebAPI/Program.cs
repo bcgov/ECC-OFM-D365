@@ -17,6 +17,9 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
 using OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 using OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
 using System.Reflection;
+using OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
+using System.Collections;
+using OFM.Infrastructure.WebAPI.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(serverOptions => serverOptions.AddServerHeader = false);
@@ -83,6 +86,7 @@ services.AddScoped<ID365ProcessProvider, P605CloseDuedReportsProvider>();
 services.AddScoped<ID365ProcessProvider, P610CreateQuestionProvider>();
 services.AddScoped<ID365ProcessProvider, P615CreateMonthlyReportProvider>();
 services.AddScoped<ID365ProcessProvider, P700ProviderCertificateProvider>();
+services.AddScoped<ID365ProcessProvider, P800ScoreCalculatorProvider>();
 
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
@@ -93,7 +97,7 @@ services.AddScoped<ID365BatchProvider, ContactEditProvider>();
 services.AddScoped<ID365BatchProvider, ProviderReportResetProvider>();
 services.AddScoped<IFundingRepository, FundingRepository>();
 services.AddScoped<IEmailRepository, EmailRepository>();
-
+services.AddScoped<IDataverseRepository, DataverseRepository>();
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
 services.AddAuthentication();
