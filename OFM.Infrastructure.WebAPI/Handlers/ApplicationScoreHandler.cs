@@ -102,7 +102,7 @@ public class BetweenHandler : BaseComparisonHandler
     }
 }
 
-// Operator Mapping for Choice Field
+// Operator Mapping for ofm_comparison_operator Choice Field on Application Score Parameter
 public static class OperatorMapper
 {
     private static readonly Dictionary<int, string> OperatorMap = new()
