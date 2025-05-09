@@ -1,6 +1,6 @@
 name: Update Git Tag
 on:
-  workflow_dispatch:
+ workflow_dispatch:
     inputs:
       old_tag:
         description: 'Old tag name'
