@@ -1,7 +1,5 @@
 name: Update Git Tag
 on:
-   push:  
-    branches: [Anjana1010-patch-1]
    workflow_dispatch:
     inputs:
       old_tag:
