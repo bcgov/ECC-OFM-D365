@@ -1,6 +1,6 @@
 name: Update Git Tag
 on:
-   workflow_dispatch:
+  workflow_dispatch:
     inputs:
       old_tag:
         description: 'Old tag name'
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Rename Git Tag
+      - name: Replace Old Tag with New Tag
         run: |
           git fetch --tags
           git tag ${{ github.event.inputs.new_tag }} ${{ github.event.inputs.old_tag }}
