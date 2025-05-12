@@ -110,7 +110,7 @@ public class ParentFeesStrategy(int comparisonOperator, string comparisonValue) 
 
             if (fee.ApproveDate == null) throw new ArgumentException("Atleast 1 Approved Parent Fees is missing an Approved Date");
             var thresholdFee = thresholdData.Where(t => t.ProgramType == fee.ProgramType && t.ProviderType == providerType && t.ProgramYear == fee.FinancialYear && t.Region == facilityData.Region)?.FirstOrDefault();
-            if (thresholdFee != null && fee != null && thresholdFee.MaximumFeeAmount.HasValue && fee.FeeAmount.HasValue && thresholdFee.MaximumFeeAmount > fee.FeeAmount)
+            if (thresholdFee != null && fee != null && thresholdFee.MaximumFeeAmount.HasValue && fee.FeeAmount.HasValue && thresholdFee.MaximumFeeAmount >= fee.FeeAmount)
             {
                 parentFees = "Yes";
             }
@@ -140,8 +140,8 @@ public class NotForProfitStrategy(int comparisonOperator, string comparisonValue
 
         }
         var isNotForProfit = "No";
-        if (facilityData.OrganizationDateOfIncorporation < DateTime.UtcNow.AddYears(-4))
-            if (facilityData.OrganizationOpenMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && facilityData.OrganizationBoardMembersMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && application.LetterOfSupportExists == true)
+        if (facilityData.OrganizationDateOfIncorporation < DateTime.UtcNow.AddYears(-4) || application.LetterOfSupportExists == true)
+            if (facilityData.OrganizationOpenMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && facilityData.OrganizationBoardMembersMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" )
                 isNotForProfit = "Yes";
         return Task.FromResult(comparisonHandler.Handle(_operator, isNotForProfit, comparisonValue));
     }

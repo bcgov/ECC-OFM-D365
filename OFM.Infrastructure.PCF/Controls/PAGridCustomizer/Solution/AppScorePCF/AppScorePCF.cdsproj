@@ -50,6 +50,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\..\..\PAGridCustomizer\PCF.pcfproj" />
+    <ProjectReference Include="..\..\PCF.pcfproj" />
   </ItemGroup>
 
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

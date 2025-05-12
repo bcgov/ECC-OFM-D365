@@ -18,6 +18,7 @@ const RadialControl: React.FC<RadialControlProps> = ({ children, tooltip, size, 
       padding: '20px 24px',
     },
     CSSProperties: {
+      margin: "0 auto",
       width: size,
       height: size,
       borderRadius: '50%',
@@ -28,22 +29,6 @@ const RadialControl: React.FC<RadialControlProps> = ({ children, tooltip, size, 
     }
   });
   
-  const style = mergeStyleSets({
-    CSSProperties: {
-      width: size,
-      height: size,
-      borderRadius: '50%',
-      backgroundColor: color,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    callout: {
-      width: 320,
-      padding: '20px 24px',
-      border: "1px solid red"
-    }
-  });
   const [isCalloutVisible, { toggle: toggleIsCalloutVisible }] = useBoolean(false);
   const buttonId = useId('callout-button');
 

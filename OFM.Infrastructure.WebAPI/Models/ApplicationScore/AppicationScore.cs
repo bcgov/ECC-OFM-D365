@@ -203,60 +203,101 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
 
 
 
-
-        public const string LicenseSpaces = @$"ofm_licences?fetchXml=<fetch aggregate=""true"">
-  <entity name=""ofm_licence"">
-   <filter type=""and"">
+        //Total Operational Spaces
+        public const string TotalOperationSpaces = @$"ofm_licence_details?fetchXml=
+                                                <fetch aggregate=""true"">
+                                                  <entity name=""ofm_licence_detail"">
+                                                    <attribute name=""ofm_operational_spaces"" alias=""TotalSpaces"" aggregate=""sum"" />
+                                                    <filter>
 <condition attribute=""statecode"" operator=""eq"" value=""0"" />
-      <condition attribute=""ofm_facility"" operator=""eq"" value=""{{0}}"" />
-      <filter type=""or"">
-        <filter type=""and"">
-          <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
-          <condition attribute=""ofm_end_date"" operator=""null"" />
+        <filter type=""or"">
+          <filter type=""and"">
+            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
+            <condition attribute=""ofm_end_date"" operator=""null"" />
+          </filter>
+          <filter type=""and"">
+            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
+            <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{{1}}"" />
+          </filter>
         </filter>
-        <filter type=""and"">
-          <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
-          <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{{1}}"" />
+                                                      <condition attribute=""ofm_licence_type"" operator=""in"">
+                                                        <value>1</value>
+                                                        <value>2</value>
+                                                        <value>4</value>
+                                                        <value>5</value>
+                                                        <value>6</value>
+                                                        <value>12</value>
+                                                        <value>3</value>
+                                                        <value>7</value>
+                                                        <value>8</value>
+                                                        <value>9</value>
+                                                        <value>10</value>
+                                                        <value>11</value>
+                                                      </condition>
+                                                    </filter>
+                                                    <link-entity name=""ofm_licence"" from=""ofm_licenceid"" to=""ofm_licence"" alias=""f"">
+                                                      <filter>
+                                                        <condition attribute=""ofm_facility"" operator=""eq"" value=""{{0}}"" />
+<condition attribute=""statecode"" operator=""eq"" value=""0"" />
+        <filter type=""or"">
+          <filter type=""and"">
+            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
+            <condition attribute=""ofm_end_date"" operator=""null"" />
+          </filter>
+          <filter type=""and"">
+            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
+            <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{{1}}"" />
+          </filter>
         </filter>
-      </filter>
-    </filter>
-    <link-entity name=""ofm_licence_detail"" from=""ofm_licence"" to=""ofm_licenceid"" link-type=""outer"">
-      <attribute name=""ofm_operational_spaces"" alias=""TotalSpaces"" aggregate=""sum"" />
-      <filter>
-        <condition attribute=""ofm_licence_type"" operator=""in"">
-           <value>1</value>
- <value>2</value>
- <value>4</value>
- <value>5</value>
- <value>6</value>
- <value>12</value>
- <value>3</value>
- <value>7</value>
- <value>8</value>
- <value>9</value>
- <value>10</value>
- <value>11</value>
- <value>12</value>
-        </condition>
-      </filter>
-    </link-entity>
-    <link-entity name=""ofm_licence_detail"" from=""ofm_licence"" to=""ofm_licenceid"" link-type=""outer"">
-      <attribute name=""ofm_operational_spaces"" alias=""MaxSpaces"" aggregate=""sum"" />
-      <filter>
-        <condition attribute=""ofm_licence_type"" operator=""in"">
-          <value>1</value>
-<value>2</value>
-<value>4</value>
-<value>5</value>
-<value>6</value>
-<value>12</value>
-        </condition>
-      </filter>
-    </link-entity>
-  </entity>
-</fetch>";
-        
-
+                                                      </filter>
+                                                    </link-entity>
+                                                  </entity>
+                                                </fetch>
+                                                ";
+        ////0-5 Age Group Childcare Category Operational Spaces
+        public const string MaxChildSpaces = @$"ofm_licence_details?fetchXml=
+                          <fetch aggregate=""true"">
+                              <entity name=""ofm_licence_detail"">
+                                <attribute name=""ofm_operational_spaces"" alias=""MaxSpaces"" aggregate=""sum"" />
+                                <filter>
+<condition attribute=""statecode"" operator=""eq"" value=""0"" />
+        <filter type=""or"">
+          <filter type=""and"">
+            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
+            <condition attribute=""ofm_end_date"" operator=""null"" />
+          </filter>
+          <filter type=""and"">
+            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
+            <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{{1}}"" />
+          </filter>
+        </filter>
+                                  <condition attribute=""ofm_licence_type"" operator=""in"">
+                                    <value>1</value>
+                                    <value>2</value>
+                                    <value>4</value>
+                                    <value>5</value>
+                                    <value>6</value>
+                                    <value>12</value>        
+                                  </condition>
+                                </filter>
+                                <link-entity name=""ofm_licence"" from=""ofm_licenceid"" to=""ofm_licence"" alias=""f"">
+                                  <filter>
+                                    <condition attribute=""ofm_facility"" operator=""eq"" value=""{{0}}"" />
+<condition attribute=""statecode"" operator=""eq"" value=""0"" />
+        <filter type=""or"">
+          <filter type=""and"">
+            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
+            <condition attribute=""ofm_end_date"" operator=""null"" />
+          </filter>
+          <filter type=""and"">
+            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
+            <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{{1}}"" />
+          </filter>
+        </filter>
+                                  </filter>
+                                </link-entity>
+                              </entity>
+                            </fetch>";
 
 
     }
@@ -370,8 +411,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
         public decimal? MaxPreSchoolChildCareSpaces => _data.GetPropertyValue<decimal>("MaxSpaces");
-        public decimal? TotalChildCareSpaces => _data.GetPropertyValue<decimal>("TotalSpaces");
-        public Guid? FacilityId => _data.GetPropertyValue<Guid>("_ofm_facility_value");
+        public decimal? TotalChildCareSpaces => _data.GetPropertyValue<decimal>("TotalSpaces");        
 
     }
     /// <summary>
