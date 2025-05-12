@@ -153,8 +153,8 @@ public class PopulationCentreStrategy(int comparisonOperator, string comparisonV
 
     public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, OFMApplication application, Facility facilityData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
     {
-        if (populationData == null) throw new ArgumentException($"Poplation Centre is missing for city: '{facilityData.City}'");
-        if (populationData.ProjectedPopulation == 0) throw new ArgumentException($"Projected Poplation Centre is missing for city: '{facilityData.City}'");
+        if (populationData == null) throw new ArgumentException($"Population Centre is missing for city: '{facilityData.City}'");
+        if (populationData.ProjectedPopulation == 0) throw new ArgumentException($"Projected Population in Population Centre is missing for city: '{facilityData.City}'");
         return Task.FromResult(comparisonHandler.Handle(_operator, populationData.ProjectedPopulation, comparisonValue));
     }
 }
@@ -176,7 +176,7 @@ public class SchoolDistrictStrategy(int comparisonOperator, string comparisonVal
 
     public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, OFMApplication application, Facility facilityData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
     {
-        if (schoolDistrictData == null) throw new ArgumentException("School District is missing");
+        if (schoolDistrictData == null || schoolDistrictData?.SchoolDistrictFullName == null) throw new ArgumentException($"School District is missing for postal code: {facilityData.PostalCode}");
         var schoolDistrict = schoolDistrictData.SchoolDistrictFullName;
         return Task.FromResult(comparisonHandler.Handle(_operator, schoolDistrict, comparisonValue));
     }
