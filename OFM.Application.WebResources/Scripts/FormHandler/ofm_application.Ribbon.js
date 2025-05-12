@@ -65,7 +65,19 @@ OFM.Application.Ribbon = {
     },
     openRecalculateScoreWindow: function (primaryControl) {
         var formContext = primaryControl;
-        var recordId = formContext.data.entity.getId().replace(/[{}]/g, "");
+        var recordId = "";
+        if (primaryControl.getGrid == null) {
+            recordId = formContext.data.entity.getId().replace(/[{}]/g, "");
+        }
+        if (primaryControl.getGrid != null) {
+            var records = new Array();
+            primaryControl.getGrid().getSelectedRows().forEach(function (selectedRow, i) {
+                records.push(selectedRow.getData().getEntity().getId().replace(/[{}]/g, ""));
+            });
+            recordId = records.join(",");
+        }
+
+
         var window_width = 400;
         var window_height = 300;
         var pageInput = {
