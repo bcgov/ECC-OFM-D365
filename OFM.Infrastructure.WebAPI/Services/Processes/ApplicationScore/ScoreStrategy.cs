@@ -110,6 +110,14 @@ public class ParentFeesStrategy(int comparisonOperator, string comparisonValue) 
 
             if (fee.ApproveDate == null) throw new ArgumentException("Atleast 1 Approved Parent Fees is missing an Approved Date");
             var thresholdFee = thresholdData.Where(t => t.ProgramType == fee.ProgramType && t.ProviderType == providerType && t.ProgramYear == fee.FinancialYear && t.Region == facilityData.Region)?.FirstOrDefault();
+
+            if (thresholdData == null)
+            {
+
+                throw new ArgumentException("Approved Parent Fees do not match ChildCare Category/Region/Program Year specified on the 40th Percentile table");
+            }
+
+
             if (thresholdFee != null && fee != null && thresholdFee.MaximumFeeAmount.HasValue && fee.FeeAmount.HasValue && thresholdFee.MaximumFeeAmount >= fee.FeeAmount)
             {
                 parentFees = "Yes";
