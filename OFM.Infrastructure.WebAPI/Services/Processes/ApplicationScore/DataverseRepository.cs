@@ -184,17 +184,25 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
 
     public async Task<LicenseSpaces?> GetLicenseDataAsync(Guid facilityId, DateTime? submittedOn)
     {
+
         var output = new JsonObject();
         var outputObjects = new List<JsonObject>();
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.LicenseSpaces, facilityId, submittedOn)}", formatted: true, pageSize: 5000);
-        if (!response.IsSuccessStatusCode)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            throw new Exception($"GetLicenseDataAsync(Guid {facilityId}, DateTime? {submittedOn}):HTTP Failure: {responseBody}");
-        }
-        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
-        var values = json["value"]?.AsArray() ?? new JsonArray();
-        return new LicenseSpaces(values.First().AsObject());
+        List<Task<HttpResponseMessage>> taks = new List<Task<HttpResponseMessage>>();
+        taks.Add(d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.TotalOperationSpaces, facilityId, submittedOn)}"));
+        taks.Add(d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.MaxChildSpaces, facilityId, submittedOn)}"));
+        var responses = await Task.WhenAll(taks.ToArray());
+        responses.ToList().ForEach(async r => {
+            if (!r.IsSuccessStatusCode)
+            {
+                var responseBody = await r.Content.ReadAsStringAsync();
+                throw new Exception($"GetLicenseDataAsync(Guid {facilityId}, DateTime? {submittedOn}):HTTP Failure: {responseBody}");
+            }
+            var json = await r.Content.ReadFromJsonAsync<JsonObject>();
+            outputObjects.Add(json["value"].AsArray().First().AsObject());
+        });
+
+        output = output.MergeJsonObjects(outputObjects);
+        return new LicenseSpaces(output.AsObject());        
     }
 
     public async Task<ACCBIncomeIndicator?> GetIncomeDataAsync(string postalCode, Guid calculatorId)

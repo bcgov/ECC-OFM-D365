@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest>
-  <control namespace="ECC.PCF" constructor="PowerAppsGridCustomizer" version="0.0.31" display-name-key="PowerAppsGridCustomizer" description-key="PowerAppsGridCustomizer description" control-type="standard">
+  <control namespace="ECC.PCF" constructor="PowerAppsGridCustomizer" version="0.0.35" display-name-key="PowerAppsGridCustomizer" description-key="PowerAppsGridCustomizer description" control-type="standard">
     <property name="EventName" display-name-key="EventName" description-key="EventName" of-type="SingleLine.Text" usage="bound" required="true" />
     <resources>
       <code path="index.ts" order="1" />

@@ -105,12 +105,21 @@ public class ParentFeesStrategy(int comparisonOperator, string comparisonValue) 
         if (!thresholdData.Any()) throw new ArgumentException("40P fees are missing");
         var providerType = application.ProviderType ?? throw new ArgumentException("Application is not assigned any provider type");
         string parentFees = "No";
-        foreach (var fee in feeData)
+
+
+        if (feeData?.Where(f => f.FinancialYear == thresholdData.First().ProgramYear) == null || feeData?.Where(f => f.FinancialYear == thresholdData.First().ProgramYear)?.Any() == false)
+        {
+            throw new ArgumentException("No Approved Parent Fees match the Program Year specified on the 40th Percentile table");
+
+        }
+
+        foreach (var fee in feeData.Where(f => f.FinancialYear == thresholdData.First().ProgramYear))
         {
 
             if (fee.ApproveDate == null) throw new ArgumentException("Atleast 1 Approved Parent Fees is missing an Approved Date");
             var thresholdFee = thresholdData.Where(t => t.ProgramType == fee.ProgramType && t.ProviderType == providerType && t.ProgramYear == fee.FinancialYear && t.Region == facilityData.Region)?.FirstOrDefault();
-            if (thresholdFee != null && fee != null && thresholdFee.MaximumFeeAmount.HasValue && fee.FeeAmount.HasValue && thresholdFee.MaximumFeeAmount > fee.FeeAmount)
+
+            if (thresholdFee != null && fee != null && thresholdFee.MaximumFeeAmount.HasValue && fee.FeeAmount.HasValue && thresholdFee.MaximumFeeAmount >= fee.FeeAmount)
             {
                 parentFees = "Yes";
             }
@@ -140,8 +149,8 @@ public class NotForProfitStrategy(int comparisonOperator, string comparisonValue
 
         }
         var isNotForProfit = "No";
-        if (facilityData.OrganizationDateOfIncorporation < DateTime.UtcNow.AddYears(-4))
-            if (facilityData.OrganizationOpenMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && facilityData.OrganizationBoardMembersMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && application.LetterOfSupportExists == true)
+        if (facilityData.OrganizationDateOfIncorporation < DateTime.UtcNow.AddYears(-4) || application.LetterOfSupportExists == true)
+            if (facilityData.OrganizationOpenMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && facilityData.OrganizationBoardMembersMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes")
                 isNotForProfit = "Yes";
         return Task.FromResult(comparisonHandler.Handle(_operator, isNotForProfit, comparisonValue));
     }
