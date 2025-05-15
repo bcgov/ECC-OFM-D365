@@ -94,6 +94,7 @@ services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
 services.AddAuthentication();
 services.AddHealthChecks();
+services.AddHttpClient<IBcRegistryService, BcRegistryService>();
 
 //======== Configuration >>>
 services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));

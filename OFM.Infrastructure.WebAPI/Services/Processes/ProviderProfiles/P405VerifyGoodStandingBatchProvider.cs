@@ -28,6 +28,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
     private readonly IEmailRepository _emailRepository = emailRepository;
     private string? _GScommunicationType;
     private List<JsonNode>? _allFacilitiesWithActiveFundingData;
+    BcRegistryService _bcregService;
 
     public Int16 ProcessId => Setup.Process.ProviderProfiles.VerifyGoodStandingBatchId;
     public string ProcessName => Setup.Process.ProviderProfiles.VerifyGoodStandingBatchName;
@@ -347,12 +348,18 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         _allFacilitiesWithActiveFundingData = await FetchAllRecordsFromCRMAsync(AllFacilitiesWithActiveFundingRequestUri);
         var localOrganizationsData = await GetDataAsync();
         var deserializedOrganizationsData = JsonSerializer.Deserialize<List<D365Organization_Account>>(localOrganizationsData.Data.ToString());
+        int batchSize = _BCRegistrySettings.BatchSize;
 
+        _bcregService = new BcRegistryService(_BCRegistrySettings);
         if (deserializedOrganizationsData.Any())
         {
-            using HttpClient httpClient = new();
-            var tasks = deserializedOrganizationsData?.Select(org => CheckOrganizationGoodStanding(org, httpClient));
-            await Task.WhenAll(tasks!);
+            for (int i = 0; i < deserializedOrganizationsData?.Count; i += batchSize)
+            {
+                var tasks = deserializedOrganizationsData?.Skip(i).Take(batchSize).Select(org => CheckOrganizationGoodStanding(org));
+                await Task.WhenAll(tasks!);
+
+            }
+
         }
 
         var endTime = timeProvider.GetTimestamp();
@@ -361,41 +368,27 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
         return await Task.FromResult(ProcessResult.Completed(ProcessId).SimpleProcessResult);
     }
 
-    private async Task<DateTime> CheckOrganizationGoodStanding(D365Organization_Account organization, HttpClient httpClient)
+    private async Task<DateTime> CheckOrganizationGoodStanding(D365Organization_Account organization)
     {
         string organizationId = organization.accountid;
         string legalName = organization.name;
         string incorporationNumber = organization.ofm_incorporation_number;
         var externalService = "BC Registries";
+        var response = _bcregService.GetRegistryDataAsync(organizationId, legalName, incorporationNumber);
+        var responseBody = await response.Result.Content.ReadAsStringAsync();
 
-        string? queryValue = (!string.IsNullOrEmpty(incorporationNumber)) ? incorporationNumber.Trim() : legalName.Trim();
-
-        var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
-        var status = "active";
-        var queryString = $"?query=value:{queryValue}::identifier:::bn:::name:" +
-                          $"&categories=legalType:{legalType}::status:{status}";
-
-        var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
-
-        var request = new HttpRequestMessage(HttpMethod.Get, path);
-        request.Headers.Add(_BCRegistrySettings.AccoutIdName, _BCRegistrySettings.AccoutIdValue);
-        request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
-
-        var response = await httpClient.SendAsync(request);
-        var responseBody = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
+        if (!response.Result.IsSuccessStatusCode)
         {
             _logger.LogError(CustomLogEvent.Process, "Unable to call BC Registries API with an error {responseBody}.", responseBody.CleanLog());
 
-            var standingStatusUpdate = (response.StatusCode != HttpStatusCode.InternalServerError);
+            var standingStatusUpdate = (response.Result.StatusCode != HttpStatusCode.InternalServerError);
 
             await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, (int)ofm_good_standing_status.IntegrationError, subject: "Unable to call BC Registries API with an error.", (int)ecc_integration_log_category.Error, responseBody.CleanLog(), externalService, statusUpdate: standingStatusUpdate);
 
             return await Task.FromResult(DateTime.Now);
         }
 
-        BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
+        BCRegistrySearchResult? searchResult = await response.Result.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
 
         // Organization - Update
         var goodStandingStatus = 3;                    // 1 - Good, 2 - No Good, 3 - Error 
