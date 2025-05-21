@@ -31,10 +31,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                                     <attribute name=""ofm_name"" />
                                     <attribute name=""createdon"" />
                                     <order attribute=""ofm_name"" descending=""false"" />
+                                    <filter>
+                                    <condition attribute=""statuscode"" operator=""eq"" value=""1"" />
+                                    </filter>
                                     <link-entity name=""ofm_intake"" from=""ofm_application_score_calculator"" to=""ofm_application_score_calculatorid"" link-type=""inner"" alias=""intake"">
                                     <attribute name=""ofm_start_date"" />
-                                    <attribute name=""ofm_end_date"" />
-                                      
+                                    <attribute name=""ofm_end_date"" />                                      
                                     </link-entity>
                                   </entity>
                                 </fetch>";

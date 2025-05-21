@@ -77,7 +77,7 @@ public class PreSchoolOperationalSpacesStrategy(int comparisonOperator, string c
 
         var preschoolSpaces = licenseData.MaxPreSchoolChildCareSpaces;
         var totalOperationalSpaces = licenseData.TotalChildCareSpaces;
-        var ratio = totalOperationalSpaces > 0 ? (preschoolSpaces / totalOperationalSpaces) * 100 : 0;
+        var ratio = totalOperationalSpaces > 0 ? (preschoolSpaces / totalOperationalSpaces) : 0;
         return Task.FromResult(comparisonHandler.Handle(_operator, ratio, comparisonValue));
     }
 }
@@ -139,20 +139,23 @@ public class NotForProfitStrategy(int comparisonOperator, string comparisonValue
 
     public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, OFMApplication application, Facility facilityData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
     {
-        if (facilityData.OrganizationBusinessType?.ToLower() == "non-profit society")
+        var isNotForProfit = "No";
+        if (facilityData.OrganizationBusinessType?.ToLower()?.Trim() == "non-profit society")
         {
             if (facilityData.OrganizationDateOfIncorporation == null || facilityData.OrganizationDateOfIncorporation == DateTime.MinValue) throw new ArgumentException("Date of Incorporation missing on the Organization");
             if (string.IsNullOrEmpty(facilityData.OrganizationOpenMembership)) throw new ArgumentException("OpenMembership is not set to Yes/No on the Organization");
             if (string.IsNullOrEmpty(facilityData.OrganizationBoardMembersBCResidents)) throw new ArgumentException("BoardMembersBCResidents is not set to Yes/No on the Organization");
             if (string.IsNullOrEmpty(facilityData.OrganizationBoardMembersMembership)) throw new ArgumentException("BoardMembersEntireMembership is not set to Yes/No on the Organization");
             if (string.IsNullOrEmpty(facilityData.OrganizationBoardMembersUnpaid)) throw new ArgumentException("BoardMembersElectedUnpaid is not set to Yes/No on the Organization");
+            if (facilityData.OrganizationDateOfIncorporation > DateTime.Now.AddYears(-4) && (application.LetterOfSupportExists == null || application.LetterOfSupportExists == false)) throw new ArgumentException("No Community Support letter provided as Date of Incorporation is not older than 4 years");
 
+            
+            if (facilityData.OrganizationDateOfIncorporation < DateTime.UtcNow.AddYears(-4) || application.LetterOfSupportExists == true)
+                if (facilityData.OrganizationOpenMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && facilityData.OrganizationBoardMembersMembership == "Yes" && facilityData.OrganizationBoardMembersBCResidents == "Yes")
+                    isNotForProfit = "Yes";            
         }
-        var isNotForProfit = "No";
-        if (facilityData.OrganizationDateOfIncorporation < DateTime.UtcNow.AddYears(-4) || application.LetterOfSupportExists == true)
-            if (facilityData.OrganizationOpenMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && facilityData.OrganizationBoardMembersMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes")
-                isNotForProfit = "Yes";
         return Task.FromResult(comparisonHandler.Handle(_operator, isNotForProfit, comparisonValue));
+
     }
 }
 // Concrete Strategy: Evaluates based on the if Postal code of the facility belongs to High Population centres
@@ -198,11 +201,20 @@ public class LocationStrategy(int comparisonOperator, string comparisonValue) : 
     public Task<bool> EvaluateAsync(IComparisonHandler comparisonHandler, ScoreParameter parameters, OFMApplication application, Facility facilityData, LicenseSpaces licenseData, ACCBIncomeIndicator incomeData, IEnumerable<ApprovedParentFee> feeData, IEnumerable<FortyPercentileThresholdFee> thresholdData, PopulationCentre populationData, SchoolDistrict schoolDistrictData)
     {
 
+        if(application.MonthToMonth == "Yes" || application.FacilityType?.ToLower()?.Trim() == "provided free of charge")
+            return Task.FromResult(comparisonHandler.Handle(_operator, "No", comparisonValue));
 
-
-        DateTime? leaseStartDate = application.LeaseStartDate;
-        DateTime? leaseEndDate = application.LeaseEndDate;
-        return Task.FromResult(comparisonHandler.Handle(_operator, application.FacilityType == "Rent/Lease" ? CheckLocationStability(leaseStartDate, leaseEndDate) : "No", comparisonValue));
+        if (application.FacilityType?.ToLower()?.Trim() == "rent/lease")
+        {
+            DateTime? leaseStartDate = application.LeaseStartDate;
+            DateTime? leaseEndDate = application.LeaseEndDate;
+            return Task.FromResult(comparisonHandler.Handle(_operator, application.FacilityType == "Rent/Lease" ? CheckLocationStability(leaseStartDate, leaseEndDate) : "No", comparisonValue));
+        }
+        if (application.FacilityType?.ToLower()?.Trim() == "owned with mortgage" || application.FacilityType?.ToLower()?.Trim() == "owned without mortgage")
+        {
+            return Task.FromResult(comparisonHandler.Handle(_operator, "Yes", comparisonValue));
+        }
+        return Task.FromResult(comparisonHandler.Handle(_operator, "No", comparisonValue));
     }
     static string CheckLocationStability(DateTime? leaseStart, DateTime? leaseEnd)
     {
