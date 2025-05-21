@@ -116,7 +116,7 @@ public class FundingCalculator : IFundingCalculator
     private decimal TotalProjectedBenefitsCostPerYear => LicenceDetails.Sum(ld => ld.ProjectedBenefitsCostPerYear);
     private decimal TotalHRRenumeration => LicenceDetails.Sum(ld => ld.HRRenumeration);
     private decimal TotalEHTRenumeration => LicenceDetails.Sum(ld => ld.StaffingCost + ld.ProjectedBenefitsCostPerYear + ld.ProfessionalDevelopmentHours);
-
+    private decimal AdjustedFTE => Math.Round(LicenceDetails.Sum(ld => ld.AdjustedFTEs), 2, MidpointRounding.AwayFromZero);
     private decimal TotalProfessionalDevelopmentHours => LicenceDetails.Sum(ld => ld.ProfessionalDevelopmentHours);
     private decimal TotalProfessionalDevelopmentExpenses => LicenceDetails.Sum(ld => ld.ProfessionalDevelopmentExpenses);
 
@@ -275,7 +275,7 @@ public class FundingCalculator : IFundingCalculator
                 //Grand Totals
                 Projected_GrandTotal = TotalProjectedFundingCost,
                 PF_GrandTotal = TotalParentFees,
-
+                Adjusted_FTE = AdjustedFTE,
                 CalculatedOn = DateTime.UtcNow
             };
 
