@@ -38,7 +38,20 @@ namespace OFM.Infrastructure.Plugins.Application
                 {
                     
                     if (entity.LogicalName != "ofm_application_score_parameter") return;
-                    var entity2 = localPluginContext.PluginUserService.Retrieve("ofm_application_score_parameter", entity.Id, new ColumnSet("ofm_comparison_operator","ofm_score", "ofm_key"));
+                    var entity2 = localPluginContext.PluginUserService.Retrieve("ofm_application_score_parameter", entity.Id, new ColumnSet("ofm_comparison_operator", "ofm_score", "ofm_key", "ofm_application_score_calculator"));
+                    QueryByAttribute queryIntake = new QueryByAttribute("ofm_intake");
+                    queryIntake.AddAttributeValue("ofm_application_score_calculator", ((EntityReference)entity2["ofm_application_score_calculator"]).Id.ToString());
+                    var intake = localPluginContext.PluginUserService.RetrieveMultiple(queryIntake);
+
+                    if (intake.Entities.Count > 0) {
+                        if (((DateTime)intake[0]["ofm_start_date"]) < DateTime.Now && ((DateTime)intake[0]["ofm_end_date"]) > DateTime.Now) {
+
+                            throw new InvalidPluginExecutionException("Intake for the Application Score Calculator is in progress and Application Score Parameters cannot be modified");
+                        
+                        }
+                    }
+
+                    
                     localPluginContext.Trace("ofm_application_score_parameter entity is passed");
                     // Extract ofm_key and ofm_comparisonoperator values
                     string key = entity2.Contains("ofm_key") ? entity2["ofm_key"]?.ToString() : null;
