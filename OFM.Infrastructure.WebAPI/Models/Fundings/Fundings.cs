@@ -185,6 +185,8 @@ public class SupplementaryApplication : ofm_allowance
     public string? ofm_funding_number_base { get; set; }
     [property: JsonPropertyName("funding.statuscode")]
     public int? fundingstatuscode { get; set; }
+    [property: JsonPropertyName("org.name")]
+    public string? organizationname { get; set; }
 }
 
 public class BusinessClosure
