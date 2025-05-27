@@ -74,6 +74,10 @@ public class D365WebAPIService : ID365WebApiService
         {
             request = new(new D365EntityReference(entityNameSet, id), columnName: "ofm_approval_pdf", data, fileName);
         }
+        else if (entityNameSet.Equals("ofm_data_import"))
+        {
+            request = new(new D365EntityReference(entityNameSet, id), columnName: "ofm_data_file", data, fileName);
+        }
         else
         {
             request = new(new D365EntityReference(entityNameSet, id), columnName: "ofm_file", data, fileName);

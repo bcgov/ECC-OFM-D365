@@ -155,6 +155,16 @@ public record ExternalServices
 {
     public required BCRegistrySettings BCRegistryApi { get; set; }
     public required BCCASApi BCCASApi { get; set; }
+    public required ECERSettings ECERApi { get; set; }
+}
+public record ECERSettings
+{
+    public bool Enable { get; set; }
+    public required string InterfaceURL { get; set; }
+    public required string ECERURL { get; set; }
+    public required string ClientId { get; set; }
+    public required string ClientSecret { get; set; }
+   
 }
 
 public record BCRegistrySettings

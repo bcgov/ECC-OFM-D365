@@ -134,6 +134,11 @@
               ]
              </remarks>
         </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Handlers.ECERAPIHandler.GetTokenAsync(System.String,System.String)">
+            <summary>
+            Retrieves an access token. Uses a cached token if available and not expired.
+            </summary>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Handlers.EnvironmentHandlers.Get(Microsoft.Extensions.Options.IOptionsSnapshot{OFM.Infrastructure.WebAPI.Models.D365AuthSettings})">
             <summary>
             Returns the current environment information including the server timestamp

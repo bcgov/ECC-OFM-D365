@@ -86,6 +86,7 @@ services.AddScoped<ID365ProcessProvider, P605CloseDuedReportsProvider>();
 services.AddScoped<ID365ProcessProvider, P610CreateQuestionProvider>();
 services.AddScoped<ID365ProcessProvider, P615CreateMonthlyReportProvider>();
 services.AddScoped<ID365ProcessProvider, P700ProviderCertificateProvider>();
+services.AddScoped<ID365ProcessProvider, P705ECERCertificateProvider>();
 services.AddScoped<ID365ProcessProvider, P800ScoreCalculatorProvider>();
 
 services.AddScoped<D365Email>();

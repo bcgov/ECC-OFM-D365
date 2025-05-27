@@ -142,6 +142,9 @@ public static class Setup
         {
             public const Int16 ProcessProviderCertificatesId = 700;
             public const string ProcessProviderCertificatesName = "Process and update Provider Certificates";
+
+            public const Int16 ProcessECERCertificatesId = 705;
+            public const string ProcessECERCertificatesName = "Process and update Provider Certificates from ECER";
         }
     }
 
