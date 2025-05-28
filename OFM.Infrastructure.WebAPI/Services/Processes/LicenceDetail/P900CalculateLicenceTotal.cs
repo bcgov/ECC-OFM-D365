@@ -217,7 +217,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                     case 8:
                         Group_School_Age2_Enrolled += licenceDetail.Total_Enrolled_Spaces;
                         Group_School_Age2_Licenced += licenceDetail.Total_Licenced_Spaces;
-                        Group_School_Age2_Licenced += licenceDetail.Total_Operational_Spaces;
+                        Group_School_Age2_Operational += licenceDetail.Total_Operational_Spaces;
                         break;
                     case 9:
                         Group_School_Age3_Enrolled += licenceDetail.Total_Enrolled_Spaces;
@@ -249,7 +249,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                                 {"ofm_group_child_care_30_months_school_age_licenced", Group_Child_Care_30_School_Age_Licenced},
                                 {"ofm_group_child_care_30_months_school_age_op", Group_Child_Care_30_School_Age_Operational},
                                 {"ofm_group_multi_age_child_care_enrolled", Group_Multi_Age_Enrolled},
-                                {"ofm_group_multi_age_child_care_licenced", Group_Multi_Age_Enrolled},
+                                {"ofm_group_multi_age_child_care_licenced", Group_Multi_Age_Licenced},
                                 {"ofm_group_multi_age_child_care_op", Group_Multi_Age_Operational},
                                 {"ofm_preschool_4_hours_max_group1_enrolled", Preschool_4Hour_1_Enrolled},
                                 {"ofm_preschool_4_hours_max_group1_licenced", Preschool_4Hour_1_Licenced},
