@@ -20,6 +20,7 @@ using System.Reflection;
 using OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
 using System.Collections;
 using OFM.Infrastructure.WebAPI.Handlers;
+using OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(serverOptions => serverOptions.AddServerHeader = false);
@@ -87,6 +88,7 @@ services.AddScoped<ID365ProcessProvider, P610CreateQuestionProvider>();
 services.AddScoped<ID365ProcessProvider, P615CreateMonthlyReportProvider>();
 services.AddScoped<ID365ProcessProvider, P700ProviderCertificateProvider>();
 services.AddScoped<ID365ProcessProvider, P800ScoreCalculatorProvider>();
+services.AddScoped<ID365ProcessProvider, P900CalculateLicenceTotal>();
 
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();

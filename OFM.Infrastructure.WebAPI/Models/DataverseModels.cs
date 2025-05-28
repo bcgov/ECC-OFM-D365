@@ -474,6 +474,24 @@ public class QuestionResponse : ofm_question_response
     public string ofm_header_qid { get; set; }
 }
 
+public class LicenceDetail
+{
+    [JsonPropertyName("Total_Enrolled_Spaces")]
+    public int Total_Enrolled_Spaces { get; set; }
+
+    [JsonPropertyName("Total_Licenced_Spaces")]
+    public int Total_Licenced_Spaces { get; set; }
+
+    [JsonPropertyName("Total_Operational_Spaces")]
+    public int Total_Operational_Spaces { get; set; }
+
+    [property: JsonPropertyName("type")]
+    public int Type { get; set; }
+
+    [property: JsonPropertyName("type@OData.Community.Display.V1.FormattedValue")]
+    public string TypeName { get; set; } = string.Empty;
+}
+
 #region External Parameters
 
 #endregion
