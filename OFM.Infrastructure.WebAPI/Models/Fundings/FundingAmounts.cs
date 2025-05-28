@@ -48,7 +48,7 @@ public interface IFundingAmounts
     decimal Base_NonHRProgramming { get; }
     decimal PF_NonHRProgramming { get; set; }
     decimal Projected_NonHRProgramming { get; set; }
-
+    decimal Adjusted_FTE { get; set; }
     bool Equals(FundingAmounts? other);
     bool Equals(object? obj);
     int GetHashCode();
@@ -121,7 +121,7 @@ public record FundingAmounts : IFundingAmounts
     [Required(ErrorMessage = "Required")]
     [Range(LOWER_LIMIT_AMOUNT, UPPER_LIMIT_AMOUNT, ErrorMessage = "The value must be greater than or equal to 0 or less than 100_000_000")]
     public decimal PF_NonHRFacility { get; set; } = 0m;
-
+    public decimal Adjusted_FTE { get; set; } = 0m;
     // Base Amounts (projected - parent fees)
     public decimal Base_HRTotal => Projected_HRTotal - PF_HRTotal;
     public decimal Base_HRWagesPaidTimeOff => Projected_HRWagesPaidTimeOff - PF_HRWagesPaidTimeOff;
@@ -178,5 +178,6 @@ public record EmptyFundingAmounts : IFundingAmounts {
     public decimal Base_NonHRProgramming { get; set; }
     public decimal PF_NonHRProgramming { get; set; } 
     public decimal Projected_NonHRProgramming { get; set; }
+    public decimal Adjusted_FTE { get; set; }
 
     public bool Equals(FundingAmounts? other) { throw new NotImplementedException(); } };
