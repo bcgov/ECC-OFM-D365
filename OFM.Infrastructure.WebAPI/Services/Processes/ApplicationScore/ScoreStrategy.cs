@@ -147,10 +147,10 @@ public class NotForProfitStrategy(int comparisonOperator, string comparisonValue
             if (string.IsNullOrEmpty(facilityData.OrganizationBoardMembersBCResidents)) throw new ArgumentException("BoardMembersBCResidents is not set to Yes/No on the Organization");
             if (string.IsNullOrEmpty(facilityData.OrganizationBoardMembersMembership)) throw new ArgumentException("BoardMembersEntireMembership is not set to Yes/No on the Organization");
             if (string.IsNullOrEmpty(facilityData.OrganizationBoardMembersUnpaid)) throw new ArgumentException("BoardMembersElectedUnpaid is not set to Yes/No on the Organization");
-            if (facilityData.OrganizationDateOfIncorporation > DateTime.Now.AddYears(-4) && (application.LetterOfSupportExists == null || application.LetterOfSupportExists == false)) throw new ArgumentException("No Community Support letter provided as Date of Incorporation is not older than 4 years");
+            if (facilityData.OrganizationDateOfIncorporation > DateTime.Now.AddYears(-4) && (facilityData.LetterOfSupportExists == null || facilityData.LetterOfSupportExists == false)) throw new ArgumentException("No Community Support letter provided as Date of Incorporation is not older than 4 years");
 
             
-            if (facilityData.OrganizationDateOfIncorporation < DateTime.UtcNow.AddYears(-4) || application.LetterOfSupportExists == true)
+            if (facilityData.OrganizationDateOfIncorporation < DateTime.UtcNow.AddYears(-4) || facilityData.LetterOfSupportExists == true)
                 if (facilityData.OrganizationOpenMembership == "Yes" && facilityData.OrganizationBoardMembersUnpaid == "Yes" && facilityData.OrganizationBoardMembersMembership == "Yes" && facilityData.OrganizationBoardMembersBCResidents == "Yes")
                     isNotForProfit = "Yes";            
         }

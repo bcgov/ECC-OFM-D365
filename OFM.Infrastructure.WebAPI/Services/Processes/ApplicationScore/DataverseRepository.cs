@@ -179,7 +179,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
             throw new Exception($"GetFacilityDataAsync(Guid {facilityId}): HTTP Failure: {responseBody}");
         }
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
-        return new Facility(json);
+        return new Facility(json["value"]?.AsArray()?.First()?.AsObject());
     }
 
     public async Task<LicenseSpaces?> GetLicenseDataAsync(Guid facilityId, DateTime? submittedOn)

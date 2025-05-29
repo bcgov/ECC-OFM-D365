@@ -15,7 +15,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         /// Retrieves application ID, facility, modification date, processing status, and provider type.
         /// </summary>
 
-        public const string FundingApplicationQuery = "ofm_applications({0})?$select=ofm_applicationid,_ofm_facility_value,modifiedon,ofm_score_lastprocessed,ofm_summary_submittedon,ofm_provider_type,ofm_costs_lease_start_date,ofm_costs_lease_end_date,ofm_month_to_month,ofm_costs_facility_type&$expand=ofm_document_application($select=ofm_category)";
+        public const string FundingApplicationQuery = "ofm_applications({0})?$select=ofm_applicationid,_ofm_facility_value,modifiedon,ofm_score_lastprocessed,ofm_summary_submittedon,ofm_provider_type,ofm_costs_lease_start_date,ofm_costs_lease_end_date,ofm_month_to_month,ofm_costs_facility_type";
 
         /// <summary>
         /// Query to fetch unprocessed submitted applications based on modification date.
@@ -70,7 +70,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         /// Retrieves facility location, organization details, and licensing information.
         /// </summary>
 
-        public const string facilityQuery = "accounts({0})?$select=address1_city,accountid,name,address1_postalcode&$expand=ofm_facility_licence($select=ofm_acility_id_historical),parentaccountid($select=ofm_indigenous_led,accountid,accountnumber,name,ofm_business_type,ccof_typeoforganization,ofm_provider_type,ofm_is_public_sector,ofm_date_of_incorporation,ofm_open_membership,ofm_board_members_elected_unpaid,ofm_board_members_selected_membership,ofm_board_members_residents_of_bc),ccof_facility_feeregion($expand=ccof_region($expand=ccof_region_period_start,ccof_region_period_end))";
+        public const string facilityQuery = "accounts?$select=address1_city,accountid,name,address1_postalcode&$expand=ofm_facility_licence($select=ofm_acility_id_historical),parentaccountid($select=ofm_indigenous_led,accountid,accountnumber,name,ofm_business_type,ccof_typeoforganization,ofm_provider_type,ofm_is_public_sector,ofm_date_of_incorporation,ofm_open_membership,ofm_board_members_elected_unpaid,ofm_board_members_selected_membership,ofm_board_members_residents_of_bc;$expand=ofm_document_account($select=ofm_category)),ccof_facility_feeregion($expand=ccof_region($expand=ccof_region_period_start,ccof_region_period_end))&$filter=(accountid eq {0})";
         /// <summary>
         /// Query to fetch license data for a facility.
         /// Retrieves ofm_licence_details such as start and end dates, facility ID, and operational spaces.
@@ -332,7 +332,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
 
         public DateTime? SubmittedOn => _data.GetPropertyValue<DateTime>("ofm_summary_submittedon");
 
-        public bool? LetterOfSupportExists => _data.GetPropertyValue<JsonArray>("ofm_document_application")?.AsArray()?.Where(x => x.AsObject().GetPropertyValue<string>("ofm_category") == "Community Support Letter")?.Any();
+        
         public bool? GetProcessingStatus(string defaultValue = null) => _data.GetPropertyValue<bool>("ofm_score_processing_status");
     }
     /// <summary>
@@ -384,7 +384,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         public string? OrganizationLegalName => _data.GetPropertyValue<JsonObject>("parentaccountid")?.AsObject()?.GetPropertyValue<string>("name");
         public string? OrganizationPublicSector => _data.GetPropertyValue<JsonObject>("parentaccountid")?.AsObject()?.GetFormattedValue("ofm_is_public_sector");
 
-
+        public bool? LetterOfSupportExists => _data.GetPropertyValue<JsonObject>("parentaccountid")?.GetPropertyValue<JsonArray>("ofm_document_account")?.AsArray()?.Where(x => x.AsObject().GetPropertyValue<string>("ofm_category") == "Community Support Letter")?.Any();
 
         public DateTime? OrganizationDateOfIncorporation => _data.GetPropertyValue<JsonObject>("parentaccountid")?.AsObject()?.GetPropertyValue<DateTime>("ofm_date_of_incorporation");
         public string? OrganizationOpenMembership => _data.GetPropertyValue<JsonObject>("parentaccountid")?.AsObject()?.GetFormattedValue("ofm_open_membership");
