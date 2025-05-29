@@ -33,13 +33,41 @@ namespace OFM.Infrastructure.Plugins.Application
 
                 localPluginContext.Trace("Start ApplicationScoreKeyValidation Plug-in");
 
-                // Check if the target entity is new_ApplicationScoringParameters
+                // Check if the target entity is ApplicationScoringParameters
                 if (localPluginContext.PluginExecutionContext.InputParameters.Contains("Target") && localPluginContext.PluginExecutionContext.InputParameters["Target"] is Entity entity)
                 {
-                    
-                    if (entity.LogicalName != "ofm_application_score_parameter") return;
-                    var entity2 = localPluginContext.PluginUserService.Retrieve("ofm_application_score_parameter", entity.Id, new ColumnSet("ofm_comparison_operator","ofm_score", "ofm_key"));
                     localPluginContext.Trace("ofm_application_score_parameter entity is passed");
+                    if (entity.LogicalName != "ofm_application_score_parameter") return;
+                    var entity2 = localPluginContext.PluginUserService.Retrieve("ofm_application_score_parameter", entity.Id, new ColumnSet("ofm_comparison_operator", "ofm_score", "ofm_key", "ofm_application_score_calculator"));
+                    QueryByAttribute queryIntake = new QueryByAttribute("ofm_intake");
+                    queryIntake.ColumnSet = new ColumnSet("ofm_start_date","ofm_end_date");
+                    queryIntake.AddAttributeValue("ofm_application_score_calculator", entity2.GetAttributeValue<EntityReference>("ofm_application_score_calculator")?.Id);
+                    var intakes = localPluginContext.PluginUserService.RetrieveMultiple(queryIntake);
+                    localPluginContext.Trace($"total inakes are related to application score calculator: {intakes.Entities.Count}");
+                    if (intakes.Entities.Count > 0)
+                    {
+                        
+                        foreach (var intake in intakes.Entities)
+                        {
+                            if (intake.GetAttributeValue<DateTime>("ofm_start_date") == DateTime.MinValue)
+                                continue;
+
+
+                            if (((DateTime)intake["ofm_start_date"]) < DateTime.UtcNow && (!intake.Contains("ofm_end_date") || intake.GetAttributeValue<DateTime>("ofm_end_date") == DateTime.MinValue))
+                            {
+                                throw new InvalidPluginExecutionException("Intake for the Application Score Calculator is in progress and Application Score Parameters cannot be modified");
+                            }
+                            if (((DateTime)intake["ofm_start_date"]) < DateTime.UtcNow && intake.Contains("ofm_end_date") && intake.GetAttributeValue<DateTime>("ofm_end_date") > DateTime.UtcNow)
+                            {
+
+                                throw new InvalidPluginExecutionException("Intake for the Application Score Calculator is in progress and Application Score Parameters cannot be modified");
+
+                            }
+                        }
+                    }
+
+                    
+                    
                     // Extract ofm_key and ofm_comparisonoperator values
                     string key = entity2.Contains("ofm_key") ? entity2["ofm_key"]?.ToString() : null;
                     int? comparisonOperator = entity2.Contains("ofm_comparison_operator")
