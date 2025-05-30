@@ -207,7 +207,7 @@ public class LocationStrategy(int comparisonOperator, string comparisonValue) : 
         if (application.FacilityType?.ToLower()?.Trim() == "rent/lease")
         {
             DateTime? leaseStartDate = application.LeaseStartDate;
-            DateTime? leaseEndDate = application.LeaseEndDate;
+            DateTime? leaseEndDate = application.SubmittedOn;
             return Task.FromResult(comparisonHandler.Handle(_operator, application.FacilityType == "Rent/Lease" ? CheckLocationStability(leaseStartDate, leaseEndDate) : "No", comparisonValue));
         }
         if (application.FacilityType?.ToLower()?.Trim() == "owned with mortgage" || application.FacilityType?.ToLower()?.Trim() == "owned without mortgage")
@@ -224,7 +224,7 @@ public class LocationStrategy(int comparisonOperator, string comparisonValue) : 
         // Calculate lease duration in days
         int leaseDurationDays = (leaseEnd.Value - leaseStart.Value).Days;
         // Check if lease duration is at least 730 days (2 years)
-        return leaseDurationDays >= 730 && leaseEnd > new DateTime(2026, 9, 1) ? "Yes" : "No";
+        return leaseDurationDays >= 730? "Yes" : "No";
     }
 
 }
