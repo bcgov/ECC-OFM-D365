@@ -1,4 +1,5 @@
-﻿using OFM.Infrastructure.WebAPI.Extensions;
+﻿using HandlebarsDotNet.Helpers.Enums;
+using OFM.Infrastructure.WebAPI.Extensions;
 using System.Text.Json.Nodes;
 
 namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
@@ -15,7 +16,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         /// Retrieves application ID, facility, modification date, processing status, and provider type.
         /// </summary>
 
-        public const string FundingApplicationQuery = "ofm_applications({0})?$select=ofm_applicationid,_ofm_facility_value,modifiedon,ofm_score_lastprocessed,ofm_summary_submittedon,ofm_provider_type,ofm_costs_lease_start_date,ofm_costs_lease_end_date,ofm_month_to_month,ofm_costs_facility_type";
+        public const string FundingApplicationQuery = "ofm_applications({0})?$select=ofm_applicationid,statecode,_ofm_facility_value,modifiedon,ofm_score_lastprocessed,ofm_summary_submittedon,ofm_provider_type,ofm_costs_lease_start_date,ofm_costs_lease_end_date,ofm_month_to_month,ofm_costs_facility_type";
 
         /// <summary>
         /// Query to fetch unprocessed submitted applications based on modification date.
@@ -26,6 +27,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
   <entity name=""ofm_application"">
     <attribute name=""ofm_applicationid"" />
     <attribute name=""ofm_facility"" />
+<attribute name=""statecode"" />
     <attribute name=""modifiedon"" />
     <attribute name=""ofm_score_lastprocessed"" />
     <attribute name=""ofm_summary_submittedon"" />
@@ -49,6 +51,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
   <entity name=""ofm_application"">
     <attribute name=""ofm_applicationid"" />
     <attribute name=""ofm_facility"" />
+<attribute name=""statecode"" />
     <attribute name=""modifiedon"" />
     <attribute name=""ofm_score_lastprocessed"" />
     <attribute name=""ofm_summary_submittedon"" />
@@ -156,7 +159,15 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         public const string ThresholdFeeDataQuery = @$"ofm_forty_percentile_fees?fetchXml=
                                                 <fetch version=""1.0"" output-format=""xml-platform"" mapping=""logical"" distinct=""false"">
                                                   <entity name=""ofm_forty_percentile_fee"">
-                                                    <all-attributes/>
+                                                    <attribute name=""ofm_application_score_calculator"" />
+    <attribute name=""ofm_childcare_category"" />
+    <attribute name=""ofm_forty_percentile_feeid"" />
+    <attribute name=""ofm_name"" />
+    <attribute name=""ofm_provider_type"" />
+    <attribute name=""ofm_region"" />
+    <attribute name=""ofm_threshold_fee"" />
+    <attribute name=""transactioncurrencyid"" />
+
                                                     <order attribute=""ofm_name"" descending=""false"" />
                                                     <filter type=""and"">
                                                       <condition attribute=""ofm_application_score_calculator"" operator=""eq"" value=""{{0}}""/>                                                    
@@ -175,6 +186,9 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                                                 <fetch>
                                                   <entity name=""ofm_school_district"">
                                                     <attribute name=""ofm_school_district_fullname"" />
+<attribute name=""ofm_school_district_name"" />
+<attribute name=""ofm_school_district_number"" />
+<attribute name=""ofm_postal_code"" />
                                                     <filter>
                                                       <condition attribute=""ofm_postal_code"" operator=""eq"" value=""{{0}}"" />
 <condition attribute=""statecode"" operator=""eq"" value=""0"" />
@@ -233,6 +247,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                                                         <value>9</value>
                                                         <value>10</value>
                                                         <value>11</value>
+<value>12</value>
                                                       </condition>
                                                     </filter>
                                                     <link-entity name=""ofm_licence"" from=""ofm_licenceid"" to=""ofm_licence"" alias=""f"">
@@ -298,8 +313,59 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                                 </link-entity>
                               </entity>
                             </fetch>";
+        public static string AllSchoolDistrictQuery = $@"ofm_school_districts?fetchXml=
+                                                <fetch>
+                                                  <entity name=""ofm_school_district"">
+                                                    <attribute name=""ofm_school_district_fullname"" />
+                                                    <attribute name=""ofm_school_district_number"" />
+                                                    <attribute name=""ofm_school_district_name"" />
+                                                    <attribute name=""ofm_postal_code"" />
+                                                    <filter>                                                      
+<condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                                                    </filter>
+<link-entity name=""ofm_asc_sd"" from=""ofm_school_districtid"" to=""ofm_school_districtid"" alias=""asc"">
+                                                      <filter>
+                                                        <condition attribute=""ofm_application_score_calculatorid"" operator=""eq"" value=""{{0}}"" />
 
+                                                      </filter>
+                                                    </link-entity>
 
+                                                  </entity>
+                                                </fetch>";
+
+        public static string AllScoreCategoryQuery = "ofm_application_score_categories?$filter=_ofm_application_score_calculator_value eq '{0}'&$select=ofm_name,ofm_maximum_score,ofm_description,ofm_category_display_name,ofm_application_score_group";
+        public static string AllACCBDataQuery = @$"ofm_accbs?fetchXml=
+                                            <fetch>
+                                              <entity name=""ofm_accb"">
+
+<attribute name=""ofm_accbid"" />
+<attribute name=""ofm_postal_code"" />
+<attribute name=""ofm_income_indicator"" />
+<attribute name=""ofm_name"" />
+
+                                                <filter>
+                                                  
+                                                  <condition attribute=""ofm_application_score_calculator"" operator=""eq"" value=""{{0}}"" />
+<condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                                                </filter>
+                                              </entity>
+                                            </fetch>";
+        public static string AllPopulationCentreQuery = $@"ofm_population_centres?fetchXml=
+                                                <fetch>
+                                                    <entity name=""ofm_population_centre"">
+<attribute name=""ofm_population_centreid"" />
+<attribute name=""ofm_city"" />
+<attribute name=""ofm_projected_population"" />
+<attribute name=""ofm_name"" />
+                                                        <filter>
+
+                                                          
+<condition attribute=""ofm_application_score_calculator"" operator=""eq"" value=""{{0}}"" />
+<condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                                                        </filter>
+                                                        <attribute name=""ofm_projected_population"" />
+                                                      </entity>
+                                                    </fetch>";
     }
     /// <summary>
     /// Represents a OFM Application entity.
@@ -332,7 +398,8 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
 
         public DateTime? SubmittedOn => _data.GetPropertyValue<DateTime>("ofm_summary_submittedon");
 
-        
+        public string Status => _data.GetFormattedValue("statecode");
+
         public bool? GetProcessingStatus(string defaultValue = null) => _data.GetPropertyValue<bool>("ofm_score_processing_status");
     }
     /// <summary>
@@ -342,6 +409,20 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
     public class ScoreParameter
     {
         protected readonly JsonObject _data;
+
+        public JsonObject Clone(Guid calculatorId, Guid? categoryId)
+        {
+
+            _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
+            if(categoryId.HasValue)
+                _data["ofm_application_score_category@odata.bind"] = $"ofm_application_score_categories({categoryId})";
+            _data.Remove("ofm_application_score_parameterid");
+            _data.Remove("_ofm_application_score_category_value");
+            _data.Remove("ofm_application_score_category");
+            _data.Remove("@odata.etag");
+            return _data;
+
+        }
 
         public ScoreParameter(JsonObject data)
         {
@@ -358,6 +439,34 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
 
         public int? MaxScore => _data.GetPropertyValue<JsonObject>("ofm_application_score_category")?.AsObject()?.GetPropertyValue<int>("ofm_maximum_score");
     }
+
+
+
+    public class ScoreCategory
+    {
+        protected readonly JsonObject _data;
+        public JsonObject Clone(Guid calculatorId)
+        {
+            if (_data.GetPropertyValue<Guid>("_ofm_application_score_group_value") != Guid.Empty )
+                _data["ofm_application_score_group@odata.bind"] = $"ofm_application_score_categories({_data.GetPropertyValue<Guid>("_ofm_application_score_group_value")})";
+            _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
+            _data.Remove("ofm_application_score_categoryid");
+            _data.Remove("@odata.etag");
+            return _data;
+
+        }
+        public ScoreCategory(JsonObject data)
+        {
+            _data = data ?? throw new ArgumentNullException(nameof(data));
+        }
+
+        public string? CategoryName => _data?.GetPropertyValue<string>("ofm_name");
+        public Guid? CategoryId => _data?.GetPropertyValue<Guid>("ofm_application_score_categoryid");
+        public string? CategoryDisplayName => _data.GetPropertyValue<string>("ofm_category_display_name");
+        public int? MaxScore => _data?.GetPropertyValue<int>("ofm_maximum_score");
+        public string? Description => _data?.GetPropertyValue<string>("ofm_description");
+    }
+
     /// <summary>
     /// Represents a Facility table.
     /// Contains properties mapping Dataverse fields.
@@ -405,7 +514,6 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
     public class LicenseSpaces
     {
         protected readonly JsonObject _data;
-
         public LicenseSpaces(JsonObject data)
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
@@ -421,14 +529,23 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
     public class ACCBIncomeIndicator
     {
         protected readonly JsonObject _data;
+        public JsonObject Clone(Guid calculatorId)
+        {
 
+            _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
+            _data.Remove("ofm_accbid");
+            _data.Remove("@odata.etag");
+            return _data;
+
+        }
         public ACCBIncomeIndicator(JsonObject data)
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
 
         public string MedianIncome => _data.GetFormattedValue("ofm_income_indicator");
-
+        public string PostalCode => _data.GetFormattedValue("ofm_postal_code");
+        public string Name => _data.GetFormattedValue("ofm_name");
 
     }
     /// <summary>
@@ -438,11 +555,20 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
     public class PopulationCentre
     {
         protected readonly JsonObject _data;
+        public JsonObject Clone(Guid calculatorId)
+        {
 
+            _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
+            _data.Remove("ofm_population_centreid");
+            _data.Remove("@odata.etag");
+            return _data;
+
+        }
         public PopulationCentre(JsonObject data)
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
+        public string? city => _data.GetPropertyValue<string>("ofm_city");
 
         public int ProjectedPopulation => _data.GetPropertyValue<int>("ofm_projected_population");
 
@@ -456,10 +582,24 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
     {
         protected readonly JsonObject _data;
 
+        public JsonObject Clone(Guid calculatorId)
+        {
+
+            _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
+            _data.Remove("ofm_school_districtid");
+            _data.Remove("ofm_name");
+            _data.Remove("@odata.etag");
+            return _data;
+
+        }
         public SchoolDistrict(JsonObject data)
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
+        public string? SchoolDistrictName => _data.GetPropertyValue<string>("ofm_school_district_name");
+
+        public int SchoolDistrictNumber => _data.GetPropertyValue<int>("ofm_school_district_number");
+        public string? PostalCode => _data.GetPropertyValue<string>("ofm_postal_code");
 
         public string? SchoolDistrictFullName => _data.GetPropertyValue<string>("ofm_school_district_fullname");
 
@@ -520,11 +660,42 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
+        public JsonObject Clone(Guid calculatorId) {
+
+            _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
+
+            if(_data.GetPropertyValue<Guid>("_transactioncurrencyid_value") != Guid.Empty)
+                _data["transactioncurrencyid@odata.bind"] = $"transactioncurrencies({_data.GetPropertyValue<Guid>("_transactioncurrencyid_value")})";
+            if (_data.GetPropertyValue<Guid>("_ofm_childcare_category_value") != Guid.Empty)
+                _data["ofm_childcare_category@odata.bind"] = $"ccof_childcare_categories({_data.GetPropertyValue<Guid>("_ofm_childcare_category_value")})";
+            if (_data.GetPropertyValue<Guid>("_ofm_region_value") != Guid.Empty)
+                _data["ofm_region@odata.bind"] = $"ccof_fee_regions({_data.GetPropertyValue<Guid>("_ofm_region_value")})";
+            
+
+            _data.Remove("ofm_forty_threshold_feeid");
+            _data.Remove("ofm_name");
+            _data.Remove("@odata.etag");
+            _data.Remove("_transactioncurrencyid_value");
+            _data.Remove("_ofm_childcare_category_value");
+            _data.Remove("_ofm_application_score_calculator_value");
+            _data.Remove("_ofm_region_value");
+            _data.Remove("region.ccof_region_period_start@OData.Community.Display.V1.FormattedValue");
+            _data.Remove("region.ccof_region_period_start");
+            _data.Remove("region.ccof_region_period_end");
+
+            return _data;     
+        
+        }
 
         public decimal? MaximumFeeAmount => _data.GetPropertyValue<decimal>("ofm_threshold_fee");
         public string? ProgramType => _data.GetFormattedValue("_ofm_childcare_category_value");
+        public int ProgramTypeValue => _data.GetPropertyValue<int>("_ofm_childcare_category_value");
+
         public string? Region => _data.GetFormattedValue("_ofm_region_value");
+        public Guid? RegionId => _data.GetPropertyValue<Guid>("_ofm_region_value");
+
         public string? ProviderType => _data.GetFormattedValue("ofm_provider_type");
+        public int? ProviderTypeValue => _data.GetPropertyValue<int>("ofm_provider_type");
 
         //region.ccof_region_period_start
         public string? ProgramYear => _data.ContainsKey("region.ccof_region_period_start") ? _data.GetFormattedValue("region.ccof_region_period_start") : null;
