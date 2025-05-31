@@ -15,8 +15,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
     {
         private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
         private readonly TimeProvider _timeProvider = timeProvider;
-        private Guid schoolId;
-
+        private ProcessParameter? _processParams;
         public short ProcessId => Setup.Process.ApplicationScore.CloneScoreCalculatorId;
         public string ProcessName => Setup.Process.ApplicationScore.CloneScoreCalculatorName;
 
@@ -31,7 +30,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                                     <order attribute=""ofm_name"" descending=""false"" />
                                     <filter>
                                     <condition attribute=""statuscode"" operator=""eq"" value=""1"" />
-                                    
+                                    <condition attribute="""" operator=""eq"" value=""{ _processParams?.ScoreCalculatorVersionId}""/>
                                     </filter>                                                                          
                                     </link-entity>
                                   </entity>
@@ -82,12 +81,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             var processingResult = ProcessResult.Completed(CustomLogEvent.Process);
+            _processParams = processParams;
             var startTime = _timeProvider.GetTimestamp();
             var applicationsToProcess = new List<OFMApplication>();
             try
             {
-
-
                 if (!processParams.ScoreCalculatorVersionId.HasValue)
                     throw new ArgumentException("No Score Calculator Version ID is passed");
 
@@ -109,42 +107,65 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 await dataverseRepository.CreateScoreParametersBatchAsync(scoreParams?.Select(x => x.Clone(calcId, categories.Where(y => y.CategoryName == x.CategoryName)?.First()?.CategoryId.Value)));
 
                 //ACCB
-                var accbs = await dataverseRepository.GetACCBData(originalCalcId, null);
-                await dataverseRepository.CreateAccbIncomesBatchAsync(accbs.accbs?.Select(x => x.Clone(calcId)));
-                while (accbs.moreData.Value)
-                {
-                    accbs = await dataverseRepository.GetACCBData(originalCalcId, accbs.nextPage);
-                    await dataverseRepository.CreateAccbIncomesBatchAsync(scoreCategories.categories?.Select(x => x.Clone(calcId)));
+                if (calcVersion.GetPropertyValue<bool>("ofm_copy_accb"))
+                {                   
+                    var accbs = await dataverseRepository.GetACCBData(originalCalcId, null);
+                    await dataverseRepository.CreateAccbIncomesBatchAsync(accbs.accbs?.Select(x => x.Clone(calcId)));
+                    while (accbs.moreData.Value)
+                    {
+                        accbs = await dataverseRepository.GetACCBData(originalCalcId, accbs.nextPage);
+                        await dataverseRepository.CreateAccbIncomesBatchAsync(accbs.accbs?.Select(x => x.Clone(calcId)));
+                    }
                 }
 
-
                 //40P Fees
-                var thresholdFees = await dataverseRepository.GetThresholdDataAsync(originalCalcId);
-                await dataverseRepository.CreateThresholdFeesBatchAsync(thresholdFees?.Select(x => x.Clone(calcId)));
-                //Population Centres
-                var centres = await dataverseRepository.GetPopulationCentres(originalCalcId, null);
-                await dataverseRepository.CreatePopulationCentresBatchAsync(centres.populationCentres?.Select(x => x.Clone(calcId)));
-                while (centres.moreData.Value)
+                if (calcVersion.GetPropertyValue<bool>("ofm_copy_forty_percentile_fees"))
                 {
-                    centres = await dataverseRepository.GetPopulationCentres(originalCalcId, centres.nextPage);
+                    var thresholdFees = await dataverseRepository.GetThresholdDataAsync(originalCalcId);
+                    await dataverseRepository.CreateThresholdFeesBatchAsync(thresholdFees?.Select(x => x.Clone(calcId)));
+                }
+                //Population Centres
+                if (calcVersion.GetPropertyValue<bool>("ofm_copy_population_centres"))
+                {
+                    var centres = await dataverseRepository.GetPopulationCentres(originalCalcId, null);
                     await dataverseRepository.CreatePopulationCentresBatchAsync(centres.populationCentres?.Select(x => x.Clone(calcId)));
+                    while (centres.moreData.Value)
+                    {
+                        centres = await dataverseRepository.GetPopulationCentres(originalCalcId, centres.nextPage);
+                        await dataverseRepository.CreatePopulationCentresBatchAsync(centres.populationCentres?.Select(x => x.Clone(calcId)));
+                    }
                 }
 
                 //SchoolDistricts
-
-                var districts = await dataverseRepository.GetSchoolDistricts(originalCalcId, null);
-                await dataverseRepository.CreateSchoolDistrictsBatchAsync(districts.districts?.Select(x => x.Clone(calcId)));
-                while (districts.moreData.Value)
+                if (calcVersion.GetPropertyValue<bool>("ofm_copy_school_district"))
                 {
-                    districts = await dataverseRepository.GetSchoolDistricts(originalCalcId, centres.nextPage);
-                    await dataverseRepository.CreateSchoolDistrictsBatchAsync(districts.districts?.Select(x => x.Clone(calcId)));
+                    var districts = await dataverseRepository.GetSchoolDistricts(originalCalcId, null);
+                    await dataverseRepository.AssociateSchoolDistrictsBatchAsync(districts.districts?.Select(x => x.Clone(calcId)), calcId);
+                    while (districts.moreData.Value)
+                    {
+                        districts = await dataverseRepository.GetSchoolDistricts(originalCalcId, districts.nextPage);
+                        await dataverseRepository.AssociateSchoolDistrictsBatchAsync(districts.districts?.Select(x => x.Clone(calcId)), calcId);
+                    }
                 }
+
+                JsonObject jsonSuccess = new JsonObject();
+                jsonSuccess["statuscode"] = 506580002;
+                jsonSuccess["ofm_error_details"] = null;
+                jsonSuccess["ofm_completed_on"] = DateTime.Now.ToLongDateString();
+                await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculator_versions({processParams.ScoreCalculatorVersionId})", jsonSuccess.ToString());
+                processingResult = ProcessResult.Success(CustomLogEvent.Process,1);
+                _logger.LogInformation(CustomLogEvent.Process, "Successfully created application score calculator version with process Params {params}", processParams);
 
             }
             catch (Exception ex)
             {
+                JsonObject jsonError = new JsonObject();
+                jsonError["ofm_error_details"] = ex.ToString();
+                jsonError["statuscode"] = 506580003;
+                jsonError["ofm_completed_on"] = DateTime.Now.ToLongDateString();
+                await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculator_versions({ processParams.ScoreCalculatorVersionId})", jsonError.ToString());
                 processingResult = ProcessResult.Failure(CustomLogEvent.Process, new List<string> { string.Format($"Error processsing application score calculation version with process Params {0}: {1}", JsonSerializer.Serialize(processParams), ex) }, 0, applicationsToProcess!.Count);
-                _logger.LogError(CustomLogEvent.Process, "Error processsing application score calculation with process Params {params}: {ex}", processParams, ex);
+                _logger.LogError(CustomLogEvent.Process, "Error processsing application score calculation version with process Params {params}: {ex}", processParams, ex);
             }
             finally
             {
@@ -155,7 +176,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 };
                 string json = JsonSerializer.Serialize(processingResult, serializeOptions);
                 var endTime = _timeProvider.GetTimestamp();
-                _logger.LogInformation(CustomLogEvent.Process, "Application Score Calculation finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
+                _logger.LogInformation(CustomLogEvent.Process, "Create Application Score Calculator Version finished in {totalElapsedTime} minutes. Result {result}", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes, json);
             }
             return processingResult.SimpleProcessResult;
         }

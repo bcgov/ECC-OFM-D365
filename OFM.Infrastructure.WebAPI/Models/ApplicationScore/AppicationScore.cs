@@ -313,59 +313,11 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                                 </link-entity>
                               </entity>
                             </fetch>";
-        public static string AllSchoolDistrictQuery = $@"ofm_school_districts?fetchXml=
-                                                <fetch>
-                                                  <entity name=""ofm_school_district"">
-                                                    <attribute name=""ofm_school_district_fullname"" />
-                                                    <attribute name=""ofm_school_district_number"" />
-                                                    <attribute name=""ofm_school_district_name"" />
-                                                    <attribute name=""ofm_postal_code"" />
-                                                    <filter>                                                      
-<condition attribute=""statecode"" operator=""eq"" value=""0"" />
-                                                    </filter>
-<link-entity name=""ofm_asc_sd"" from=""ofm_school_districtid"" to=""ofm_school_districtid"" alias=""asc"">
-                                                      <filter>
-                                                        <condition attribute=""ofm_application_score_calculatorid"" operator=""eq"" value=""{{0}}"" />
 
-                                                      </filter>
-                                                    </link-entity>
-
-                                                  </entity>
-                                                </fetch>";
-
+        public static string AllSchoolDistrictQuery = $@"ofm_school_districts?$select=ofm_school_district_fullname,ofm_school_district_number,ofm_school_district_name,ofm_postal_code,ofm_name&$filter=statecode eq 0&$expand=ofm_application_score_calculator_ofm_school_district_ofm_school_district($filter=ofm_application_score_calculatorid eq {{0}})";
         public static string AllScoreCategoryQuery = "ofm_application_score_categories?$filter=_ofm_application_score_calculator_value eq '{0}'&$select=ofm_name,ofm_maximum_score,ofm_description,ofm_category_display_name,ofm_application_score_group";
-        public static string AllACCBDataQuery = @$"ofm_accbs?fetchXml=
-                                            <fetch>
-                                              <entity name=""ofm_accb"">
-
-<attribute name=""ofm_accbid"" />
-<attribute name=""ofm_postal_code"" />
-<attribute name=""ofm_income_indicator"" />
-<attribute name=""ofm_name"" />
-
-                                                <filter>
-                                                  
-                                                  <condition attribute=""ofm_application_score_calculator"" operator=""eq"" value=""{{0}}"" />
-<condition attribute=""statecode"" operator=""eq"" value=""0"" />
-                                                </filter>
-                                              </entity>
-                                            </fetch>";
-        public static string AllPopulationCentreQuery = $@"ofm_population_centres?fetchXml=
-                                                <fetch>
-                                                    <entity name=""ofm_population_centre"">
-<attribute name=""ofm_population_centreid"" />
-<attribute name=""ofm_city"" />
-<attribute name=""ofm_projected_population"" />
-<attribute name=""ofm_name"" />
-                                                        <filter>
-
-                                                          
-<condition attribute=""ofm_application_score_calculator"" operator=""eq"" value=""{{0}}"" />
-<condition attribute=""statecode"" operator=""eq"" value=""0"" />
-                                                        </filter>
-                                                        <attribute name=""ofm_projected_population"" />
-                                                      </entity>
-                                                    </fetch>";
+        public static string AllACCBDataQuery = @$"ofm_accbs?$select=ofm_accbid,ofm_postal_code,ofm_income_indicator,ofm_name&$filter=(_ofm_application_score_calculator_value eq {{0}}  and statecode eq 0)";
+        public static string AllPopulationCentreQuery = $@"ofm_population_centres?$select=ofm_population_centreid,ofm_city,ofm_projected_population,ofm_name,ofm_projected_population&$filter=(_ofm_application_score_calculator_value eq {{0}} and statecode eq 0)";
     }
     /// <summary>
     /// Represents a OFM Application entity.
@@ -586,7 +538,6 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         {
 
             _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
-            _data.Remove("ofm_school_districtid");
             _data.Remove("ofm_name");
             _data.Remove("@odata.etag");
             return _data;
@@ -672,7 +623,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                 _data["ofm_region@odata.bind"] = $"ccof_fee_regions({_data.GetPropertyValue<Guid>("_ofm_region_value")})";
             
 
-            _data.Remove("ofm_forty_threshold_feeid");
+            _data.Remove("ofm_forty_percentile_feeid");
             _data.Remove("ofm_name");
             _data.Remove("@odata.etag");
             _data.Remove("_transactioncurrencyid_value");

@@ -1,4 +1,5 @@
 ﻿using HandlebarsDotNet.Runtime;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Handlers;
@@ -7,8 +8,10 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.ApplicationScore;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection.PortableExecutable;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
@@ -122,7 +125,7 @@ public interface IDataverseRepository
     Task<(IEnumerable<PopulationCentre> populationCentres, bool? moreData, string nextPage)> GetPopulationCentres(Guid calculatorId, string? nextPage);
     Task CreateAccbIncomesBatchAsync(IEnumerable<JsonObject> accbs);
     Task<IEnumerable<ScoreCategory>> CreateScoreCategoriesBatchAsync(IEnumerable<JsonObject> categories);
-    Task CreateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts);
+    Task AssociateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calculatorId);
     Task<Guid> CreateScoreCalculatorAsync(JsonObject scoreCalculator);
     Task CreateScoreParametersBatchAsync(IEnumerable<JsonObject> parameters);
     Task CreateThresholdFeesBatchAsync(IEnumerable<JsonObject> fees);
@@ -175,7 +178,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
 
     public async Task<IEnumerable<ScoreParameter>> GetScoreParametersAsync(Guid calculatorId)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.ScoreParametersQuery, calculatorId)}", formatted: true, pageSize: 5000);
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.ScoreParametersQuery, calculatorId)}", formatted: true, pageSize: 1000);
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
@@ -386,9 +389,26 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         return response.Result.Select(x => new ScoreCategory(x));
 
     }
-    public async Task CreateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts)
+    public async Task AssociateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calcId)
     {
-        var batchRequests = schoolDistricts.Select(x => new CreateRequest("ofm_school_districts", x)).ToList<HttpRequestMessage>();
+
+        var calculator = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculators({calcId})");
+        if (!calculator.IsSuccessStatusCode)
+        {
+            var responseBody = await calculator.Content.ReadAsStringAsync();
+            throw new Exception($"AssociateSchoolDistrictsBatchAsync(Guid {calcId}): HTTP Failure: {responseBody}");
+        }      
+
+
+        var batchRequests = schoolDistricts.Select(x =>
+        {
+            var association = new JsonObject();
+            association["@odata.id"] = calculator?.RequestMessage?.RequestUri?.AbsoluteUri;
+            var requestUri = $"ofm_school_districts({x.GetPropertyValue<Guid>("ofm_school_districtid")})/ofm_application_score_calculator_ofm_school_district_ofm_school_district/$ref";
+            return new CreateRequest(requestUri, association);
+        }
+        ).ToList<HttpRequestMessage>();
+        
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
         {
@@ -431,7 +451,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task CreatePopulationCentresBatchAsync(IEnumerable<JsonObject> centres)
     {
-        var batchRequests = centres.Select(x => new CreateRequest("ofm_populationcentres", x)).ToList<HttpRequestMessage>();
+        var batchRequests = centres.Select(x => new CreateRequest("ofm_population_centres", x)).ToList<HttpRequestMessage>();
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
         {
@@ -454,7 +474,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
 
     public async Task<(IEnumerable<ACCBIncomeIndicator> accbs, bool? moreData, string nextPage)> GetACCBData(Guid calculatorId, string? nextPage)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, nextPage ?? $"{string.Format(DataverseQueries.AllACCBDataQuery, calculatorId)}", formatted: true, pageSize: 1000);
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, nextPage ?? $"{string.Format(DataverseQueries.AllACCBDataQuery, calculatorId)}", pageSize: 1000);
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
