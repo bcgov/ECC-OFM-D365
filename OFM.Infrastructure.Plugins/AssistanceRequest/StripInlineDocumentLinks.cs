@@ -18,7 +18,7 @@ namespace OFM.Infrastructure.Plugins.AssistanceRequest
         public StripInlineDocumentLinks(string unsecureConfiguration, string secureConfiguration)
             : base(typeof(StripInlineDocumentLinks))
         {
-            
+
         }
         protected override void ExecuteDataversePlugin(ILocalPluginContext localPluginContext)
         {
@@ -185,7 +185,7 @@ namespace OFM.Infrastructure.Plugins.AssistanceRequest
             {
                 FileAttributeName = "ofm_file",
                 Target = new EntityReference("ofm_document", DocumentId),
-                FileName = fileName
+                FileName = Uri.UnescapeDataString(fileName)
             };
             var fileUploadResponse = (InitializeFileBlocksUploadResponse)service.Execute(initializeFileUploadRequest);
             for (int i = 0; i < Math.Ceiling(fileContent.Length / Convert.ToDecimal(limit)); i++)
@@ -205,7 +205,7 @@ namespace OFM.Infrastructure.Plugins.AssistanceRequest
             {
                 BlockList = blockIds.ToArray(),
                 FileContinuationToken = fileUploadResponse.FileContinuationToken,
-                FileName = fileName,
+                FileName = Uri.UnescapeDataString(fileName),
                 MimeType = GetMimeType(fileName),
             };
             service.Execute(commitRequest);
