@@ -16,7 +16,7 @@ namespace OFM.Infrastructure.Plugins.Application
     public class ApplicationScoreKeyValidation : PluginBase
     {
         public ApplicationScoreKeyValidation(string unsecureConfiguration, string secureConfiguration)
-            : base(typeof(UpdateApplicationNumber))
+            : base(typeof(ApplicationScoreKeyValidation))
         {
            
         }
