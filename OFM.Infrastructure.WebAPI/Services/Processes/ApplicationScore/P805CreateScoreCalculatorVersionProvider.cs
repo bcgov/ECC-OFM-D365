@@ -37,7 +37,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                                 </fetch>";
 
                 var requestUri = $"""
-                               ofm_application_score_calculator_versions
+                               ofm_application_score_calculator_versions?fetchXml={fetchXml.CleanCRLF()}
                                """;
                 return requestUri.CleanCRLF();
             }
