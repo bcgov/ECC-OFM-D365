@@ -75,6 +75,8 @@ public record ProcessParameter
     public bool? CreateExistingFundingReminders { get; set; }
     [property: JsonPropertyName("lastTimeStamp")]
     public DateTime? LastScoreCalculationTimeStamp { get; set; }
+    [property: JsonPropertyName("scoreCalculatorVersionId")]
+    public Guid? ScoreCalculatorVersionId { get; set; }
 
     #region Inner Parameter Record Objects
 

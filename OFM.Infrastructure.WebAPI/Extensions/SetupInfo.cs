@@ -29,6 +29,8 @@ public static class Setup
         {
             public const Int16 ScoreCalculatorId = 800;
             public const string ScoreCalculatorName = "Score Calculator";
+            public const Int16 CloneScoreCalculatorId = 805;
+            public const string CloneScoreCalculatorName = "Score Calculator";
         }
         public static class Emails
         {

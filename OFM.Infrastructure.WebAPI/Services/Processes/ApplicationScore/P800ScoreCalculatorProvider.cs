@@ -73,6 +73,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
 
                 var application = await dataverseRepository.GetFundingApplicationAsync(applicationId);
                 if (application == null) return (applicationId, false, $"ofm_application not found with Id = {applicationId}");
+                if (application!.Status != "Active")
+                    return (applicationId, false, $"ofm_application is not active with Id = {applicationId}");
+
                 var applicationCalculator = await GetDataAsync();
 
                 if (application?.SubmittedOn == null || application?.SubmittedOn == DateTime.MinValue)

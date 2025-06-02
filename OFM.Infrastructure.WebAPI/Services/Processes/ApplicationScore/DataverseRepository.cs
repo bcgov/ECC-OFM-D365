@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using HandlebarsDotNet.Runtime;
+using Microsoft.Identity.Client;
+using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Handlers;
 using OFM.Infrastructure.WebAPI.Messages;
@@ -6,7 +8,10 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.ApplicationScore;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using System.Linq;
 using System.Net.Http;
+using System.Reflection.PortableExecutable;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
@@ -72,7 +77,7 @@ public interface IDataverseRepository
     /// <param name="city"></param>
     /// <param name="calculatorId">GUID of the application score calculator</param>
     /// <returns></returns>
-    Task<PopulationCentre> GetPopulationDataAsync(string city , Guid calculatorId);
+    Task<PopulationCentre> GetPopulationDataAsync(string city, Guid calculatorId);
     /// <summary>
     /// Get the 40 Percetile Table for Parent Fees
     /// </summary>
@@ -85,7 +90,7 @@ public interface IDataverseRepository
     /// <param name="postalCode">postal code</param>
     /// <param name="calculatorId">GUID of the application score calculator</param>
     /// <returns></returns>
-    Task<SchoolDistrict> GetSchoolDistrictDataAsync(string postalCode, Guid calculatorId);    
+    Task<SchoolDistrict> GetSchoolDistrictDataAsync(string postalCode, Guid calculatorId);
     /// <summary>
     /// Create Application Score
     /// </summary>
@@ -112,6 +117,20 @@ public interface IDataverseRepository
     /// <param name="applicationScore">application score Object</param>
     /// <returns></returns>
     Task UpsertApplicationScoreAsync(string Keys, JsonObject applicationScore);
+
+
+    Task<(IEnumerable<ScoreCategory> categories, bool? moreData, string nextPage)> GetScoreCategories(Guid calculatorId, string? nextPage);
+    Task<(IEnumerable<ACCBIncomeIndicator> accbs, bool? moreData, string nextPage)> GetACCBData(Guid calculatorId, string? nextPage);
+    Task<(IEnumerable<SchoolDistrict> districts, bool? moreData, string nextPage)> GetSchoolDistricts(Guid calculatorId, string? nextPage);
+    Task<(IEnumerable<PopulationCentre> populationCentres, bool? moreData, string nextPage)> GetPopulationCentres(Guid calculatorId, string? nextPage);
+    Task CreateAccbIncomesBatchAsync(IEnumerable<JsonObject> accbs);
+    Task<IEnumerable<ScoreCategory>> CreateScoreCategoriesBatchAsync(IEnumerable<JsonObject> categories);
+    Task AssociateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calculatorId);
+    Task<Guid> CreateScoreCalculatorAsync(JsonObject scoreCalculator);
+    Task CreateScoreParametersBatchAsync(IEnumerable<JsonObject> parameters);
+    Task CreateThresholdFeesBatchAsync(IEnumerable<JsonObject> fees);
+    Task CreatePopulationCentresBatchAsync(IEnumerable<JsonObject> centres);
+
 }
 
 // Dataverse Repository Implementation
@@ -159,7 +178,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
 
     public async Task<IEnumerable<ScoreParameter>> GetScoreParametersAsync(Guid calculatorId)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.ScoreParametersQuery, calculatorId)}", formatted: true, pageSize: 5000);
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.ScoreParametersQuery, calculatorId)}", formatted: true, pageSize: 1000);
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
@@ -191,7 +210,8 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         taks.Add(d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.TotalOperationSpaces, facilityId, submittedOn)}"));
         taks.Add(d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.MaxChildSpaces, facilityId, submittedOn)}"));
         var responses = await Task.WhenAll(taks.ToArray());
-        responses.ToList().ForEach(async r => {
+        responses.ToList().ForEach(async r =>
+        {
             if (!r.IsSuccessStatusCode)
             {
                 var responseBody = await r.Content.ReadAsStringAsync();
@@ -202,7 +222,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         });
 
         output = output.MergeJsonObjects(outputObjects);
-        return new LicenseSpaces(output.AsObject());        
+        return new LicenseSpaces(output.AsObject());
     }
 
     public async Task<ACCBIncomeIndicator?> GetIncomeDataAsync(string postalCode, Guid calculatorId)
@@ -227,20 +247,20 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
             throw new Exception($"GetFeeDataAsync(Guid {facId}): HTTP Failure: {responseBody}");
         }
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
-        var values = json["value"]?.AsArray() ?? new JsonArray();       
+        var values = json["value"]?.AsArray() ?? new JsonArray();
         return values.Select(v => new ApprovedParentFee(v.AsObject()));
     }
 
     public async Task<IEnumerable<FortyPercentileThresholdFee>> GetThresholdDataAsync(Guid calculatorId)
     {
-        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.ThresholdFeeDataQuery, calculatorId)}",formatted: true, pageSize: 5000);
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.ThresholdFeeDataQuery, calculatorId)}", formatted: true, pageSize: 5000);
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
             throw new Exception($"GetThresholdDataAsync(Guid {calculatorId}): HTTP Failure: {responseBody}");
         }
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
-        var values = json["value"]?.AsArray() ?? new JsonArray();        
+        var values = json["value"]?.AsArray() ?? new JsonArray();
         return values.Select(v => new FortyPercentileThresholdFee(v.AsObject()));
     }
 
@@ -267,20 +287,20 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task UpsertApplicationScoreAsync(string Keys, JsonObject applicationScore)
     {
-        
-            var jsonContent = new StringContent(applicationScore.ToJsonString(), System.Text.Encoding.UTF8, "application/json");
-            var response = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.UpsertApplicationScoreEndpoint, Keys)}", JsonSerializer.Serialize(applicationScore));
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Upsert Application Score failed with request with Key = { Keys } and score Object = { applicationScore}  renponse {responseBody}");
-            }
-        
+
+        var jsonContent = new StringContent(applicationScore.ToJsonString(), System.Text.Encoding.UTF8, "application/json");
+        var response = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.UpsertApplicationScoreEndpoint, Keys)}", JsonSerializer.Serialize(applicationScore));
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Upsert Application Score failed with request with Key = {Keys} and score Object = {applicationScore}  renponse {responseBody}");
+        }
+
     }
     public async Task UpsertApplicationScoresBatchAsync(Dictionary<string, JsonObject> scores)
     {
         var batchRequests = scores.Select(x => new PatchRequest($"{string.Format(DataverseQueries.UpsertApplicationScoreEndpoint, x.Key)}", x.Value)).ToList<HttpRequestMessage>();
-        var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser,batchRequests, null);
+        var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
         {
             throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
@@ -310,6 +330,158 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         var values = json["value"]?.AsArray() ?? new JsonArray();
         return values.Any() ? new SchoolDistrict(values.First().AsObject()) : null;
     }
-    
-    
+
+
+
+    public async Task<(IEnumerable<SchoolDistrict> districts, bool? moreData, string nextPage)> GetSchoolDistricts(Guid calculatorId, string? nextPage)
+    {
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, nextPage ?? $"{string.Format(DataverseQueries.AllSchoolDistrictQuery, calculatorId)}", formatted: true, pageSize: 1000);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            throw new Exception($"GetSchoolDistricts(string Guid {calculatorId}): HTTP Failure: {responseBody}");
+        }
+        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var values = json["value"]?.AsArray() ?? new JsonArray();
+        return (values.Select(v => new SchoolDistrict(v.AsObject())), json.GetPropertyValue<string>("@odata.nextLink") != null, json.GetPropertyValue<string?>("@odata.nextLink"));
+    }
+
+
+
+    public async Task<(IEnumerable<PopulationCentre> populationCentres, bool? moreData, string nextPage)> GetPopulationCentres(Guid calculatorId, string? nextPage)
+    {
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, nextPage ?? $"{string.Format(DataverseQueries.AllPopulationCentreQuery, calculatorId)}", formatted: true, pageSize: 1000);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            throw new Exception($"GetPopulationCentres(Guid {calculatorId}): HTTP Failure: {responseBody}");
+        }
+        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var values = json["value"]?.AsArray() ?? new JsonArray();
+        return (values.Select(v => new PopulationCentre(v.AsObject())), json.GetPropertyValue<string>("@odata.nextLink") != null, json.GetPropertyValue<string?>("@odata.nextLink"));
+    }
+
+
+
+    public async Task CreateAccbIncomesBatchAsync(IEnumerable<JsonObject> accbs)
+    {
+        var batchRequests = accbs.Select(x => new CreateRequest("ofm_accbs", x)).ToList<HttpRequestMessage>();
+        var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
+        if (!response.CompletedWithNoErrors)
+        {
+            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+        }
+    }
+    public async Task<IEnumerable<ScoreCategory>> CreateScoreCategoriesBatchAsync(IEnumerable<JsonObject> categories)
+    {
+        var batchRequests = categories.Select(x =>
+        {
+            var req = new CreateRequest("ofm_application_score_categories", x);
+            req.Headers.Add("Prefer", "return=representation");
+            return req;
+        }).ToList<HttpRequestMessage>();
+
+        var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
+        if (!response.CompletedWithNoErrors)
+        {
+            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+        }
+        return response.Result.Select(x => new ScoreCategory(x));
+
+    }
+    public async Task AssociateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calcId)
+    {
+
+        var calculator = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculators({calcId})");
+        if (!calculator.IsSuccessStatusCode)
+        {
+            var responseBody = await calculator.Content.ReadAsStringAsync();
+            throw new Exception($"AssociateSchoolDistrictsBatchAsync(Guid {calcId}): HTTP Failure: {responseBody}");
+        }      
+
+
+        var batchRequests = schoolDistricts.Select(x =>
+        {
+            var association = new JsonObject();
+            association["@odata.id"] = calculator?.RequestMessage?.RequestUri?.AbsoluteUri;
+            var requestUri = $"ofm_school_districts({x.GetPropertyValue<Guid>("ofm_school_districtid")})/ofm_application_score_calculator_ofm_school_district_ofm_school_district/$ref";
+            return new CreateRequest(requestUri, association);
+        }
+        ).ToList<HttpRequestMessage>();
+        
+        var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
+        if (!response.CompletedWithNoErrors)
+        {
+            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+        }
+    }
+    public async Task<Guid> CreateScoreCalculatorAsync(JsonObject scoreCalculator)
+    {
+
+        var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "ofm_application_score_calculators", scoreCalculator.ToString());
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {await response.Content.ReadAsStringAsync()}");
+        }
+        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+        return json.GetPropertyValue<Guid>("ofm_application_score_calculatorid");
+    }
+    public async Task CreateScoreParametersBatchAsync(IEnumerable<JsonObject> parameters)
+    {
+        var batchRequests = parameters.Select(x =>
+        {
+            var req = new CreateRequest("ofm_application_score_parameteres", x);
+            req.Headers.Add("Prefer", "return=representation");
+            return req;
+        }).ToList<HttpRequestMessage>();
+        var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
+        if (!response.CompletedWithNoErrors)
+        {
+            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+        }
+    }
+    public async Task CreateThresholdFeesBatchAsync(IEnumerable<JsonObject> fees)
+    {
+        var batchRequests = fees.Select(x => new CreateRequest("ofm_forty_percentile_fees", x)).ToList<HttpRequestMessage>();
+        var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
+        if (!response.CompletedWithNoErrors)
+        {
+            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+        }
+    }
+    public async Task CreatePopulationCentresBatchAsync(IEnumerable<JsonObject> centres)
+    {
+        var batchRequests = centres.Select(x => new CreateRequest("ofm_population_centres", x)).ToList<HttpRequestMessage>();
+        var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
+        if (!response.CompletedWithNoErrors)
+        {
+            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+        }
+    }
+
+    public async Task<(IEnumerable<ScoreCategory> categories, bool? moreData, string nextPage)> GetScoreCategories(Guid calculatorId, string? nextPage)
+    {
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, nextPage ?? $"{string.Format(DataverseQueries.AllScoreCategoryQuery, calculatorId)}", formatted: true, pageSize: 1000);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            throw new Exception($"GetScoreCategories(Guid {calculatorId}): HTTP Failure: {responseBody}");
+        }
+        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var values = json["value"]?.AsArray() ?? new JsonArray();
+        return (values.Select(v => new ScoreCategory(v.AsObject())), json.GetPropertyValue<string?>("@odata.nextLink") != null, json.GetPropertyValue<string?>("@odata.nextLink"));
+    }
+
+    public async Task<(IEnumerable<ACCBIncomeIndicator> accbs, bool? moreData, string nextPage)> GetACCBData(Guid calculatorId, string? nextPage)
+    {
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, nextPage ?? $"{string.Format(DataverseQueries.AllACCBDataQuery, calculatorId)}", pageSize: 1000);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            throw new Exception($"GetScoreCategories(Guid {calculatorId}): HTTP Failure: {responseBody}");
+        }
+        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var values = json["value"]?.AsArray() ?? new JsonArray();
+        return (values.Select(v => new ACCBIncomeIndicator(v.AsObject())), json.GetPropertyValue<string?>("@odata.nextLink") != null, json.GetPropertyValue<string?>("@odata.nextLink"));
+    }
 }
