@@ -168,6 +168,7 @@ public record BCRegistrySettings
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
     public int NoDuration { get; set; }
+    public int BatchSize { get; set; }
     public string batchtaskprocess { get; set; }
     public string singletaskprocess { get; set; }
     public required TaskActivity TaskActivity { get; set; }

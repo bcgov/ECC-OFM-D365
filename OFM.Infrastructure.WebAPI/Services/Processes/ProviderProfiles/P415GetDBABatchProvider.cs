@@ -24,7 +24,7 @@ public class P415GetDBABatchProvider: ID365ProcessProvider
     private ProcessParameter? _processParams;
     private string? _organizationId = string.Empty;
     private string? _ofm_standing_historyid = string.Empty;
-
+    BcRegistryService _bcregService;
 
     public P415GetDBABatchProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider)
     {
@@ -136,13 +136,20 @@ public class P415GetDBABatchProvider: ID365ProcessProvider
         }
 
         var deserializedOrganizationsData = JsonSerializer.Deserialize<List<ECC.Core.DataContext.Account>>(localOrganizationsData.Data.ToString());
+        int batchSize = _BCRegistrySettings.BatchSize;
 
+        _bcregService = new BcRegistryService(_BCRegistrySettings);
         if (deserializedOrganizationsData.Any())
         {
-            using HttpClient httpClient = new();
-            var tasks = deserializedOrganizationsData?.Select(org => UpdateDBAInformation(org, httpClient));
-            await Task.WhenAll(tasks!);
+            for (int i = 0; i < deserializedOrganizationsData?.Count; i += batchSize)
+            {
+                var tasks = deserializedOrganizationsData?.Skip(i).Take(batchSize).Select(org => UpdateDBAInformation(org));
+                await Task.WhenAll(tasks!);
+
+            }
+
         }
+      
 
         var endTime = _timeProvider.GetTimestamp();
         _logger.LogDebug(CustomLogEvent.Process, "P415 process finished in {timer.ElapsedMilliseconds} miliseconds.", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
@@ -150,7 +157,7 @@ public class P415GetDBABatchProvider: ID365ProcessProvider
         return await Task.FromResult(ProcessResult.Completed(ProcessId).SimpleProcessResult);
     }
 
-    private async Task<JsonObject> UpdateDBAInformation(ECC.Core.DataContext.Account organization, HttpClient httpClient)
+    private async Task<JsonObject> UpdateDBAInformation(ECC.Core.DataContext.Account organization)
     {
         string organizationId = organization.Id.ToString();
         
@@ -164,18 +171,15 @@ public class P415GetDBABatchProvider: ID365ProcessProvider
 
         var path = $"{_BCRegistrySettings.BusinessSearchUrl}" + $"/{incorporationNumber}";
 
-        var request = new HttpRequestMessage(HttpMethod.Get, path);
-        request.Headers.Add(_BCRegistrySettings.AccoutIdName, _BCRegistrySettings.AccoutIdValue);
-        request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
+        var response = _bcregService.GetDBADataAsync(incorporationNumber);
 
-        var response = await httpClient.SendAsync(request);
 
         //If the business is found - status 200
-        if (response.IsSuccessStatusCode)
+        if (response.Result.IsSuccessStatusCode)
         {
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Result.Content.ReadAsStringAsync();
 
-            BCRegistryBusinessResult? businessResult = await response.Content.ReadFromJsonAsync<BCRegistryBusinessResult>();
+            BCRegistryBusinessResult? businessResult = await response.Result.Content.ReadFromJsonAsync<BCRegistryBusinessResult>();
 
             //Check for DBA
             if (businessResult is null || businessResult.business.alternateNames is null || businessResult.business.alternateNames.Length < 1)
@@ -220,16 +224,16 @@ public class P415GetDBABatchProvider: ID365ProcessProvider
 
             }
         }
-        else if (response.StatusCode == HttpStatusCode.NotFound)
+        else if (response.Result.StatusCode == HttpStatusCode.NotFound)
         {
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Result.Content.ReadAsStringAsync();
             _logger.LogError(CustomLogEvent.Process, "Incorporation Number is not found in BC Business.", responseBody.CleanLog());
             return ProcessResult.Failure(ProcessId, new String[] { "Incorporation Number is not found in BC Business." }, 0, 0).SimpleProcessResult;
 
         }
         else
         {
-            var responseBody = await response.Content.ReadAsStringAsync();
+            var responseBody = await response.Result.Content.ReadAsStringAsync();
             _logger.LogError(CustomLogEvent.Process, "Unable to call BC Registries API with an error {responseBody}.", responseBody.CleanLog());
             return ProcessResult.Failure(ProcessId, new String[] { "Unable to call BC Registries API with an error {responseBody}" }, 0, 0).SimpleProcessResult;
         }

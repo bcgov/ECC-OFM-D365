@@ -136,7 +136,13 @@ public record ProcessParameter
     public record ApplicationParameter
     {
         [property: JsonPropertyName("applicationId")]
-        public Guid? applicationId { get; set; }    
+        public Guid? applicationId { get; set; }
+        [property: JsonPropertyName("createdOn")]
+        public DateTime? createdOn { get; set; }
+        [property: JsonPropertyName("submittedOn")]
+        public DateTime? submittedOn { get; set; }
+        [property: JsonPropertyName("facilityId")]
+        public string? facilityId { get; set; }
     }
 
     public record SupplementaryApplicationParameter

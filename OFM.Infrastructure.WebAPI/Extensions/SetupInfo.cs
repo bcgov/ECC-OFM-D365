@@ -101,6 +101,11 @@ public static class Setup
             public const string GetDBABatchName = "Get DBA Information for Organization in batch";
         }
 
+        public static class LicenceDetailRecords
+        {
+            public const Int16 CalculateLicenceTotal = 900;
+            public const string CalculteLicenceTotalName = "Calculate Licence Space Total";
+        }
         public static class Payments
         {
             public const Int16 SendPaymentRequestId = 500;

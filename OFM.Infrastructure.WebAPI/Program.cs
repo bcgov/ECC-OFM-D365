@@ -20,6 +20,7 @@ using System.Reflection;
 using OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
 using System.Collections;
 using OFM.Infrastructure.WebAPI.Handlers;
+using OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(serverOptions => serverOptions.AddServerHeader = false);
@@ -88,6 +89,7 @@ services.AddScoped<ID365ProcessProvider, P615CreateMonthlyReportProvider>();
 services.AddScoped<ID365ProcessProvider, P700ProviderCertificateProvider>();
 services.AddScoped<ID365ProcessProvider, P800ScoreCalculatorProvider>();
 services.AddScoped<ID365ProcessProvider, P805CreateScoreCalculatorVersionProvider>();
+services.AddScoped<ID365ProcessProvider, P900CalculateLicenceTotal>();
 
 services.AddScoped<D365Email>();
 services.AddScoped<ID365BackgroundProcessHandler, D365BackgroundProcessHandler>();
@@ -103,6 +105,7 @@ services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
 services.AddAuthentication();
 services.AddHealthChecks();
+services.AddHttpClient<IBcRegistryService, BcRegistryService>();
 
 //======== Configuration >>>
 services.Configure<AppSettings>(builder.Configuration.GetSection(nameof(AppSettings)));

@@ -25,7 +25,7 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
     private string _organizationId;
     private string _ofm_standing_historyid;
     private string? _GScommunicationType;
-
+    BcRegistryService _bcregService;
 
     public P400VerifyGoodStandingProvider(IOptionsSnapshot<ExternalServices> ApiKeyBCRegistry, IOptionsSnapshot<NotificationSettings> notificationSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider, IEmailRepository emailRepository)
     {
@@ -371,28 +371,15 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
             string legalName = organization.name;
             string incorporationNumber = organization.ofm_incorporation_number;
             string businessNumber = organization.ofm_business_number;
+            _bcregService = new BcRegistryService(_BCRegistrySettings);
+            var response = _bcregService.GetRegistryDataAsync(organizationId, legalName, incorporationNumber);
 
-            string? queryValue = (!string.IsNullOrEmpty(incorporationNumber)) ? incorporationNumber.Trim() : legalName.Trim();
-
-            var legalType = "A,B,BC,BEN,C,CC,CCC,CEM,CP,CS,CUL,EPR,FI,FOR,GP,LIC,LIB,LL,LLC,LP,MF,PA,PAR,PFS,QA,QB,QC,QD,QE,REG,RLY,S,SB,SP,T,TMY,ULC,UQA,UQB,UQC,UQD,UQE,XCP,XL,XP,XS";
-            var status = "active";
-            var queryString = $"?query=value:{queryValue}::identifier:::bn:::name:" +
-                              $"&categories=legalType:{legalType}::status:{status}";
-
-            var path = $"{_BCRegistrySettings.RegistrySearchUrl}" + $"{queryString}";
-
-            var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, path);
-            request.Headers.Add(_BCRegistrySettings.AccoutIdName, _BCRegistrySettings.AccoutIdValue);
-            request.Headers.Add(_BCRegistrySettings.KeyName, _BCRegistrySettings.KeyValue);
-
-            var response = await client.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
+         
+            if (response.Result.IsSuccessStatusCode)
             {
-                var responseBody = await response.Content.ReadAsStringAsync();
+                var responseBody = await response.Result.Content.ReadAsStringAsync();
 
-                BCRegistrySearchResult? searchResult = await response.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
+                BCRegistrySearchResult? searchResult = await response.Result.Content.ReadFromJsonAsync<BCRegistrySearchResult>();
 
                 // Organization - Update
                 var goodStandingStatus = 3;                    // 1 - Good, 2 - No Good, 3 - Error 
@@ -444,10 +431,10 @@ public class P400VerifyGoodStandingProvider : ID365ProcessProvider
             }
             else
             {
-                var responseBody = await response.Content.ReadAsStringAsync();
+                var responseBody = await response.Result.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Unable to call BC Registries API with an error {responseBody}.", responseBody.CleanLog());
 
-                var standingStatusUpdate = (response.StatusCode != HttpStatusCode.InternalServerError);
+                var standingStatusUpdate = (response.Result.StatusCode != HttpStatusCode.InternalServerError);
                 var subject = "Unable to call BC Registries API with an error.";
                 await UpdateOrganizationCreateIntegrationLog(_appUserService, _d365webapiservice, organizationId, (int)ofm_good_standing_status.IntegrationError, subject, (int)ecc_integration_log_category.Error, responseBody.CleanLog(), externalService, statusUpdate: standingStatusUpdate);
             }
