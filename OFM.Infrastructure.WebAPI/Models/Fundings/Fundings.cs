@@ -49,7 +49,7 @@ public class Funding : ofm_funding
     public new decimal? ofm_envelope_hr_employerhealthtax_topup { get; set; }
      public new decimal? ofm_envelope_hr_total_topup { get; set; }
     public new decimal? ofm_envelope_administrative_topup { get; set; }
-     public new decimal? ofm_envelope_facility_topup { get; set; }
+      public new decimal? ofm_envelope_facility_topup { get; set; }
     //public new string? ofm_cohort { get; set; }
     public Guid? _ofm_cohortid_value { get; set; }
     public Guid? _ofm_provider_approver_value { get; set; }
@@ -125,6 +125,8 @@ public class RateSchedule : ofm_rate_schedule
     public new decimal? ofm_vacation_hours_per_fte { get; set; }
     public new decimal? ofm_wcb { get; set; }
     public new decimal? ofm_supervisor_rate { get; set; }
+    public new decimal? ofm_eht_minimum_cost_not_for_profit { get; set; }
+    public new decimal? ofm_not_for_profit_eht_over_max { get; set; }
 }
 
 public class FundingRate : ofm_funding_rate

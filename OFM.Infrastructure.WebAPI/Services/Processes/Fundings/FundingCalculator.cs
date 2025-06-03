@@ -18,6 +18,7 @@ public interface IFundingCalculator
 
 /// <summary>
 /// Funding Calculator Version 9
+/// Chnages made for version 9.1
 /// </summary>
 public class FundingCalculator : IFundingCalculator
 {
@@ -121,6 +122,7 @@ public class FundingCalculator : IFundingCalculator
     private decimal TotalProfessionalDevelopmentExpenses => LicenceDetails.Sum(ld => ld.ProfessionalDevelopmentExpenses);
 
     /// <summary>
+    /// EHT Calculation Changes done for Version 9.1
     ///  HR Envelopes: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at the calculator level to HR Total Renumeration Only ***
     /// </summary>
     private decimal EmployerHealthTax
@@ -130,7 +132,9 @@ public class FundingCalculator : IFundingCalculator
             var taxData = new { OwnershipType, TotalEHTRenumeration };
             var EHTProfitLowerThreshold = _rateSchedule?.ofm_eht_minimum_cost_for_profit ?? EHT_LOWER_THRESHOLD;
             var EHTProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_for_profit ?? EHT_UPPER_THRESHOLD;
-            var EHTNonProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_not_for_profit ?? EHT_UPPER_THRESHOLD;
+           var EHTNonProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_not_for_profit ?? EHT_UPPER_THRESHOLD;
+            var EHTNonProfitLowerThreshold = _rateSchedule?.ofm_eht_minimum_cost_not_for_profit ?? EHT_LOWER_THRESHOLD;
+
             var EHTFunding = 0m;
 
             if (taxData == null)
@@ -146,10 +150,16 @@ public class FundingCalculator : IFundingCalculator
             {
                 EHTFunding = ((_rateSchedule?.ofm_for_profit_eht_over_1_5m ?? 0m) / 100) * TotalEHTRenumeration;
             }
+            else if (taxData.OwnershipType == ecc_Ownership.Notforprofit && (taxData.TotalEHTRenumeration > EHTNonProfitLowerThreshold) && (taxData.TotalEHTRenumeration <= EHTNonProfitUpperThreshold))
+            {
+                EHTFunding = ((_rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m) / 100) * (TotalEHTRenumeration - EHTNonProfitLowerThreshold);
+            }
             else if (taxData.OwnershipType == ecc_Ownership.Notforprofit && (taxData.TotalEHTRenumeration > EHTNonProfitUpperThreshold))
             {
-                EHTFunding = ((_rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m) / 100) * (TotalEHTRenumeration - EHTNonProfitUpperThreshold);
+                EHTFunding = ((_rateSchedule?.ofm_not_for_profit_eht_over_max ?? 0m) / 100) * (TotalEHTRenumeration);
             }
+
+
 
             return EHTFunding;
         }
