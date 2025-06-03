@@ -418,10 +418,10 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     public async Task<Guid> CreateScoreCalculatorAsync(JsonObject scoreCalculator)
     {
 
-        var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "ofm_application_score_calculators", scoreCalculator.ToString());
+        var response = await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculators(ofm_name='{scoreCalculator.GetPropertyValue<string>("ofm_name") }')", scoreCalculator.ToString());
         if (!response.IsSuccessStatusCode)
         {
-            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {await response.Content.ReadAsStringAsync()}");
+            throw new Exception($"Create of Application Score Calculator failed: Batch HTTP Failure: {await response.Content.ReadAsStringAsync()}");
         }
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         return json.GetPropertyValue<Guid>("ofm_application_score_calculatorid");
