@@ -30,7 +30,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                                     <order attribute=""ofm_name"" descending=""false"" />
                                     <filter>
                                     <condition attribute=""statuscode"" operator=""eq"" value=""1"" />
-                                    <condition attribute="""" operator=""eq"" value=""{ _processParams?.ScoreCalculatorVersionId}""/>
+                                    <condition attribute=""ofm_application_score_calculator_versionid"" operator=""eq"" value=""{ _processParams?.ScoreCalculatorVersionId}""/>
                                     </filter>                                                                          
                                     </link-entity>
                                   </entity>
