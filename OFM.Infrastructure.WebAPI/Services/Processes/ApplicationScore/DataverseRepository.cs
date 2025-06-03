@@ -1,20 +1,10 @@
-﻿using HandlebarsDotNet.Runtime;
-using Microsoft.Identity.Client;
-using Newtonsoft.Json.Linq;
-using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Handlers;
+﻿using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
-using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.ApplicationScore;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection.PortableExecutable;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
 
 /// <summary>
