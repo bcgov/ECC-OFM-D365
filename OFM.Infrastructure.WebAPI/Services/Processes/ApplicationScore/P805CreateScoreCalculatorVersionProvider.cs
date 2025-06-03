@@ -29,15 +29,14 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                                     <all-attributes />
                                     <order attribute=""ofm_name"" descending=""false"" />
                                     <filter>
-                                    <condition attribute=""statuscode"" operator=""eq"" value=""1"" />
+                                    
                                     <condition attribute=""ofm_application_score_calculator_versionid"" operator=""eq"" value=""{ _processParams?.ScoreCalculatorVersionId}""/>
-                                    </filter>                                                                          
-                                    </link-entity>
-                                  </entity>
+                                    </filter>
+                                    </entity>
                                 </fetch>";
 
                 var requestUri = $"""
-                               ofm_application_score_calculator_versions?fetchXml={fetchXml.CleanCRLF()}
+                               ofm_application_score_calculator_versions({_processParams?.ScoreCalculatorVersionId})
                                """;
                 return requestUri.CleanCRLF();
             }
@@ -61,21 +60,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 return await Task.FromResult(new ProcessData(string.Empty));
             }
 
-            var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+            var jsonObject = await response.Content.ReadFromJsonAsync<JsonNode>();
 
-            JsonNode d365Result = string.Empty;
-            if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-            {
-                if (currentValue?.AsArray().Count == 0)
-                {
-                    _logger.LogInformation(CustomLogEvent.Process, "No calculator found with query {requestUri}", RetrieveApplicationCalculator.CleanLog());
-                }
-                d365Result = currentValue!;
-            }
+            _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", jsonObject.ToString().CleanLog());
 
-            _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
-
-            return await Task.FromResult(new ProcessData(d365Result));
+            return await Task.FromResult(new ProcessData(jsonObject));
         }
 
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
@@ -91,7 +80,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
 
                 var processData = await GetDataAsync();
 
-                var calcVersion = processData.Data?.AsArray()?.First()?.AsObject();
+                var calcVersion = processData.Data?.AsObject();
                 var originalCalcId = calcVersion.GetPropertyValue<Guid>("_ofm_application_score_calculator_value");
 
                 //Calculator
@@ -151,7 +140,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 JsonObject jsonSuccess = new JsonObject();
                 jsonSuccess["statuscode"] = 506580002;
                 jsonSuccess["ofm_error_details"] = null;
-                jsonSuccess["ofm_completed_on"] = DateTime.Now.ToLongDateString();
+                jsonSuccess["ofm_completed_on"] = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
                 await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculator_versions({processParams.ScoreCalculatorVersionId})", jsonSuccess.ToString());
                 processingResult = ProcessResult.Success(CustomLogEvent.Process,1);
                 _logger.LogInformation(CustomLogEvent.Process, "Successfully created application score calculator version with process Params {params}", processParams);
@@ -162,7 +151,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 JsonObject jsonError = new JsonObject();
                 jsonError["ofm_error_details"] = ex.ToString();
                 jsonError["statuscode"] = 506580003;
-                jsonError["ofm_completed_on"] = DateTime.Now.ToLongDateString();
+                jsonError["ofm_completed_on"] = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ");
                 await d365WebApiService.SendPatchRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculator_versions({ processParams.ScoreCalculatorVersionId})", jsonError.ToString());
                 processingResult = ProcessResult.Failure(CustomLogEvent.Process, new List<string> { string.Format($"Error processsing application score calculation version with process Params {0}: {1}", JsonSerializer.Serialize(processParams), ex) }, 0, applicationsToProcess!.Count);
                 _logger.LogError(CustomLogEvent.Process, "Error processsing application score calculation version with process Params {params}: {ex}", processParams, ex);
