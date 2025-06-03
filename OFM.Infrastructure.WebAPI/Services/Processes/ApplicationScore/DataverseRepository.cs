@@ -1,17 +1,8 @@
-﻿using HandlebarsDotNet.Runtime;
-using Microsoft.Identity.Client;
-using Newtonsoft.Json.Linq;
-using OFM.Infrastructure.WebAPI.Extensions;
-using OFM.Infrastructure.WebAPI.Handlers;
+﻿using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Messages;
-using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.ApplicationScore;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection.PortableExecutable;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
@@ -365,6 +356,9 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
 
     public async Task CreateAccbIncomesBatchAsync(IEnumerable<JsonObject> accbs)
     {
+        if (accbs == null || !accbs.Any())
+            return;
+
         var batchRequests = accbs.Select(x => new CreateRequest("ofm_accbs", x)).ToList<HttpRequestMessage>();
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
@@ -374,6 +368,9 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task<IEnumerable<ScoreCategory>> CreateScoreCategoriesBatchAsync(IEnumerable<JsonObject> categories)
     {
+        if (categories == null || !categories.Any())
+            return await Task.FromResult(new List<ScoreCategory>());
+
         var batchRequests = categories.Select(x =>
         {
             var req = new CreateRequest("ofm_application_score_categories", x);
@@ -391,6 +388,8 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task AssociateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calcId)
     {
+        if (schoolDistricts == null || !schoolDistricts.Any())
+            return;
 
         var calculator = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculators({calcId})");
         if (!calculator.IsSuccessStatusCode)
@@ -428,6 +427,9 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task CreateScoreParametersBatchAsync(IEnumerable<JsonObject> parameters)
     {
+        if (parameters == null || !parameters.Any())
+            return;
+
         var batchRequests = parameters.Select(x =>
         {
             var req = new CreateRequest("ofm_application_score_parameteres", x);
@@ -442,6 +444,8 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task CreateThresholdFeesBatchAsync(IEnumerable<JsonObject> fees)
     {
+        if (fees == null || !fees.Any())
+            return;
         var batchRequests = fees.Select(x => new CreateRequest("ofm_forty_percentile_fees", x)).ToList<HttpRequestMessage>();
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
@@ -451,6 +455,9 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task CreatePopulationCentresBatchAsync(IEnumerable<JsonObject> centres)
     {
+        if (centres == null || !centres.Any())
+            return;
+
         var batchRequests = centres.Select(x => new CreateRequest("ofm_population_centres", x)).ToList<HttpRequestMessage>();
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
@@ -461,6 +468,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
 
     public async Task<(IEnumerable<ScoreCategory> categories, bool? moreData, string nextPage)> GetScoreCategories(Guid calculatorId, string? nextPage)
     {
+
         var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, nextPage ?? $"{string.Format(DataverseQueries.AllScoreCategoryQuery, calculatorId)}", formatted: true, pageSize: 1000);
         if (!response.IsSuccessStatusCode)
         {
