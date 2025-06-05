@@ -191,15 +191,9 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
 <attribute name=""ofm_postal_code"" />
                                                     <filter>
                                                       <condition attribute=""ofm_postal_code"" operator=""eq"" value=""{{0}}"" />
+<condition attribute=""ofm_application_score_calculator"" operator=""eq"" value=""{{1}}"" />
 <condition attribute=""statecode"" operator=""eq"" value=""0"" />
                                                     </filter>
-<link-entity name=""ofm_asc_sd"" from=""ofm_school_districtid"" to=""ofm_school_districtid"" alias=""asc"">
-                                                      <filter>
-                                                        <condition attribute=""ofm_application_score_calculatorid"" operator=""eq"" value=""{{1}}"" />
-
-                                                      </filter>
-                                                    </link-entity>
-
                                                   </entity>
                                                 </fetch>";
         public const string PopulationCentreQuery = $@"ofm_population_centres?fetchXml=
@@ -314,7 +308,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                               </entity>
                             </fetch>";
 
-        public static string AllSchoolDistrictQuery = $@"ofm_school_districts?$select=ofm_school_district_fullname,ofm_school_district_number,ofm_school_district_name,ofm_postal_code,ofm_name&$filter=statecode eq 0&$expand=ofm_application_score_calculator_ofm_school_district_ofm_school_district($filter=ofm_application_score_calculatorid eq {{0}})";
+        public static string AllSchoolDistrictQuery = $@"ofm_school_districts?$select=ofm_school_district_fullname,ofm_school_district_number,ofm_school_district_name,ofm_postal_code,ofm_name&$filter=statecode eq 0 and _ofm_application_score_calculator_value eq '{{0}}'";
         public static string AllScoreCategoryQuery = "ofm_application_score_categories?$filter=_ofm_application_score_calculator_value eq '{0}'&$select=ofm_name,ofm_maximum_score,ofm_description,ofm_category_display_name,ofm_application_score_group";
         public static string AllACCBDataQuery = @$"ofm_accbs?$select=ofm_accbid,ofm_postal_code,ofm_income_indicator,ofm_name&$filter=(_ofm_application_score_calculator_value eq {{0}}  and statecode eq 0)";
         public static string AllPopulationCentreQuery = $@"ofm_population_centres?$select=ofm_population_centreid,ofm_city,ofm_projected_population,ofm_name,ofm_projected_population&$filter=(_ofm_application_score_calculator_value eq {{0}} and statecode eq 0)";
@@ -539,6 +533,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
 
             _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
             _data.Remove("ofm_name");
+            _data.Remove("ofm_school_districtid");
             _data.Remove("@odata.etag");
             return _data;
 
@@ -549,7 +544,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         }
         public string? SchoolDistrictName => _data.GetPropertyValue<string>("ofm_school_district_name");
 
-        public int SchoolDistrictNumber => _data.GetPropertyValue<int>("ofm_school_district_number");
+        public string? SchoolDistrictNumber => _data.GetPropertyValue<string>("ofm_school_district_number");
         public string? PostalCode => _data.GetPropertyValue<string>("ofm_postal_code");
 
         public string? SchoolDistrictFullName => _data.GetPropertyValue<string>("ofm_school_district_fullname");
@@ -640,7 +635,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
 
         public decimal? MaximumFeeAmount => _data.GetPropertyValue<decimal>("ofm_threshold_fee");
         public string? ProgramType => _data.GetFormattedValue("_ofm_childcare_category_value");
-        public int ProgramTypeValue => _data.GetPropertyValue<int>("_ofm_childcare_category_value");
+        public string? ProgramTypeValue => _data.GetPropertyValue<string>("_ofm_childcare_category_value");
 
         public string? Region => _data.GetFormattedValue("_ofm_region_value");
         public Guid? RegionId => _data.GetPropertyValue<Guid>("_ofm_region_value");

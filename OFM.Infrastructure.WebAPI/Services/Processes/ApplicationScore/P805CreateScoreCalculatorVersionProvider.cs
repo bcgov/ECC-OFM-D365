@@ -129,11 +129,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 if (calcVersion.GetPropertyValue<bool>("ofm_copy_school_district"))
                 {
                     var districts = await dataverseRepository.GetSchoolDistricts(originalCalcId, null);
-                    await dataverseRepository.AssociateSchoolDistrictsBatchAsync(districts.districts?.Select(x => x.Clone(calcId)), calcId);
+                    await dataverseRepository.CreateSchoolDistrictsBatchAsync(districts.districts?.Select(x => x.Clone(calcId)), calcId);
                     while (districts.moreData.Value)
                     {
                         districts = await dataverseRepository.GetSchoolDistricts(originalCalcId, districts.nextPage);
-                        await dataverseRepository.AssociateSchoolDistrictsBatchAsync(districts.districts?.Select(x => x.Clone(calcId)), calcId);
+                        await dataverseRepository.CreateSchoolDistrictsBatchAsync(districts.districts?.Select(x => x.Clone(calcId)), calcId);
                     }
                 }
 

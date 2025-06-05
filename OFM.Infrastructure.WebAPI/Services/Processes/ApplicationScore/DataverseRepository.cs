@@ -116,7 +116,7 @@ public interface IDataverseRepository
     Task<(IEnumerable<PopulationCentre> populationCentres, bool? moreData, string nextPage)> GetPopulationCentres(Guid calculatorId, string? nextPage);
     Task CreateAccbIncomesBatchAsync(IEnumerable<JsonObject> accbs);
     Task<IEnumerable<ScoreCategory>> CreateScoreCategoriesBatchAsync(IEnumerable<JsonObject> categories);
-    Task AssociateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calculatorId);
+    Task CreateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calculatorId);
     Task<Guid> CreateScoreCalculatorAsync(JsonObject scoreCalculator);
     Task CreateScoreParametersBatchAsync(IEnumerable<JsonObject> parameters);
     Task CreateThresholdFeesBatchAsync(IEnumerable<JsonObject> fees);
@@ -386,32 +386,20 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         return response.Result.Select(x => new ScoreCategory(x));
 
     }
-    public async Task AssociateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calcId)
+    public async Task CreateSchoolDistrictsBatchAsync(IEnumerable<JsonObject> schoolDistricts, Guid calcId)
     {
         if (schoolDistricts == null || !schoolDistricts.Any())
             return;
-
-        var calculator = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"ofm_application_score_calculators({calcId})");
-        if (!calculator.IsSuccessStatusCode)
-        {
-            var responseBody = await calculator.Content.ReadAsStringAsync();
-            throw new Exception($"AssociateSchoolDistrictsBatchAsync(Guid {calcId}): HTTP Failure: {responseBody}");
-        }      
-
-
         var batchRequests = schoolDistricts.Select(x =>
         {
-            var association = new JsonObject();
-            association["@odata.id"] = calculator?.RequestMessage?.RequestUri?.AbsoluteUri;
-            var requestUri = $"ofm_school_districts({x.GetPropertyValue<Guid>("ofm_school_districtid")})/ofm_application_score_calculator_ofm_school_district_ofm_school_district/$ref";
-            return new CreateRequest(requestUri, association);
+            return new CreateRequest("ofm_school_districts", x);
         }
         ).ToList<HttpRequestMessage>();
         
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
         {
-            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+            throw new Exception($"Create of School District failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
         }
     }
     public async Task<Guid> CreateScoreCalculatorAsync(JsonObject scoreCalculator)
@@ -439,7 +427,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
         {
-            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+            throw new Exception($"Upsert of Application Score Parameter failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
         }
     }
     public async Task CreateThresholdFeesBatchAsync(IEnumerable<JsonObject> fees)
@@ -450,7 +438,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
         {
-            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+            throw new Exception($"Upsert of Threshold fees failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
         }
     }
     public async Task CreatePopulationCentresBatchAsync(IEnumerable<JsonObject> centres)
@@ -462,7 +450,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         var response = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, batchRequests, null);
         if (!response.CompletedWithNoErrors)
         {
-            throw new Exception($"Upsert of Application Score failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
+            throw new Exception($"Upsert of Population Centres failed: Batch HTTP Failure: {string.Join(" | ", response.Errors)}");
         }
     }
 
