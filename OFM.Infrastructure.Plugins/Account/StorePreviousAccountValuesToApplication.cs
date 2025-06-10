@@ -78,7 +78,23 @@ namespace OFM.Infrastructure.Plugins.Account
                                 if (preImageAccount.GetAttributeValue<OptionSetValue>("ccof_accounttype").Value == (int)ccof_AccountType.Organization &&
                                 preImageAccount.GetAttributeValue<string>("address1_composite") != postImageAccount.GetAttributeValue<string>("address1_composite"))
                                 {
-                                    applicationUpdate["ofm_previous_organization_address"] = preImageAccount.GetAttributeValue<string>("address1_composite");
+                                    var addressString = string.Empty;
+                                    addressString += preImageAccount.GetAttributeValue<string>("address1_line1");
+                                    if (preImageAccount.GetAttributeValue<string>("address1_line2") != null)
+                                    {
+                                        addressString += ", " + preImageAccount.GetAttributeValue<string>("address1_line2") + ", "
+                                                        + preImageAccount.GetAttributeValue<string>("address1_city") + ", "
+                                                        + preImageAccount.GetAttributeValue<string>("address1_stateorprovince") + " "
+                                                        + preImageAccount.GetAttributeValue<string>("address1_postalcode");
+                                    }
+                                    else
+                                    {
+                                        addressString += ", " + preImageAccount.GetAttributeValue<string>("address1_city") + ", "
+                                                        + preImageAccount.GetAttributeValue<string>("address1_stateorprovince") + " "
+                                                        + preImageAccount.GetAttributeValue<string>("address1_postalcode");
+                                    }
+
+                                    applicationUpdate["ofm_previous_organization_address"] = addressString;
                                     updateRequired = true;
                                 }
 
