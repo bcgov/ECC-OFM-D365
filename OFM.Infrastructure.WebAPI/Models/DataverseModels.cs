@@ -1,5 +1,6 @@
 ﻿using ECC.Core.DataContext;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models;
@@ -408,6 +409,7 @@ public class D365PaymentLine : ofm_payment
 {
     public new decimal? ofm_amount { get; set; }
     public new Facility? ofm_facility { get; set; }
+    public new Guid? _ofm_organization_value { get; set; }
     public new Application? ofm_application { get; set; }
     public new Funding? ofm_funding { get; set; }
     public new D365FiscalYear? ofm_fiscal_year { get; set; }
@@ -416,6 +418,61 @@ public class D365PaymentLine : ofm_payment
     public new string ofm_supplierid { get; set; } = string.Empty;
     public new int? ofm_payment_method { get; set; }
     public string _ofm_regardingid_value { get; set; } = string.Empty; // ToDo: a workaround for polymorphic lookup
+   
+}
+
+public class PaymentLine
+{
+    [Required(ErrorMessage = "Amount is required.")]
+    public new decimal? ofm_amount { get; set; }
+
+    [Required(ErrorMessage = "facility can not be blank.")]
+    public new Guid? _ofm_facility_value { get; set; }
+
+     [Required(ErrorMessage = "funding is Required.")]
+    public new Guid? _ofm_funding_value { get; set; }
+
+    [Required(ErrorMessage = "Fiscal Year is Required.")]
+    [JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
+    public new string? ofm_financial_year { get; set; }
+
+    [Required(ErrorMessage = "Invoice Number is Required.")]
+    public new string? ofm_invoice_number { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Site can not be blank.")]
+    public new string? ofm_siteid { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Supplier details is missing.")]
+    public new string? ofm_supplierid { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Payment Method is required.")]
+    public new int? ofm_payment_method { get; set; }
+
+
+   [JsonPropertyName("Ack.ofm_cohort")]
+    [Required(ErrorMessage = "Cohort can not be blank on funding.")]
+    public string? ofm_cohort { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Line number is required.")]
+    public new int? ofm_invoice_line_number { get; set; }
+
+    [Required(ErrorMessage = "Effective date should be today date.")]
+    public new DateTime? ofm_effective_date { get; set; }
+
+    [Required(ErrorMessage = "Invoice date should be today date.")]
+    public new DateTime? ofm_invoice_date { get; set; }
+
+    [Required(ErrorMessage = "Invoice Recieved date should be today date.")]
+    public new DateTime? ofm_invoice_received_date { get; set; }
+
+    [Required(ErrorMessage = "Organization Detail is Required.")]
+    public new Guid? _ofm_organization_value { get; set; }
+
+    [Required(ErrorMessage = "Payment type is required.")]
+    public new int? ofm_payment_type { get; set; }
+
+
+
 }
 
 public class ProviderStaff
@@ -462,6 +519,11 @@ public class TopUp : ofm_top_up_fund
     public new decimal? ofm_programming_amount { get; set; }
 }
 
+public class User 
+{
+       public Guid systemuserid { get; set; }
+    public string internalemailaddress { get; set; }
+}
 public class QuestionResponse : ofm_question_response
 {
     [property: JsonPropertyName("question.ofm_question_id")]

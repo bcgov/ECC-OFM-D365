@@ -7,7 +7,7 @@ public class SendEmailRequest : HttpRequestMessage
 {
     public SendEmailRequest(Guid id, JsonObject record)
     {
-        var path = $"emails({id})/Microsoft.Dynamics.CRM.SendEmail";
+        var path = $"/api/data/v9.2/emails({id})/Microsoft.Dynamics.CRM.SendEmail";
 
         Method = HttpMethod.Post;
 
@@ -16,9 +16,11 @@ public class SendEmailRequest : HttpRequestMessage
                 encoding: System.Text.Encoding.UTF8,
                 mediaType: "application/json");
 
-        RequestUri = new Uri(
-          uriString: Setup.PrepareUri(path),
-          uriKind: UriKind.Relative);
+        RequestUri = new Uri(path, UriKind.Relative);
+
+        //RequestUri = new Uri(
+        //  uriString: Setup.PrepareUri(path),
+        //  uriKind: UriKind.Absolute);
 
         if (Headers != null)
         {
