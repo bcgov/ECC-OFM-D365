@@ -35,15 +35,32 @@ export const GaugeChartComponent: React.FC<GaugeChartProps> = ({ score, maxScore
             fill: "#323130",
         },
     };
+
+
+    const lowScore = () => {
+        return roundOff(maxScore * (lowSegmentPercent / 100))
+    }
+    const mediumScore = () => {
+
+        return roundOff(maxScore * (mediumSegmentPercent / 100))
+    }
+
+
+
+    const roundOff = (num: number, decimalPlaces: number = 0): number => {
+        if(num == null) return 0;
+        const multiplier = Math.pow(10, decimalPlaces);
+        return Math.round(num * multiplier) / multiplier;
+      };
     // Gauge chart configuration
     const gaugeProps: IGaugeChartProps = {
         chartValue: score !== null ? score : 0,
         styles: gaugeStyles,
         maxValue: maxScore,
         segments: [
-            { size: maxScore * (lowSegmentPercent / 100), gradient: getGradientFromToken(DataVizGradientPalette.error), color: "#d13438", legend: lowSegmentLabel },
-            { size: maxScore * (mediumSegmentPercent / 100), gradient: getGradientFromToken(DataVizGradientPalette.warning), color: "#d29200", legend: mediumSegmentLabel },
-            { size: maxScore * (highSegmentPercent / 100), gradient: getGradientFromToken(DataVizGradientPalette.success), color: "#107c10", legend: highSegmentLabel },
+            { size: lowScore(), gradient: getGradientFromToken(DataVizGradientPalette.error), color: "#d13438", legend: lowSegmentLabel },
+            { size: mediumScore(), gradient: getGradientFromToken(DataVizGradientPalette.warning), color: "#d29200", legend: mediumSegmentLabel },
+            { size: maxScore - lowScore() - mediumScore(), gradient: getGradientFromToken(DataVizGradientPalette.success), color: "#107c10", legend: highSegmentLabel },
         ],
         width: 300,
         height: 150,

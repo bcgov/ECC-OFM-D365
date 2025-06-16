@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest>
-  <control namespace="ECC.PCF" constructor="ApplicationScoreGaugeControl" version="0.0.12" display-name-key="Application Score Gauge" description-key="Displays an application score as a gauge chart" control-type="standard">
+  <control namespace="ECC.PCF" constructor="ApplicationScoreGaugeControl" version="0.0.19" display-name-key="Application Score Gauge" description-key="Displays an application score as a gauge chart" control-type="standard">
     <property name="score" display-name-key="Score" description-key="The score to display on the gauge" of-type="Whole.None" usage="bound" required="true" />
     <property name="maxScore" display-name-key="MaxScore" description-key="The Max score to display on the gauge" of-type="Whole.None" usage="bound" required="true" />
     <resources>

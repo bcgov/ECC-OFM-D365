@@ -218,6 +218,7 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
 
     public async Task<ACCBIncomeIndicator?> GetIncomeDataAsync(string postalCode, Guid calculatorId)
     {
+        postalCode = postalCode?.Replace(" ", string.Empty);
         var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.IncomeDataQuery, postalCode, calculatorId)}", formatted: true, pageSize: 5000);
         if (!response.IsSuccessStatusCode)
         {
@@ -311,6 +312,8 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
     }
     public async Task<SchoolDistrict?> GetSchoolDistrictDataAsync(string postalCode, Guid calculatorId)
     {
+
+        postalCode = postalCode?.Replace(" ", string.Empty);
         var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.SchoolDistrictQuery, postalCode, calculatorId)}", formatted: true, pageSize: 5000);
         if (!response.IsSuccessStatusCode)
         {
