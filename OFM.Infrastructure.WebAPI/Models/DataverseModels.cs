@@ -423,20 +423,21 @@ public class D365PaymentLine : ofm_payment
 
 public class PaymentLine
 {
-    [Required(ErrorMessage = "Amount is required.")]
+    [Required(ErrorMessage = "Amount can not be null.")]
     public new decimal? ofm_amount { get; set; }
 
-    [Required(ErrorMessage = "facility can not be blank.")]
-    public new Guid? _ofm_facility_value { get; set; }
+    [Required(ErrorMessage = "A facility is mandatory, and its name must be provided.")]
+    [JsonPropertyName("ofm_facility.name")]
+    public new string ofm_facility { get; set; }
 
-     [Required(ErrorMessage = "funding is Required.")]
+     [Required(ErrorMessage = "Funding is required.")]
     public new Guid? _ofm_funding_value { get; set; }
 
-    [Required(ErrorMessage = "Fiscal Year is Required.")]
+    [Required(ErrorMessage = "Fiscal Year is mandatory.")]
     [JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
     public new string? ofm_financial_year { get; set; }
 
-    [Required(ErrorMessage = "Invoice Number is Required.")]
+    [Required(ErrorMessage = "Invoice Number is required.")]
     public new string? ofm_invoice_number { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Site can not be blank.")]
@@ -445,7 +446,7 @@ public class PaymentLine
     [Required(ErrorMessage = "Supplier details is missing.")]
     public new string? ofm_supplierid { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Payment Method is required.")]
+    [Required(ErrorMessage = "Payment Method is mandatory.")]
     public new int? ofm_payment_method { get; set; }
 
 
@@ -465,7 +466,7 @@ public class PaymentLine
     [Required(ErrorMessage = "Invoice Recieved date should be today date.")]
     public new DateTime? ofm_invoice_received_date { get; set; }
 
-    [Required(ErrorMessage = "Organization Detail is Required.")]
+    [Required(ErrorMessage = "Organization detail is required.")]
     public new Guid? _ofm_organization_value { get; set; }
 
     [Required(ErrorMessage = "Payment type is required.")]

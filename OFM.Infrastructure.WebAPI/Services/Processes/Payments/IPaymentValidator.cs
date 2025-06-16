@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using ECC.Core.DataContext;
+using Microsoft.Extensions.Options;
 using OFM.Infrastructure.WebAPI.Extensions;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
@@ -7,6 +8,7 @@ using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -16,7 +18,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
     public interface IPaymentValidator
     {
         Task<List<Guid>>? GetOpssupervisorEmail(bool ecflag = false);
-        Task<ProcessData> GetOpsupervisorAsync(bool ecflag = false);
+        Task<List<string>>? GetccuserEmail(bool ecflag = false);
+        Task<ProcessData> GetRecipientAsync(string RequestRecipent);
         Task<Dictionary<string, List<ValidationResult>>> AreAllPropertiesValid(List<PaymentLine> paymentLines);
         Task<JsonObject> SendPaymentErrorEmail(Int16 processId,string templateNumber, Guid senderId, Dictionary<string,List<ValidationResult>> invalidline=null);
 
@@ -31,8 +34,37 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
         private readonly IEmailRepository _emailRepository = emailRepository;
         List<Guid> opsuserID = [];
+        List<string> ccuserID = [];
         Guid userId = new Guid();
         private ProcessData? _data;
+        public string Requestccuser
+        {
+            get
+            {
+                // For reference only
+                var fetchXml = $"""
+                    <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
+                      <entity name="contact">
+                        <attribute name="fullname" />
+                        <attribute name="telephone1" />
+                        <attribute name="contactid" />
+                        <attribute name="emailaddress1" />
+                        <order attribute="fullname" descending="false" />
+                        <filter type="and">
+                          <condition attribute="ccof_username" operator="like" value="%OFM- CAS Contact%" />
+                        </filter>
+                      </entity>
+                    </fetch>
+                    """;
+
+                var requestUri = $"""
+                         contacts?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         """;
+
+                return requestUri;
+            }
+        }
+
         public string RequestOpsSupervisor
         {
             get
@@ -84,14 +116,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
         }
 
-        public async Task<ProcessData> GetOpsupervisorAsync(bool flag=false)
+        public async Task<ProcessData> GetRecipientAsync(string RequestRecipent)
         {
             HttpResponseMessage response;
             _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P500SendPaymentRequestProvider));
-            if(flag)
-                 response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestOpsandecUser, isProcess: true);
-            else
-             response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestOpsSupervisor, isProcess: true);
+           
+            response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RequestRecipent, isProcess: true);
+
             if (!response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
@@ -121,7 +152,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
         public async Task<List<Guid>> GetOpssupervisorEmail(bool ecflag=false)
         {
-            var opsuser = ecflag ? await GetOpsupervisorAsync(true) : await GetOpsupervisorAsync();
+            var opsuser = ecflag ? await GetRecipientAsync(RequestOpsandecUser) : await GetRecipientAsync(RequestOpsSupervisor);
 
             #region Get Ops user email and check if it is in email safelist
             var  opsuseremail = JsonSerializer.Deserialize<List<User>>(opsuser.Data.ToString());
@@ -137,6 +168,31 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 opsuserID.Add(userId);
             });
             return await Task.FromResult(opsuserID);
+            #endregion
+
+        }
+
+        public async Task<List<string>> GetccuserEmail(bool ecflag=false)
+        {
+            var ccuser = ecflag ? await GetRecipientAsync(Requestccuser) : null; 
+
+            #region Get cc contact email and check if it is in email safelist
+            var ccuseremail = JsonSerializer.Deserialize<List<Contact>>(ccuser.Data.ToString());
+            List<string> ccList = [];
+            string? contactId = null;
+            // foreach contact, check if the email address is on the safe list configured on the appsettings, if yes then carry on, else replace the email with a default email address
+            ccuseremail.ForEach(contact =>
+            {
+                contactId = contact.contactid.ToString();
+                if (_notificationSettings.EmailSafeList.Enable &&
+                    !_notificationSettings.EmailSafeList.Recipients.Any(x => x.Equals(contact.emailaddress1?.Trim(';'), StringComparison.CurrentCultureIgnoreCase)))
+                {
+                    contactId = _notificationSettings.EmailSafeList.DefaultContactId;
+                }
+                ccuserID.Add(contact.emailaddress1);
+            });
+            
+            return await Task.FromResult(ccuserID);
             #endregion
 
         }
@@ -188,6 +244,32 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             IEnumerable<D365CommunicationType> _communicationType = await _emailRepository!.LoadCommunicationTypeAsync();
             var _informationCommunicationType = _communicationType.Where(c => c.ofm_communication_type_number == _notificationSettings.CommunicationTypes.ActionRequired).Select(s => s.ofm_communication_typeid).FirstOrDefault();
 
+            var emailParties = new JsonArray()
+           {
+            new JsonObject
+            {
+             { "partyid_systemuser@odata.bind", $"/systemusers({senderId})" },
+             { "participationtypemask", 1 } // From Email
+            },
+
+           };
+
+          opsuserID.Distinct().ToList().ForEach(recipient =>
+          {emailParties.Add(new JsonObject
+            {
+             { "partyid_systemuser@odata.bind",  $"/systemusers({recipient})"},
+             { "participationtypemask", 2 } // To Email
+           });
+          });
+
+            ccuserID.Distinct().ToList().ForEach(ccrecipient =>
+            {
+                emailParties.Add(new JsonObject
+            {
+             { "addressused",  $"{ccrecipient}"},
+             { "participationtypemask", 3 } // To Email
+           });
+            });
 
 
             if (invalidline!=null)
@@ -206,9 +288,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             }
             else
             {
-                emailBody = emaildescription;
+
+                emailBody = emaildescription?.Replace("[Date]", DateTime.UtcNow.ToLocalPST().Date.ToString("MM/dd/yyyy"));
             }
-            await _emailRepository.CreateAndSendEmail(subject, emailBody.ToString(), opsuserID, senderId, _informationCommunicationType, appUserService, _d365webapiservice, 530, "paymentlines");
+            await _emailRepository.CreateAndSendEmail(subject, emailBody.ToString(), emailParties, _informationCommunicationType, appUserService, _d365webapiservice, 530, "paymentlines");
 
             return ProcessResult.Completed(processId).SimpleProcessResult;
         }

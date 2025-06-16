@@ -19,7 +19,7 @@ public interface IEmailRepository
     Task<IEnumerable<D365CommunicationType>> LoadCommunicationTypeAsync();
     Task<Guid?> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId,string regarding="");
     Task<ProcessData> GetTemplateDataAsync(int templateNumber);
-    Task<Guid?> CreateAndSendEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId, string regarding = "");
+    Task<Guid?> CreateAndSendEmail(string subject, string emailDescription, JsonArray emailparties, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId, string regarding = "");
         string StripHTML(string source);
     Task<JsonObject> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService);
  }
@@ -137,36 +137,13 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     }
     #region Create and send email
 
-    public async Task<Guid?> CreateAndSendEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId, string regarding = "")
+    public async Task<Guid?> CreateAndSendEmail(string subject, string emailDescription, JsonArray emailParties, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId, string regarding = "")
     {
-        toRecipient.ForEach(async recipient =>
-        {
+          
             var requestBody = new JsonObject(){
                             {"subject",subject },
                             {"description",emailDescription },
-                            {"email_activity_parties", new JsonArray(){
-                                new JsonObject
-                                {
-                                    { "partyid_systemuser@odata.bind", $"/systemusers({senderId})"},
-                                    { "participationtypemask", 1 } //From Email
-                                },
-                                new JsonObject
-                                {
-                                    { "partyid_systemuser@odata.bind", $"/systemusers({recipient})" },
-                                    { "participationtypemask",   2 } //To Email                             
-                                },
-                                 new JsonObject
-                                {
-                                    { "addressused", "anjana.yadav@cgi.com" },
-                                    { "participationtypemask",   3 } //To Email                             
-                                },
-                                  new JsonObject
-                                {
-                                    { "addressused", "anjana.yadav@gov.bc.ca" },
-                                    { "participationtypemask",   3 } //To Email                             
-                                }
-
-                            }},
+                            {"email_activity_parties", emailParties },
                             { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({communicationType})"},
                             {"ofm_regarding_data",regarding }// field is used for email pdf generation. Format:entityname#entityguid
                         };
@@ -178,7 +155,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                 var responseBody = await response.Content.ReadAsStringAsync();
                 _logger.LogError(CustomLogEvent.Process, "Failed to create the record with the server error {responseBody}", responseBody.CleanLog());
 
-                return;
+                return Guid.Empty;
             }
             else
             {
@@ -191,10 +168,10 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                    var responseBody =  sendEmailBatchResult.Content.ReadFromJsonAsync<JsonObject>();
                    _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody);
 
-                    return;
+                    return Guid.Empty;
                 }
             }
-        });
+        
         return await Task.FromResult(newEmailId);
     }
 

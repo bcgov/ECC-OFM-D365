@@ -446,8 +446,8 @@ public class P500SendPaymentRequestProvider(IPaymentValidator paymentvalidator,I
                             ofm_payment_type= (Int32) eachline.ofm_payment_type.Value,
                             ofm_siteid= eachline.ofm_siteid,
                             ofm_supplierid= eachline.ofm_supplierid,
-                            _ofm_facility_value= (Guid)eachline.ofm_facility?.Id,
-                            _ofm_funding_value= (Guid)eachline.ofm_funding?.Id,
+                            ofm_facility = eachline.ofm_facility != null ?eachline.ofm_facility.name : null,
+                            _ofm_funding_value= eachline.ofm_funding != null? (Guid)eachline.ofm_funding?.Id : null,
                             _ofm_organization_value= (Guid) eachline._ofm_organization_value
                         });
 
@@ -523,8 +523,7 @@ public class P500SendPaymentRequestProvider(IPaymentValidator paymentvalidator,I
                 if (invalidLine.Count > 0)
                 {
                    var opsuserID = await _paymentvalidator.GetOpssupervisorEmail();
-
-                    await _paymentvalidator.SendPaymentErrorEmail(500, _processParams.Notification?.TemplateNumber, (Guid)(_processParams.Notification.SenderId), invalidLine);
+                   await _paymentvalidator.SendPaymentErrorEmail(500, _processParams.Notification?.TemplateNumber, (Guid)(_processParams.Notification.SenderId), invalidLine);
                 }
 
             }
@@ -532,6 +531,7 @@ public class P500SendPaymentRequestProvider(IPaymentValidator paymentvalidator,I
         catch (Exception ex)
         {
             var opsuserID = await _paymentvalidator.GetOpssupervisorEmail(true);
+            var ccuserID = await _paymentvalidator.GetccuserEmail(true);
 
             await _paymentvalidator.SendPaymentErrorEmail(500, "500",(Guid)(_processParams.Notification.SenderId));
 
