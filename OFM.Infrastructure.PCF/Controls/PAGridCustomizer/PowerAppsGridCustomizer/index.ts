@@ -1,10 +1,11 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
-import { cellRendererOverrides } from "./customizers/CellRendererOverrides";
+import { generateCellRendererOverrides } from "./customizers/CellRendererOverrides";
 import { cellEditorOverrides } from "./customizers/CellEditorOverrides";
 import { PAOneGridCustomizer } from "./types";
 import * as React from "react";
 
 export class PowerAppsGridCustomizer implements ComponentFramework.ReactControl<IInputs, IOutputs> {
+	private peopleCache: { [key: string]: any } = {};
 	/**
 	 * Empty constructor.
 	 */
@@ -26,7 +27,7 @@ export class PowerAppsGridCustomizer implements ComponentFramework.ReactControl<
 	): void {
 		const eventName = context.parameters.EventName.raw;
 		if (eventName) {
-			const paOneGridCustomizer: PAOneGridCustomizer = { cellRendererOverrides, cellEditorOverrides };
+			const paOneGridCustomizer: PAOneGridCustomizer = { cellRendererOverrides: generateCellRendererOverrides(context.webAPI, this.peopleCache) , cellEditorOverrides };
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
 			(context as any).factory.fireEvent(eventName, paOneGridCustomizer);
 		}

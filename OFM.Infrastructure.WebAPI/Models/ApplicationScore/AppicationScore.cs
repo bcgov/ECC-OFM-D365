@@ -217,17 +217,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                                                   <entity name=""ofm_licence_detail"">
                                                     <attribute name=""ofm_operational_spaces"" alias=""TotalSpaces"" aggregate=""sum"" />
                                                     <filter>
-<condition attribute=""statecode"" operator=""eq"" value=""0"" />
-        <filter type=""or"">
-          <filter type=""and"">
-            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
-            <condition attribute=""ofm_end_date"" operator=""null"" />
-          </filter>
-          <filter type=""and"">
-            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
-            <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{{1}}"" />
-          </filter>
-        </filter>
+                                                      <condition attribute=""statecode"" operator=""eq"" value=""0"" />
                                                       <condition attribute=""ofm_licence_type"" operator=""in"">
                                                         <value>1</value>
                                                         <value>2</value>
@@ -241,7 +231,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                                                         <value>9</value>
                                                         <value>10</value>
                                                         <value>11</value>
-<value>12</value>
+                                                        <value>12</value>
                                                       </condition>
                                                     </filter>
                                                     <link-entity name=""ofm_licence"" from=""ofm_licenceid"" to=""ofm_licence"" alias=""f"">
@@ -269,17 +259,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
                               <entity name=""ofm_licence_detail"">
                                 <attribute name=""ofm_operational_spaces"" alias=""MaxSpaces"" aggregate=""sum"" />
                                 <filter>
-<condition attribute=""statecode"" operator=""eq"" value=""0"" />
-        <filter type=""or"">
-          <filter type=""and"">
-            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
-            <condition attribute=""ofm_end_date"" operator=""null"" />
-          </filter>
-          <filter type=""and"">
-            <condition attribute=""ofm_start_date"" operator=""on-or-before"" value=""{{1}}"" />
-            <condition attribute=""ofm_end_date"" operator=""on-or-after"" value=""{{1}}"" />
-          </filter>
-        </filter>
+                                  <condition attribute=""statecode"" operator=""eq"" value=""0"" />        
                                   <condition attribute=""ofm_licence_type"" operator=""in"">
                                     <value>1</value>
                                     <value>2</value>
@@ -360,7 +340,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         {
 
             _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
-            if(categoryId.HasValue)
+            if (categoryId.HasValue)
                 _data["ofm_application_score_category@odata.bind"] = $"ofm_application_score_categories({categoryId})";
             _data.Remove("ofm_application_score_parameterid");
             _data.Remove("_ofm_application_score_category_value");
@@ -393,7 +373,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         protected readonly JsonObject _data;
         public JsonObject Clone(Guid calculatorId)
         {
-            if (_data.GetPropertyValue<Guid>("_ofm_application_score_group_value") != Guid.Empty )
+            if (_data.GetPropertyValue<Guid>("_ofm_application_score_group_value") != Guid.Empty)
                 _data["ofm_application_score_group@odata.bind"] = $"ofm_application_score_categories({_data.GetPropertyValue<Guid>("_ofm_application_score_group_value")})";
             _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
             _data.Remove("ofm_application_score_categoryid");
@@ -465,7 +445,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
         public decimal? MaxPreSchoolChildCareSpaces => _data.GetPropertyValue<decimal>("MaxSpaces");
-        public decimal? TotalChildCareSpaces => _data.GetPropertyValue<decimal>("TotalSpaces");        
+        public decimal? TotalChildCareSpaces => _data.GetPropertyValue<decimal>("TotalSpaces");
 
     }
     /// <summary>
@@ -606,17 +586,18 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
-        public JsonObject Clone(Guid calculatorId) {
+        public JsonObject Clone(Guid calculatorId)
+        {
 
             _data["ofm_application_score_calculator@odata.bind"] = $"ofm_application_score_calculators({calculatorId})";
 
-            if(_data.GetPropertyValue<Guid>("_transactioncurrencyid_value") != Guid.Empty)
+            if (_data.GetPropertyValue<Guid>("_transactioncurrencyid_value") != Guid.Empty)
                 _data["transactioncurrencyid@odata.bind"] = $"transactioncurrencies({_data.GetPropertyValue<Guid>("_transactioncurrencyid_value")})";
             if (_data.GetPropertyValue<Guid>("_ofm_childcare_category_value") != Guid.Empty)
                 _data["ofm_childcare_category@odata.bind"] = $"ccof_childcare_categories({_data.GetPropertyValue<Guid>("_ofm_childcare_category_value")})";
             if (_data.GetPropertyValue<Guid>("_ofm_region_value") != Guid.Empty)
                 _data["ofm_region@odata.bind"] = $"ccof_fee_regions({_data.GetPropertyValue<Guid>("_ofm_region_value")})";
-            
+
 
             _data.Remove("ofm_forty_percentile_feeid");
             _data.Remove("ofm_name");
@@ -629,8 +610,8 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
             _data.Remove("region.ccof_region_period_start");
             _data.Remove("region.ccof_region_period_end");
 
-            return _data;     
-        
+            return _data;
+
         }
 
         public decimal? MaximumFeeAmount => _data.GetPropertyValue<decimal>("ofm_threshold_fee");

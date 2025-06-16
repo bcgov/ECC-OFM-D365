@@ -93,13 +93,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 var calculatorId = Guid.Parse(calculator.AsObject().GetPropertyValue<string>("ofm_application_score_calculatorid"));
                 var facilityId = application.FacilityId ?? Guid.Empty;
                 if (facilityId == Guid.Empty) return (applicationId, false, "facility ID not found.");
-
                 var scoreParameters = await dataverseRepository.GetScoreParametersAsync(calculatorId);
                 if (!scoreParameters.Any()) return (applicationId, false, "No score parameters found.");
-
                 var facilityData = await dataverseRepository.GetFacilityDataAsync(facilityId);
                 if (facilityData == null) { return (applicationId, false, $"ofm_application with Id = {applicationId} is missing a facility"); }
-
                 var licenseData = await dataverseRepository.GetLicenseDataAsync(facilityId, application.SubmittedOn);
                 var incomeData = await dataverseRepository.GetIncomeDataAsync(facilityData.PostalCode, calculatorId);
                 var feeData = await dataverseRepository.GetFeeDataAsync(facilityId);
@@ -115,9 +112,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 _logger.LogDebug(CustomLogEvent.Process, "populationData {licenseData}", JsonSerializer.Serialize(populationData));
                 _logger.LogDebug(CustomLogEvent.Process, "schoolDistrictData {schoolDistrictData}", JsonSerializer.Serialize(schoolDistrictData));
                 _logger.LogDebug(CustomLogEvent.Process, "scoreParameters {scoreParameters}", JsonSerializer.Serialize(scoreParameters));
-
-
-
                 var scores = new List<JsonObject>();
                 var groupedParameters = scoreParameters.GroupBy(p => p.CategoryName);
                 foreach (var categoryGroup in groupedParameters)
@@ -183,11 +177,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                     {
                         scores.Add(scoreData);
                     }
-                }
-
-                
+                }               
                
-
+                //Upsert Scores
                 foreach (var score in scores)
                 {
                     _logger.LogInformation(CustomLogEvent.Process, "Upsert Batch started for calculated scores for application {applicationId}", applicationId);
@@ -259,9 +251,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
             var startTime = _timeProvider.GetTimestamp();
             var applicationsToProcess = new List<OFMApplication>();
             try
-            {
-               
-                
+            {   
                 if (processParams.LastScoreCalculationTimeStamp.HasValue && processParams?.LastScoreCalculationTimeStamp.Value > new DateTime(1900, 1, 1, 0, 0, 0))
                 {
                     var unprocessedApplications = await dataverseRepository.GetUnprocessedApplicationsAsync(processParams.LastScoreCalculationTimeStamp.Value);
@@ -270,24 +260,15 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 }
                 if (!processParams.LastScoreCalculationTimeStamp.HasValue && processParams.Application != null && processParams.Application.applicationId != null)
                 {
-
                     var app = await dataverseRepository.GetFundingApplicationAsync(processParams.Application.applicationId.Value);
                     applicationsToProcess.Add(app);
-
-
                 }
-
-
-
                 var tasks = applicationsToProcess.Select(app => ProcessSingleApplication(app.Id)).ToList();
-
                 var results = new ConcurrentBag<(Guid appId, bool IsSuccess, string Message)>();
-
                 await Parallel.ForEachAsync(tasks, async (item, cancellationToken) =>
                 {
                     results.Add(await item);
                 });
-
 
                 //var results = await Task.WhenAll(tasks);
                 foreach (var app in applicationsToProcess)
@@ -300,7 +281,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                         ["ofm_score_lastprocessed"] = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ")
                     };
                     await dataverseRepository.UpdateApplicationAsync(appId, updateData);
-
                 }
                 processingResult = ProcessResult.Success(ProcessId, applicationsToProcess!.Count);
                 if (results != null && results.Where(r => !r.IsSuccess).Any())

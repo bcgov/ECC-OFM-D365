@@ -6,7 +6,7 @@
       <LocalizedName description="AppScorePCF" languagecode="1033" />
     </LocalizedNames>
     <Descriptions />
-    <Version>1.0.10</Version>
+    <Version>1.0.18</Version>
     <Managed>0</Managed>
     <Publisher>
       <UniqueName>OperatingFundingModel</UniqueName>
