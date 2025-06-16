@@ -206,8 +206,8 @@ public class LocationStrategy(int comparisonOperator, string comparisonValue) : 
 
         if (application.FacilityType?.ToLower()?.Trim() == "rent/lease")
         {
-            DateTime? leaseStartDate = application.LeaseStartDate;
-            DateTime? leaseEndDate = application.SubmittedOn;
+            DateTime? leaseStartDate = application.SubmittedOn;
+            DateTime? leaseEndDate = application.LeaseEndDate;
             return Task.FromResult(comparisonHandler.Handle(_operator, application.FacilityType == "Rent/Lease" ? CheckLocationStability(leaseStartDate, leaseEndDate) : "No", comparisonValue));
         }
         if (application.FacilityType?.ToLower()?.Trim() == "owned with mortgage" || application.FacilityType?.ToLower()?.Trim() == "owned without mortgage")
