@@ -51,7 +51,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         <attribute name="emailaddress1" />
                         <order attribute="fullname" descending="false" />
                         <filter type="and">
-                          <condition attribute="ccof_username" operator="like" value="%OFM- CAS Contact%" />
+                          <condition attribute="lastname" operator="like" value="%OFM - CAS Contact%" />
                         </filter>
                       </entity>
                     </fetch>
