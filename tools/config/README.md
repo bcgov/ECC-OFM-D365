@@ -15,6 +15,6 @@ valid JSON file, so these types should be in JSON.
 | D365_BCCAS_API_URL                  | `String`        |
 | D365_CGI_BATCH_NUMBER               | `String`        |
 | D365_INVOICE_LINES_DISTRIBUTION_ACK | `String`        |
-
+|D365_DEFAULT_USER_ID                 | `String`        |
 Each of these keys are environment specific, so make sure you update each
 environment where applicable.
