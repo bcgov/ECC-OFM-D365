@@ -12,6 +12,7 @@ readonly D365_BC_REGISTRY_API=$9
 readonly D365_BCCAS_API_URL=${10}
 readonly D365_CGI_BATCH_NUMBER=${11}
 readonly D365_INVOICE_LINES_DISTRIBUTION_ACK=${12}
+readonly D365_DEFAULT_USER_ID=${13}
 
 SERVER_FRONTEND="https://ofm-frontend-$ENV_VAL-$OPENSHIFT_NAMESPACE.apps.silver.devops.gov.bc.ca"
 if [ "$ENV_VAL" = "prod" ]; then
@@ -239,6 +240,7 @@ D365_CONFIGURATION=$(jq << JSON
     "EmailSafeList": {
       "Enable": $D365_EMAIL_SAFE_LIST_ENABLE,
       "DefaultContactId": "$D365_DEFAULT_CONTACT_ID",
+      "DefaultUserId": "$D365_DEFAULT_USER_ID",
       "Recipients": $(cat "$D365_RECIPIENTS")
     },
     "fundingUrl": "$SERVER_FRONTEND/funding",
