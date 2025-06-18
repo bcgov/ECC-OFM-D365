@@ -485,6 +485,12 @@ public class LicenceDetail
     [JsonPropertyName("Total_Operational_Spaces")]
     public int Total_Operational_Spaces { get; set; }
 
+    [JsonPropertyName("Total_Under_Three")]
+    public decimal Total_Under_Three { get; set; }
+
+    [JsonPropertyName("Total_Three_to_Five")]
+    public decimal Total_Three_to_Five { get; set; }
+
     [property: JsonPropertyName("type")]
     public int Type { get; set; }
 

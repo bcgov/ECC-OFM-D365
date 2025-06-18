@@ -23,7 +23,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
         private ProcessParameter? _processParams;
         private ProcessData? _data;
         private string? licenceFilterDate;
-
+        
         private int Group_Child_Care_Under_36_Enrolled = 0;
         private int Group_Child_Care_Under_36_Licenced = 0;
         private int Group_Child_Care_Under_36_Operational = 0;
@@ -63,6 +63,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
         private int Total_Licenced_Spaces = 0;
         private int Total_Operational_Spaces = 0;
         private int Total_Enrolled_Spaces = 0;
+        private decimal Total_Three_to_Five;
+        private decimal Total_Under_Three;
+        private decimal Total_Star_Percentage;
 
         public short ProcessId => Setup.Process.LicenceDetailRecords.CalculateLicenceTotal;
         public string ProcessName => Setup.Process.LicenceDetailRecords.CalculteLicenceTotalName;
@@ -74,9 +77,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                 var fetchXml = $"""
                     <fetch aggregate="true">
                       <entity name="ofm_licence_detail">
-                        <attribute name="ofm_enrolled_spaces" alias="Total_Enrolled_Spaces" aggregate="sum" />
+                       <attribute name="ofm_enrolled_spaces" alias="Total_Enrolled_Spaces" aggregate="sum" />
                         <attribute name="ofm_licence_spaces" alias="Total_Licenced_Spaces" aggregate="sum" />
                         <attribute name="ofm_operational_spaces" alias="Total_Operational_Spaces" aggregate="sum" />
+                        <attribute name="ofm_star_spaces_three_to_five_years" alias="Total_Three_to_Five" aggregate="sum" />
+                        <attribute name="ofm_star_spaces_under_three_years" alias="Total_Under_Three" aggregate="sum" />
                         <attribute name="ofm_licence_type" groupby="true" alias="type" />
                         <filter>
                           <condition attribute="statecode" operator="eq" value="0" />
@@ -84,6 +89,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                         <link-entity name="ofm_licence" from="ofm_licenceid" to="ofm_licence" link-type="inner">
                           <filter type="and">
                             <condition attribute="ofm_start_date" operator="on-or-before" value="{licenceFilterDate}" />
+                            <condition attribute="statecode" operator="eq" value="0" />
                             <filter type="or">
                               <condition attribute="ofm_end_date" operator="null" />
                               <condition attribute="ofm_end_date" operator="on-or-after" value="{licenceFilterDate}" />
@@ -170,12 +176,14 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
             _logger.LogDebug(CustomLogEvent.Process, "Start of {nameof}", nameof(P900CalculateLicenceTotal));
             var licenceDetail = await GetDataAsync();
             var deserializedLicenceDetailData = JsonSerializer.Deserialize<List<LicenceDetail>>(licenceDetail.Data.ToString());
-
-            deserializedLicenceDetailData?.ForEach(licenceDetail =>
+            #region commented code to hold total space functionality
+            /*deserializedLicenceDetailData?.ForEach(licenceDetail =>
             {
                 Total_Enrolled_Spaces += licenceDetail.Total_Enrolled_Spaces;
                 Total_Licenced_Spaces += licenceDetail.Total_Licenced_Spaces;
                 Total_Operational_Spaces += licenceDetail.Total_Operational_Spaces;
+                Total_Under_Three += licenceDetail.Total_Under_Three;
+                Total_Three_to_Five += licenceDetail.Total_Three_to_Five;
 
                 switch (licenceDetail.Type)
                 {
@@ -281,6 +289,34 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                                 {"ofm_total_licenced_spaces", Total_Licenced_Spaces},
                                 {"ofm_total_operational_spaces", Total_Operational_Spaces},
                                 {"ofm_total_enrolled_spaces", Total_Enrolled_Spaces},
+                               };*/
+            #endregion
+
+            deserializedLicenceDetailData?.ForEach(licenceDetail =>
+            {
+                Total_Operational_Spaces += licenceDetail.Total_Operational_Spaces;
+                Total_Under_Three += licenceDetail.Total_Under_Three;
+                Total_Three_to_Five += licenceDetail.Total_Three_to_Five;
+
+               
+            });
+            Total_Under_Three = Math.Round(Total_Under_Three);
+            Total_Three_to_Five = Math.Round(Total_Three_to_Five);
+            if ( Total_Operational_Spaces != 0)
+            {
+                Total_Star_Percentage = Math.Round(((Total_Under_Three + Total_Three_to_Five) / Total_Operational_Spaces) * 100);
+           }
+            else
+            {
+                _logger.LogError("Total_Operational_Spaces is null or zero. Cannot compute percentage.");
+            }
+
+          
+           var updateApplicationRecord = new JsonObject {
+                                {"ofm_total_operational_spaces", Total_Operational_Spaces},
+                                {"ofm_total_under_three",Total_Under_Three },
+                                {"ofm_total_three_to_five",Total_Three_to_Five },
+                                {"ofm_star_total_percentage",Total_Star_Percentage },
                                };
             var serializedApplicationRecord = JsonSerializer.Serialize(updateApplicationRecord);
             var updateApplicationResult = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, $"ofm_applications({_processParams.Application.applicationId})", serializedApplicationRecord);
