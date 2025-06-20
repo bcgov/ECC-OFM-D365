@@ -56,6 +56,10 @@ public interface IDataverseRepository
     /// <param name="calculatorId">GUID of the application score calculator</param>
     /// <returns></returns>
     Task<ACCBIncomeIndicator> GetIncomeDataAsync(string postalCode, Guid calculatorId);
+
+
+    Task<IEnumerable<ApplicationScoreValue>> GetApplicationScores(Guid ApplicationId);
+
     /// <summary>
     /// Get Approved Parent Fees of the facility
     /// </summary>
@@ -138,7 +142,19 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         return new OFMApplication(json);
     }
-
+    public async Task<IEnumerable<ApplicationScoreValue>> GetApplicationScores(Guid applicationId)
+    {
+        
+        var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.ApplicationScoresQuery, applicationId)}", formatted: true, pageSize: 5000);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            throw new Exception($"GetApplicationScores({applicationId}): HTTP Failure: {responseBody}");
+        }
+        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var values = json["value"]?.AsArray() ?? new JsonArray();
+        return values.Select(v => new ApplicationScoreValue(v.AsObject()));
+    }
     public async Task<IEnumerable<OFMApplication>> GetUnprocessedApplicationsAsync(DateTime lastTime)
     {
         var formattedTime = lastTime.ToString("yyyy-MM-ddTHH:mm:ssZ");
