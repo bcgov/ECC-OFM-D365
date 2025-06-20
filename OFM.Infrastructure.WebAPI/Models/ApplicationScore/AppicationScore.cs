@@ -293,7 +293,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         public static string AllACCBDataQuery = @$"ofm_accbs?$select=ofm_accbid,ofm_postal_code,ofm_income_indicator,ofm_name&$filter=(_ofm_application_score_calculator_value eq {{0}}  and statecode eq 0)";
         public static string AllPopulationCentreQuery = $@"ofm_population_centres?$select=ofm_population_centreid,ofm_city,ofm_projected_population,ofm_name,ofm_projected_population&$filter=(_ofm_application_score_calculator_value eq {{0}} and statecode eq 0)";
 
-        public const string ApplicationScoresQuery = "ofm_application_scores?$filter=_ofm_application_value eq {0}&$select=ofm_application_scoreid,_ofm_application_score_calculator_value";
+        public const string ApplicationScoresQuery = "ofm_application_scores?$filter=_ofm_application_value eq {0}&$select=ofm_application_scoreid,_ofm_application_score_calculator_value,_ofm_application_value";
 
     }
     /// <summary>
@@ -639,7 +639,7 @@ namespace OFM.Infrastructure.WebAPI.Models.ApplicationScore
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
-        public Guid? ApplicationScoreId => _data.GetPropertyValue<Guid>("_ofm_application_value");
+        public Guid? ApplicationScoreId => _data.GetPropertyValue<Guid>("ofm_application_scoreid");
         public Guid? ApplicationScoreCalculatorId => _data.GetPropertyValue<Guid>("_ofm_application_score_calculator_value");
 
     }
