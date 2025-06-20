@@ -36,7 +36,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                                     </filter>
                                     <link-entity name=""ofm_intake"" from=""ofm_application_score_calculator"" to=""ofm_application_score_calculatorid"" link-type=""inner"" alias=""intake"">
                                     <attribute name=""ofm_start_date"" />
-                                    <attribute name=""ofm_end_date"" />                                      
+                                    <attribute name=""ofm_end_date"" />  
+<filter>
+                                    <condition attribute=""statecode"" operator=""eq"" value=""0"" />
+                                    </filter>
                                     </link-entity>
                                   </entity>
                                 </fetch>";
@@ -177,17 +180,24 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                     {
                         scores.Add(scoreData);
                     }
-                }               
-               
-                //Upsert Scores
-                foreach (var score in scores)
-                {
-                    _logger.LogInformation(CustomLogEvent.Process, "Upsert Batch started for calculated scores for application {applicationId}", applicationId);
-                    await dataverseRepository.UpsertApplicationScoreAsync($"_ofm_application_value={applicationId},_ofm_application_score_category_value={score["ofm_application_score_category@odata.bind"]?.ToString().Replace("ofm_application_score_categories", "").Replace("(", "").Replace(")", "")}", score);
-                    _logger.LogInformation(CustomLogEvent.Process, "Upsert Batch completed for calculated scores for application {applicationId}", applicationId);
-
                 }
-                 
+
+
+
+                var existingScores = await dataverseRepository.GetApplicationScores(applicationId);
+
+
+                if ((existingScores == null || !existingScores.Any()) || (existingScores != null && existingScores.Any() && existingScores.Where(x => x.ApplicationScoreCalculatorId.Equals(calculatorId)).Any()))
+                {
+                    //Upsert Scores
+                    foreach (var score in scores)
+                    {
+                        _logger.LogInformation(CustomLogEvent.Process, "Upsert Batch started for calculated scores for application {applicationId}", applicationId);
+                        await dataverseRepository.UpsertApplicationScoreAsync($"_ofm_application_value={applicationId},_ofm_application_score_category_value={score["ofm_application_score_category@odata.bind"]?.ToString().Replace("ofm_application_score_categories", "").Replace("(", "").Replace(")", "")}", score);
+                        _logger.LogInformation(CustomLogEvent.Process, "Upsert Batch completed for calculated scores for application {applicationId}", applicationId);
+
+                    }
+                }
                 
 
                 //commented due to timeout while processing batch
