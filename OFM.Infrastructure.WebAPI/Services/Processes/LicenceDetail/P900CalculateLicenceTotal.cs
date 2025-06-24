@@ -304,7 +304,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
             Total_Three_to_Five = Math.Round(Total_Three_to_Five);
             if ( Total_Operational_Spaces != 0)
             {
-                Total_Star_Percentage = Math.Round(((Total_Under_Three + Total_Three_to_Five) / Total_Operational_Spaces) * 100);
+                Total_Star_Percentage =((Total_Under_Three + Total_Three_to_Five) / Total_Operational_Spaces) * 100;
            }
             else
             {
