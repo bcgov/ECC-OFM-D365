@@ -1,0 +1,25 @@
+name: Update Git Tag
+on:
+ workflow_dispatch:
+    inputs:
+      old_tag:
+        description: 'Old tag name'
+        required: true
+      new_tag:
+        description: 'New tag name'
+        required: true
+
+jobs:
+  update-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Replace Old Tag with New Tag
+        run: |
+          git fetch --tags
+          git tag ${{ github.event.inputs.new_tag }} ${{ github.event.inputs.old_tag }}
+          git tag -d ${{ github.event.inputs.old_tag }}
+          git push origin ${{ github.event.inputs.new_tag }}
+          git push origin :${{ github.event.inputs.old_tag }}
