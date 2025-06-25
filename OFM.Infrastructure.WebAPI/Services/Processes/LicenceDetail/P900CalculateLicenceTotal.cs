@@ -300,11 +300,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
 
                
             });
-            Total_Under_Three = Math.Round(Total_Under_Three);
-            Total_Three_to_Five = Math.Round(Total_Three_to_Five);
-            if ( Total_Operational_Spaces != 0)
+            var Total = Math.Round(Total_Under_Three + Total_Three_to_Five, 0, MidpointRounding.AwayFromZero);
+            if (Total_Operational_Spaces != 0)
             {
-                Total_Star_Percentage =((Total_Under_Three + Total_Three_to_Five) / Total_Operational_Spaces) * 100;
+                Total_Star_Percentage = Math.Round(Total / Total_Operational_Spaces * 100, 0, MidpointRounding.AwayFromZero) ;
            }
             else
             {
@@ -314,9 +313,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
           
            var updateApplicationRecord = new JsonObject {
                                 {"ofm_total_operational_spaces", Total_Operational_Spaces},
-                                {"ofm_total_under_three",Total_Under_Three },
-                                {"ofm_total_three_to_five",Total_Three_to_Five },
-                                {"ofm_star_total_percentage",Total_Star_Percentage },
+                                {"ofm_star_total_percentage",Total_Star_Percentage},
                                };
             var serializedApplicationRecord = JsonSerializer.Serialize(updateApplicationRecord);
             var updateApplicationResult = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, $"ofm_applications({_processParams.Application.applicationId})", serializedApplicationRecord);
