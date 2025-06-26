@@ -300,10 +300,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
 
                
             });
-            var Total = Math.Round(Total_Under_Three + Total_Three_to_Five, 0, MidpointRounding.AwayFromZero);
+           // var Total = Math.Round(Total_Under_Three + Total_Three_to_Five, 0, MidpointRounding.AwayFromZero);
             if (Total_Operational_Spaces != 0)
             {
-                Total_Star_Percentage = Math.Round(Total / Total_Operational_Spaces * 100, 0, MidpointRounding.AwayFromZero) ;
+                Total_Star_Percentage = Math.Round(Total_Under_Three + Total_Three_to_Five / Total_Operational_Spaces * 100, 0, MidpointRounding.AwayFromZero) ;
            }
             else
             {
