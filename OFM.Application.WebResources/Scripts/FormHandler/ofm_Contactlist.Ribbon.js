@@ -40,7 +40,7 @@ OFM.ContactList.Ribbon = {
 
         var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
         userRoles.forEach(function hasRole(item, index) {
-            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership") {
+            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC" || item.name === "OFM - Program Support") {
                 visable = true;
             }
         });
