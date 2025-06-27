@@ -253,6 +253,13 @@
             <param name="preventDuplicateRecord">Whether to throw an error when a duplicate record is detected.</param>
             <param name="partitionId">The partition key to use.</param>
         </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Messages.PatchRequest.#ctor(System.String,System.Text.Json.Nodes.JsonObject)">
+            <summary>
+            Intializes the Patch Request for Update and Upsert Requests
+            </summary>
+            <param name="entitySetName">The name of the entity set.</param>
+            <param name="record">Contains the data for the record to update and upsert.</param>
+        </member>
         <member name="M:OFM.Infrastructure.WebAPI.Messages.D365EntityReference.#ctor(System.String,System.Nullable{System.Guid})">
             <summary>
             Creates an EntityReference with EntitySetName and Guid Id
@@ -336,6 +343,101 @@
         <member name="T:OFM.Infrastructure.WebAPI.Messages.UpsertBehavior">
             <summary>
             Specifies the behavior for an Upsert operation.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries">
+            <summary>
+            Contains predefined queries for retrieving data from Dataverse.
+            These queries are used to fetch application details, facility information, licensing data, and more.
+            </summary>
+        </member>
+        <member name="F:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries.FundingApplicationQuery">
+            <summary>
+            Query to fetch details of a specific funding application.
+            Retrieves application ID, facility, modification date, processing status, and provider type.
+            </summary>
+        </member>
+        <member name="F:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries.UnprocessedApplicationsQuery">
+            <summary>
+            Query to fetch unprocessed submitted applications based on modification date.
+            Filters applications that have been modified after a given date and are in an active state.
+            </summary>
+        </member>
+        <member name="F:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries.ModifiedApplicationsQuery">
+            <summary>
+            Query to fetch submitted applications modified after a certain date.
+            </summary>
+        </member>
+        <member name="F:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries.ScoreParametersQuery">
+            <summary>
+            Query to fetch application score parameters for an application score calculator.
+            Retrieves scoring categories, comparison operators, and maximum scores.
+            </summary>
+        </member>
+        <member name="F:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries.facilityQuery">
+            <summary>
+            Query to fetch facility details.
+            Retrieves facility location, organization details, and licensing information.
+            </summary>
+        </member>
+        <member name="F:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries.LicenseDataQuery">
+            <summary>
+            Query to fetch license data for a facility.
+            Retrieves ofm_licence_details such as start and end dates, facility ID, and operational spaces.
+            </summary>
+        </member>
+        <member name="F:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries.IncomeDataQuery">
+            <summary>
+            Query to fetch income data based on postal code from ACCB assocaiated with Application Score Calculator
+            Retrieves ACCB income indicators for a given region.
+            </summary>
+        </member>
+        <member name="F:OFM.Infrastructure.WebAPI.Models.ApplicationScore.DataverseQueries.AppovedFeeDataQuery">
+            <summary>
+            Query to fetch approved parent fee data.
+            Retrieves financial details related to childcare fees.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.ApplicationScore.OFMApplication">
+            <summary>
+            Represents a OFM Application entity.
+            Contains properties mapping Dataverse fields.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.ApplicationScore.ScoreParameter">
+            <summary>
+            Represents a Application Score Paramter table.
+            Contains properties mapping Dataverse fields.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.ApplicationScore.Facility">
+            <summary>
+            Represents a Facility table.
+            Contains properties mapping Dataverse fields.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.ApplicationScore.LicenseSpaces">
+            <summary>
+            Represents a Application Score Parameter table.
+            Contains properties mapping Dataverse fields.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.ApplicationScore.ACCBIncomeIndicator">
+            <summary>
+            Represents ACCB table.
+            Contains properties mapping Dataverse fields.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.ApplicationScore.PopulationCentre">
+            <summary>
+            Represents a Poplulation Centre table.
+            Contains properties mapping Dataverse fields.
+            </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Models.ApplicationScore.SchoolDistrict">
+            <summary>
+            Represents a School District table.
+            Contains properties mapping Dataverse fields.
             </summary>
         </member>
         <member name="F:OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail._applyRoomSplit">
@@ -440,6 +542,150 @@
             <param name="client"></param>
             <returns></returns>
         </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository">
+            <summary>
+            Interface to declare all methods used to access Dataverse API
+            </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetFundingApplicationAsync(System.Guid)">
+            <summary>
+            This Method returns the Funding Application object to be used P800 process
+            </summary>
+            <param name="applicationId">The GUID of the ofm_application to retrieve from Web API</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetUnprocessedApplicationsAsync(System.DateTime)">
+            <summary>
+            This Method returns the list of unprocessed Funding Applications to be used P800 process
+            </summary>
+            <param name="lastProcessedTime">The last timetstamp from which application needs to retrieved from web api</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetModifiedApplicationsAsync(System.DateTime)">
+            <summary>
+            This Method returns the list of modified Funding Applications to be used P800 process
+            </summary>
+            <param name="lastProcessedTime">The last timetstamp from which application needs to retrieved from web api</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetScoreParametersAsync(System.Guid)">
+            <summary>
+            This Method returns the list of Application score Parameters associated with an Aplication Calculator
+            </summary>
+            <param name="calculatorId">The GUID of ofm_application_score_calculator</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetFacilityDataAsync(System.Guid)">
+            <summary>
+            Get The Facility
+            </summary>
+            <param name="facilityId">GUID of the facility record</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetLicenseDataAsync(System.Guid,System.Nullable{System.DateTime})">
+            <summary>
+            Get License Data for Total Operational Spaces and Max ChildCare spaces
+            </summary>
+            <param name="facilityId">GUID of the facility</param>
+            <param name="submittedOn">Application submitted date</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetIncomeDataAsync(System.String,System.Guid)">
+            <summary>
+            Get the ACCB data
+            </summary>
+            <param name="postalCode">Postal code of the facilty</param>
+            <param name="calculatorId">GUID of the application score calculator</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetFeeDataAsync(System.Guid)">
+            <summary>
+            Get Approved Parent Fees of the facility
+            </summary>
+            <param name="facilityId">GUID of the facility</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetPopulationDataAsync(System.String,System.Guid)">
+            <summary>
+            
+            </summary>
+            <param name="city"></param>
+            <param name="calculatorId">GUID of the application score calculator</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetThresholdDataAsync(System.Guid)">
+            <summary>
+            Get the 40 Percetile Table for Parent Fees
+            </summary>
+            <param name="calculatorId">GUID of the application score calculator</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetSchoolDistrictDataAsync(System.String,System.Guid)">
+            <summary>
+            Get School District By Postal Code
+            </summary>
+            <param name="postalCode">postal code</param>
+            <param name="calculatorId">GUID of the application score calculator</param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.CreateScoreAsync(System.Text.Json.Nodes.JsonObject)">
+            <summary>
+            Create Application Score
+            </summary>
+            <param name="score"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.UpsertApplicationScoresBatchAsync(System.Collections.Generic.Dictionary{System.String,System.Text.Json.Nodes.JsonObject})">
+            <summary>
+            
+            </summary>
+            <param name="scores"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.UpdateApplicationAsync(System.Guid,System.Text.Json.Nodes.JsonObject)">
+            <summary>
+            Update Application table
+            </summary>
+            <param name="applicationId">Guid of ofm_application record</param>
+            <param name="application"></param>
+            <returns></returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.UpsertApplicationScoreAsync(System.String,System.Text.Json.Nodes.JsonObject)">
+            <summary>
+            Upsert the Application Scores
+            </summary>
+            <param name="Keys">Alternate Keys to upsert</param>
+            <param name="applicationScore">application score Object</param>
+            <returns></returns>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IScoreStrategy">
+            <summary>
+            Interface defining the contract for all scoring strategies.
+            Each strategy implements this interface and provides a unique evaluation logic.
+            </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IScoreStrategy.EvaluateAsync(OFM.Infrastructure.WebAPI.Handlers.IComparisonHandler,OFM.Infrastructure.WebAPI.Models.ApplicationScore.ScoreParameter,OFM.Infrastructure.WebAPI.Models.ApplicationScore.OFMApplication,OFM.Infrastructure.WebAPI.Models.ApplicationScore.Facility,OFM.Infrastructure.WebAPI.Models.ApplicationScore.LicenseSpaces,OFM.Infrastructure.WebAPI.Models.ApplicationScore.ACCBIncomeIndicator,System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.ApplicationScore.ApprovedParentFee},System.Collections.Generic.IEnumerable{OFM.Infrastructure.WebAPI.Models.ApplicationScore.FortyPercentileThresholdFee},OFM.Infrastructure.WebAPI.Models.ApplicationScore.PopulationCentre,OFM.Infrastructure.WebAPI.Models.ApplicationScore.SchoolDistrict)">
+            <summary>
+            Evaluates the scoring criteria based on various parameters.
+            </summary>
+            <param name="comparisonHandler">Handles comparison operations.</param>
+            <param name="parameters">Score parameters.</param>
+            <param name="application">Funding application details.</param>
+            <param name="facilityData">Facility details.</param>
+            <param name="licenseData">License spaces data.</param>
+            <param name="incomeData">Income indicator data.</param>
+            <param name="feeData">Approved parent fees.</param>
+            <param name="thresholdData">Threshold fee data.</param>
+            <param name="populationData">Population center data.</param>
+            <param name="schoolDistrictData">School district data.</param>
+            <returns>Returns a boolean indicating whether the criteria is met.</returns>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.LocationStrategy">
+            Factory class to create appropriate strategy instances based on category name
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.LocationStrategy.#ctor(System.Int32,System.String)">
+            Factory class to create appropriate strategy instances based on category name
+        </member>
         <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.DefaultCalculator">
             <summary>
              This calculator version calculates funding amounts using the default allocation. 
@@ -505,6 +751,24 @@
             </summary>
             <param name="contactId">GUID of contact</param>
             <returns>Contact details</returns>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P255CreateRenewalNotificationProvider">
+             <summary>
+            Generates the reminders for approved funding application for 30, 90 and 120 days before the expiry of the funding
+             Refer to : https://eccbc.atlassian.net/wiki/spaces/OOFMCC/pages/521405457/Send+Renewal+Notification
+             </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P255CreateRenewalNotificationProvider.#ctor(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,Microsoft.Extensions.Logging.ILoggerFactory,System.TimeProvider,Microsoft.Extensions.Options.IOptionsSnapshot{OFM.Infrastructure.WebAPI.Models.NotificationSettings})">
+             <summary>
+            Generates the reminders for approved funding application for 30, 90 and 120 days before the expiry of the funding
+             Refer to : https://eccbc.atlassian.net/wiki/spaces/OOFMCC/pages/521405457/Send+Renewal+Notification
+             </summary>
+        </member>
+        <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P260SendRenewalRemindersProvider">
+            <summary>
+            Processes the reminders generated from P255CreateRenewalNotificationProvider Endpoint for applications where no renewal is not submitted in th eystem
+            Refer to : https://eccbc.atlassian.net/wiki/spaces/OOFMCC/pages/521405457/Send+Renewal+Notification
+            </summary>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles.P405VerifyGoodStandingBatchProvider.CreateTaskForNotGoodStandingFrom90Days(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,System.String)">
             <summary>
@@ -3604,6 +3868,11 @@
             1:N ofm_contact_funding
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Contact.ofm_contact_funding_decliner">
+            <summary>
+            1:N ofm_contact_funding_decliner
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Contact.ofm_contact_survey_response">
             <summary>
             1:N ofm_contact_survey_response
@@ -4070,6 +4339,11 @@
             Parent Activity Name
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.Email.parentsensitivitylabelid">
+            <summary>
+            For internal use only.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.Email.postponeemailprocessinguntil">
             <summary>
             For internal use only.
@@ -4158,6 +4432,16 @@
         <member name="P:ECC.Core.DataContext.Email.sendersaccountyominame">
             <summary>
             Shows the name of the sender account yomi name 
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Email.sensitivitylabelid">
+            <summary>
+            The sensitivity label assigned to the Email.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.Email.sensitivitylabelinfo">
+            <summary>
+            For internal use only.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Email.senton">
@@ -5644,6 +5928,16 @@
             Provider Type
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_renewalapplicationid">
+            <summary>
+            This field stores the next renewal funding application in the system
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.ofm_renewalapplicationstatus">
+            <summary>
+            Stores the status of the renewal application
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_secondary_contact">
             <summary>
             Unique identifier for Contact associated with Application.
@@ -5829,6 +6123,11 @@
             1:N ofm_application_reminder
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.Referencedofm_application_RenewalApplicationId">
+            <summary>
+            1:N ofm_application_RenewalApplicationId
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_document_application">
             <summary>
             1:N ofm_document_application
@@ -5852,6 +6151,11 @@
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_request_application">
             <summary>
             1:N ofm_request_application
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_application.Referencingofm_application_RenewalApplicationId">
+            <summary>
+            N:1 ofm_application_RenewalApplicationId
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_contact_applications">
@@ -8188,6 +8492,11 @@
             Value of the Administrative (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_administrative_topup_base">
+            <summary>
+            Value of the Administrative Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_facility">
             <summary>
             Facility - Annual Province Base Funding
@@ -8216,6 +8525,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_facility_proj_base">
             <summary>
             Value of the Facility (Projected) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_facility_topup_base">
+            <summary>
+            Value of the Facility Topup in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_grand_total">
@@ -8248,6 +8562,11 @@
             Value of the Funding Total (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_grand_total_topup_base">
+            <summary>
+            Value of the Total Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_benefits">
             <summary>
             Benefits - Annual Province Base Funding
@@ -8276,6 +8595,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_benefits_proj_base">
             <summary>
             Value of the Benefits (Projected) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_benefits_topup_base">
+            <summary>
+            Value of the Benefits Topup in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_employerhealthtax">
@@ -8308,6 +8632,11 @@
             Value of the Employer Health Tax (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_employerhealthtax_topup_base">
+            <summary>
+            Value of the Employer Health Tax Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevexpenses">
             <summary>
             Professional Development Expenses - Annual Province Base Funding 
@@ -8336,6 +8665,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevexpenses_proj_base">
             <summary>
             Value of the Professional Development Expenses (Projected) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevexpenses_topup_base">
+            <summary>
+            Value of the Professional Development Expenses Topup in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevhours">
@@ -8368,6 +8702,11 @@
             Value of the Professional Development Hours (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_prodevhours_topup_base">
+            <summary>
+            Value of the Professional Development Hours Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_total">
             <summary>
             Instructional Human Resources - Annual Province Base Funding 
@@ -8398,12 +8737,18 @@
             Value of the Instructional Human Resources (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_total_topup_base">
+            <summary>
+            Value of the Instructional Human Resources Topup in base currency.
+            </summary>
+        </member>
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_base" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_pf" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_pf_base" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_proj" -->
         <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_proj_base" -->
+        <!-- Badly formed XML comment ignored for member "P:ECC.Core.DataContext.ofm_funding.ofm_envelope_hr_wages_paidtimeoff_topup_base" -->
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_operational">
             <summary>
             Operational - Annual Province Base Funding
@@ -8434,6 +8779,11 @@
             Value of the Operational (Projected) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_operational_topup_base">
+            <summary>
+            Value of the Operational Topup in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_programming">
             <summary>
             Programming - Annual Province Base Funding 
@@ -8462,6 +8812,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_programming_proj_base">
             <summary>
             Value of the Programming (Projected) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_envelope_programming_topup_base">
+            <summary>
+            Value of the Programming Topup in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_envelope">
@@ -8509,12 +8864,12 @@
             New Allocation Date
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_notified_expense_authority">
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_provider_approver">
             <summary>
-            If EA has been notified when Funding is submitted
+            The associated contact
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_provider_approver">
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_provider_decliner">
             <summary>
             The associated contact
             </summary>
@@ -8652,6 +9007,11 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_contact_funding">
             <summary>
             N:1 ofm_contact_funding
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_contact_funding_decliner">
+            <summary>
+            N:1 ofm_contact_funding_decliner
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_facility_account">
@@ -11708,6 +12068,11 @@
             Value of the Parent Fee Per Day (PT) in base currency.
             </summary>
         </member>
+        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_parent_fee_per_day_pt_school_age_base">
+            <summary>
+            Value of the School Age Parent Fees Per Day (Part-Time)  in base currency.
+            </summary>
+        </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_parent_fee_per_month_ft_base">
             <summary>
             Value of the Parent Fee Per Month (FT) in base currency.
@@ -11716,6 +12081,11 @@
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_parent_fee_per_month_pt_base">
             <summary>
             Value of the Parent Fee Per Month (PT) in base currency.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_parent_fee_per_month_pt_school_age_base">
+            <summary>
+            Value of the School Age Parent Fee Per Month (Parent - Time)  in base currency.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_rate_schedule.ofm_pde_cultural_training_base">
@@ -13816,6 +14186,11 @@
         <member name="P:ECC.Core.DataContext.ofm_top_up_fund.modifiedonbehalfby">
             <summary>
             Unique identifier of the delegate user who modified the record.
+            </summary>
+        </member>
+        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_pdf_organization_name">
+            <summary>
+            Organization Name for Top Up PDF
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_programming_amount_base">

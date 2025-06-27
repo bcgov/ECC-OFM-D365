@@ -70,6 +70,13 @@ public record ProcessParameter
     [property: JsonPropertyName("dataImportId")]
     public Guid? DataImportId { get; set; }
 
+    //created for P255 Create renewal reminders for Existing Fundings
+    [property: JsonPropertyName("createExistingFundingReminders")]
+    public bool? CreateExistingFundingReminders { get; set; }
+    [property: JsonPropertyName("lastTimeStamp")]
+    public DateTime? LastScoreCalculationTimeStamp { get; set; }
+    [property: JsonPropertyName("scoreCalculatorVersionId")]
+    public Guid? ScoreCalculatorVersionId { get; set; }
 
     #region Inner Parameter Record Objects
 
@@ -107,6 +114,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("emailBody")]
         public string? EmailBody { get; set; }
+
+        [property: JsonPropertyName("reportStartDate")]
+        public DateTime? ReportStartDate { get; set; }
     }
 
     public record OrganizationParameter
@@ -126,7 +136,13 @@ public record ProcessParameter
     public record ApplicationParameter
     {
         [property: JsonPropertyName("applicationId")]
-        public Guid? applicationId { get; set; }    
+        public Guid? applicationId { get; set; }
+        [property: JsonPropertyName("createdOn")]
+        public DateTime? createdOn { get; set; }
+        [property: JsonPropertyName("submittedOn")]
+        public DateTime? submittedOn { get; set; }
+        [property: JsonPropertyName("facilityId")]
+        public string? facilityId { get; set; }
     }
 
     public record SupplementaryApplicationParameter

@@ -42,3 +42,26 @@ public sealed class CreateRequest : HttpRequestMessage
     }
 }
 
+public sealed class PatchRequest : HttpRequestMessage
+{
+    /// <summary>
+    /// Intializes the Patch Request for Update and Upsert Requests
+    /// </summary>
+    /// <param name="entitySetName">The name of the entity set.</param>
+    /// <param name="record">Contains the data for the record to update and upsert.</param>
+    public PatchRequest(string entitySetName, JsonObject record)
+    {
+        string path;
+        path = entitySetName;
+        Method = HttpMethod.Patch;
+        RequestUri = new Uri(
+            uriString: path,
+            uriKind: UriKind.Relative);
+
+        Content = new StringContent(
+                content: record.ToJsonString(),
+                encoding: System.Text.Encoding.UTF8,
+                mediaType: "application/json");
+        
+    }
+}

@@ -192,12 +192,14 @@ public class Supplementary : ofm_allowance
     public string _ofm_application_value { get; set; }
 
 }
+
+
 public record ofm_reminders
 {
     public required string ofm_reminderid { get; set; }
     public int ofm_template_number { get; set; }
     public int statuscode { get; set; }
-    public int ofm_year_number { get; set; }
+    public int? ofm_year_number { get; set; }
 
     public DateTime ofm_due_date { get; set; }
 }
@@ -514,6 +516,8 @@ public class ProviderStaff
 public class TopUp : ofm_top_up_fund
 {
     public new decimal? ofm_programming_amount { get; set; }
+    public Funding? ofm_funding { get; set; }
+    public string ofm_funding_number { get; set; }
 }
 
 public class User 
@@ -527,6 +531,30 @@ public class QuestionResponse : ofm_question_response
     public string ofm_question_qid { get; set; }
     [property: JsonPropertyName("header.ofm_question_id")]
     public string ofm_header_qid { get; set; }
+}
+
+public class LicenceDetail
+{
+    [JsonPropertyName("Total_Enrolled_Spaces")]
+    public int Total_Enrolled_Spaces { get; set; }
+
+    [JsonPropertyName("Total_Licenced_Spaces")]
+    public int Total_Licenced_Spaces { get; set; }
+
+    [JsonPropertyName("Total_Operational_Spaces")]
+    public int Total_Operational_Spaces { get; set; }
+
+    [JsonPropertyName("Total_Under_Three")]
+    public decimal Total_Under_Three { get; set; }
+
+    [JsonPropertyName("Total_Three_to_Five")]
+    public decimal Total_Three_to_Five { get; set; }
+
+    [property: JsonPropertyName("type")]
+    public int Type { get; set; }
+
+    [property: JsonPropertyName("type@OData.Community.Display.V1.FormattedValue")]
+    public string TypeName { get; set; } = string.Empty;
 }
 
 #region External Parameters

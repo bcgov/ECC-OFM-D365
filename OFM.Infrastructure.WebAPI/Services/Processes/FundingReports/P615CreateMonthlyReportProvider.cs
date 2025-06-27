@@ -187,7 +187,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
     {
         _logger.LogDebug(CustomLogEvent.Process, "Calling GetTemplateToSendEmail");
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, uri, isProcess: true);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, uri, isProcess:true);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -347,12 +347,12 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
         var duedateInUTC = new DateTime(duedateInPST.Year, duedateInPST.Month, DateTime.DaysInMonth(duedateInPST.Year, duedateInPST.Month), 23, 59, 00).ToUTC();
 
 
-        /*        if (!batchFlag)
-                {
-                    var duedateMonth = monthEndDateInUTC.AddMonths(1);
-                    duedateInPST = new DateTime(duedateMonth.Year, duedateMonth.Month, DateTime.DaysInMonth(duedateMonth.Year, duedateMonth.Month), 23, 59, 00);
-                    duedateInUTC = duedateInPST.ToUTC();
-                }*/
+/*        if (!batchFlag)
+        {
+            var duedateMonth = monthEndDateInUTC.AddMonths(1);
+            duedateInPST = new DateTime(duedateMonth.Year, duedateMonth.Month, DateTime.DaysInMonth(duedateMonth.Year, duedateMonth.Month), 23, 59, 00);
+            duedateInUTC = duedateInPST.ToUTC();
+        }*/
 
 
         //Start date
@@ -413,11 +413,11 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             var previousHRQuestionResponseData = await GetReportDataAsync(HRQuestionResponseUri);
             var serializedPreviousHRQuestionResponseData = System.Text.Json.JsonSerializer.Deserialize<List<QuestionResponse>>(previousHRQuestionResponseData.Data, Setup.s_writeOptionsForLogs);
 
-            foreach (var questionResponse in serializedPreviousHRQuestionResponseData)
+            foreach(var questionResponse in serializedPreviousHRQuestionResponseData)
             {
 
                 var questionTemplateId = $"/ofm_questions({serializedHRQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_question_qid).FirstOrDefault().ofm_questionid})";
-                var headerTemplateId = String.IsNullOrEmpty(questionResponse.ofm_header_qid) ? null : $"/ofm_questions({serializedHRQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_header_qid).FirstOrDefault().ofm_questionid})";
+                var headerTemplateId = String.IsNullOrEmpty(questionResponse.ofm_header_qid) ? null:$"/ofm_questions({serializedHRQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_header_qid).FirstOrDefault().ofm_questionid})";
 
                 var newQuestionResponse = new JsonObject
                     {
@@ -428,13 +428,13 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                         {"ofm_response_text", questionResponse.ofm_response_text}
                     };
 
-                //Create a new report
-                var newQuestionResponseRequest = new CreateRequest("ofm_question_responses", newQuestionResponse);
-                questionResponseRequests.Add(newQuestionResponseRequest);
+                    //Create a new report
+                    var newQuestionResponseRequest = new CreateRequest("ofm_question_responses", newQuestionResponse);
+                    questionResponseRequests.Add(newQuestionResponseRequest);
             }
         }
 
-        if (questionResponseRequests.Count == 0)
+        if(questionResponseRequests.Count == 0)
         {
             _logger.LogInformation(CustomLogEvent.Process, "Cannot find HR questions responses.");
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;

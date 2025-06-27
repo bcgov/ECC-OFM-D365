@@ -25,7 +25,13 @@ public static class Setup
             public const Int16 CloseInactiveRequestsId = 100;
             public const string CloseInactiveRequestsName = "Cancel inactive requests";
         }
-
+        public static class ApplicationScore
+        {
+            public const Int16 ScoreCalculatorId = 800;
+            public const string ScoreCalculatorName = "Score Calculator";
+            public const Int16 CloneScoreCalculatorId = 805;
+            public const string CloneScoreCalculatorName = "Score Calculator";
+        }
         public static class Emails
         {
             public const Int16 SendEmailRemindersId = 200;
@@ -55,6 +61,16 @@ public static class Setup
             public const Int16 CreateAllowanceApprovalDenialNotificationId = 240;
             public const string CreateAllowanceApprovalDenialNotificationName = "Create email and pdf for supplementary Approval/Denial";
 
+            public const Int16 CreateMonthlyReportNotificationId = 245;
+            public const string CreateMonthlyReportNotificationName = "Create email for Published Monthly Report";
+
+            public const Int16 CreateTopUpNotificationId = 250;
+            public const string CreateTopUpNotificationName = "Create email for TopUp";
+
+            public const Int16 CreateFundingExpiryRemindersId = 255;
+            public const string CreateFundingExpiryRemindersName = "Create Funding Expiry Reminders for Supplementary Application";
+            public const Int16 SendFundingExpiryNotificationsId = 260;
+            public const string SendFundingExpiryNotificationsName = "Create Funding Expiry Reminders for Supplementary Application";
 
         }
 
@@ -85,6 +101,11 @@ public static class Setup
             public const string GetDBABatchName = "Get DBA Information for Organization in batch";
         }
 
+        public static class LicenceDetailRecords
+        {
+            public const Int16 CalculateLicenceTotal = 900;
+            public const string CalculteLicenceTotalName = "Calculate Licence Space Total";
+        }
         public static class Payments
         {
             public const Int16 SendPaymentRequestId = 500;

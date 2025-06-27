@@ -83,6 +83,9 @@ public class P240AllowanceApprovalDenialNotificationProvider : ID365ProcessProvi
                             <condition attribute="ofm_version_number" operator="eq" value="0" />
                         </filter>
                     </link-entity>
+                    <link-entity name="account" from="accountid" to="ofm_organization" link-type="inner" alias="org">
+                      <attribute name="name" />
+                    </link-entity>
                         </link-entity>
                       </entity>
                     </fetch>

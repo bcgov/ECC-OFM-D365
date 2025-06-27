@@ -12,6 +12,7 @@ using ECC.Core.DataContext;
 using System.Text.Json;
 using System.Net;
 using System.Text.RegularExpressions;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
 using System.Linq.Expressions;
 using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
 
@@ -156,15 +157,15 @@ public class P500SendPaymentRequestProvider(IPaymentValidator paymentvalidator,I
                          <attribute name="name" />
                         </link-entity>
                          <link-entity name="ofm_funding" from="ofm_fundingid" to="ofm_funding" link-type="inner" alias="Funding">
-                            <attribute name="ofm_cohort" />
+                            <attribute name="ofm_cohortid" />
                          </link-entity>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,_ofm_organization_value,ofm_name,createdon,ofm_amount,ofm_description,ofm_effective_date,_ofm_fiscal_year_value,ofm_revised_invoice_received_date,ofm_revised_invoice_date,ofm_revised_effective_date,_ofm_funding_value,ofm_invoice_line_number,_owningbusinessunit_value,ofm_payment_type,ofm_remittance_message,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_received_date,ofm_invoice_date&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name),ofm_funding($select=ofm_cohort)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ApprovedforPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (ofm_invoice_date eq '{localDateOnlyPST}' or ofm_revised_invoice_date eq '{localDateOnlyPST}')) and (ofm_application/ofm_applicationid ne null)and (ofm_funding/ofm_fundingid ne null)&$orderby=ofm_name asc
-                         """;
+             ofm_payments?$select=ofm_paymentid,_ofm_organization_value,ofm_name,createdon,ofm_amount,ofm_description,ofm_effective_date,_ofm_fiscal_year_value,ofm_revised_invoice_received_date,ofm_revised_invoice_date,ofm_revised_effective_date,_ofm_funding_value,ofm_invoice_line_number,_owningbusinessunit_value,ofm_payment_type,ofm_remittance_message,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_received_date,ofm_invoice_date&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name),ofm_funding($select=ofm_cohortid)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ApprovedforPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (ofm_invoice_date eq '{localDateOnlyPST}' or ofm_revised_invoice_date eq '{localDateOnlyPST}')) and (ofm_application/ofm_applicationid ne null)and (ofm_funding/ofm_fundingid ne null)&$orderby=ofm_name asc
+             """;
 
             return requestUri;
         }
@@ -179,14 +180,14 @@ public class P500SendPaymentRequestProvider(IPaymentValidator paymentvalidator,I
                     <fetch>
                       <entity name="ofm_ack_codes">
                         <attribute name="ofm_ack_number" />
-                        <attribute name="ofm_cohort" />
+                        <attribute name="ofm_cohortid" />
                         <attribute name="ofm_payment_type" />
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_ack_codeses?$select=ofm_ack_number,ofm_cohort,ofm_payment_type
+                         ofm_ack_codeses?$select=ofm_ack_number,_ofm_cohortid_value,ofm_payment_type
                          """;
 
             return requestUri;
@@ -336,7 +337,7 @@ public class P500SendPaymentRequestProvider(IPaymentValidator paymentvalidator,I
 
             #region Step 0.3: Get ACK Codes
 
-            IEnumerable<ofm_ack_codes> ackCode = await LoadACKCodeAsync();
+            IEnumerable<Ack_Codes> ackCode = await LoadACKCodeAsync();
 
             #endregion
 
@@ -353,12 +354,12 @@ public class P500SendPaymentRequestProvider(IPaymentValidator paymentvalidator,I
             {
                 var pay_method = (ecc_payment_method)headeritem.First().ofm_payment_method;
                 var paymentType = (ecc_payment_type)headeritem.First().ofm_payment_type; //from payment line
-                var cohort = headeritem?.First().ofm_funding?.ofm_cohort; //from funding
+                var cohort = headeritem?.First().ofm_funding?._ofm_cohortid_value; //from funding
                 string ackNumber = string.Empty;
                 var ackCodeList = ackCode?.Where(ack => ack.ofm_payment_type == paymentType).ToList();
                 if (ackCodeList.Any() && ackCodeList.Count > 1)
                 {
-                    ackNumber = ackCodeList.Where(code => code.ofm_cohort == cohort).Select(code => code.ofm_ack_number).FirstOrDefault();
+                   ackNumber = ackCodeList.Where(code => code._ofm_cohortid_value == cohort).Select(code => code.ofm_ack_number).FirstOrDefault();
                 }
                 else
                 {
@@ -610,10 +611,10 @@ public class P500SendPaymentRequestProvider(IPaymentValidator paymentvalidator,I
         }
         return await Task.FromResult(true);
     }
-    private async Task<IEnumerable<ofm_ack_codes>> LoadACKCodeAsync()
+    private async Task<IEnumerable<Ack_Codes>> LoadACKCodeAsync()
     {
         var localdata = await _dataService.FetchDataAsync(RequestACKCodeUri, "ACK_Codes");
-        var deserializedData = localdata.Data.Deserialize<List<ofm_ack_codes>>(Setup.s_writeOptionsForLogs);
+        var deserializedData = localdata.Data.Deserialize<List<Ack_Codes>>(Setup.s_writeOptionsForLogs);
 
         return await Task.FromResult(deserializedData!); ;
     }

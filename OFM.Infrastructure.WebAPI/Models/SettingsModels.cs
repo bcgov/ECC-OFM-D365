@@ -28,6 +28,7 @@ public record NotificationSettings
 {
     public required UnreadEmailOptions UnreadEmailOptions { get; set; }
     public required RenewalReminderOptions RenewalReminderOptions { get; set; }
+    public required FundingRenewalReminderOptions FundingRenewalReminderOptions { get; set; }
     public required string DefaultSenderId { get; set; }
     public required EmailTemplate[] EmailTemplates { get; set; }
     public required CommunicationTypes CommunicationTypes { get; set; }
@@ -54,6 +55,12 @@ public record UnreadEmailOptions
 }
 
 public record RenewalReminderOptions
+{
+    public Int16 FirstReminderInDays { get; set; }
+    public Int16 SecondReminderInDays { get; set; }
+    public Int16 ThirdReminderInDays { get; set; }
+}
+public record FundingRenewalReminderOptions
 {
     public Int16 FirstReminderInDays { get; set; }
     public Int16 SecondReminderInDays { get; set; }

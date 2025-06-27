@@ -149,11 +149,14 @@ jobs:
           oc rollout cancel deployment/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }} 2> /dev/null \
             || true && echo "No rollout in progress"
 
+          BRANCH_DOWNCASE=$(echo '${{ env.BRANCH }}' | tr '[A-Z]' '[a-z]')
+
           # Create the image stream if it doesn't exist
           oc create imagestream ${{ env.IMAGE_NAME }}  2> /dev/null || true && echo "D365 API image stream in place"
 
-          oc tag ${{ steps.push-image-backend.outputs.registry-path }} \
-            ${{ env.IMAGE_NAME }}-${{ env.BRANCH }}:${{ env.TAG }}
+          oc tag \
+            ${{ steps.push-image-backend.outputs.registry-path }} \
+            ${{ env.IMAGE_NAME }}-$BRANCH_DOWNCASE:${{ env.TAG }}
 
           # Process and apply deployment template
           oc process \
@@ -161,6 +164,7 @@ jobs:
             -p APP_NAME=${{ env.APP_NAME }} \
             -p REPO_NAME=${{ env.REPO_NAME }} \
             -p BRANCH=${{ env.BRANCH }} \
+            -p BRANCH_DOWNCASE="$BRANCH_DOWNCASE" \
             -p NAMESPACE=${{ env.OPENSHIFT_NAMESPACE }} \
             -p TAG=${{ env.TAG }} \
             -p MIN_REPLICAS=${{ env.MIN_REPLICAS }} \
