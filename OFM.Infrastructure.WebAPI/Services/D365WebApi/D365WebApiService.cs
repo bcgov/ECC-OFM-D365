@@ -4,6 +4,7 @@ using OFM.Infrastructure.WebAPI.Messages;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.Processes;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -63,6 +64,8 @@ public class D365WebAPIService : ID365WebApiService
         return await client.SendAsync(message);
     }
 
+   
+
     public async Task<HttpResponseMessage> SendDocumentRequestAsync(AZAppUser spn, string entityNameSet, Guid id, Byte[] data, string fileName)
     {
         UploadFileRequest request;
@@ -88,6 +91,18 @@ public class D365WebAPIService : ID365WebApiService
         HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
 
         return await client.DeleteAsync(requestUri);
+    }
+
+
+    public async Task<HttpResponseMessage> SendPostRequestAsync(AZAppUser spn, Guid newEmailId)
+    {
+        HttpClient client = await _authenticationService.GetHttpClientAsync(D365ServiceType.CRUD, spn);
+        OFM.Infrastructure.WebAPI.Messages.SendEmailRequest req;
+        req = new(newEmailId, new JsonObject() {
+                        { "IssueSend" , true} });
+
+        var response = await client.PostAsync(req.RequestUri, req.Content);
+        return response;
     }
 
     public async Task<HttpResponseMessage> SendSearchRequestAsync(AZAppUser spn, string body)

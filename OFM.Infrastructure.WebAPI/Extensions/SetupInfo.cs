@@ -125,6 +125,9 @@ public static class Setup
 
             public const Int16 GenerateTopUpPaymentId = 525;
             public const string GenerateTopUpPaymentName = "Generate Payment Lines for Top-Up";
+
+            public const Int16 ValidatePaymentRequestId = 530;
+            public const string ValidatePaymentRequestName = "Validate Payment Request and Invoices to BC Pay";
         }
 
         public static class FundingReports

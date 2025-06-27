@@ -81,6 +81,7 @@ services.AddScoped<ID365ProcessProvider, P505GeneratePaymentLinesProvider>();
 services.AddScoped<ID365ProcessProvider, P510ReadPaymentResponseProvider>();
 services.AddScoped<ID365ProcessProvider, P515GenerateIrregularPaymentProvider>();
 services.AddScoped<ID365ProcessProvider, P520GenerateAllowancePaymentProvider>();
+services.AddScoped<ID365ProcessProvider, P530ValidatePaymentRequest>();
 services.AddScoped<ID365ProcessProvider, P525GenerateTopUpPaymentProvider>();
 services.AddScoped<ID365ProcessProvider, P600CloneFundingReportResponse>();
 services.AddScoped<ID365ProcessProvider, P605CloseDuedReportsProvider>();
@@ -101,6 +102,8 @@ services.AddScoped<ID365BatchProvider, ProviderReportResetProvider>();
 services.AddScoped<IFundingRepository, FundingRepository>();
 services.AddScoped<IEmailRepository, EmailRepository>();
 services.AddScoped<IDataverseRepository, DataverseRepository>();
+services.AddScoped<IPaymentValidator, PaymentValidator>();
+
 services.AddD365HttpClient(builder.Configuration);
 services.AddMvcCore().AddApiExplorer();
 services.AddAuthentication();

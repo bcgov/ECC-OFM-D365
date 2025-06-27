@@ -42,6 +42,7 @@ public record NotificationSettings
         public required bool Enable { get; set; }
         public required string[] Recipients { get; set; }
         public required string DefaultContactId { get; set; }
+        public required string DefaultUserId { get; set; }
     }
 }
 

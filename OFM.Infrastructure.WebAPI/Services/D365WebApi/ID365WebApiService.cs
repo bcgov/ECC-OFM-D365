@@ -8,6 +8,7 @@ namespace OFM.Infrastructure.WebAPI.Services.D365WebApi;
 
 public interface ID365WebApiService
 {
+    Task<HttpResponseMessage> SendPostRequestAsync(AZAppUser spn, Guid newEmailId);
     Task<HttpResponseMessage> SendRetrieveRequestAsync(AZAppUser spn, string requestUrl, bool formatted = false, int pageSize = 50, bool isProcess = false);
     Task<HttpResponseMessage> SendCreateRequestAsync(AZAppUser spn, string entitySetName, string requestBody);
     Task<HttpResponseMessage> SendPatchRequestAsync(AZAppUser spn, string requestUrl, string content);
