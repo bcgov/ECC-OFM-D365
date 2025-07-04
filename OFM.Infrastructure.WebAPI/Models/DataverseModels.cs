@@ -451,7 +451,7 @@ public class PaymentLine
     [Required(ErrorMessage = "Payment method is mandatory.")]
     public new int? ofm_payment_method { get; set; }
 
-   [JsonPropertyName("Ack.ofm_cohort")]
+   [JsonPropertyName("Ack.ofm_cohortid")]
     [Required(ErrorMessage = "Cohort cannot be blank on funding, and a corresponding acknowledgement number is required.")]
     public string? ofm_cohort { get; set; } = string.Empty;
 
