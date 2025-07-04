@@ -89,9 +89,9 @@ public class P530ValidatePaymentRequest(IPaymentValidator paymentvalidator,IOpti
                          <attribute name="name" />
                         </link-entity>
                          <link-entity name="ofm_funding" from="ofm_fundingid" to="ofm_funding" link-type="inner" alias="Funding">
-                            <attribute name="ofm_cohort" />
-                           <link-entity name="ofm_ack_codes" from="ofm_cohort" to="ofm_cohort" link-type="outer" alias="Ack">
-                      <attribute name="ofm_cohort" />
+                            <attribute name="ofm_cohortid" />
+                           <link-entity name="ofm_ack_codes" from="ofm_cohortid" to="ofm_cohortid" link-type="outer" alias="Ack">
+                      <attribute name="ofm_cohortid" />
                     </link-entity>
                          </link-entity>
                       </entity>
