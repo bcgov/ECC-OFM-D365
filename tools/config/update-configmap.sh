@@ -127,7 +127,7 @@ D365_CONFIGURATION=$(jq << JSON
   "AllowedHosts": "*",
   "AppSettings": {
     "PageSize": 50,
-    "MaxPageSize": 2000,
+    "MaxPageSize": 5000,
     "RetryEnabled": true,
     "MaxRetries": 5,
     "AutoRetryDelay": "00:00:08",
