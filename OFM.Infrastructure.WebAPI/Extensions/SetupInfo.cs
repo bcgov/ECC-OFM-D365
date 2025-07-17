@@ -77,6 +77,12 @@ public static class Setup
 
             public const Int16 VerifyGoodStandingBatchId = 405;
             public const string VerifyGoodStandingBatchName = "Verify Good Standing Status for Organizations in batch";
+
+            public const Int16 GetDBAId = 410;
+            public const string GetDBAName = "Get DBA Information for Organization";
+
+            public const Int16 GetDBABatchId = 415;
+            public const string GetDBABatchName = "Get DBA Information for Organization in batch";
         }
 
         public static class Payments
@@ -95,6 +101,9 @@ public static class Setup
 
             public const Int16 GeneratePaymentLinesForSupplementaryAllowanceId = 520;
             public const string GeneratePaymentLinesForSupplementaryAllowanceName = "Generate Payment Lines for Irregular Expense";
+
+            public const Int16 GenerateTopUpPaymentId = 525;
+            public const string GenerateTopUpPaymentName = "Generate Payment Lines for Top-Up";
         }
 
         public static class FundingReports

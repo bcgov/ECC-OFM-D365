@@ -26,7 +26,8 @@ public record D365Facility
     public int statuscode { get; set; }
     public int? ofm_program { get; set; }
     public DateTime? ofm_program_start_date { get; set; }
-    public int? ofm_ccof_requirement { get; set; }
+    public bool? ofm_ccof_requirement { get; set; }
+    public int? ofm_unionized { get; set; }
     public FacilityLicence[]? ofm_facility_licence { get; set; }
 }
 
@@ -107,7 +108,8 @@ public class ProviderProfile
                         statuscode = facility.statuscode,
                         ofm_program = facility.ofm_program,
                         ofm_program_start_date = facility.ofm_program_start_date,
-                        ofm_ccof_requirement = facility.ofm_ccof_requirement
+                        ofm_ccof_requirement = facility.ofm_ccof_requirement,
+                        ofm_unionized = facility.ofm_unionized
                     },
                     ofm_portal_access = firstContact.ofm_facility_business_bceid[i].ofm_portal_access,
                     ofm_is_expense_authority = firstContact.ofm_facility_business_bceid[i].ofm_is_expense_authority,
@@ -180,7 +182,8 @@ public record ofm_Facility
     public string? name { get; set; }
     public int? ofm_program { get; set; }
     public DateTime? ofm_program_start_date { get; set; }
-    public int? ofm_ccof_requirement { get; set; }
+    public bool? ofm_ccof_requirement { get; set; }
+    public int? ofm_unionized { get; set; }
 }
 
 public class Supplementary : ofm_allowance
@@ -210,6 +213,17 @@ public record D365Template
     public string? templatecode { get; set; }
 }
 
+public record D365AssistanceRequest
+{
+    public string? ofm_assistance_requestid { get; set; }
+    public string? ofm_name { get; set; }
+    public string? ofm_subject { get; set; }
+    public DateTime? ofm_submission_time { get; set; }
+    public string? _ofm_contact_value { get; set; }
+    public bool? ofm_is_read { get; set; }
+    [property: JsonPropertyName("contact.emailaddress1")]
+    public string? emailaddress1 { get; set; }
+}
 public record D365Email
 {
     public string? activityid { get; set; }
@@ -380,12 +394,12 @@ public record D365Reporting
 
 }
 
-public class D365FiscalYear: ofm_fiscal_year
+public class D365FiscalYear : ofm_fiscal_year
 {
     public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
-public class ExpenseApplication: ofm_expense
+public class ExpenseApplication : ofm_expense
 {
     public new decimal? ofm_amount { get; set; }
 }
@@ -435,6 +449,25 @@ public class ProviderStaff
 
     [JsonPropertyName("facility.ofm_primarycontact@OData.Community.Display.V1.FormattedValue")]
     public string FacilityContact_Name { get; set; }
+
+    [JsonPropertyName("application.ofm_facility@OData.Community.Display.V1.FormattedValue")]
+    public string Facility_Name { get; set; }
+
+    [property: JsonPropertyName("report.ofm_facility@OData.Community.Display.V1.FormattedValue")]
+    public string Facility_Name_Report { get { return Facility_Name; } set { Facility_Name = value; } }
+}
+
+public class TopUp : ofm_top_up_fund
+{
+    public new decimal? ofm_programming_amount { get; set; }
+}
+
+public class QuestionResponse : ofm_question_response
+{
+    [property: JsonPropertyName("question.ofm_question_id")]
+    public string ofm_question_qid { get; set; }
+    [property: JsonPropertyName("header.ofm_question_id")]
+    public string ofm_header_qid { get; set; }
 }
 
 #region External Parameters

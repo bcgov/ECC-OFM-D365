@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 
-public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> bccasApiSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
+public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> bccasApiSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ID365DataService dataService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
     private readonly BCCASApi _BCCASApi = bccasApiSettings.Value.BCCASApi;
     private readonly IOptionsSnapshot<ExternalServices> bccasApiSettings = bccasApiSettings;
@@ -24,6 +24,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
     private readonly ILoggerFactory loggerFactory = loggerFactory;
     private readonly TimeProvider timeProvider = timeProvider;
     private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
+    private readonly ID365DataService _dataService = dataService;
 
     private int _controlCount;
     private double _controlAmount;
@@ -150,18 +151,43 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                            <attribute name="accountnumber" />                     
                          <attribute name="name" />
                         </link-entity>
+                         <link-entity name="ofm_funding" from="ofm_fundingid" to="ofm_funding" link-type="inner" alias="Funding">
+                            <attribute name="ofm_cohort" />
+                         </link-entity>
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,ofm_amount,ofm_description,ofm_effective_date,_ofm_fiscal_year_value,ofm_revised_invoice_received_date,ofm_revised_invoice_date,ofm_revised_effective_date,_ofm_funding_value,ofm_invoice_line_number,_owningbusinessunit_value,ofm_payment_type,ofm_remittance_message,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_received_date,ofm_invoice_date&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ApprovedforPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (ofm_invoice_date eq '{localDateOnlyPST}' or ofm_revised_invoice_date eq '{localDateOnlyPST}')) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,ofm_amount,ofm_description,ofm_effective_date,_ofm_fiscal_year_value,ofm_revised_invoice_received_date,ofm_revised_invoice_date,ofm_revised_effective_date,_ofm_funding_value,ofm_invoice_line_number,_owningbusinessunit_value,ofm_payment_type,ofm_remittance_message,statuscode,ofm_invoice_number,_ofm_application_value,ofm_siteid,ofm_payment_method,ofm_supplierid,ofm_invoice_received_date,ofm_invoice_date&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application),ofm_facility($select=accountnumber,name),ofm_funding($select=ofm_cohort)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ApprovedforPayment} and ofm_supplierid ne null and ofm_siteid ne null and ofm_payment_method ne null and ofm_amount ne null and (ofm_invoice_date eq '{localDateOnlyPST}' or ofm_revised_invoice_date eq '{localDateOnlyPST}')) and (ofm_application/ofm_applicationid ne null)and (ofm_funding/ofm_fundingid ne null)&$orderby=ofm_name asc
                          """;
 
             return requestUri;
         }
     }
 
+    public string RequestACKCodeUri
+    {
+        get
+        {
+            // For reference only
+            var fetchXml = $"""
+                    <fetch>
+                      <entity name="ofm_ack_codes">
+                        <attribute name="ofm_ack_number" />
+                        <attribute name="ofm_cohort" />
+                        <attribute name="ofm_payment_type" />
+                      </entity>
+                    </fetch>
+                    """;
+
+            var requestUri = $"""
+                         ofm_ack_codeses?$select=ofm_ack_number,ofm_cohort,ofm_payment_type
+                         """;
+
+            return requestUri;
+        }
+    }
 
     public async Task<ProcessData> GetDataAsync()
     {
@@ -303,6 +329,12 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
         #endregion
 
+        #region Step 0.3: Get ACK Codes
+
+        IEnumerable<ofm_ack_codes> ackCode = await LoadACKCodeAsync();
+
+        #endregion
+
         #region Step 1: Handlebars format to generate Inbox data
 
         string source = "{{feederNumber}}{{batchType}}{{transactionType}}{{delimiter}}{{feederNumber}}{{fiscalYear}}{{cGIBatchNumber}}{{messageVersionNumber}}{{delimiter}}\n" + "{{#each InvoiceHeader}}{{this.feederNumber}}{{this.batchType}}{{this.headertransactionType}}{{this.delimiter}}{{this.supplierNumber}}{{this.supplierSiteNumber}}{{this.invoiceNumber}}{{this.PONumber}}{{this.invoiceType}}{{this.invoiceDate}}{{this.payGroupLookup}}{{this.remittanceCode}}{{this.grossInvoiceAmount}}{{this.CAD}}{{this.invoiceDate}}{{this.termsName}}{{this.description}}{{this.goodsDate}}{{this.invoiceRecDate}}{{this.oracleBatchName}}{{this.SIN}}{{this.payflag}}{{this.flow}}{{this.delimiter}}\n" +
@@ -315,6 +347,18 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
         foreach (var headeritem in grouppayment)
         {
             var pay_method = (ecc_payment_method)headeritem.First().ofm_payment_method;
+            var paymentType = (ecc_payment_type)headeritem.First().ofm_payment_type; //from payment line
+            var cohort = headeritem?.First().ofm_funding?.ofm_cohort; //from funding
+            string ackNumber = string.Empty;
+            var ackCodeList = ackCode?.Where(ack => ack.ofm_payment_type == paymentType).ToList();
+            if (ackCodeList.Any() && ackCodeList.Count > 1)
+            {
+                ackNumber = ackCodeList.Where(code => code.ofm_cohort == cohort).Select(code => code.ofm_ack_number).FirstOrDefault();
+            }
+            else
+            {
+                ackNumber = ackCodeList.Select(code => code.ofm_ack_number).FirstOrDefault();
+            }
             double invoiceamount = 0.00;
             List<InvoiceLines> invoiceLines = [];
 
@@ -335,7 +379,8 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                     committmentLine = _BCCASApi.InvoiceLines.committmentLine,//Static value:0000
                     lineAmount = (lineitem.item.ofm_amount < 0 ? "-" : "") + Math.Abs(lineitem.item.ofm_amount.Value).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(line.FieldLength("lineAmount") - (lineitem.item.ofm_amount < 0 ? 1 : 0), '0'),// come from split funding amount per facility
                     lineCode = (lineitem.item.ofm_amount > 0 ? "D" : "C"),//if it is positive then line code is Debit otherwise credit
-                    distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
+                    //distributionACK = _BCCASApi.InvoiceLines.distributionACK.PadRight(line.FieldLength("distributionACK")),// using test data shared by CAS,should be changed for prod
+                    distributionACK = ackNumber.PadRight(line.FieldLength("distributionACK")), //fetching from ACK Codes from dataverse based on payment type and cohort
                     lineDescription = (lineitem.item.ofm_payment_type).ToString().PadRight(line.FieldLength("lineDescription")), // Pouplate extra info from facility/funding amount
                     effectiveDate = lineitem.item.ofm_revised_effective_date?.ToString("yyyyMMdd") ?? lineitem.item.ofm_effective_date?.ToString("yyyyMMdd"),//same as invoice date
                     quantity = _BCCASApi.InvoiceLines.quantity,//Static Value:0000000.00 not used by feeder
@@ -360,7 +405,7 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 PONumber = string.Empty.PadRight(header.FieldLength("PONumber")),// sending blank as not used by feeder
                 invoiceDate = headeritem.First().ofm_revised_invoice_date?.ToString("yyyyMMdd") ?? headeritem.First().ofm_invoice_date?.ToString("yyyyMMdd"), // set to current date
                 invoiceType = invoiceamount < 0 ? "CM" : "ST",// static to ST (standard invoice)
-                payGroupLookup = (pay_method == ecc_payment_method.IMMEFT)? "IMM EFT N" : string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
+                payGroupLookup = string.Concat("GEN ", pay_method, " N"),//GEN CHQ N if using cheque or GEN EFT N if direct deposit
                 remittanceCode = _BCCASApi.InvoiceHeader.remittanceCode.PadRight(header.FieldLength("remittanceCode")), // for payment stub it is 00 always.
                 grossInvoiceAmount = (invoiceamount < 0 ? "-" : "") + Math.Abs(invoiceamount).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).PadLeft(header.FieldLength("grossInvoiceAmount") - (invoiceamount < 0 ? 1 : 0), '0'), // invoice amount come from OFM total base value.
                 CAD = _BCCASApi.InvoiceHeader.CAD,// static value :CAD
@@ -370,13 +415,13 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
                 oracleBatchName = (_BCCASApi.clientCode + fiscalyear?.Substring(2) + "OFM" + (_oracleBatchNumber).ToString("D5")).PadRight(header.FieldLength("oracleBatchName")),//6225OFM00001 incremented by 1 for each header
                 SIN = string.Empty.PadRight(header.FieldLength("SIN")), //optional field set to blank
                 payflag = _BCCASApi.InvoiceHeader.payflag,// Static value: Y (separate chq for each line)
-                description = Regex.Replace(headeritem.First()?.ofm_facility?.name, @"[^\w $\-]", "").PadRight(header.FieldLength("description")),// can be used to pass extra info
+                description = Regex.Replace(headeritem.First()?.ofm_facility?.name, @"[^\w $\-]", "").PadRight(header.FieldLength("description")).Substring(0, header.FieldLength("description")),// can be used to pass extra info
                 flow = string.Empty.PadRight(header.FieldLength("flow")),// can be used to pass extra info
                 invoiceLines = invoiceLines
-            }); 
+            }); ;
             _controlAmount = _controlAmount + invoiceamount;
             _controlCount++;
-           
+
         }
 
         // break transaction list into multiple list if it contains more than 250 transactions
@@ -509,8 +554,15 @@ public class P500SendPaymentRequestProvider(IOptionsSnapshot<ExternalServices> b
 
                     return await Task.FromResult(false);
                 }
-                }
             }
+        }
         return await Task.FromResult(true);
+    }
+    private async Task<IEnumerable<ofm_ack_codes>> LoadACKCodeAsync()
+    {
+        var localdata = await _dataService.FetchDataAsync(RequestACKCodeUri, "ACK_Codes");
+        var deserializedData = localdata.Data.Deserialize<List<ofm_ack_codes>>(Setup.s_writeOptionsForLogs);
+
+        return await Task.FromResult(deserializedData!); ;
     }
 }

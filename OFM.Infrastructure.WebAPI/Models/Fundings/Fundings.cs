@@ -1,4 +1,5 @@
 ﻿using ECC.Core.DataContext;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
@@ -38,6 +39,7 @@ public class Funding : ofm_funding
     public new decimal? ofm_envelope_programming { get; set; }
     public new decimal? ofm_envelope_programming_pf { get; set; }
     public new decimal? ofm_envelope_programming_proj { get; set; }
+    public new string? ofm_cohort { get; set; }
     public Guid? _ofm_provider_approver_value { get; set; }
     public new SpaceAllocation[]? ofm_funding_spaceallocation { get; set; }
     public new Facility? ofm_facility { get; set; }
@@ -78,6 +80,8 @@ public class RateSchedule : ofm_rate_schedule
     public new decimal? ofm_parent_fee_per_month_ft { get; set; }
     public new decimal? ofm_parent_fee_per_day_ft { get; set; }
     public new decimal? ofm_parent_fee_per_month_pt { get; set; }
+    public new decimal? ofm_parent_fee_per_day_pt_school_age { get; set; }
+    public new decimal? ofm_parent_fee_per_month_pt_school_age { get; set; }
     public new FundingRate[]? ofm_rateschedule_fundingrate { get; set; }
     public new CCLRRatio[]? ofm_rateschedule_cclr { get; set; }
     public new decimal? ofm_average_benefit_load { get; set; }
@@ -147,6 +151,7 @@ public class SupplementaryApplication : ofm_allowance
     public new decimal? ofm_transport_odometer { get; set; }
     public new decimal? ofm_monthly_amount { get; set; }
     public new decimal? ofm_retroactive_amount { get; set; }
+    public string? ofm_funding_number { get; set; }
     public new SupplementarySchedule? ofm_supplementary_schedule { get; set; }
     public string? _ofm_application_value { get; set; }   
     [property: JsonPropertyName("con.ofm_first_name")]

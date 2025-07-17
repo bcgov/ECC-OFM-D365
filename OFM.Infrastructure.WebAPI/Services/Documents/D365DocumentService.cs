@@ -53,8 +53,8 @@ public class D365DocumentService : ID365DocumentService
         ID365DocumentProvider provider = _documentProviders.First(p => p.EntityNameSet == _entityNameSet);
 
         Int16 processedCount = 0;
-        List<JsonObject> documentsResult = new() { };
-        List<string> errors = new() { };
+        List<JsonObject> documentsResult = [];
+        List<string> errors = [];
 
         foreach (var file in files)
         {
@@ -67,26 +67,32 @@ public class D365DocumentService : ID365DocumentService
 
                 if (file.Length > 0)
                 {
-                    using (MemoryStream memStream = new MemoryStream())
+                    using (MemoryStream memStream = new())
                     {
                         await file.CopyToAsync(memStream);
 
-                        // Attach the file to the new document record
+                        // Attach the file to the new document record.
                         HttpResponseMessage response = await _d365webapiservice.SendDocumentRequestAsync(_appUserService.AZPortalAppUser, _entityNameSet, new Guid(newDocument["ofm_documentid"].ToString()), memStream.ToArray(), file.FileName);
 
                         if (!response.IsSuccessStatusCode)
                         {
-                            //log the error
-                            errors.Add(file.FileName);
+                            var responseError = await response.Content.ReadAsStringAsync();
+
+                            //log the error.
+                            errors.Add($"Unable to attach the uploaded file to the document record: {file.FileName}. Error: {responseError}");
                             continue;
                         }
                     }
                     processedCount++;
                 }
+                else
+                {
+                    errors.Add($"File size is zero: {file.FileName}");
+                }
             }
             else
             {
-                errors.Add(file.FileName);
+                errors.Add($"Unable to create a D365 document record for file: {file.FileName}");
             }
         }
 

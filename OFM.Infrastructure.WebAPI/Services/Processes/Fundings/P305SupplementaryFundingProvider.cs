@@ -184,8 +184,8 @@ public class P305SupplementaryFundingProvider(ID365AppUserService appUserService
         var Application_SubmittedOn = application.ofm_summary_submittedon ?? application.createdon ?? new DateTime();
 
         var activeLicences = application?.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
-                                                                                                         licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= Application_SubmittedOn.ToLocalPST().Date &&
-                                                                                                         (licence.ofm_end_date is null || licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= Application_SubmittedOn.ToLocalPST().Date));
+                                                                                                         licence.ofm_start_date <= Application_SubmittedOn.ToLocalPST().Date &&
+                                                                                                         (licence.ofm_end_date is null || licence.ofm_end_date >= Application_SubmittedOn.ToLocalPST().Date));
 
         var categories = activeLicences?.SelectMany(licence => licence.ofm_licence_licencedetail);
 

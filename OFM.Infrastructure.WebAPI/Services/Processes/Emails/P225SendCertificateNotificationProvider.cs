@@ -50,6 +50,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" visible="false" link-type="outer" alias="application">
                       <attribute name="ofm_contact" />
                       <attribute name="ofm_application" />
+                      <attribute name="ofm_facility" />
                     </link-entity>
                   </entity>
                 </fetch>
@@ -165,9 +166,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 var localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 245).TemplateNumber);
                 var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
-                string? subject = templateobj?.subjectsafehtml;
+                string? subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
                 string? emaildescription = templateobj?.safehtml;
-                emaildescription = emaildescription?.Replace("{Record_Name}", _staffs?[0].Name);
+                emaildescription = emaildescription?.Replace("{Facility_Name}", _staffs?[0].Facility_Name);
                 emaildescription = emaildescription?.Replace("{Provider_Name}", _staffs?[0].ProviderName);
                 emaildescription = emaildescription?.Replace("{Staff}", staffdetails);
                 List<Guid> recipientsList = new List<Guid>();

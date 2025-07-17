@@ -123,14 +123,19 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 var fetchXml = $$"""
                     <fetch>
-                      <entity name="msdyn_businessclosure">
-                        <attribute name="msdyn_starttime" />
+                      <entity name="ofm_stat_holiday">
+                        <attribute name="ofm_date_observed" />
+                        <attribute name="ofm_holiday_type" />
+                        <attribute name="ofm_stat_holidayid" />
+                        <filter>
+                          <condition attribute="ofm_holiday_type" operator="eq" value="2" />
+                        </filter>
                       </entity>
                     </fetch>
                     """;
 
                 var requestUri = $"""
-                         msdyn_businessclosures?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_stat_holidaies?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
                 return requestUri;
@@ -178,7 +183,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             _logger.LogDebug(CustomLogEvent.Process, nameof(GetBusinessClosuresDataAsync));
 
-            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri);
+            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri, false, 0, true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -371,8 +376,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
-            var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
-            List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
+            var closures = JsonSerializer.Deserialize<List<ofm_stat_holiday>>(businessClosuresData.Data.ToString());
+            List<DateTime> holidaysList = closures!.Select(closure => (DateTime)closure.ofm_date_observed).ToList();
 
             #endregion
 
@@ -489,7 +494,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
 
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {       
-                DateTime invoiceDate = (paymentDate == startDate) ? startDate.GetLastBusinessDayOfThePreviousMonth(holidaysList) : paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
+                DateTime invoiceDate = paymentDate.GetLastBusinessDayOfThePreviousMonth(holidaysList).GetCFSInvoiceDate(holidaysList, _BCCASApi.PayableInDays);
                 DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
                 DateTime effectiveDate = invoiceDate;
                 
@@ -503,6 +508,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                 }
                 Guid fiscalYearId = invoiceDate.MatchFiscalYear(fiscalYears);
 
+                var FAYear = (invoiceReceivedDate < startDate.AddYears(1)) ? 1 :
+                (invoiceReceivedDate < startDate.AddYears(2)) ? 2 :
+                (invoiceReceivedDate < startDate.AddYears(3)) ? 3 : 0;
                 var paymentToCreate = new JsonObject()
                 {
                     { "ofm_invoice_line_number", lineNumber++ },
@@ -515,7 +523,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     { "ofm_invoice_date", invoiceDate.ToString("yyyy-MM-dd") },
                     { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
                     { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
-                    { "ofm_payment_manual_review", manualReview }
+                    { "ofm_payment_manual_review", manualReview },
+                    { "ofm_fayear", FAYear.ToString() }
+
                 };
                 if (regardingid is not null && !string.IsNullOrEmpty(regardingTableSet))
                 {

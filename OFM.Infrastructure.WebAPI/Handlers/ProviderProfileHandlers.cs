@@ -85,8 +85,14 @@ public static class ProviderProfilesHandlers
                             <attribute name="name" />
                             <attribute name="ofm_ccof_requirement" />
                             <attribute name="ofm_program_start_date" />
+                            <attribute name="ofm_unionized" />
                             <filter>
                               <condition attribute="statuscode" operator="eq" value="1" />
+                            </filter>
+                            <filter type="or">
+                            <condition attribute="ofm_program" operator="eq" value="1"/>
+                            <condition attribute="ofm_program" operator="eq" value="3"/>
+                            <condition attribute="ofm_program" operator="eq" value="4"/>
                             </filter>
                           </link-entity>
                         </link-entity>
@@ -108,14 +114,14 @@ public static class ProviderProfilesHandlers
                       </entity>
                     </fetch>
                     """;
-     
+
             var requestUri = $"""
-                         contacts?$select=ofm_first_name,ofm_last_name,ccof_userid,ccof_username,contactid,emailaddress1,_ofm_portal_role_id_value,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_portal_access,ofm_is_expense_authority,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,ofm_program,statecode,statuscode,name,ofm_ccof_requirement,ofm_program_start_date);$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode,ofm_program;$filter=(statuscode eq 1)),ofm_portal_role_id($select=ofm_portal_role_number)&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1) and (ofm_portal_role_id/ofm_portal_roleid ne null)
+                         contacts?$select=ofm_first_name,ofm_last_name,ccof_userid,ccof_username,contactid,emailaddress1,_ofm_portal_role_id_value,telephone1&$expand=ofm_facility_business_bceid($select=_ofm_bceid_value,_ofm_facility_value,ofm_name,ofm_is_expense_authority,ofm_portal_access,ofm_bceid_facilityid,statecode,statuscode;$expand=ofm_facility($select=accountid,accountnumber,ccof_accounttype,ofm_program,statecode,statuscode,name,ofm_ccof_requirement,ofm_program_start_date,ofm_unionized;$filter=(ofm_program eq 1 or ofm_program eq 3 or ofm_program eq 4) and (statuscode eq 1));$filter=(statuscode eq 1)),parentcustomerid_account($select=accountid,accountnumber,ccof_accounttype,name,statecode,statuscode,ofm_program;$filter=(statuscode eq 1)),ofm_portal_role_id($select=ofm_portal_role_number)&$filter=(ccof_userid eq '{userId}' or ccof_username eq '{userName}') and (statuscode eq 1) and (ofm_portal_role_id/ofm_portal_roleid ne null)
                          """;
 
             logger.LogDebug(CustomLogEvent.ProviderProfile, "Getting provider profile with query {requestUri}", requestUri);
 
-            var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, requestUri);
+            var response = await d365WebApiService.SendRetrieveRequestAsync(appUserService.AZPortalAppUser, pageSize:200, requestUrl: requestUri);
 
             var endTime = timeProvider.GetTimestamp();
 
@@ -150,13 +156,13 @@ public static class ProviderProfilesHandlers
             {
                 if (currentValue?.AsArray().Count == 0)
                 {
-                    logger.LogDebug(CustomLogEvent.ProviderProfile, "User not found.");
+                    logger.LogWarning(CustomLogEvent.ProviderProfile, "User not found. [userName: {userName} | userId: {userId}]", userName, string.IsNullOrEmpty(userId) ? "NA" : userId);
 
                     return TypedResults.NotFound($"User not found.");
                 }
                 if (currentValue?.AsArray().Count > 1)
                 {
-                    logger.LogDebug(CustomLogEvent.ProviderProfile, "Multiple profiles found.");
+                    logger.LogWarning(CustomLogEvent.ProviderProfile, "Multiple profiles found. [userName: {userName} | userId: {userId}]", userName, string.IsNullOrEmpty(userId) ? "NA" : userId);
 
                     return TypedResults.Unauthorized();
                 }
@@ -169,14 +175,18 @@ public static class ProviderProfilesHandlers
                 serializedProfile!.First().ofm_facility_business_bceid is null ||
                 serializedProfile!.First().ofm_facility_business_bceid!.Length == 0)
             {
-                logger.LogDebug(CustomLogEvent.ProviderProfile, "Organization or facility permissions not found.");
+                logger.LogWarning(CustomLogEvent.ProviderProfile, "Organization or facility permissions not found.[userName: {userName} | userId: {userId}]", userName, string.IsNullOrEmpty(userId) ? "NA" : userId);
                 return TypedResults.Unauthorized();
             }
+            logger.LogDebug(CustomLogEvent.ProviderProfile, "profile: {serializedProfile}", serializedProfile);
 
             #endregion
 
             ProviderProfile portalProfile = new();
             portalProfile.MapProviderProfile(serializedProfile!);
+
+            logger.LogDebug(CustomLogEvent.ProviderProfile, "portalProfile: {portalProfile}", portalProfile);
+
             if (string.IsNullOrEmpty(portalProfile.ccof_userid) && !string.IsNullOrEmpty(userId))
             {
                 // Update the contact in Dataverse with the userid
@@ -188,12 +198,12 @@ public static class ProviderProfilesHandlers
                 {
                     logger.LogError("Failed to update the userId for {userName}. Response: {response}.", userName, userResponse);
                 }
-               
+
                 portalProfile.ccof_userid = userId; // Add the UseId to the return payload to help with validation on the portal
             }
 
             //logger.LogDebug(CustomLogEvent.ProviderProfile, "Return provider profile {portalProfile}", portalProfile);
-            logger.LogInformation(CustomLogEvent.ProviderProfile, "Querying provider profile finished in {totalElapsedTime} miliseconds", timeProvider.GetElapsedTime(startTime, endTime).TotalMilliseconds);
+            logger.LogInformation(CustomLogEvent.ProviderProfile, "Querying provider profile finished in {totalElapsedTime} miliseconds. UserName: {userName} ", timeProvider.GetElapsedTime(startTime, endTime).TotalMilliseconds, userName);
 
             return TypedResults.Ok(portalProfile);
         }

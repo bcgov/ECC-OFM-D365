@@ -75,7 +75,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
             isMasked = !context.parameters.field0.security.readable;
         }
 
-        const paramNames = Array(30).fill(null);
+        const paramNames = Array(50).fill(null);
 
         let fields : IEnvelopeField[] = paramNames.map((name, index) => {
             const ctrlName = `field${index + 1}`			

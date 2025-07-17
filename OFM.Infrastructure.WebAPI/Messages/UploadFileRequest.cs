@@ -1,4 +1,6 @@
-﻿namespace OFM.Infrastructure.WebAPI.Messages;
+﻿using System.Text.RegularExpressions;
+
+namespace OFM.Infrastructure.WebAPI.Messages;
 
 /// <summary>
 /// Contains the data to update file column
@@ -16,6 +18,15 @@ public sealed class UploadFileRequest : HttpRequestMessage
             {
                 throw new Exception($"The file is too large to be uploaded to this column.");
             }
+            else
+            {
+                var fileNameWoExt = Path.GetFileNameWithoutExtension(fileName);
+                var ext = Path.GetExtension(fileName);
+                fileNameWoExt = Regex.Replace(fileNameWoExt, @"[^\w]", "");
+                fileName = fileNameWoExt + ext;
+            }
+
+           
 
             Method = HttpMethod.Patch;
             RequestUri = new Uri(

@@ -51,6 +51,9 @@ public record ProcessParameter
     [property: JsonPropertyName("funding")]
     public FundingParameter? Funding { get; set; }
 
+    [property: JsonPropertyName("topup")]
+    public TopupParameter? Topup { get; set; }
+
     [property: JsonPropertyName("fundingReport")]
     public FundingReportParameter? FundingReport { get; set; }
 
@@ -156,6 +159,12 @@ public record ProcessParameter
         public bool? IsMod { get; set; }
     }
 
+    public record TopupParameter
+    {
+        [property: JsonPropertyName("topupId")]
+        public string? TopupId { get; set; }
+    }
+
     public record CustomerVoiceProjectParameter
     {
         [property: JsonPropertyName("Project_Guid")]
@@ -178,6 +187,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("facilityId")]
         public string? FacilityId { get; set; }
+
+        [property: JsonPropertyName("hrQuestions")]
+        public string? HRQuestions { get; set; }
     }
 
     #endregion

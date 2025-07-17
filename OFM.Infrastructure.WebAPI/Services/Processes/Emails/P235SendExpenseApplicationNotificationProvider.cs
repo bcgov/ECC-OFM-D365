@@ -32,21 +32,27 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 // Note: FetchXMl limit is 5000 records per request
                 var fetchXml = $"""
                 <fetch version="1.0" output-format="xml-platform" mapping="logical" distinct="false">
-                 <entity name='ofm_expense'>
-                    <attribute name='ofm_expenseid' />
-                    <attribute name='ofm_application' />
-                    <attribute name='ofm_assistance_request' />
-                    <attribute name='ofm_caption' />                
-                    <attribute name='statuscode' />
-                    <link-entity name='ofm_assistance_request' to='ofm_assistance_request' from='ofm_assistance_requestid' alias='ofm_assistance_request' link-type='outer'>
-                      <attribute name='ofm_assistance_requestid' />
-                      <attribute name='ofm_contact' />
+                  <entity name="ofm_expense">
+                    <attribute name="ofm_expenseid" />
+                    <attribute name="ofm_application" />
+                    <attribute name="ofm_assistance_request" />
+                    <attribute name="ofm_caption" />
+                    <attribute name="statuscode" />
+                    <attribute name="ofm_amount" />
+                    <attribute name="ofm_funding_number" />
+                    <attribute name="ofm_request_summary" />
+                    <link-entity name="ofm_assistance_request" to="ofm_assistance_request" from="ofm_assistance_requestid" alias="ofm_assistance_request" link-type="outer">
+                      <attribute name="ofm_assistance_requestid" />
+                      <attribute name="ofm_contact" />
                     </link-entity>
-                    <link-entity name='ofm_application' to='ofm_application' from='ofm_applicationid' alias='ofm_application' link-type='outer'>
-                      <attribute name='ofm_contact' />
+                    <link-entity name="ofm_application" to="ofm_application" from="ofm_applicationid" alias="ofm_application" link-type="outer">
+                      <attribute name="ofm_contact" />
+                      <link-entity name="account" from="accountid" to="ofm_facility" alias="facility">
+                        <attribute name="name" />
+                      </link-entity>
                     </link-entity>
                     <filter>
-                      <condition attribute='ofm_expenseid' operator='eq' value='{_processParams.ExpenseApplication.expenseId}' />
+                      <condition attribute="ofm_expenseid" operator="eq" value="{_processParams.ExpenseApplication.expenseId}" />
                     </filter>
                   </entity>
                 </fetch>
@@ -161,9 +167,31 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 var lastName = contactobj?.ofm_last_name;
 
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
-                string? subject = templateobj?.subjectsafehtml;
+                string? subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
                 string? emaildescription = templateobj?.safehtml;
-                string? emailBody = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
+
+                string? emailBody = string.Empty;
+
+                if (statusReason == (int)ofm_expense_StatusCode.Approved) {
+
+                    string? fundingNumber = localData.Data[0]?["ofm_funding_number"]?.ToString();
+                    string? currentDate = DateTime.UtcNow.ToLocalPST().ToString("MM/dd/yyyy");
+                    string? facilityName = localData.Data[0]?["facility.name"]?.ToString();
+                    string? requestSummary = localData.Data[0]?["ofm_request_summary"]?.ToString();
+                    string? fundingAmount = localData.Data[0]?["ofm_amount"]?.ToString();
+
+                    subject = subject.Replace("#FANumber#", fundingNumber);
+                    emailBody = emaildescription?.Replace("[Date]", currentDate);
+                    emailBody = emailBody?.Replace("[Facility]", facilityName);
+                    emailBody = emailBody?.Replace("[RequestSummary]", requestSummary);
+                    emailBody = emailBody?.Replace("[FundingAmount]", fundingAmount);
+
+                }
+                else if(statusReason == (int)ofm_expense_StatusCode.Ineligible)
+                {
+                    emailBody = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
+                }
+                
                 string regardingData = string.Empty;
 
                 if (mainApplicantContact != Guid.Empty)
@@ -187,7 +215,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     contactobj = deserializedData?.FirstOrDefault();
                     firstName = contactobj?.ofm_first_name;
                     lastName = contactobj?.ofm_last_name;
-                    emailBody = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
+
+                    if (statusReason == (int)ofm_expense_StatusCode.Ineligible)
+                    {
+                        emailBody = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
+                    }
 
                     await _emailRepository.CreateAndUpdateEmail(subject, emailBody, recipientsList, _processParams.Notification.SenderId, _informationCommunicationType, appUserService, d365WebApiService, 235, regardingData);
                 }

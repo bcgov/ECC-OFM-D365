@@ -63,14 +63,19 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             {
                 var fetchXml = $$"""
                     <fetch>
-                      <entity name="msdyn_businessclosure">
-                        <attribute name="msdyn_starttime" />
+                      <entity name="ofm_stat_holiday">
+                        <attribute name="ofm_date_observed" />
+                        <attribute name="ofm_holiday_type" />
+                        <attribute name="ofm_stat_holidayid" />
+                        <filter>
+                          <condition attribute="ofm_holiday_type" operator="eq" value="2" />
+                        </filter>
                       </entity>
                     </fetch>
                     """;
 
                 var requestUri = $"""
-                         msdyn_businessclosures?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         ofm_stat_holidaies?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
                 return requestUri;
@@ -193,7 +198,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             _logger.LogDebug(CustomLogEvent.Process, nameof(GetBusinessClosuresDataAsync));
 
-            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri);
+            var response = await _d365WebApiService.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri, false, 0, true);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -359,9 +364,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             List<D365FiscalYear> fiscalYears = [.. JsonSerializer.Deserialize<List<D365FiscalYear>>(fiscalYearsData.Data)];
 
             var businessClosuresData = await GetBusinessClosuresDataAsync();
-            var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(businessClosuresData.Data.ToString());
-            List<DateTime> holidaysList = closures!.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
-
+            var closures = JsonSerializer.Deserialize<List<ofm_stat_holiday>>(businessClosuresData.Data.ToString());
+            List<DateTime> holidaysList = closures!.Select(closure => (DateTime)closure.ofm_date_observed).ToList();
             #endregion
 
             switch (expenseInfo.ofm_payment_frequency)
@@ -393,7 +397,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
 
 
-            DateTime invoiceDate = paymentDate.ToLocalPST().Date.GetPreviousBusinessDay(holidaysList);
+            DateTime invoiceDate = paymentDate.GetPreviousBusinessDay(holidaysList);
             DateTime invoiceReceivedDate = invoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
             DateTime effectiveDate = invoiceDate;
             Guid fiscalYear = invoiceDate.MatchFiscalYear(fiscalYears);
@@ -404,6 +408,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             { "ofm_amount", expenseAmount},
                             { "ofm_payment_type", (int) ecc_payment_type.IrregularExpense },
                             { "ofm_application@odata.bind",$"/ofm_applications({baseApplication!.Id})" },
+                            { "ofm_funding@odata.bind", $"/ofm_fundings({baseApplication.ofm_application_funding?.First().Id})" },
                             { "ofm_invoice_date", invoiceDate.ToString("yyyy-MM-dd") },
                             { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
                             { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
@@ -451,6 +456,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                             { "ofm_amount", monthlyExpenseAmount},
                             { "ofm_payment_type", (int) ecc_payment_type.IrregularExpense },
                             { "ofm_application@odata.bind",$"/ofm_applications({baseApplication!.Id})" },
+                            { "ofm_funding@odata.bind", $"/ofm_fundings({baseApplication.ofm_application_funding?.First().Id})" },//first funding to get end date for FA year.
                             { "ofm_invoice_date", invoiceDate.ToString("yyyy-MM-dd") },
                             { "ofm_invoice_received_date", invoiceReceivedDate.ToString("yyyy-MM-dd")},
                             { "ofm_effective_date", effectiveDate.ToString("yyyy-MM-dd")},
