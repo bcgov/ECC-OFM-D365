@@ -557,6 +557,33 @@ public class LicenceDetail
     public string TypeName { get; set; } = string.Empty;
 }
 
+
+public class D365LicenceDetail
+{
+    public int ofm_operational_spaces { get; set; }
+
+
+    public string ofm_program_session { get; set; }
+
+    public Guid ofm_licence_detailid { get; set; }
+
+    [property: JsonPropertyName("ofm_licence_type@OData.Community.Display.V1.FormattedValue")]
+    public string ofm_licence_typename { get; set; }
+
+    [JsonPropertyName("ofm_licence")]
+    public D365Licence ofm_licence { get; set; }
+
+
+
+}
+
+public class D365Licence
+{
+    [JsonPropertyName("ofm_licenceid")]
+    public Guid ofm_licenceid { get; set; }
+}
+
+
 #region External Parameters
 
 #endregion
