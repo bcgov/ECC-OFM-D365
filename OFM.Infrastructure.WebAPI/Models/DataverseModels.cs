@@ -562,8 +562,9 @@ public class D365LicenceDetail
 {
     public int ofm_operational_spaces { get; set; }
 
-
     public string ofm_program_session { get; set; }
+
+    public string ofm_default_program_session { get; set; }
 
     public Guid ofm_licence_detailid { get; set; }
 
@@ -572,6 +573,10 @@ public class D365LicenceDetail
 
     [JsonPropertyName("ofm_licence")]
     public D365Licence ofm_licence { get; set; }
+
+    public decimal ofm_star_spaces_under_three_years { get; set; }
+
+    public decimal ofm_star_spaces_three_to_five_years { get; set; }
 
 
 

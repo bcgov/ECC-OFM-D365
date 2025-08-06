@@ -70,7 +70,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
         private decimal Total_Three_to_Five;
         private decimal Total_Under_Three;
         private decimal Total_Star_Percentage;
-        string currentMonth;
         public short ProcessId => Setup.Process.LicenceDetailRecords.CalculateLicenceTotal;
         public string ProcessName => Setup.Process.LicenceDetailRecords.CalculteLicenceTotalName;
 
@@ -87,11 +86,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                      <attribute name="ofm_licence_detailid"/>
                        <attribute name="ofm_licence_type"/>
                         <filter>
-                          <condition attribute="statecode" operator="eq" value="0"/>
-                           <filter type="or">
-                            <condition attribute="{string.Concat("ofm_", currentMonth.ToLower())}" operator="null"/>
-                            <condition attribute="{string.Concat("ofm_", currentMonth.ToLower())}" operator="eq" value="1"/>
-                           </filter>
+                          <condition attribute="statecode" operator="eq" value="0"/>                         
                          </filter>
                         <link-entity name="ofm_licence" from="ofm_licenceid" to="ofm_licence" link-type="inner">
                           <filter type="and">
@@ -113,8 +108,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                     """;
 
                 var requestUri = $"""                                
-                                ofm_licence_details?$select=ofm_operational_spaces,ofm_program_session,ofm_licence_type&$filter=statecode eq 0 and (ofm_january eq null or ofm_january eq true) and (ofm_february eq null or ofm_february eq true) and (ofm_march eq null or ofm_march eq true) and (ofm_april eq null or ofm_april eq true) and (ofm_may eq null or ofm_may eq true) and (ofm_june eq null or ofm_june eq true) and (ofm_july eq null or ofm_july eq true) and (ofm_august eq null or ofm_august eq true) and (ofm_september eq null or ofm_september eq true) and (ofm_october eq null or ofm_october eq true) and (ofm_november eq null or ofm_november eq true) and (ofm_december eq null or ofm_december eq true) and ofm_licence/ofm_start_date le {DateTime.Parse(licenceFilterDate).ToString("yyyy-MM-dd")} and (ofm_licence/ofm_end_date eq null or ofm_licence/ofm_end_date ge {DateTime.Parse(licenceFilterDate).ToString("yyyy-MM-dd")}) and ofm_licence/ofm_facility/accountid eq {_processParams.Application.facilityId}&$expand=ofm_licence($expand=ofm_facility)
-                                """;
+                               ofm_licence_details?$select=ofm_star_spaces_three_to_five_years,ofm_star_spaces_under_three_years,ofm_operational_spaces,ofm_program_session,ofm_default_program_session,ofm_licence_type&$filter=statecode eq 0 and ofm_licence/ofm_start_date le {DateTime.Parse(licenceFilterDate).ToString("yyyy-MM-dd")} and (ofm_licence/ofm_end_date eq null or ofm_licence/ofm_end_date ge {DateTime.Parse(licenceFilterDate).ToString("yyyy-MM-dd")}) and ofm_licence/ofm_facility/accountid eq {_processParams.Application.facilityId}&$expand=ofm_licence($expand=ofm_facility)
+                  """;
 
                 return requestUri.CleanCRLF();
 
@@ -126,7 +121,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
             }
         }
 
-        public string ServiceDeliveryDetailRequestURI
+        #region Comment old code as it is merged with total operation space
+        /*public string ServiceDeliveryDetailRequestURI
         {
             get
             {
@@ -134,8 +130,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                 var fetchXml = $"""
                     <fetch aggregate="true">
                       <entity name="ofm_licence_detail">
-                       <attribute name="ofm_enrolled_spaces" alias="Total_Enrolled_Spaces" aggregate="sum" />
-                        <attribute name="ofm_licence_spaces" alias="Total_Licenced_Spaces" aggregate="sum" />
                        <attribute name="ofm_star_spaces_three_to_five_years" alias="Total_Three_to_Five" aggregate="sum" />
                         <attribute name="ofm_star_spaces_under_three_years" alias="Total_Under_Three" aggregate="sum" />
                         <attribute name="ofm_licence_type" groupby="true" alias="type" />
@@ -169,58 +163,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
             }
         }
 
-        public async Task<ProcessData> GetOperationSpaceDataAsync()
-        {
-            _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P900CalculateLicenceTotal));
-
-            if (_data is null && _processParams is not null)
-            {
-                if (_processParams.Application.submittedOn is not null)
-                {
-                    licenceFilterDate = _processParams.Application.submittedOn.ToString();
-                }
-
-                else
-                {
-                    licenceFilterDate = _processParams.Application.createdOn.ToString();
-                }
-                try
-                {
-                    _logger.LogDebug(CustomLogEvent.Process, "Getting Licence Detail with query {requestUri}", SDDforOperationalSpaceRequestURI.CleanLog());
-
-                    var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, SDDforOperationalSpaceRequestURI, true, isProcess: true);
-
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        var responseBody = await response.Content.ReadAsStringAsync();
-                        _logger.LogError(CustomLogEvent.Process, "Failed to query Licence Detail with the server error {responseBody}", responseBody.CleanLog());
-
-                        return await Task.FromResult(new ProcessData(string.Empty));
-                    }
-
-                    var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-                    JsonNode d365Result = string.Empty;
-                    if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-                    {
-                        if (currentValue?.AsArray().Count == 0)
-                        {
-                            _logger.LogInformation(CustomLogEvent.Process, "No Licence Detail found with query {requestUri}", ServiceDeliveryDetailRequestURI.CleanLog());
-                        }
-                        d365Result = currentValue!;
-                    }
-
-                    _data = new ProcessData(d365Result);
-
-                    _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data?.Data.ToString().CleanLog());
-                }
-                catch (Exception ex) { }
-            }
-
-            return await Task.FromResult(_data!);
-        }
-
-        public async Task<ProcessData> GetDataAsync()
+          public async Task<ProcessData> GetDataAsync()
         {
             _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P900CalculateLicenceTotal));
 
@@ -266,8 +209,61 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
             }
 
             return await Task.FromResult(_data!);
+        }*/
+        #endregion
+
+        public async Task<ProcessData> GetDataAsync()
+        {
+            _logger.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P900CalculateLicenceTotal));
+
+            if (_data is null && _processParams is not null)
+            {
+                if (_processParams.Application.submittedOn is not null)
+                {
+                    licenceFilterDate = _processParams.Application.submittedOn.ToString();
+                }
+
+                else
+                {
+                    licenceFilterDate = _processParams.Application.createdOn.ToString();
+                }
+                try
+                {
+                    _logger.LogDebug(CustomLogEvent.Process, "Getting Licence Detail with query {requestUri}", SDDforOperationalSpaceRequestURI.CleanLog());
+
+                    var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, SDDforOperationalSpaceRequestURI, true, isProcess: true);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        var responseBody = await response.Content.ReadAsStringAsync();
+                        _logger.LogError(CustomLogEvent.Process, "Failed to query Licence Detail with the server error {responseBody}", responseBody.CleanLog());
+
+                        return await Task.FromResult(new ProcessData(string.Empty));
+                    }
+
+                    var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+                    JsonNode d365Result = string.Empty;
+                    if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+                    {
+                        if (currentValue?.AsArray().Count == 0)
+                        {
+                            _logger.LogInformation(CustomLogEvent.Process, "No Licence Detail found with query {requestUri}", SDDforOperationalSpaceRequestURI.CleanLog());
+                        }
+                        d365Result = currentValue!;
+                    }
+
+                    _data = new ProcessData(d365Result);
+
+                    _logger.LogDebug(CustomLogEvent.Process, "Query Result {_data}", _data?.Data.ToString().CleanLog());
+                }
+                catch (Exception ex) { }
+            }
+
+            return await Task.FromResult(_data!);
         }
-        public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+
+         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             _processParams = processParams;
             if (_processParams == null || _processParams.Application == null || _processParams.Application.applicationId == null || _processParams.Application.facilityId == null
@@ -277,11 +273,10 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                 throw new Exception("Application data is missing.");
             }
 
-            currentMonth = DateTime.UtcNow.ToLocalPST().ToString("MMMM", System.Globalization.CultureInfo.InvariantCulture);
             var startTime = _timeProvider.GetTimestamp();
 
             _logger.LogDebug(CustomLogEvent.Process, "Start of {nameof}", nameof(P900CalculateLicenceTotal));
-            var oplicencedetail = await GetOperationSpaceDataAsync();
+            var oplicencedetail = await GetDataAsync();
             var updateSessionDetailRequests = new List<HttpRequestMessage>() { };
             var deserializedopLicenceDetailData = JsonSerializer.Deserialize<List<D365LicenceDetail>>(oplicencedetail.Data.ToString());
             var enrichedRecords = from d in deserializedopLicenceDetailData
@@ -289,9 +284,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                                   {
                                       Detail = d,
                                       ofm_program_session = string.IsNullOrWhiteSpace(d.ofm_program_session)
-                                          ? (d.ofm_licence_typename.Contains("(School-Age)") ? "School Age Care" :
+                                          ? string.IsNullOrWhiteSpace(d.ofm_default_program_session) ? (d.ofm_licence_typename.Contains("(School-Age)") ? "School Age Care" :
                                              d.ofm_licence_typename.Contains("Preschool (") ? d.ofm_licence_typename : Regex.Replace(d.ofm_licence_typename, @"group\s+\d+\b", "", RegexOptions.IgnoreCase).Trim())
-                                          : d.ofm_program_session,
+                                          : d.ofm_default_program_session : d.ofm_program_session,
                                   };
 
             JsonObject updateSessionDetail;
@@ -299,23 +294,28 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
 
             foreach (var eachRec in enrichedRecords)
             {
-                updateSessionDetail = new JsonObject {
-                { "ofm_program_session", eachRec.ofm_program_session }
+                var isUpdate = deserializedopLicenceDetailData?.FirstOrDefault(d => d.ofm_licence_detailid == eachRec.Detail.ofm_licence_detailid && string.IsNullOrEmpty(d.ofm_program_session) && string.IsNullOrEmpty(d.ofm_default_program_session));
+                if (isUpdate != null)
+                {
+                    updateSessionDetail = new JsonObject {
+                { "ofm_default_program_session", eachRec.ofm_program_session }
                 };
 
-                updateSessionDetailRequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_licence_details", (Guid)eachRec.Detail.ofm_licence_detailid), updateSessionDetail));
+                    updateSessionDetailRequests.Add(new D365UpdateRequest(new D365EntityReference("ofm_licence_details", (Guid)eachRec.Detail.ofm_licence_detailid), updateSessionDetail));
+                }
             }
 
-            // Deactive reminders
+            if (updateSessionDetailRequests.Count >0)
+            { 
             var updateSessionDetailResults = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, updateSessionDetailRequests, null);
             if (updateSessionDetailResults.Errors.Any())
             {
                 var sendNotificationError = ProcessResult.Failure(ProcessId, updateSessionDetailResults.Errors, updateSessionDetailResults.TotalProcessed, updateSessionDetailResults.TotalRecords);
-                _logger.LogError(CustomLogEvent.Process, "Failed to send notifications with an error: {error}", JsonValue.Create(sendNotificationError)!.ToString());
+                _logger.LogError(CustomLogEvent.Process, "Failed to update default program session: {error}", JsonValue.Create(sendNotificationError)!.ToString());
 
                 return await Task.FromResult(sendNotificationError.SimpleProcessResult);
             }
-
+            }
 
             var grouped = enrichedRecords.GroupBy(x => new
             {
@@ -327,15 +327,29 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                 LicenceName = g.Key.LicenceId,
                 ProgramSessionName = g.Key.ProgramSession,
                 MaxOperationalSpaces = g.Max(x => x.Detail.ofm_operational_spaces)
-            });
+                
+        });
 
 
 
             // Final total operational spaces for facility
-            int totalOperationalSpaces = (int)grouped.Sum(x => x.MaxOperationalSpaces);
+            Total_Operational_Spaces = (int)grouped.Sum(x => x.MaxOperationalSpaces);
+            decimal totalunderthree = deserializedopLicenceDetailData != null ? (decimal)deserializedopLicenceDetailData.Sum(x => x.ofm_star_spaces_under_three_years) : 0;
+            decimal totalthreetofive = deserializedopLicenceDetailData != null ? (decimal)deserializedopLicenceDetailData.Sum(x => x.ofm_star_spaces_three_to_five_years) : 0;
 
-            var licenceDetail = await GetDataAsync();
-            var deserializedLicenceDetailData = JsonSerializer.Deserialize<List<LicenceDetail>>(licenceDetail.Data.ToString());
+
+            if (Total_Operational_Spaces != 0)
+            {
+                Total_Star_Percentage = Math.Round(totalunderthree + totalthreetofive / Total_Operational_Spaces * 100, 0, MidpointRounding.AwayFromZero);
+            }
+            else
+            {
+                _logger.LogError("Total_Operational_Spaces is null or zero. Cannot compute percentage.");
+            }
+
+            #region commented code as its merged with operation space
+            // var licenceDetail = await GetDataAsync();
+            // var deserializedLicenceDetailData = JsonSerializer.Deserialize<List<LicenceDetail>>(licenceDetail.Data.ToString());
             #region commented code to hold total space functionality
             /*deserializedLicenceDetailData?.ForEach(licenceDetail =>
             {
@@ -452,25 +466,24 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                                };*/
             #endregion
 
-            deserializedLicenceDetailData?.ForEach(licenceDetail =>
+            /*deserializedLicenceDetailData?.ForEach(licenceDetail =>
             {
-                Total_Operational_Spaces = totalOperationalSpaces;//totalOperationalSpaces;
+                Total_Operational_Spaces = totalOperationalSpaces;
                 Total_Under_Three += licenceDetail.Total_Under_Three;
                 Total_Three_to_Five += licenceDetail.Total_Three_to_Five;
 
 
             });
-            // var Total = Math.Round(Total_Under_Three + Total_Three_to_Five, 0, MidpointRounding.AwayFromZero);
-            if (Total_Operational_Spaces != 0)
+             if (Total_Operational_Spaces != 0)
             {
                 Total_Star_Percentage = Math.Round(Total_Under_Three + Total_Three_to_Five / Total_Operational_Spaces * 100, 0, MidpointRounding.AwayFromZero);
             }
             else
             {
                 _logger.LogError("Total_Operational_Spaces is null or zero. Cannot compute percentage.");
-            }
+            }*/
 
-
+            #endregion
             var updateApplicationRecord = new JsonObject {
                                 {"ofm_total_operational_spaces", Total_Operational_Spaces},
                                 {"ofm_star_total_percentage",Total_Star_Percentage},
