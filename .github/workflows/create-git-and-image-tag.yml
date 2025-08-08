@@ -25,11 +25,6 @@ jobs:
     environment: dev
 
     steps:
-      - name: Print Workflow Dispatch Inputs and Env Vars
-        uses: shayki5/print-workflow-dispatch-inputs@v1
-        with:
-          add_to_summary: 'true'
-          print_env_vars: 'false'
       - name: Check out repository
         uses: actions/checkout@v3
 
@@ -58,5 +53,4 @@ jobs:
           oc login --token=${{ env.OPENSHIFT_TOKEN }} --server=${{ env.OPENSHIFT_SERVER }}
           oc project ${{ env.OPENSHIFT_NAMESPACE }}
 
-          oc tag ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.BRANCH }}:latest \
-            ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.BRANCH }}:${{ github.event.inputs.version }}
+          oc tag ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}:latest ${{ env.OPENSHIFT_NAMESPACE }}/${{ env.REPO_NAME }}-${{ env.APP_NAME_BACKEND }}:${{ github.event.inputs.version }}

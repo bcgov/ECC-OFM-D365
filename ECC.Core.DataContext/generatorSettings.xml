@@ -16,7 +16,6 @@
     <AddNewFilesToProject>true</AddNewFilesToProject>
     <AddOptionSetMetadataAttribute>true</AddOptionSetMetadataAttribute>
     <AdjustCasingForEnumOptions>false</AdjustCasingForEnumOptions>
-    <AttributeBlacklist />
     <BuilderSettingsJsonRelativePath>builderSettings.json</BuilderSettingsJsonRelativePath>
     <CamelCaseClassNames>false</CamelCaseClassNames>
     <CamelCaseCustomWords />
@@ -1567,7 +1566,6 @@ email|
 msfp_project|
 msfp_question|
 msfp_survey|
-ofm_ack_codes|
 ofm_allowance|
 ofm_application|
 ofm_assistance_request|
@@ -1607,14 +1605,11 @@ ofm_request_category|
 ofm_section|
 ofm_space_allocation|
 ofm_standing_history|
-ofm_stat_holiday|
 ofm_subcategory|
 ofm_supplementary_schedule|
 ofm_survey|
 ofm_survey_response|
 ofm_system_configuration|
-ofm_system_message|
-ofm_top_up_fund|
 systemuser|
 team|
 timezonedefinition|
@@ -1643,7 +1638,6 @@ ofm_licence_detail:ofm_Licence_Detail</EntityAttributeSpecifiedNames>
     <MakeReadonlyFieldsEditable>false</MakeReadonlyFieldsEditable>
     <MakeResponseActionsEditable>true</MakeResponseActionsEditable>
     <LocalOptionSetFormat>{0}_{1}</LocalOptionSetFormat>
-    <MakeReferenceTypesNullable>false</MakeReferenceTypesNullable>
     <ModelBuilderLogLevel>2</ModelBuilderLogLevel>
     <OptionSetLanguageCodeOverride
       xsi:nil="true" />
@@ -1710,7 +1704,7 @@ VoiceMail</TokenCapitalizationOverrides>
   <Namespace>ECC.Core.DataContext</Namespace>
   <ServiceContextName>DataverseContext</ServiceContextName>
   <SuppressGeneratedCodeAttribute>true</SuppressGeneratedCodeAttribute>
-  <SettingsVersion>2.2024.10.16</SettingsVersion>
+  <SettingsVersion>2.2024.2.1</SettingsVersion>
   <UpdateBuilderSettingsJson>true</UpdateBuilderSettingsJson>
-  <Version>2.2024.10.16</Version>
+  <Version>2.2024.2.1</Version>
 </Config>

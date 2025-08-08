@@ -41,7 +41,7 @@ public class DocumentProvider : ID365DocumentProvider
         if (!response.IsSuccessStatusCode)
         {
             //log the error
-            return await Task.FromResult<JsonObject>([]);
+            return await Task.FromResult<JsonObject>(new JsonObject() { });
         }
 
         var newDocument = await response.Content.ReadFromJsonAsync<JsonObject>();

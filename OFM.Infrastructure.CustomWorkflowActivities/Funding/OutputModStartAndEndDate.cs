@@ -16,10 +16,9 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
         [Input("Application")]
         public InArgument<EntityReference> application { get; set; }
 
-        [ReferenceTarget("ofm_funding")]
+        [Input("Version")]
         [RequiredArgument]
-        [Input("Funding")]
-        public InArgument<EntityReference> funding { get; set; }
+        public InArgument<int> version { get; set; }
 
         [Output("Start Date")]
         public OutArgument<DateTime> startDate { get; set; }
@@ -40,36 +39,28 @@ namespace OFM.Infrastructure.CustomWorkflowActivities.Funding
             IOrganizationService service = serviceFactory.CreateOrganizationService(context.InitiatingUserId);
             tracingService.Trace("{0}{1}", "Start Custom Workflow Activity: OutputMODStartAndEndDate", DateTime.Now.ToLongTimeString());
             var application = this.application.Get(executionContext);
-            var funding = this.funding.Get(executionContext);
+            var version = this.version.Get(executionContext);
 
             try
             {
                 var fundingRequest = new QueryExpression()
                 {
                     EntityName = ofm_funding.EntityLogicalName,
-                    ColumnSet = new ColumnSet(new string[] { ofm_funding.Fields.ofm_end_date, ofm_funding.Fields.ofm_application, ofm_funding.Fields.ofm_version_number }),
+                    ColumnSet = new ColumnSet(new string[] { ofm_funding.Fields.ofm_end_date, ofm_funding.Fields.ofm_application }),
                     Criteria = new FilterExpression
                     {
                         Conditions =
                                 {
-                                    new ConditionExpression(ofm_funding.Fields.ofm_application, ConditionOperator.Equal, application.Id),
-                                    new ConditionExpression("ofm_fundingid", ConditionOperator.NotEqual, funding.Id)
+                                    new ConditionExpression(ofm_funding.Fields.ofm_version_number, ConditionOperator.Equal, version - 1),
+                                    new ConditionExpression(ofm_funding.Fields.ofm_application, ConditionOperator.Equal, application.Id)
                                 }
-                    },
-                    Orders =
-                    {
-                        new OrderExpression("ofm_version_number", OrderType.Descending)
                     }
                 };
 
                 var d365Funding = service.RetrieveMultiple(fundingRequest);
 
-                tracingService.Trace("{0}{1}", "Fundings:", d365Funding.Entities.Count);
-                tracingService.Trace("{0}{1}", "Latest Funding: ", d365Funding[0].Id);
-
                 if (d365Funding != null && d365Funding.Entities.Count > 0 && d365Funding[0].Attributes.Contains(ofm_funding.Fields.ofm_end_date))
                 {
-
                     RetrieveRequest timeZoneCode = new RetrieveRequest
                     {
                         ColumnSet = new ColumnSet(new string[] { UserSettings.Fields.timezonecode }),

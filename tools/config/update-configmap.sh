@@ -11,7 +11,6 @@ readonly D365_RECIPIENTS=$8
 readonly D365_BC_REGISTRY_API=$9
 readonly D365_BCCAS_API_URL=${10}
 readonly D365_CGI_BATCH_NUMBER=${11}
-readonly D365_INVOICE_LINES_DISTRIBUTION_ACK=${12}
 
 SERVER_FRONTEND="https://ofm-frontend-$ENV_VAL-$OPENSHIFT_NAMESPACE.apps.silver.devops.gov.bc.ca"
 if [ "$ENV_VAL" = "prod" ]; then
@@ -26,7 +25,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Error",
-    "OFM.Portal.ProviderProfile": "Warning",
+    "OFM.Portal.ProviderProfile": "Error",
     "OFM.D365.Process": "Error",
     "OFM.D365.Batch": "Error",
     "Microsoft.AspNetCore": "Error"
@@ -56,7 +55,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Warning",
-    "OFM.Portal.ProviderProfile": "Warning",
+    "OFM.Portal.ProviderProfile": "Error",
     "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Warning",
     "Microsoft.AspNetCore": "Warning"
@@ -86,7 +85,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Error",
-    "OFM.Portal.ProviderProfile": "Warning",
+    "OFM.Portal.ProviderProfile": "Error",
     "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Error",
     "Microsoft.AspNetCore": "Error"
@@ -297,7 +296,7 @@ D365_CONFIGURATION=$(jq << JSON
       "InvoiceLines": {
         "linetransactionType": "IL",
         "lineCode": "D",
-        "distributionACK": "$D365_INVOICE_LINES_DISTRIBUTION_ACK",
+        "distributionACK": "0622265006500650822007400000000000",
         "unitPrice": "000000000000.00",
         "quantity": "0000000.00",
         "committmentLine": "0000"
@@ -321,4 +320,4 @@ echo
 echo Setting environment variables for "$APP_NAME-d365api-$ENV_VAL" application
 oc -n "$OPENSHIFT_NAMESPACE" set env \
   --from="configmap/$APP_NAME-d365api-$ENV_VAL-config-map" \
-  "deployment/$APP_NAME-d365api-$ENV_VAL"
+  "dc/$APP_NAME-d365api-$ENV_VAL"

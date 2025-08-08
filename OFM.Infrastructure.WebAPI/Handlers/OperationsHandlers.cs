@@ -14,8 +14,6 @@ namespace OFM.Infrastructure.WebAPI.Handlers;
 public static class OperationsHandlers
 {
     static readonly string pageSizeParam = "pageSize";
-    static readonly string richTextTableName = "msdyn_richtextfiles";
-    static readonly string imageBlobTableName = "msdyn_imageblob";
 
     /// <summary>
     /// A generic endpoint for D365 queries 
@@ -67,16 +65,6 @@ public static class OperationsHandlers
 
             if (response.IsSuccessStatusCode)
             {
-                if (statement.StartsWith(richTextTableName) && statement.Contains(imageBlobTableName))
-                {
-                    byte[]  fullImageBytes = await response.Content.ReadAsByteArrayAsync();
-                    var imageResult = new JsonObject(){
-                        {"value",Convert.ToBase64String(fullImageBytes) } 
-                    };
-
-                    return TypedResults.Ok(imageResult);
-                }
-
                 var result = await response.Content.ReadFromJsonAsync<JsonObject>();
                 //logger.LogInformation(CustomLogEvent.Operation, "Queried data successfully with the statement {statement}", statement);
 

@@ -49,22 +49,20 @@ public static class DocumentsHandlers
     ///
     ///  [
     ///    {
-    ///       "ofm_subject": "income.jpg",
+    ///       "ofm_subject": "licence_01.jpg",
     ///       "ofm_extension": ".jpg",
     ///       "ofm_file_size": 95.5,
     ///       "ofm_description": "description 01",
     ///       "entity_name_set": "ofm_assistance_requests",
-    ///       "regardingid": "00000000-0000-0000-0000-000000000000",
-    ///       "ofm_category":"Income Statement"
+    ///       "regardingid": "00000000-0000-0000-0000-000000000000"
     ///    },
     ///    {
-    ///       "ofm_subject": "balancesheet.png",
+    ///       "ofm_subject": "licence_02.png",
     ///       "ofm_extension": ".png",
     ///       "ofm_file_size": 1000.5,
     ///       "ofm_description": "description 02",
     ///       "entity_name_set": "ofm_assistance_requests",
-    ///       "regardingid": "00000000-0000-0000-0000-000000000000",
-    ///       "ofm_category":"Balance Sheet"
+    ///       "regardingid": "00000000-0000-0000-0000-000000000000"
     ///    }
     ///  ]
     /// </remarks>
@@ -82,16 +80,10 @@ public static class DocumentsHandlers
             var mappings = JsonSerializer.Deserialize<List<FileMapping>>(fileMapping)?.ToList();
             if (mappings is null || !mappings.Any()) return TypedResults.BadRequest("The fileMapping is not valid.");
      
-            var hasUniqueNameIssue = mappings.GroupBy(f => f.ofm_subject).Any(c => c.Count() != 1);
-            if (hasUniqueNameIssue) return TypedResults.BadRequest("Each filename must be unique.");
+            var hasUniqueNames = mappings.GroupBy(f => f.ofm_subject).Any(c => c.Count() != 1);
+            if (hasUniqueNames) return TypedResults.BadRequest("Each filename must be unique.");
 
             var uploadResult = await documentService.UploadAsync(files, mappings!);
-
-            if (uploadResult.Errors.Any()) {
-                logger.LogError(CustomLogEvent.Document, "API Failure: Failed to upload documents. [Errors: {errors}]. [FileMapping:{fileMapping}]",uploadResult.Errors.ToArray(), JsonValue.Create(fileMapping).ToString());
-
-                return TypedResults.Problem(uploadResult.SimpleProcessResult.ToJsonString());
-            }
 
             return TypedResults.Ok(uploadResult);
         }

@@ -4,36 +4,37 @@ kind: Template
 labels:
   template: '${REPO_NAME}-template'
 metadata:
-  name: '${REPO_NAME}-d365api-deployment'
+  name: '${REPO_NAME}-d365api-dc'
 objects:
-  - apiVersion: apps/v1
-    kind: Deployment
+  - apiVersion: v1
+    kind: DeploymentConfig
     metadata:
       annotations:
         openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp:
       labels:
-        app: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        app: '${APP_NAME}-${BRANCH}'
         branch: '${BRANCH}'
       name: '${APP_NAME}-d365api-${ENVIRONMENT}'
     spec:
       replicas: ${{MIN_REPLICAS}}
       selector:
-        matchLabels:
-          app: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        app: '${APP_NAME}-${BRANCH}'
+        deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
       strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxUnavailable: 25%
-          maxSurge: 25%
+        resources: {}
+        type: Rolling
       template:
         metadata:
           annotations:
             openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp:
           labels:
-            app: '${APP_NAME}-d365api-${ENVIRONMENT}'
+            app: '${APP_NAME}-${BRANCH}'
+            deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
         spec:
           containers:
-            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api-${BRANCH}:${TAG}
+            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api:${TAG}
               imagePullPolicy: Always
               volumeMounts:
                 # - name: tls-certs
@@ -87,14 +88,17 @@ objects:
           #   secret:
           #     secretName: ofm-backend-cert
       test: false
+      triggers:
+        - type: ConfigChange
   - apiVersion: v1
     kind: Service
     metadata:
       annotations:
         service.alpha.openshift.io/serving-cert-secret-name: 'ofm-backend-cert'
         openshift.io/generated-by: OpenShiftNewApp
+      creationTimestamp:
       labels:
-        app: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        app: '${APP_NAME}-${BRANCH}'
       name: '${APP_NAME}-d365api-${ENVIRONMENT}'
     spec:
       ports:
@@ -107,13 +111,14 @@ objects:
           protocol: TCP
           targetPort: 443
       selector:
-        app: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        app: '${APP_NAME}-${BRANCH}'
+        deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
   - apiVersion: v1
     kind: Route
     metadata:
       name: '${APP_NAME}-d365api-${ENVIRONMENT}'
       labels:
-        app: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        app: '${APP_NAME}-${BRANCH}'
       annotations:
         openshift.io/host.generated: 'true'
         router.openshift.io/cookie-same-site: 'Strict'
@@ -136,8 +141,8 @@ objects:
       name: '${APP_NAME}-d365api-${ENVIRONMENT}-cpu-autoscaler'
     spec:
       scaleTargetRef:
-        apiVersion: apps/v1
-        kind: Deployment
+        apiVersion: apps.openshift.io/v1
+        kind: DeploymentConfig
         name: '${APP_NAME}-d365api-${ENVIRONMENT}'
         subresource: scale
       minReplicas: ${{MIN_REPLICAS}}

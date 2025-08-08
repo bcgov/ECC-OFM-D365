@@ -228,7 +228,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
                 var hyperlinkFATab = _notificationSettings.FundingTabUrl;
                 _logger.LogInformation("Got the hyperlink", hyperlink + hyperlinkFATab);
                 var templateobj = serializedDataTemplate?.FirstOrDefault();
-                string? subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
+                string? subject = templateobj?.subjectsafehtml;
                 string? emaildescription = templateobj?.safehtml;
                 emaildescription = emaildescription?.Replace("{FA_NUMBER}", _funding.ofm_funding_number);
                 emaildescription = emaildescription?.Replace("{FACILITY_NAME}", _funding.ofm_facility?.name);
@@ -249,7 +249,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
                     localDataTemplate = await _emailRepository.GetTemplateDataAsync(_notificationSettings.EmailTemplates.First(t => t.TemplateNumber == 215).TemplateNumber);
                     serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
                     templateobj = serializedDataTemplate?.FirstOrDefault();
-                    subject = templateobj?.title;
+                    subject = templateobj?.subjectsafehtml;
                     emaildescription = templateobj?.safehtml;
                     emaildescription = emaildescription?.Replace("{HYPERLINK_FA}", $"<a href=\"{hyperlink}\">View Funding</a>");
                     recipientsList.Clear();
@@ -277,7 +277,7 @@ public class P210CreateFundingNotificationProvider : ID365ProcessProvider
                     var serializedDataTemplate = JsonSerializer.Deserialize<List<D365Template>>(localDataTemplate.Data.ToString());
 
                     var templateobj = serializedDataTemplate?.FirstOrDefault();
-                    string? subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
+                    string? subject = templateobj?.subjectsafehtml;
                     string? emaildescription = templateobj?.safehtml;
                     emaildescription = emaildescription?.Replace("{CONTACT_NAME}", $"{firstName} {lastName}");
                     List<Guid> recipientsList = new List<Guid>();

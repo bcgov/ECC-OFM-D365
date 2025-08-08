@@ -1,9 +1,7 @@
 ﻿using ECC.Core.DataContext;
 using Microsoft.Xrm.Sdk;
-using Newtonsoft.Json.Linq;
 using OFM.Infrastructure.WebAPI.Extensions;
 using System.ComponentModel;
-using System.Reflection;
 
 namespace OFM.Infrastructure.WebAPI.Models.Fundings;
 
@@ -57,14 +55,6 @@ public class LicenceDetail : ofm_licence_detail
 
     private Guid LicenceTypeId => base.GetAttributeValue<Guid>(Fields.ofm_licence_detailid);
     public ecc_licence_type LicenceType => (ecc_licence_type)base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
-    public string LicenceTypeName => GetOptionSetMetadataDisplayName(LicenceType);
-    private string GetOptionSetMetadataDisplayName(ecc_licence_type value)
-    {
-        Type type = value.GetType();
-        FieldInfo fieldInfo = type.GetField(value.ToString());
-        var attribute=(OptionSetMetadataAttribute)fieldInfo.GetCustomAttribute(typeof(OptionSetMetadataAttribute));
-        return attribute?.Name;
-    }
     private int LicenceTypeNumber => base.GetAttributeValue<OptionSetValue>(Fields.ofm_licence_type).Value;
     public int Spaces => base.GetAttributeValue<int>(Fields.ofm_operational_spaces);
     private bool HasRoomSplit => base.GetAttributeValue<bool>(Fields.ofm_apply_room_split_condition);
@@ -109,10 +99,10 @@ public class LicenceDetail : ofm_licence_detail
     #endregion
 
     #region Parent Fees
-    public bool MultiplePartTimeSchoolAge { get; set; } = false;
+
     private ecc_care_types TimeSchedule => ofm_care_type ?? throw new NullReferenceException($"{nameof(LicenceDetail)}: ofm_care_type is empty. Value must be full-time or part-time."); // Full-Time or Part-Time
-    private decimal ParentFeesRatePerDay => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_day_ft!.Value : (LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup1 || LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup2 || LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup3) && _rateSchedule!.ofm_parent_fee_per_day_pt_school_age != null && MultiplePartTimeSchoolAge ? _rateSchedule.ofm_parent_fee_per_day_pt_school_age.Value : _rateSchedule!.ofm_parent_fee_per_day_pt!.Value;
-    private decimal ParentFeesRatePerMonth => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_month_ft!.Value : (LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup1 || LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup2 || LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup3) && _rateSchedule!.ofm_parent_fee_per_month_pt_school_age != null && MultiplePartTimeSchoolAge ? _rateSchedule.ofm_parent_fee_per_month_pt_school_age.Value : _rateSchedule!.ofm_parent_fee_per_month_pt!.Value;
+    private decimal ParentFeesRatePerDay => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_day_ft!.Value : _rateSchedule!.ofm_parent_fee_per_day_pt!.Value;
+    private decimal ParentFeesRatePerMonth => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_month_ft!.Value : _rateSchedule!.ofm_parent_fee_per_month_pt!.Value;
     private decimal AnnualParentFeesPerSpaceByHours => ParentFeesRatePerDay * DaysPerWeek * WeeksPerYear;
     private decimal AnnualParentFeesPerSpaceByMonths => ParentFeesRatePerMonth * 12; // 12 months in a year
     public decimal ParentFees => Math.Min(AnnualParentFeesPerSpaceByHours, AnnualParentFeesPerSpaceByMonths) * Spaces;

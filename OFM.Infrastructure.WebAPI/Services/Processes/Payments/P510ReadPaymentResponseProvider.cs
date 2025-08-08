@@ -60,25 +60,19 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
         {
             var fetchXml = $$"""
                     <fetch>
-                      <entity name="ofm_stat_holiday">
-                        <attribute name="ofm_date_observed" />
-                        <attribute name="ofm_holiday_type" />
-                        <attribute name="ofm_stat_holidayid" />
-                        <filter>
-                          <condition attribute="ofm_holiday_type" operator="eq" value="2" />
-                        </filter>
+                      <entity name="msdyn_businessclosure">
+                        <attribute name="msdyn_starttime" />
                       </entity>
                     </fetch>
                     """;
 
             var requestUri = $"""
-                         ofm_stat_holidaies?fetchXml={WebUtility.UrlEncode(fetchXml)}
+                         msdyn_businessclosures?fetchXml={WebUtility.UrlEncode(fetchXml)}
                          """;
 
             return requestUri;
         }
     }
-    
     public string PaymentInProcessUri
     {
         get
@@ -154,7 +148,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
     {
         _logger.LogDebug(CustomLogEvent.Process, nameof(GetBusinessClosuresDataAsync));
 
-        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri, false, 0, true);
+        var response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, BusinessClosuresRequestUri);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -260,7 +254,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
 
             List<DateTime> holidaysList = GetStartTimes(businessclosuresdata.Data.ToString());
             DateTime revisedInvoiceDate = DateTime.Today.Date.AddBusinessDays(_BCCASApi.DaysToCorrectPayments, holidaysList);
-            DateTime revisedInvoiceReceivedDate = revisedInvoiceDate.AddBusinessDays(_BCCASApi.PayableInDays, holidaysList);
+            DateTime revisedInvoiceReceivedDate = revisedInvoiceDate.AddDays(-4);
             DateTime revisedEffectiveDate = revisedInvoiceDate;
 
             if (line != null && header != null)
@@ -330,8 +324,9 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
 
     private static List<DateTime> GetStartTimes(string jsonData)
     {
-        var closures = JsonSerializer.Deserialize<List<ofm_stat_holiday>>(jsonData);
-        List<DateTime> startTimeList = closures!.Select(closure => (DateTime)closure.ofm_date_observed).ToList();
+        var closures = JsonSerializer.Deserialize<List<BusinessClosure>>(jsonData);
+
+        List<DateTime> startTimeList = closures.Select(closure => DateTime.Parse(closure.msdyn_starttime)).ToList();
 
         return startTimeList;
     }

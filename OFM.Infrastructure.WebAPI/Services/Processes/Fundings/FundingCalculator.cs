@@ -25,8 +25,8 @@ public class FundingCalculator : IFundingCalculator
     public readonly IFundingRepository _fundingRepository;
     private readonly IEnumerable<RateSchedule> _rateSchedules;
     private readonly Funding _funding;
-    private const decimal EHT_UPPER_THRESHOLD = 1_500_000m; //Todo: Load from rate schedule
-    private const decimal EHT_LOWER_THRESHOLD = 500_000m; //Todo: Load from rate schedule
+    private const decimal EHT_UPPER_THRESHHOLD = 1_500_000m; //Todo: Load from rate schedule
+    private const decimal EHT_LOWER_THRESHHOLD = 500_000m; //Todo: Load from rate schedule
     private RateSchedule? _rateSchedule;
     private FundingResult? _fundingResult;
     private List<NonHRStepAction> _noneHRStepActions = [];
@@ -54,24 +54,17 @@ public class FundingCalculator : IFundingCalculator
         get
         {
             IEnumerable<Licence>? activeLicences = _funding?.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
-                                                                                                         licence.ofm_start_date <= ApplicationSubmittedOn.ToLocalPST().Date &&
-                                                                                                         (licence.ofm_end_date is null || licence.ofm_end_date >= ApplicationSubmittedOn.ToLocalPST().Date));
+                                                                                                         licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= ApplicationSubmittedOn.ToLocalPST().Date &&
+                                                                                                         (licence.ofm_end_date is null || licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= ApplicationSubmittedOn.ToLocalPST().Date));
 
             IEnumerable<LicenceDetail>? licenceDetails = activeLicences?
                                 .SelectMany(licence => licence?.ofm_licence_licencedetail!)
                                 .Where(licenceDetail => licenceDetail.statuscode == ofm_licence_detail_StatusCode.Active);
 
-            var partTimeSA1Flag = licenceDetails.Where(licence => (licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup1 && licence.ofm_care_type == ecc_care_types.PartTime)).Count() >= 1;
-            var partTimeSA2Flag = licenceDetails.Where(licence => (licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup2 && licence.ofm_care_type == ecc_care_types.PartTime)).Count() >= 1;
-            var partTimeSA3Flag = licenceDetails.Where(licence => (licence.LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup3 && licence.ofm_care_type == ecc_care_types.PartTime)).Count() >= 1;
-
-            var multiplePartTimeSAFlag = (partTimeSA1Flag && partTimeSA2Flag) || (partTimeSA2Flag && partTimeSA3Flag) || (partTimeSA1Flag && partTimeSA3Flag);
-
             // NOTE: If a facility has duplicate care types/licence types with the same address (e.g. seasonal schedules),
             // the AnnualHoursFTERatio (Hrs of childcare ratio/FTE ratio) needs to be applied at the combined care types level to avoid overpayments.
             if (ApplyDuplicateCareTypesCondition)
             {
-
                 var groupedlicenceDetails = licenceDetails?
                                             .GroupBy(ltype => ltype.ofm_licence_type, (ltype, licenceGroup) =>
                                             {
@@ -84,10 +77,10 @@ public class FundingCalculator : IFundingCalculator
                                                 grouped.RateSchedule = _rateSchedule;
                                                 grouped.ApplyRoomSplitCondition = ApplyRoomSplitCondition;
                                                 grouped.NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation;
-                                                grouped.MultiplePartTimeSchoolAge = multiplePartTimeSAFlag;
 
                                                 return grouped;
                                             });
+
                 return groupedlicenceDetails;
             }
 
@@ -96,7 +89,6 @@ public class FundingCalculator : IFundingCalculator
                 ld.RateSchedule = _rateSchedule;
                 ld.ApplyRoomSplitCondition = ApplyRoomSplitCondition;
                 ld.NewSpacesAllocationAll = _funding?.ofm_funding_spaceallocation;
-                ld.MultiplePartTimeSchoolAge = multiplePartTimeSAFlag;
             }
 
             return licenceDetails;
@@ -115,7 +107,6 @@ public class FundingCalculator : IFundingCalculator
     private decimal TotalStaffingCost => LicenceDetails.Sum(ld => ld.StaffingCost);
     private decimal TotalProjectedBenefitsCostPerYear => LicenceDetails.Sum(ld => ld.ProjectedBenefitsCostPerYear);
     private decimal TotalHRRenumeration => LicenceDetails.Sum(ld => ld.HRRenumeration);
-    private decimal TotalEHTRenumeration => LicenceDetails.Sum(ld => ld.StaffingCost + ld.ProjectedBenefitsCostPerYear + ld.ProfessionalDevelopmentHours);
 
     private decimal TotalProfessionalDevelopmentHours => LicenceDetails.Sum(ld => ld.ProfessionalDevelopmentHours);
     private decimal TotalProfessionalDevelopmentExpenses => LicenceDetails.Sum(ld => ld.ProfessionalDevelopmentExpenses);
@@ -127,31 +118,17 @@ public class FundingCalculator : IFundingCalculator
     {
         get
         {
-            var taxData = new { OwnershipType, TotalEHTRenumeration };
-            var EHTProfitLowerThreshold = _rateSchedule?.ofm_eht_minimum_cost_for_profit ?? EHT_LOWER_THRESHOLD;
-            var EHTProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_for_profit ?? EHT_UPPER_THRESHOLD;
-            var EHTNonProfitUpperThreshold = _rateSchedule?.ofm_eht_maximum_cost_not_for_profit ?? EHT_UPPER_THRESHOLD;
-            var EHTFunding = 0m;
+            var taxData = new { OwnershipType, TotalHRRenumeration };
+            var ehtRate = taxData switch
+            {
+                { OwnershipType: ecc_Ownership.Private, TotalHRRenumeration: > EHT_LOWER_THRESHHOLD, TotalHRRenumeration: <= EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_for_profit_eht_over_500k ?? 0m,
+                { OwnershipType: ecc_Ownership.Private, TotalHRRenumeration: > EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_for_profit_eht_over_1_5m ?? 0m,
+                { OwnershipType: ecc_Ownership.Notforprofit, TotalHRRenumeration: > EHT_UPPER_THRESHHOLD } => _rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m,
+                null => throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with a null value"),
+                _ => 0m
+            };
 
-            if (taxData == null)
-            {
-                throw new ArgumentNullException(nameof(FundingCalculator), "Can't calculate EHT threshold with a null value");
-            }
-
-            if (taxData.OwnershipType == ecc_Ownership.Private && (taxData.TotalEHTRenumeration <= EHTProfitUpperThreshold) && (taxData.TotalEHTRenumeration > EHTProfitLowerThreshold))
-            {
-                EHTFunding = ((_rateSchedule?.ofm_for_profit_eht_over_500k ?? 0m) / 100) * (TotalEHTRenumeration - EHTProfitLowerThreshold);
-            }
-            else if (taxData.OwnershipType == ecc_Ownership.Private && (taxData.TotalEHTRenumeration > EHTProfitUpperThreshold))
-            {
-                EHTFunding = ((_rateSchedule?.ofm_for_profit_eht_over_1_5m ?? 0m) / 100) * TotalEHTRenumeration;
-            }
-            else if (taxData.OwnershipType == ecc_Ownership.Notforprofit && (taxData.TotalEHTRenumeration > EHTNonProfitUpperThreshold))
-            {
-                EHTFunding = ((_rateSchedule?.ofm_not_for_profit_eht_over_1_5m ?? 0m) / 100) * (TotalEHTRenumeration - EHTNonProfitUpperThreshold);
-            }
-
-            return EHTFunding;
+            return (ehtRate / 100) * TotalHRRenumeration;
         }
     }
 
@@ -219,7 +196,7 @@ public class FundingCalculator : IFundingCalculator
     //private int TotalSpaces => LicenceDetails.Sum(ld => ld.ofm_operational_spaces!.Value);
     private decimal TotalAdjustedNonHRSpaces => LicenceDetails.Sum(ld => ld.AdjustedNonHRSpaces);
     private decimal TotalParentFees => LicenceDetails.Sum(ld => ld.ParentFees);
-    private decimal TotalProjectedFundingCost => TotalHRRenumeration + EmployerHealthTax + TotalNonHRCost;
+    private decimal TotalProjectedFundingCost => TotalHRRenumeration + TotalNonHRCost;
 
     #endregion
 
@@ -232,11 +209,7 @@ public class FundingCalculator : IFundingCalculator
                     .NextValidator(new MustHaveValidApplicationStatusRule())
                     .NextValidator(new MustHaveValidOwnershipTypeRule())
                     .NextValidator(new MustHaveValidLicenceRule())
-                    .NextValidator(new MustHaveAtLeastOneValidLicenceDetailRule())
-                    .NextValidator(new MustHaveAtLeastOneOperationalSpaceRule())
-                    .NextValidator(new MustHaveWeeksInOperationRule())
-                    .NextValidator(new MustHaveHoursOfOperationRule())
-                    .NextValidator(new MustHaveDaysOfWeekRule());
+                    .NextValidator(new MustHaveAtLeastOneValidLicenceDetailRule());
         try
         {
             fundingRules.Validate(_funding);

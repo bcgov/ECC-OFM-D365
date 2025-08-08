@@ -29,7 +29,7 @@ OFM.Application.Form = {
                 this.filterExpenseAuthorityLookup(executionContext);
                 this.licenceCheck(executionContext);
                 this.showBanner(executionContext);
-                //this.lockStatusReason(executionContext);
+                this.lockStatusReason(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
                 this.hideVerificationTab(executionContext);
                 this.filterSubmittedByLookup(executionContext);
@@ -68,18 +68,14 @@ OFM.Application.Form = {
         var facilityId = formContext.getAttribute("ofm_facility").getValue() ? formContext.getAttribute("ofm_facility").getValue()[0].id : null;
         var submittedOnDate = formContext.getAttribute("ofm_summary_submittedon").getValue();
         if (submittedOnDate != null) {
-            submittedOnDate.setMinutes(submittedOnDate.getMinutes() - submittedOnDate.getTimezoneOffset());
             var date = submittedOnDate.toISOString();
         }
-        else {
-            var createdOn = formContext.getAttribute("createdon").getValue() != null ?
-                formContext.getAttribute("createdon").getValue() : new Date();
-            createdOn.setMinutes(createdOn.getMinutes() - createdOn.getTimezoneOffset());
-            var date = createdOn.toISOString();
-        }
+        else
+            var date = formContext.getAttribute("createdon").getValue() != null ?
+                formContext.getAttribute("createdon").getValue().toISOString() : new Date();
         if (facilityId != null) {
             var conditionFetchXML = "";
-            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=((_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ofm_start_date le " + date + ") or (ofm_end_date eq null and ofm_end_date ge " + date + "))").then(
+            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ((ofm_end_date eq null and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "')) or (Microsoft.Dynamics.CRM.OnOrAfter(PropertyName='ofm_end_date',PropertyValue='" + date + "') and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "'))))").then(
                 function success(results) {
                     console.log(results);
                     if (results.entities.length > 0) {
@@ -501,7 +497,7 @@ OFM.Application.Form = {
     lockStatusReason: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
-        if (formContext.getAttribute("statuscode").getValue() == 6) {   //Approved
+        if (formContext.getAttribute("statuscode").getValue() != 1) {
             var roles = Xrm.Utility.getGlobalContext().userSettings.roles.getAll();
             var disable = true;
             for (var i = 0; i < roles.length; i++) {

@@ -175,17 +175,5 @@ OFM.Intake.Form = {
         });
 
         return visable;
-    },
-    validateCohortNumber: function(executionContext){
-        debugger;
-        var formContext = executionContext.getFormContext();
-        var cohort = formContext.getAttribute("ofm_cohort").getValue();
-
-        //validation required must be numeric and 6 digits
-        if(!/^\d+$/.test(cohort) || cohort.length != 6){
-            formContext.getControl("ofm_cohort").setNotification("Cohort should be 6 digits in 'MMYYYY' format.", "validation_rule");
-        }else{
-            formContext.getControl("ofm_cohort").clearNotification("validation_rule");
-        }
     }
 };

@@ -123,7 +123,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     _logger.LogInformation("Got the Template", serializedDataTemplate.Count);
 
                     var templateobj = serializedDataTemplate?.FirstOrDefault();
-                    string? subject = _emailRepository.StripHTML(templateobj?.subjectsafehtml);
+                    string? subject = templateobj?.subjectsafehtml;
                     string? emaildescription = templateobj?.safehtml;
                 if (submittedBy != Guid.Empty)
                 {

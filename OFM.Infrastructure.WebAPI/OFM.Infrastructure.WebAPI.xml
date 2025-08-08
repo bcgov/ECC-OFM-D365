@@ -114,22 +114,20 @@
             
               [
                 {
-                   "ofm_subject": "income.jpg",
+                   "ofm_subject": "licence_01.jpg",
                    "ofm_extension": ".jpg",
                    "ofm_file_size": 95.5,
                    "ofm_description": "description 01",
                    "entity_name_set": "ofm_assistance_requests",
-                   "regardingid": "00000000-0000-0000-0000-000000000000",
-                   "ofm_category":"Income Statement"
+                   "regardingid": "00000000-0000-0000-0000-000000000000"
                 },
                 {
-                   "ofm_subject": "balancesheet.png",
+                   "ofm_subject": "licence_02.png",
                    "ofm_extension": ".png",
                    "ofm_file_size": 1000.5,
                    "ofm_description": "description 02",
                    "entity_name_set": "ofm_assistance_requests",
-                   "regardingid": "00000000-0000-0000-0000-000000000000",
-                   "ofm_category":"Balance Sheet"
+                   "regardingid": "00000000-0000-0000-0000-000000000000"
                 }
               ]
              </remarks>
@@ -565,11 +563,6 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.msfp_survey"/> entities.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_ack_codesSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_ack_codes"/> entities.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_allowanceSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_allowance"/> entities.
@@ -765,11 +758,6 @@
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_standing_history"/> entities.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_stat_holidaySet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_stat_holiday"/> entities.
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_subcategorySet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_subcategory"/> entities.
@@ -793,16 +781,6 @@
         <member name="P:ECC.Core.DataContext.DataverseContext.ofm_system_configurationSet">
             <summary>
             Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_system_configuration"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_system_messageSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_system_message"/> entities.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.DataverseContext.ofm_top_up_fundSet">
-            <summary>
-            Gets a binding to the set of all <see cref="T:ECC.Core.DataContext.ofm_top_up_fund"/> entities.
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.DataverseContext.TeamSet">
@@ -1193,11 +1171,6 @@
             Select the legal designation or other business type of the account for contracts or reporting purposes.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Account.ccof_good_standing_status">
-            <summary>
-            CCOF Good Standing Status
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Account.ccof_instructionnumber">
             <summary>
             CCOF
@@ -1518,66 +1491,6 @@
             ACCB provider ID
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address10_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address11_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address12_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address13_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address3_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address4_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address5_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address6_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address7_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address8_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_additional_address9_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_address1_legal_description">
-            <summary>
-            Legal Description
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_address10_city">
             <summary>
             Type the city for the additional address.
@@ -1853,21 +1766,6 @@
             Type the state or province of the additional address.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_board_members_elected_unpaid">
-            <summary>
-            Does your facility's not-for-profit have elected, unpaid board members?
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_board_members_residents_of_bc">
-            <summary>
-            Are the majority of the elected board members full time BC residents?
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_board_members_selected_membership">
-            <summary>
-            Does your facility's not-for-profit have board members selected from the entire membership?
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_business_type">
             <summary>
             Business Type
@@ -1885,12 +1783,7 @@
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_ccof_requirement">
             <summary>
-            If the facility is with CCOF for at least 1 year, the value is Yes, otherwise it is No.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_date_of_incorporation">
-            <summary>
-            Date of incorporation
+            If the facility is with CCOF for at least 1 year, the value is Yes, otherwise it is No. Blank if this is an organization record
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_enrollment_date">
@@ -1941,11 +1834,6 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_manualreviewcomments">
             <summary>
             Show the field if the manual review is set to false
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_open_membership">
-            <summary>
-            Does your facility's not-for-profit have an open membership?
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.ofm_ownership">
@@ -2366,11 +2254,6 @@
         <member name="P:ECC.Core.DataContext.Account.ofm_payment_facility_account">
             <summary>
             1:N ofm_payment_facility_account
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Account.ofm_top_up_fund_facility">
-            <summary>
-            1:N ofm_top_up_fund_facility
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Account.Referencingaccount_master_account">
@@ -4000,19 +3883,9 @@
             Shows who last updated the record on behalf of another user.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Email.msdyn_emailengagementinteractions">
-            <summary>
-            Email engagement interactions
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Email.msdyn_recipientlist">
             <summary>
             Individual email will be sent to each recipient.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Email.msdyn_sentimentreason">
-            <summary>
-            Sentiment Reason
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.Email.notifications">
@@ -4984,127 +4857,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_ack_codes.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_ack_codes entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_ack_codes.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.ofm_ack_codesid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.statecode">
-            <summary>
-            Status of the ACK Codes
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.statuscode">
-            <summary>
-            Reason for the status of the ACK Codes
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_ack_codes.team_ofm_ack_codes">
-            <summary>
-            N:1 team_ofm_ack_codes
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_ack_codes.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_allowance">
             <summary>
             Supplementary Application Record
@@ -5473,27 +5225,23 @@
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_furniture_equipment">
             <summary>
-            Office Furniture and Equipment (Formerly "Furniture and Equipment")
+            Furniture and Equipment
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_furniture_equipment_base">
-             <summary>
-             Value of the Office Furniture and Equipment in base currency.
-            
-            (Formerly "Furniture and Equipment" (Base))
-             </summary>
+            <summary>
+            Value of the Furniture and Equipment in base currency.
+            </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_maintenance_repairs">
             <summary>
-            Facility Maintenance and Minor Improvements (formerly "Maintenance and repairs")
+            Maintenance and repairs
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_maintenance_repairs_base">
-             <summary>
-             Value of the Facility Maintenance and Minor Improvements in base currency.
-            
-            (Formerly "Maintenance and repairs (Base)")
-             </summary>
+            <summary>
+            Value of the Maintenance and repairs in base currency.
+            </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_mortgage">
             <summary>
@@ -5506,19 +5254,14 @@
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_property_insurance">
-             <summary>
-             Maintenance and Minor Repairs (formerly 'Insurance')
-            
+            <summary>
             Insurance (formerly 'Property Insurance')
-             </summary>
+            </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_property_insurance_base">
-             <summary>
-             Value of the Maintenance and Minor Repairs in base currency. 
-            
-            (Formerly 'Insurance')
-            (Formerly Property Insurance (Base))
-             </summary>
+            <summary>
+            Value of the Insurance in base currency. (Formerly Property Insurance (Base))
+            </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_property_municipal_tax">
             <summary>
@@ -5550,29 +5293,20 @@
             Value of the Strata fees in base currency.
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_supplies">
-            <summary>
-            Janitorial Services (Formerly "Supplies")
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_supplies_base">
-             <summary>
-             Value of the Janitorial Services in base currency.
-            
-            (Formerly "Supplies" (Base))
-             </summary>
+            <summary>
+            Value of the Supplies in base currency.
+            </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_upkeep_labour_supplies">
             <summary>
-            Upkeep (formerly "Upkeep and labour")
+            Upkeep and labour
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_upkeep_labour_supplies_base">
-             <summary>
-             Value of the Upkeep in base currency.
-            
-            (Formerly "Upkeep and labour (Base)")
-             </summary>
+            <summary>
+            Value of the Upkeep and labour in base currency.
+            </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_application.ofm_costs_utilities">
             <summary>
@@ -8509,11 +8243,6 @@
             New Allocation Date
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_notified_expense_authority">
-            <summary>
-            If EA has been notified when Funding is submitted
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_provider_approver">
             <summary>
             The associated contact
@@ -8632,11 +8361,6 @@
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_payment_funding">
             <summary>
             1:N ofm_payment_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_funding.ofm_top_up_funding">
-            <summary>
-            1:N ofm_top_up_funding
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_funding.ofm_funding_licencedetail">
@@ -9828,11 +9552,6 @@
         <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_funding">
             <summary>
             N:1 ofm_payment_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_payment.ofm_payment_top_up_fund">
-            <summary>
-            N:1 ofm_payment_top_up_fund
             </summary>
         </member>
         <member name="P:ECC.Core.DataContext.ofm_payment.team_ofm_payment">
@@ -12634,162 +12353,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_stat_holiday">
-            <summary>
-            MyCCS Statutory Holiday Record
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_stat_holiday.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_stat_holiday entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_stat_holiday.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_caption">
-            <summary>
-            MyCCS Statutory Holiday record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_date_observed">
-            <summary>
-            Date Observed (if holiday falls on weekend)
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_holiday_date">
-            <summary>
-            Stat Day
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_holiday_type">
-            <summary>
-            Type
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_name">
-            <summary>
-            Holiday Name
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_selected_year">
-            <summary>
-            Selected Year
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ofm_stat_holidayid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.statecode">
-            <summary>
-            Status of the Statutory Holiday
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.statuscode">
-            <summary>
-            Reason for the status of the Statutory Holiday
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_stat_holiday.team_ofm_stat_holiday">
-            <summary>
-            N:1 team_ofm_stat_holiday
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_stat_holiday.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_subcategory.Fields">
             <summary>
             Available fields, a the time of codegen, for the ofm_subcategory entity
@@ -13647,278 +13210,6 @@
             <param name="anonymousType">LINQ anonymous type.</param>
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_system_message.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_system_message entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_system_message.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.ofm_system_messageid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.statecode">
-            <summary>
-            Status of the OFM System Message
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.statuscode">
-            <summary>
-            Reason for the status of the OFM System Message
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_system_message.team_ofm_system_message">
-            <summary>
-            N:1 team_ofm_system_message
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_system_message.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_top_up_fund.Fields">
-            <summary>
-            Available fields, a the time of codegen, for the ofm_top_up_fund entity
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_top_up_fund.#ctor">
-            <summary>
-            Default Constructor.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.createdby">
-            <summary>
-            Unique identifier of the user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.createdon">
-            <summary>
-            Date and time when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.createdonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who created the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.exchangerate">
-            <summary>
-            Exchange rate for the currency associated with the entity with respect to the base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.importsequencenumber">
-            <summary>
-            Sequence number of the import that created this record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.modifiedby">
-            <summary>
-            Unique identifier of the user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.modifiedon">
-            <summary>
-            Date and time when the record was modified.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.modifiedonbehalfby">
-            <summary>
-            Unique identifier of the delegate user who modified the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_programming_amount_base">
-            <summary>
-            Value of the Programming Amount in base currency.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_top_up_fundid">
-            <summary>
-            Unique identifier for entity instances
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.overriddencreatedon">
-            <summary>
-            Date and time that the record was migrated.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ownerid">
-            <summary>
-            Owner Id
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owneridname">
-            <summary>
-            Name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owneridyominame">
-            <summary>
-            Yomi name of the owner
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owningbusinessunit">
-            <summary>
-            Unique identifier for the business unit that owns the record
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owningteam">
-            <summary>
-            Unique identifier for the team that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.owninguser">
-            <summary>
-            Unique identifier for the user that owns the record.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.statecode">
-            <summary>
-            Status of the Topup Fund
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.statuscode">
-            <summary>
-            Reason for the status of the Topup Fund
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.timezoneruleversionnumber">
-            <summary>
-            For internal use only.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.transactioncurrencyid">
-            <summary>
-            Unique identifier of the currency associated with the entity.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.utcconversiontimezonecode">
-            <summary>
-            Time zone code that was in use when the record was created.
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.versionnumber">
-            <summary>
-            Version Number
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_payment_top_up_fund">
-            <summary>
-            1:N ofm_payment_top_up_fund
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_top_up_fund_facility">
-            <summary>
-            N:1 ofm_top_up_fund_facility
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.ofm_top_up_funding">
-            <summary>
-            N:1 ofm_top_up_funding
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.ofm_top_up_fund.team_ofm_top_up_fund">
-            <summary>
-            N:1 team_ofm_top_up_fund
-            </summary>
-        </member>
-        <member name="M:ECC.Core.DataContext.ofm_top_up_fund.#ctor(System.Object)">
-            <summary>
-            Constructor for populating via LINQ queries given a LINQ anonymous type
-            <param name="anonymousType">LINQ anonymous type.</param>
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.Team">
             <summary>
             Collection of system users that routinely collaborate. Teams can be used to simplify record sharing and provide team members with common access to organization data when team members belong to different Business Units.
@@ -14119,11 +13410,6 @@
             1:N team_msfp_survey
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_ack_codes">
-            <summary>
-            1:N team_ofm_ack_codes
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_allowance">
             <summary>
             1:N team_ofm_allowance
@@ -14319,11 +13605,6 @@
             1:N team_ofm_standing_history
             </summary>
         </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_stat_holiday">
-            <summary>
-            1:N team_ofm_stat_holiday
-            </summary>
-        </member>
         <member name="P:ECC.Core.DataContext.Team.team_ofm_subcategory">
             <summary>
             1:N team_ofm_subcategory
@@ -14347,16 +13628,6 @@
         <member name="P:ECC.Core.DataContext.Team.team_ofm_system_configuration">
             <summary>
             1:N team_ofm_system_configuration
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_system_message">
-            <summary>
-            1:N team_ofm_system_message
-            </summary>
-        </member>
-        <member name="P:ECC.Core.DataContext.Team.team_ofm_top_up_fund">
-            <summary>
-            1:N team_ofm_top_up_fund
             </summary>
         </member>
         <member name="M:ECC.Core.DataContext.Team.#ctor(System.Object)">
@@ -15277,6 +14548,11 @@
             Type of the characteristic, e.g. skill, certification.
             </summary>
         </member>
+        <member name="F:ECC.Core.DataContext.botComponentcollectionsharingroletype.Chatbotuser">
+            <summary>
+            Chatbot user has access to the content of the component collection
+            </summary>
+        </member>
         <member name="F:ECC.Core.DataContext.botComponentcollectionsharingroletype.Componentcollectionauthor">
             <summary>
             Can author the component collection
@@ -15287,29 +14563,24 @@
             Has access to the content of the component collection and can add component collection to the copilot
             </summary>
         </member>
-        <member name="F:ECC.Core.DataContext.botComponentcollectionsharingroletype.Copilotuser">
-            <summary>
-            Copilot user has access to the content of the component collection
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.botcomponentreusepolicy">
             <summary>
-            Type of Reuse Policy associated with Copilot Studio copilot components.
+            Type of Reuse Policy associated with Power Virtual Agents chatbot subcomponents.
             </summary>
         </member>
         <member name="F:ECC.Core.DataContext.botcomponentreusepolicy.None">
             <summary>
-            Not Reusable. By default, a copilot component is not reusable and Reuse Policy is None
+            Not Reusable. By default, a chatbot subcomponent is not reusable and Reuse Policy is None
             </summary>
         </member>
         <member name="F:ECC.Core.DataContext.botcomponentreusepolicy.Private">
             <summary>
-            Is required by one or more Public copilot component, but is not directly invokable or visible
+            Is required by one or more Public chatbot subcomponent, but is not directly invokable or visible
             </summary>
         </member>
         <member name="F:ECC.Core.DataContext.botcomponentreusepolicy.Public">
             <summary>
-            Visible shared / reusable copilot component for use in all bots in the environment
+            Visible shared / reusable chatbot subcomponent for use in all bots in the environment
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.botsharingroletypes">
@@ -15317,17 +14588,17 @@
             Type of sharing roles associated with Power Virtual Agents bots.
             </summary>
         </member>
-        <member name="F:ECC.Core.DataContext.botsharingroletypes.Copilotauthor">
+        <member name="F:ECC.Core.DataContext.botsharingroletypes.Chatbotauthor">
             <summary>
             Creates, edit and maintains bot content (trigger phrases, topic content, entities and variables). USes Power Automate solutions, authentication action and other extensibility integrations (e.g. skill) provided by developers in content editing.
             </summary>
         </member>
-        <member name="F:ECC.Core.DataContext.botsharingroletypes.Copilotmanager">
+        <member name="F:ECC.Core.DataContext.botsharingroletypes.Chatbotmanager">
             <summary>
             A manager has full access to all bot content, can publish content, is accountable for bot operations, and can configure hand-off, channels and other operational information.
             </summary>
         </member>
-        <member name="F:ECC.Core.DataContext.botsharingroletypes.Copilotreviewer">
+        <member name="F:ECC.Core.DataContext.botsharingroletypes.Chatbotreviewer">
             <summary>
             View bot performance in analytics section, monitors CSAT, provides feedback and suggestions.
             </summary>
@@ -15737,11 +15008,6 @@
             Health Authorities
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ecc_holiday_type">
-            <summary>
-            Holiday Type
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ecc_inclusion_policy">
             <summary>
             Inclusion Policies
@@ -15835,11 +15101,6 @@
         <member name="T:ECC.Core.DataContext.ecc_weekday_options">
             <summary>
             Weekday Options
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ecc_yn_not_applicable">
-            <summary>
-            A Yes/No or N/A
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ecc_ynempty">
@@ -16077,31 +15338,6 @@
             Bookings in this status can be optimized by the optimization engine
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.msdyn_BotFailureActionType">
-            <summary>
-            Actions to be taken on bot failure
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_BotFailureActionType.PromptandEscalate">
-            <summary>
-            Play a prompt and escalate
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_BotFailureActionType.PromptandExternalTransfer">
-            <summary>
-            Play a prompt and transfer to an external number
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_BotFailureActionType.PromptandHangUp">
-            <summary>
-            Play a prompt and hang up the call
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_BotFailureActionType.WaitMusicandEscalate">
-            <summary>
-            Play wait music and escalate
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.msdyn_ConsoleApplicationNotificationAction">
             <summary>
             The set of allowed actions in a notification template
@@ -16307,26 +15543,6 @@
             Channel type of external participant
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.msdyn_flow_ApprovalStage">
-            <summary>
-            The stage of an approval and a linked approval request.
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_flow_ApprovalStage.Basic">
-            <summary>
-            Basic stage (the single stage for Basic approvals).
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_flow_ApprovalStage.Complete">
-            <summary>
-            The approval is complete.
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_flow_ApprovalStage.NotSpecified">
-            <summary>
-            Not specified.
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.msdyn_HarvestingTag">
             <summary>
             Whether this entity is tagged for solution harvesting or not.
@@ -16360,26 +15576,6 @@
         <member name="T:ECC.Core.DataContext.msdyn_intent_source">
             <summary>
             Source of the Intent or Intent Attributes
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_InviteStatus.Created">
-            <summary>
-            The customer feedback survey invite has been created
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_InviteStatus.Invalid">
-            <summary>
-            The customer feedback survey invite is invalid
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_InviteStatus.Responded">
-            <summary>
-            The customer feedback survey invite has been responded
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_InviteStatus.Sent">
-            <summary>
-            The customer feedback survey invite has been sent
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_IoTAggregation">
@@ -16470,21 +15666,6 @@
         <member name="F:ECC.Core.DataContext.msdyn_liveworkitemeventtype.SkillIdentified">
             <summary>
             This event is triggered when a skill is updated during chat.
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_mcsBotStatus.Disconnected">
-            <summary>
-            The bot is disconnected
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_mcsBotStatus.InProgress">
-            <summary>
-            The bot is still provisioning
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_mcsBotStatus.Ready">
-            <summary>
-            The bot is ready
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_MLmodeltype">
@@ -16677,26 +15858,6 @@
             AutoAccepted
             </summary>
         </member>
-        <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.BotCallFailureEndConversation">
-            <summary>
-            BotCallFailureEndConversation
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.BotCallFailureEscalate">
-            <summary>
-            BotCallFailureEscalate
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.BotCallFailureExternalTransfer">
-            <summary>
-            BotCallFailureExternalTransfer
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.BotCallFailurePromptAndEscalate">
-            <summary>
-            BotCallFailurePromptAndEscalate
-            </summary>
-        </member>
         <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.BotEndConversation">
             <summary>
             BotEndConversation 
@@ -16730,11 +15891,6 @@
         <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.CustomerEndConversation">
             <summary>
             CustomerEndConversation
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.CustomerReconnect">
-            <summary>
-            CustomerReconnect
             </summary>
         </member>
         <member name="F:ECC.Core.DataContext.msdyn_occallsessioneventreasons.CustomerRejoin">
@@ -17312,11 +16468,6 @@
             Defines the step type for routing configuration
             </summary>
         </member>
-        <member name="F:ECC.Core.DataContext.msdyn_Routingconfigurationsteptype.AgentGroupidentification">
-            <summary>
-            Identifies the agent group for the work-item
-            </summary>
-        </member>
         <member name="F:ECC.Core.DataContext.msdyn_Routingconfigurationsteptype.Enrichment">
             <summary>
             Enriches the work-item
@@ -17477,56 +16628,6 @@
             Bot Session is resolved
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.msdyn_sessionoutcomereason">
-            <summary>
-            Bot Session Outcome Reason option
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.agentTransferConfiguredByAuthor">
-            <summary>
-            Creator or author of the Bot configures the bot to transfer to agent
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.agentTransferFromQuestionMaxAttempts">
-            <summary>
-            In Question node maximum attempts are reached but Bot could not help and proposes to transfer to agent
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.agentTransferRequestedByUser">
-            <summary>
-            Actual user of the Bot decides to raise an agent transfer
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.agentTransferWithoutError">
-            <summary>
-            Agent transfer without errors
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.noError">
-            <summary>
-            No error found
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.resolved">
-            <summary>
-            Session Outcome is resolved
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.systemError">
-            <summary>
-            System Error is the last error in entire conversation
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.userError">
-            <summary>
-            User Exception is the last error in entire conversation
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_sessionoutcomereason.userExit">
-            <summary>
-            Normal user exit
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.msdyn_smstemplate_Category">
             <summary>
             category can be User/Contact/Account/Lead/Opportunity
@@ -17675,26 +16776,6 @@
         <member name="F:ECC.Core.DataContext.msdyn_TimestampFrequency.PerFieldServiceStatusChange">
             <summary>
             Per Field Service Status Change
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_TimeTrackerReasonCategoryOptionSet.Collaboration">
-            <summary>
-            Collaboration
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_TimeTrackerReasonCategoryOptionSet.ExternalTool">
-            <summary>
-            External Tool
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_TimeTrackerReasonCategoryOptionSet.Miscellaneous">
-            <summary>
-            Miscellaneous
-            </summary>
-        </member>
-        <member name="F:ECC.Core.DataContext.msdyn_TimeTrackerReasonCategoryOptionSet.Research">
-            <summary>
-            Research
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.msdyn_unifiedroutingdiagnostic_msdyn_DiagnosticDatatype">
@@ -17930,16 +17011,6 @@
         <member name="T:ECC.Core.DataContext.officedocument_DocumentType">
             <summary>
             Option set for selecting the type of the office document.
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_ack_codes_statecode">
-            <summary>
-            Status of the ACK Codes
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_ack_codes_StatusCode">
-            <summary>
-            Reason for the status of the ACK Codes
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.ofm_allowance_statecode">
@@ -18352,16 +17423,6 @@
             Reason for the status of the Standing History
             </summary>
         </member>
-        <member name="T:ECC.Core.DataContext.ofm_stat_holiday_statecode">
-            <summary>
-            Status of the Statutory Holiday
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_stat_holiday_StatusCode">
-            <summary>
-            Reason for the status of the Statutory Holiday
-            </summary>
-        </member>
         <member name="T:ECC.Core.DataContext.ofm_subcategory_statecode">
             <summary>
             Status of the Sub-Category
@@ -18410,26 +17471,6 @@
         <member name="T:ECC.Core.DataContext.ofm_system_configuration_StatusCode">
             <summary>
             Reason for the status of the System Configuration
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_system_message_statecode">
-            <summary>
-            Status of the OFM System Message
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_system_message_StatusCode">
-            <summary>
-            Reason for the status of the OFM System Message
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_top_up_fund_statecode">
-            <summary>
-            Status of the Topup Fund
-            </summary>
-        </member>
-        <member name="T:ECC.Core.DataContext.ofm_top_up_fund_StatusCode">
-            <summary>
-            Reason for the status of the Topup Fund
             </summary>
         </member>
         <member name="T:ECC.Core.DataContext.OnlineMeetingType">

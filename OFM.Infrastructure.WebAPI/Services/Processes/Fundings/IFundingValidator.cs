@@ -160,8 +160,10 @@ public class MustHaveValidLicenceRule : IFundingValidator<Funding>
         }
 
         var licenceCount = funding.ofm_facility?.ofm_facility_licence?.Where(licence => licence.statuscode == ofm_licence_StatusCode.Active &&
-        licence.ofm_start_date <= ((funding.ofm_application!.ofm_summary_submittedon)?.ToLocalPST().Date ?? (funding.ofm_application!.createdon)?.ToLocalPST().Date ?? new DateTime()) &&
-        (licence.ofm_end_date is null || licence.ofm_end_date >= ((funding.ofm_application!.ofm_summary_submittedon)?.ToLocalPST().Date ?? (funding.ofm_application!.createdon)?.ToLocalPST().Date ?? new DateTime())))?.Count();
+                                                                                             licence.ofm_start_date.GetValueOrDefault().ToLocalPST().Date <= DateTime.UtcNow.ToLocalPST().Date &&
+                                                                                             (licence.ofm_end_date is null ||
+                                                                                             licence.ofm_end_date.GetValueOrDefault().ToLocalPST().Date >= DateTime.UtcNow.ToLocalPST().Date))?.
+                                                                                             Count();
 
         if (licenceCount == 0)
             throw new ValidationException(
@@ -196,126 +198,6 @@ public class MustHaveAtLeastOneValidLicenceDetailRule : IFundingValidator<Fundin
         if (licenceDetailCount == 0)
             throw new ValidationException(
                 new ValidationResult("The associated facility must have at least one valid and active service delivery detail.", ["Service Delivery Details"]), null, null);
-
-        _next?.Validate(funding);
-
-        return true;
-    }
-
-    public IFundingValidator<Funding> NextValidator(IFundingValidator<Funding>? next)
-    {
-        _next = next;
-        return next;
-    }
-}
-
-public class MustHaveAtLeastOneOperationalSpaceRule : IFundingValidator<Funding>
-{
-    private IFundingValidator<Funding>? _next;
-
-    public bool Validate(Funding funding)
-    {
-        var operationalSpaces = funding.ofm_facility?.ofm_facility_licence?.SelectMany(ld => ld
-                                .ofm_licence_licencedetail!).Where(licDetail => licDetail.statuscode 
-                                == ofm_licence_detail_StatusCode.Active && (licDetail.ofm_operational_spaces 
-                                < 1 || licDetail.ofm_operational_spaces == null)).Count();
-
-        if (operationalSpaces > 0)
-        {
-            throw new ValidationException(
-                new ValidationResult("The Service Delivery Details must have valid Operational Spaces.", ["Service Delivery Details"]), null, null);
-        }
-
-        _next?.Validate(funding);
-
-        return true;
-    }
-
-    public IFundingValidator<Funding> NextValidator(IFundingValidator<Funding>? next)
-    {
-        _next = next;
-        return next;
-    }
-}
-
-public class MustHaveWeeksInOperationRule : IFundingValidator<Funding>
-{
-    private IFundingValidator<Funding>? _next;
-
-    public bool Validate(Funding funding)
-    {
-        var weeksInOperation = funding.ofm_facility?.ofm_facility_licence?.SelectMany(ld => ld
-                               .ofm_licence_licencedetail!).Where(licDetail => licDetail.statuscode 
-                               == ofm_licence_detail_StatusCode.Active && (licDetail.ofm_weeks_in_operation 
-                               < 1 || licDetail.ofm_weeks_in_operation == null)).Count();
-
-        if (weeksInOperation > 0)
-        {
-            throw new ValidationException(
-                new ValidationResult("The Service Delivery Details must have valid Weeks in Operation.", ["Service Delivery Details"]), null, null);
-        }
-
-        _next?.Validate(funding);
-
-        return true;
-    }
-
-    public IFundingValidator<Funding> NextValidator(IFundingValidator<Funding>? next)
-    {
-        _next = next;
-        return next;
-    }
-}
-
-public class MustHaveHoursOfOperationRule : IFundingValidator<Funding>
-{
-    private IFundingValidator<Funding>? _next;
-
-    public bool Validate(Funding funding)
-    {
-        var operationHoursFrom = funding.ofm_facility?.ofm_facility_licence?.SelectMany(ld => ld
-                                 .ofm_licence_licencedetail!).Where(licDetail => licDetail.statuscode 
-                                 == ofm_licence_detail_StatusCode.Active && licDetail.ofm_operation_hours_from 
-                                 == null).Count();
-        var operationHoursTo = funding.ofm_facility?.ofm_facility_licence?.SelectMany(ld => ld
-                               .ofm_licence_licencedetail!).Where(licDetail => licDetail.statuscode 
-                               == ofm_licence_detail_StatusCode.Active && licDetail.ofm_operation_hours_to 
-                               == null).Count();
-
-        if (operationHoursFrom > 0 || operationHoursTo > 0)
-        {
-            throw new ValidationException(
-                new ValidationResult("The Service Delivery Details must have valid Operation Hours.", ["Service Delivery Details"]), null, null);
-        }
-
-        _next?.Validate(funding);
-
-        return true;
-    }
-
-    public IFundingValidator<Funding> NextValidator(IFundingValidator<Funding>? next)
-    {
-        _next = next;
-        return next;
-    }
-}
-
-public class MustHaveDaysOfWeekRule : IFundingValidator<Funding>
-{
-    private IFundingValidator<Funding>? _next;
-
-    public bool Validate(Funding funding)
-    {
-        var weekDays = funding.ofm_facility?.ofm_facility_licence?.SelectMany(ld => ld
-                                 .ofm_licence_licencedetail!).Where(licDetail => licDetail.statuscode
-                                 == ofm_licence_detail_StatusCode.Active && licDetail.ofm_week_days
-                                 == null).Count();
-
-        if (weekDays > 0)
-        {
-            throw new ValidationException(
-                new ValidationResult("The Service Delivery Details must have valid Week Days when the ChildCare is operating.", ["Service Delivery Details"]), null, null);
-        }
 
         _next?.Validate(funding);
 
