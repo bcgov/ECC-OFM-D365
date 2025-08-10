@@ -10,10 +10,18 @@ OFM.Account.Ribbon = {
         debugger;
         var formContext = primaryControl;
         var Id = formContext.data.entity.getId().replace("{", "").replace("}", "");
+        var formLabel = formContext.ui.formSelector.getCurrentItem().getLabel();
+        var pageName;
+        if (formLabel == "Organization Information") {
+            pageName = "ccof_ccofgoodstandingcheckbcregistry_ee79c";
+        }
+        else if (formLabel == "Organization Information - OFM") {
+            pageName = "ofm_goodstandingverificationpage_52f22";
+        }
 
         var pageInput = {
             pageType: "custom",
-            name: "ofm_goodstandingverificationpage_52f22",
+            name: pageName,
             recordId: Id
         };
         var navigationOptions = {
@@ -42,24 +50,29 @@ OFM.Account.Ribbon = {
 
     showHideVerifyGoodStanding: function (primaryControl) {
         debugger;
-
         var visable = false;
         var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
         userRoles.forEach(function hasRole(item, index) {
-            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - Program Support" || item.name === "OFM - CRC" || item.name === "OFM - Program Policy Analyst") {
+            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - Program Support" || item.name === "OFM - CRC" || item.name === "OFM - Program Policy Analyst" || item.name === "CCOF - Leadership" || item.name === "CCOF - Sr. Adjudicator") {
                 visable = true;
             }
         });
 
         var accountFlag = false;
-        var bypassFlag = false;
-        var accountType = Xrm.Page.getAttribute('ccof_accounttype').getValue(); //100000000 - Organization
+        var bypassFlag = true;
+        var accountType = primaryControl.getAttribute('ccof_accounttype').getValue(); //100000000 - Organization
         if (accountType === 100000000) {
             accountFlag = true;
-            var bypass = Xrm.Page.getAttribute('ofm_bypass_bc_registry_good_standing').getValue();
-            if (bypass == null || bypass == false) {
-                bypassFlag = true;
+            if (primaryControl.getAttribute("ofm_bypass_bc_registry_good_standing") != null) {
+                bypassFlag = !(Xrm.Page.getAttribute('ofm_bypass_bc_registry_good_standing').getValue());
             }
+            else if (primaryControl.getAttribute('ccof_bypass_goodstanding_check') != null) {
+                bypassFlag = !(Xrm.Page.getAttribute('ccof_bypass_goodstanding_check').getValue());
+            }
+        }
+        if (primaryControl.getAttribute("ccof_typeoforganization") != null && visable) {
+            var businessType = primaryControl.getAttribute("ccof_typeoforganization").getValue();
+            visable = businessType == 100000002 ? true : false;
         }
         return visable && accountFlag && bypassFlag;
     }
