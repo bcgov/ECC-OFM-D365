@@ -6,6 +6,7 @@ using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
+using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using System;
 using System.Net;
 using System.Reflection.PortableExecutable;
@@ -14,9 +15,9 @@ using static OFM.Infrastructure.WebAPI.Models.BCRegistrySearchResult;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 
-public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
+public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings> d365AuthSettings, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ILoggerFactory loggerFactory, TimeProvider timeProvider) : ID365ProcessProvider
 {
-    private readonly ID365AppUserService _appUserService = appUserService;
+    private readonly ID365AppUserService _appUserService = appUserService;   
     private readonly ID365WebApiService _d365webapiservice = d365WebApiService;
     private readonly D365AuthSettings _d365AuthSettings = d365AuthSettings.Value;
     private readonly ILogger _logger = loggerFactory.CreateLogger(LogCategory.Process);
@@ -50,7 +51,7 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
                                       <condition attribute="statecode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_funding_statecode.Active}" />
                                       <condition attribute="statuscode" operator="eq" value="{(int)ECC.Core.DataContext.ofm_funding_StatusCode.Active}" />
                                       <condition attribute="ofm_facility" operator="not-null" value="" />
-                                      <condition attribute="ofm_start_date" operator="le" value="{firstOfCurrentMonth}" />
+                                     <condition attribute="ofm_start_date" operator="le" value="{firstOfCurrentMonth}" />
                                     </filter>
                                   </entity>
                                 </fetch>
@@ -439,9 +440,21 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
             _logger.LogInformation(CustomLogEvent.Process, "Cannot find HR questions responses.");
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
+        try
+        {
+            int batchSize = _d365AuthSettings.BatchSize;
+            BatchResult questionResponseBatchResult = null;
+            
+            if (questionResponseRequests.Any())
+            {
+                for (int i = 0; i < questionResponseRequests?.Count; i += batchSize)
+                {
+                     questionResponseBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, questionResponseRequests.Skip(i).Take(batchSize).ToList(), null);
+                   
+                }
 
-        var questionResponseBatchResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, questionResponseRequests, null);
-
+            }
+          
         var endTime = _timeProvider.GetTimestamp();
 
         _logger.LogInformation(CustomLogEvent.Process, "Create Monthly report process finished in {totalElapsedTime} minutes", _timeProvider.GetElapsedTime(startTime, endTime).TotalMinutes);
@@ -455,7 +468,12 @@ public class P615CreateMonthlyReportProvider(IOptionsSnapshot<D365AuthSettings> 
 
             return result.SimpleProcessResult;
         }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(CustomLogEvent.Process, "Faile to copy HR response isthrowing an error {error}", ex.Message.ToString());
 
+        }
         #endregion
 
         return ProcessResult.Completed(ProcessId).SimpleProcessResult;

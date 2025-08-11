@@ -6,7 +6,7 @@ public record AppSettings
 {
     public required APIKey[] ApiKeys { get; set; }
     public required Int16 PageSize { get; set; }
-    public required Int16 MaxPageSize { get; set; }
+   public required Int16 MaxPageSize { get; set; }
     public required bool RetryEnabled { get; set; }
     /// <summary>
     /// Maximum number of times to re-try when service protection limits hit
@@ -105,6 +105,7 @@ public record D365AuthSettings
     public required string RedirectUrl { get; set; }
     public required string ApiVersion { get; set; }
     public required Int16 TimeOutInSeconds { get; set; }
+    public required Int16 BatchSize { get; set; }
     public required string SearchVersion { get; set; }
     public required List<AZAppUser> AZAppUsers { get; set; }
     public required string HttpClientName { get; set; }
