@@ -287,6 +287,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                                           ? string.IsNullOrWhiteSpace(d.ofm_default_program_session) ? (d.ofm_licence_typename.Contains("(School-Age)") ? "School Age Care" :
                                              d.ofm_licence_typename.Contains("Preschool (") ? d.ofm_licence_typename : Regex.Replace(d.ofm_licence_typename, @"group\s+\d+\b", "", RegexOptions.IgnoreCase).Trim())
                                           : d.ofm_default_program_session : d.ofm_program_session,
+                                     ofm_licence_category = (d.ofm_licence_typename.Contains("(School-Age)") ? "School Age Care" :
+                                             d.ofm_licence_typename.Contains("Preschool (") ? d.ofm_licence_typename : Regex.Replace(d.ofm_licence_typename, @"group\s+\d+\b", "", RegexOptions.IgnoreCase).Trim())
+
                                   };
 
             JsonObject updateSessionDetail;
@@ -330,6 +333,18 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                 
         });
 
+            var licensecategorygroup = enrichedRecords.GroupBy(x => new
+            {
+                LicenceId = x.Detail.ofm_licence.ofm_licenceid,
+                LicenceCategory =x.ofm_licence_category,
+             
+            }).Select(g => new
+            {
+                LicenceName = g.Key.LicenceId,
+                LicenceCategoryName = g.Key.LicenceCategory,
+                MaxOperationalSpaces = g.Sum(x => x.Detail.ofm_operational_spaces)
+
+            });
 
 
             // Final total operational spaces for facility
@@ -486,6 +501,13 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
             #endregion
             var updateApplicationRecord = new JsonObject {
                                 {"ofm_total_operational_spaces", Total_Operational_Spaces},
+                                {"ofm_group_child_care_under_36_months_op", (int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("Under 36 Month")).Sum(x=>x.MaxOperationalSpaces)},
+                                {"ofm_group_child_care_30_months_school_age_op", (int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("30 Months to School-Age")).Sum(x=>x.MaxOperationalSpaces)},
+                                {"ofm_group_multi_age_child_care_op", (int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("Group Multi-Age Child Care")).Sum(x=>x.MaxOperationalSpaces)},
+                                {"ofm_preschool_4_hours_max_group1_op", (int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("Preschool (4 Hours Max)")).Sum(x=>x.MaxOperationalSpaces)},
+                                {"ofm_in_home_multi_age_child_care_op",(int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("Home Multi-Age Child Care")).Sum(x=>x.MaxOperationalSpaces)},
+                                {"ofm_family_child_care_op", (int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("Family Child Care")).Sum(x=>x.MaxOperationalSpaces) },
+                                {"ofm_group_child_care_school_age_group1_op",(int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("Group Child Care (School-Age)")).Sum(x=>x.MaxOperationalSpaces)},
                                 {"ofm_star_total_percentage",Total_Star_Percentage},
                                };
             var serializedApplicationRecord = JsonSerializer.Serialize(updateApplicationRecord);
