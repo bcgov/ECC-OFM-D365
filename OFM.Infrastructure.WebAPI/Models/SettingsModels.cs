@@ -105,7 +105,7 @@ public record D365AuthSettings
     public required string RedirectUrl { get; set; }
     public required string ApiVersion { get; set; }
     public required Int16 TimeOutInSeconds { get; set; }
-    public required Int16 BatchSize { get; set; }
+    public required Int16 CRMBatchSize { get; set; }
     public required string SearchVersion { get; set; }
     public required List<AZAppUser> AZAppUsers { get; set; }
     public required string HttpClientName { get; set; }

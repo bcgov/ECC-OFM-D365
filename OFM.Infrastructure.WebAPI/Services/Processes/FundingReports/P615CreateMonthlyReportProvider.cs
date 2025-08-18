@@ -442,7 +442,7 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
         }
         try
         {
-            int batchSize = _d365AuthSettings.BatchSize;
+            int batchSize = _d365AuthSettings.CRMBatchSize;
             BatchResult questionResponseBatchResult = null;
             
             if (questionResponseRequests.Any())
