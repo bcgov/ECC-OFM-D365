@@ -715,10 +715,12 @@
         <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator">
             <summary>
             Funding Calculator Version 9
+            Chnages made for version 9.1
             </summary>
         </member>
         <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.EmployerHealthTax">
             <summary>
+            EHT Calculation Changes done for Version 9.1
              HR Envelopes: Step 09 - Add EHT (Employer Health Tax) *** EHT Tax is applied at the calculator level to HR Total Renumeration Only ***
             </summary>
         </member>
