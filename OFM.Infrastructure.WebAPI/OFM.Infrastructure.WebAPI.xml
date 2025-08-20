@@ -715,7 +715,7 @@
         <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator">
             <summary>
             Funding Calculator Version 9
-            Chnages made for version 9.1
+            Changes made for version 9.1
             </summary>
         </member>
         <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.EmployerHealthTax">
