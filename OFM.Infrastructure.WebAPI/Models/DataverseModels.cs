@@ -578,6 +578,8 @@ public class D365LicenceDetail
 
     public decimal ofm_star_spaces_three_to_five_years { get; set; }
 
+    public decimal ofm_star_spaces_six_to_twelve_years { get; set; }
+
 
 
 }
