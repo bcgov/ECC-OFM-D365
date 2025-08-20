@@ -100,7 +100,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore
                 if (!scoreParameters.Any()) return (applicationId, false, "No score parameters found.");
                 var facilityData = await dataverseRepository.GetFacilityDataAsync(facilityId);
                 if (facilityData == null) { return (applicationId, false, $"ofm_application with Id = {applicationId} is missing a facility"); }
-                var licenseData = await dataverseRepository.GetLicenseDataAsync(facilityId, application.SubmittedOn);
+               var licenseData = await dataverseRepository.GetLicenseDataAsync(applicationId);
                 var incomeData = await dataverseRepository.GetIncomeDataAsync(facilityData.PostalCode, calculatorId);
                 var feeData = await dataverseRepository.GetFeeDataAsync(facilityId);
                 var thresholdData = await dataverseRepository.GetThresholdDataAsync(calculatorId);

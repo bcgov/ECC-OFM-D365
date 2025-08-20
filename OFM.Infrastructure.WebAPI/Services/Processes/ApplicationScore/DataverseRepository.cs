@@ -48,7 +48,7 @@ public interface IDataverseRepository
     /// <param name="facilityId">GUID of the facility</param>
     /// <param name="submittedOn">Application submitted date</param>
     /// <returns></returns>
-    Task<LicenseSpaces> GetLicenseDataAsync(Guid facilityId, DateTime? submittedOn);
+    Task<LicenseSpaces> GetLicenseDataAsync(Guid applicationId);
     /// <summary>
     /// Get the ACCB data
     /// </summary>
@@ -208,21 +208,22 @@ public class DataverseRepository(ID365AppUserService appUserService, ID365WebApi
         return new Facility(json["value"]?.AsArray()?.First()?.AsObject());
     }
 
-    public async Task<LicenseSpaces?> GetLicenseDataAsync(Guid facilityId, DateTime? submittedOn)
+    public async Task<LicenseSpaces?> GetLicenseDataAsync(Guid applicationId)
     {
 
         var output = new JsonObject();
         var outputObjects = new List<JsonObject>();
         List<Task<HttpResponseMessage>> taks = new List<Task<HttpResponseMessage>>();
-        taks.Add(d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.TotalOperationSpaces, facilityId, submittedOn)}"));
-        taks.Add(d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.MaxChildSpaces, facilityId, submittedOn)}"));
+     
+        taks.Add(d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.TotalOperationSpaces,applicationId)}"));
+        taks.Add(d365WebApiService.SendRetrieveRequestAsync(appUserService.AZSystemAppUser, $"{string.Format(DataverseQueries.MaxChildSpaces, applicationId)}"));
         var responses = await Task.WhenAll(taks.ToArray());
         responses.ToList().ForEach(async r =>
         {
             if (!r.IsSuccessStatusCode)
             {
                 var responseBody = await r.Content.ReadAsStringAsync();
-                throw new Exception($"GetLicenseDataAsync(Guid {facilityId}, DateTime? {submittedOn}):HTTP Failure: {responseBody}");
+                throw new Exception($"GetLicenseDataAsync(Guid {applicationId}):HTTP Failure: {responseBody}");
             }
             var json = await r.Content.ReadFromJsonAsync<JsonObject>();
             outputObjects.Add(json["value"].AsArray().First().AsObject());
