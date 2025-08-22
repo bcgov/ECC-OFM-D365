@@ -33,6 +33,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
         private decimal Total_Three_to_Five;
         private decimal Total_Under_Three;
         private decimal Total_Star_Percentage;
+        private decimal School_Space_Ratio;
         public short ProcessId => Setup.Process.LicenceDetailRecords.CalculateLicenceTotal;
         public string ProcessName => Setup.Process.LicenceDetailRecords.CalculteLicenceTotalName;
 
@@ -252,7 +253,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
             if (Total_Operational_Spaces != 0)
             {
                 Total_Star_Percentage = Math.Round((Total_Under_Three + Total_Three_to_Five) / Total_Operational_Spaces * 100, 0, MidpointRounding.AwayFromZero);
-            }
+                School_Space_Ratio = Math.Round((decimal)licensecategorygroup.Where(type => type.LicenceCategoryName.Contains("Group Child Care (School-Age)")).Sum(x => x.OperationalSpacespercategory) / Total_Operational_Spaces,2, MidpointRounding.AwayFromZero);
+
+                }
             else
             {
                 _logger.LogError("Total_Operational_Spaces is null or zero. Cannot compute percentage.");
@@ -269,6 +272,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                                 {"ofm_family_child_care_op", (int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("Family Child Care")).Sum(x=>x.OperationalSpacespercategory) },
                                 {"ofm_group_child_care_school_age_op",(int)licensecategorygroup.Where(type=>type.LicenceCategoryName.Contains("Group Child Care (School-Age)")).Sum(x=>x.OperationalSpacespercategory)},
                                 {"ofm_star_total_percentage",Total_Star_Percentage},
+                                {"ofm_school_age_spaces_ratio",School_Space_Ratio}
                                };
             var serializedApplicationRecord = JsonSerializer.Serialize(updateApplicationRecord);
             var updateApplicationResult = await d365WebApiService.SendPatchRequestAsync(_appUserService.AZSystemAppUser, $"ofm_applications({_processParams.Application.applicationId})", serializedApplicationRecord);
