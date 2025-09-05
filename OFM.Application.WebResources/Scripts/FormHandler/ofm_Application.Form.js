@@ -8,7 +8,7 @@ OFM.Application.Form = OFM.Application.Form || {};
 //Formload logic starts here
 OFM.Application.Form = {
     onLoad: function (executionContext) {
-        //debugger;
+        debugger;
         let formContext = executionContext.getFormContext();
         switch (formContext.ui.getFormType()) {
             case 0: //undefined
@@ -21,6 +21,7 @@ OFM.Application.Form = {
                 this.showBanner(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
                 this.filterSubmittedByLookup(executionContext);
+                this.showCCFRIParticipation(executionContext);
                 break;
 
             case 2: // update
@@ -29,13 +30,15 @@ OFM.Application.Form = {
                 this.filterExpenseAuthorityLookup(executionContext);
                 this.licenceCheck(executionContext);
                 this.showBanner(executionContext);
-                this.lockStatusReason(executionContext);
+                //this.lockStatusReason(executionContext);
                 this.filterCreatedBySPLookup(executionContext);
                 this.hideVerificationTab(executionContext);
                 this.filterSubmittedByLookup(executionContext);
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
                 this.notForProfitSection(executionContext);
+                this.showCCFRIParticipation(executionContext);
+                this.hideEligibilityTab(executionContext);
                 break;
 
             case 3: //readonly
@@ -45,6 +48,8 @@ OFM.Application.Form = {
                 this.showUnionList(executionContext);
                 this.showOtherDescription(executionContext);
                 this.notForProfitSection(executionContext);
+                this.showCCFRIParticipation(executionContext);
+                this.hideEligibilityTab(executionContext);
                 break;
 
             case 4: //disable
@@ -68,14 +73,18 @@ OFM.Application.Form = {
         var facilityId = formContext.getAttribute("ofm_facility").getValue() ? formContext.getAttribute("ofm_facility").getValue()[0].id : null;
         var submittedOnDate = formContext.getAttribute("ofm_summary_submittedon").getValue();
         if (submittedOnDate != null) {
+            submittedOnDate.setMinutes(submittedOnDate.getMinutes() - submittedOnDate.getTimezoneOffset());
             var date = submittedOnDate.toISOString();
         }
-        else
-            var date = formContext.getAttribute("createdon").getValue() != null ?
-                formContext.getAttribute("createdon").getValue().toISOString() : new Date();
+        else {
+            var createdOn = formContext.getAttribute("createdon").getValue() != null ?
+                formContext.getAttribute("createdon").getValue() : new Date();
+            createdOn.setMinutes(createdOn.getMinutes() - createdOn.getTimezoneOffset());
+            var date = createdOn.toISOString();
+        }
         if (facilityId != null) {
             var conditionFetchXML = "";
-            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=(_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ((ofm_end_date eq null and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "')) or (Microsoft.Dynamics.CRM.OnOrAfter(PropertyName='ofm_end_date',PropertyValue='" + date + "') and Microsoft.Dynamics.CRM.OnOrBefore(PropertyName='ofm_start_date',PropertyValue='" + date + "'))))").then(
+            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=((_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ofm_start_date le " + date + ") or (ofm_end_date eq null and ofm_end_date ge " + date + "))").then(
                 function success(results) {
                     console.log(results);
                     if (results.entities.length > 0) {
@@ -497,7 +506,7 @@ OFM.Application.Form = {
     lockStatusReason: function (executionContext) {
         debugger;
         var formContext = executionContext.getFormContext();
-        if (formContext.getAttribute("statuscode").getValue() != 1) {
+        if (formContext.getAttribute("statuscode").getValue() == 6) {  //Approved
             var roles = Xrm.Utility.getGlobalContext().userSettings.roles.getAll();
             var disable = true;
             for (var i = 0; i < roles.length; i++) {
@@ -580,5 +589,41 @@ OFM.Application.Form = {
                 console.log(error.message);
             }
         );
+    },
+    showCCFRIParticipation: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var facilityid;
+        if (facility != null) {
+            facilityid = facility[0].id;
+            Xrm.WebApi.retrieveRecord("account", facilityid, "?$select=ofm_program").then(
+                function success(results) {
+                    console.log(results);
+                    if (results["ofm_program"] === 2 || results["ofm_program"] === 4) {
+                        formContext.getControl("ofm_ccfri_participation").setVisible(true);
+
+                    }
+                    else {
+                        formContext.getControl("ofm_ccfri_participation").setVisible(false);
+                    }
+                },
+                function (error) {
+                    console.log(error.message);
+                }
+            );
+        }
+    },
+
+    hideEligibilityTab: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var applicationType = formContext.getAttribute("ofm_application_type").getValue();
+        if (applicationType == 1) { //NEW
+            formContext.ui.tabs.get("tab_11").setVisible(true);
+        }
+        else {
+            formContext.ui.tabs.get("tab_11").setVisible(false);
+        }
     }
 }

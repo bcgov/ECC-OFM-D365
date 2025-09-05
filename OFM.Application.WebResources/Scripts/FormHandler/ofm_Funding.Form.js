@@ -21,10 +21,12 @@ OFM.Funding.Form = {
                 this.enableAgreementPDF(executionContext);
                 this.lockfieldsPCM(executionContext);
                 this.showBanner(executionContext);
+                this.filterFundingModSubgrid(executionContext);
                 formContext.getAttribute("ofm_ops_manager_approval").addOnChange(this.setOpsManagerApproval);
                 break;
             case 3: //readonly
                 this.showBanner(executionContext);
+                this.filterFundingModSubgrid(executionContext);
                 break;
             case 4: //disable
                 break;
@@ -245,8 +247,16 @@ OFM.Funding.Form = {
                         formContext.getAttribute("statuscode").setValue(5);                                     // FA Signature Pending						
                         formContext.getAttribute("ofm_ops_approver").setValue(currentUser);                     // set lookup to current user
                         formContext.getAttribute("ofm_ops_supervisor_approval_date").setValue(currentDateTime); // set now() to approval date	
-                        formContext.getControl("ofm_ops_manager_approval").setDisabled(true);                   // lock the approval field
-                        formContext.data.entity.save();
+                        formContext.data.save().then(
+                            function (success) {
+                                formContext.getControl("ofm_ops_manager_approval").setDisabled(true);           // lock the approval field
+                                formContext.getControl("ofm_pcm_validated").setDisabled(true);                  // lock PCM validated field if successfully saved
+                            },
+                            function (error) {
+                                formContext.getAttribute("ofm_ops_manager_approval").setValue(1);               // pending
+                                formContext.getAttribute("ofm_ops_approver").setValue(null); 				    // clear lookup	
+                                formContext.getAttribute("ofm_ops_supervisor_approval_date").setValue(null); 	// clear approval date
+                            });
                     }
                     else {
                         formContext.getAttribute("ofm_ops_manager_approval").setValue(1);                       // pending
@@ -325,6 +335,7 @@ OFM.Funding.Form = {
 
         if (status == 2 && isAdmin != true) {
             formContext.getControl("ofm_ops_manager_approval").setDisabled(true);                       // lock the approval field
+            formContext.getControl("ofm_pcm_validated").setDisabled(true);                              // lock PCM Validated field
         }
 
         var approver = formContext.getAttribute("ofm_ops_approver").getValue();
@@ -582,7 +593,7 @@ OFM.Funding.Form = {
         var visable = false;
         var userRoles = Xrm.Utility.getGlobalContext().userSettings.roles;
         userRoles.forEach(function hasRole(item, index) {
-            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC") {
+            if (item.name === "OFM - System Administrator" || item.name === "OFM - Leadership" || item.name === "OFM - CRC" || item.name === "OFM - PCM") {
                 visable = true;
             }
         });
@@ -689,6 +700,134 @@ OFM.Funding.Form = {
                     control.setDisabled(false);
                 }
             });
+        }
+    },
+
+    filterFundingModSubgrid: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+
+        var currentRecordId = formContext.data.entity.getId().replace("{", "").replace("}", "");
+
+        var fundingNumber = formContext.getAttribute("ofm_funding_number").getValue().split("-");
+
+        var baseNumber = fundingNumber.length <= 2 ? fundingNumber[0] : fundingNumber[0] + "-" + fundingNumber[1];
+
+        var fetchXml = [
+            "<fetch version='1.0' mapping='logical' distinct='true' no-lock='true'>",
+            "  <entity name='ofm_funding'>",
+            "    <attribute name='ofm_application'/>",
+            "    <attribute name='ofm_end_date'/>",
+            "    <attribute name='ofm_facility'/>",
+            "    <attribute name='ofm_funding_number'/>",
+            "    <attribute name='ofm_start_date'/>",
+            "    <attribute name='statuscode'/>",
+            "    <attribute name='ownerid'/>",
+            "    <attribute name='statecode'/>",
+            "    <filter>",
+            "      <condition attribute='ofm_funding_number' operator='begins-with' value='", baseNumber, "'/>",
+            "      <condition attribute='ofm_fundingid' operator='ne' value='", currentRecordId, "'/>",
+            "    </filter>",
+            "  </entity>",
+            "</fetch>"
+        ].join("");
+
+
+        var gridContext = formContext.getControl("subgrid_funding");
+
+        if (gridContext == null) {
+            setTimeout(function () { this.filterFundingModSubgrid(executionContext); }, 500);
+            return;
+        }
+
+        gridContext.setFilterXml(fetchXml);
+        gridContext.refresh();
+    },
+
+    validStartDateOverlappingExistingActiveFA: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var startDate = formContext.getAttribute("ofm_start_date").getValue();
+        if (facility !== null && startDate !== null ) {
+            var facilityGuid = facility[0].id.replace("{", "").replace("}", "");
+            var isoDate = startDate.toISOString();
+            var existingActiveFundingFetchXml = `?fetchXml=
+                            <fetch top='1'>
+                              <entity name='ofm_funding'>
+                                <attribute name='ofm_fundingid' />
+                                <attribute name='ofm_end_date' />
+                                <attribute name='ofm_start_date' />
+                                <attribute name='statecode' />
+                                <attribute name='statuscode' />
+                                <filter>
+                                  <condition attribute='ofm_version_number' operator='eq' value='0' />
+                                  <condition attribute='statuscode' operator='eq' value='8' />
+                                  <condition attribute='ofm_facility' operator='eq' value='` + facilityGuid + `' />
+                                  <condition attribute="ofm_end_date" operator="ge" value='` + isoDate + `' />
+                                </filter>
+                                <order attribute='createdon' descending='true' />
+                              </entity>
+                            </fetch>`;
+
+            Xrm.WebApi.retrieveMultipleRecords("ofm_funding", existingActiveFundingFetchXml).then(
+                function success(result) {
+                    if (result.entities.length > 0) {
+                        formContext.getControl("ofm_start_date").setNotification("Date overlapping with Current Active FA ", "existing_start_date_validation_rule");
+                    }
+                    else {
+                        formContext.getControl("ofm_start_date").clearNotification("existing_start_date_validation_rule");
+                    }
+                },
+                function (error) {
+                    console.log(error.message);
+                    formContext.getControl("ofm_start_date").clearNotification("existing_start_date_validation_rule");
+                }
+            );
+        }
+    },
+    validEndDateOverlappingExistingActiveFA: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+
+        var facility = formContext.getAttribute("ofm_facility").getValue();
+        var endDate = formContext.getAttribute("ofm_end_date").getValue();
+        if (facility !== null && endDate !== null) {
+            var facilityGuid = facility[0].id.replace("{", "").replace("}", "");
+            var isoDate = endDate.toISOString();
+            var existingActiveFundingFetchXml = `?fetchXml=
+                            <fetch top='1'>
+                              <entity name='ofm_funding'>
+                                <attribute name='ofm_fundingid' />
+                                <attribute name='ofm_end_date' />
+                                <attribute name='ofm_start_date' />
+                                <attribute name='statecode' />
+                                <attribute name='statuscode' />
+                                <filter>
+                                  <condition attribute='ofm_version_number' operator='eq' value='0' />
+                                  <condition attribute='statuscode' operator='eq' value='8' />
+                                  <condition attribute='ofm_facility' operator='eq' value='` + facilityGuid + `' />
+                                  <condition attribute="ofm_end_date" operator="ge" value='` + isoDate + `' />
+                                </filter>
+                                <order attribute='createdon' descending='true' />
+                              </entity>
+                            </fetch>`;
+
+            Xrm.WebApi.retrieveMultipleRecords("ofm_funding", existingActiveFundingFetchXml).then(
+                function success(result) {
+                    if (result.entities.length > 0) {
+                        formContext.getControl("ofm_end_date").setNotification("Overlapping with Current Active FA ", "existing_end_date_validation_rule");
+                    }
+                    else {
+                        formContext.getControl("ofm_end_date").clearNotification("existing_end_date_validation_rule");
+                    }
+                },
+                function (error) {
+                    console.log(error.message);
+                    formContext.getControl("ofm_end_date").clearNotification("existing_end_date_validation_rule");
+                }
+            );
         }
     }
 }

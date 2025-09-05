@@ -3,6 +3,8 @@ using Polly.Extensions.Http;
 using Polly;
 using System.Net.Http.Headers;
 using System.Text;
+using Polly.Timeout;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OFM.Infrastructure.WebAPI.Extensions;
 
@@ -17,8 +19,8 @@ public static class HttpClientExtensions
         {
             client.Timeout = TimeSpan.FromSeconds(authSettings.TimeOutInSeconds);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
-        }).AddPolicyHandler(GetRetryPolicy(appSettings));
-
+        }).AddPolicyHandler(GetRetryPolicy(appSettings)).AddPolicyHandler(GetTimeoutRetryPolicy(appSettings));
+        
         return services;
     }
 
@@ -50,7 +52,21 @@ public static class HttpClientExtensions
                 onRetryAsync: (_, _, _, _) => { return Task.CompletedTask; }
             );
     }
+    private static IAsyncPolicy<HttpResponseMessage> GetTimeoutRetryPolicy(AppSettings appSettings)
+    {
+       return Policy
+            .HandleResult<HttpResponseMessage>(response => !response.IsSuccessStatusCode)
+            .Or<HttpRequestException>() // Handles transient HTTP failures
+            .WaitAndRetryAsync(
+                retryCount: appSettings.MaxRetries,
+                sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), // Exponential backoff
+                onRetry: (response, timeSpan, retryCount, context) =>
+                {
+                 
+                });
+        
 
+    }
     public static async Task<string> ToRawString(this HttpRequestMessage request)
     {
         var sb = new StringBuilder();
@@ -125,7 +141,8 @@ public static class HttpClientExtensions
 
         //Copy the properties
         typedResponse.StatusCode = response.StatusCode;
-        response.Headers.ToList().ForEach(h => {
+        response.Headers.ToList().ForEach(h =>
+        {
             typedResponse.Headers.TryAddWithoutValidation(h.Key, h.Value);
         });
         typedResponse.Content = response.Content;

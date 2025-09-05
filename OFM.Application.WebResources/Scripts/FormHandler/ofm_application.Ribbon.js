@@ -62,5 +62,45 @@ OFM.Application.Ribbon = {
                     console.log(Error);
                 }
             );
+    },
+    openRecalculateScoreWindow: function (primaryControl) {
+        var formContext = primaryControl;
+        var recordId = "";
+        if (primaryControl.getGrid == null) {
+            recordId = formContext.data.entity.getId().replace(/[{}]/g, "");
+        }
+        if (primaryControl.getGrid != null) {
+            var records = new Array();
+            primaryControl.getGrid().getSelectedRows().forEach(function (selectedRow, i) {
+                records.push(selectedRow.getData().getEntity().getId().replace(/[{}]/g, ""));
+            });
+            recordId = records.join(",");
+        }
+
+
+        var window_width = 400;
+        var window_height = 300;
+        var pageInput = {
+            pageType: "custom",
+            name: "ofm_recalculateapplicationscore_17dc4",
+            entityName: "ofm_application",
+            recordId: recordId,
+        };
+        var navigationOptions = {
+            target: 2,
+            width: window_width,
+            height: window_height
+        };
+        Xrm.Navigation.navigateTo(pageInput, navigationOptions)
+            .then(
+                function () {
+                    formContext.data.refresh();
+                    console.log("Success");
+                }
+            ).catch(
+                function () {
+                    console.log(Error);
+                }
+            );
     }
 };

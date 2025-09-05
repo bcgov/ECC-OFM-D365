@@ -3,13 +3,13 @@ import { IInputs, IOutputs } from "./generated/ManifestTypes";
 import * as React from "react";
 /* eslint no-unused-vars : "off" */
 
-function isIEnvelopeField(field : IEnvelopeField | null ): field is IEnvelopeField {
-	return field != null
-  }
+function isIEnvelopeField(field: IEnvelopeField | null): field is IEnvelopeField {
+    return field != null
+}
 
 export class FundingEnvelopeControl implements ComponentFramework.ReactControl<IInputs, IOutputs> {
     private notifyOutputChanged: () => void;
-    private newValue : Object =  {};
+    private newValue: Object = {};
 
     /**
      * Empty constructor.
@@ -27,10 +27,10 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
         context: ComponentFramework.Context<IInputs>,
         notifyOutputChanged: () => void,
         state: ComponentFramework.Dictionary
-        ): void {
+    ): void {
 
-        this.notifyOutputChanged = notifyOutputChanged;  
-		this.renderControl(context);
+        this.notifyOutputChanged = notifyOutputChanged;
+        this.renderControl(context);
     }
 
     /**
@@ -40,7 +40,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
      */
     public updateView(context: ComponentFramework.Context<IInputs>): React.ReactElement {
         // console.log("index - updateView(): " + JSON.stringify({"this.newvalue": this.newValue},null,2));
-		return this.renderControl(context);
+        return this.renderControl(context);
     }
 
     /**
@@ -49,7 +49,7 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
      */
     public getOutputs(): IOutputs {
         // console.log("index - getOutputs(): " + JSON.stringify({"this.newvalue": this.newValue},null,2))
-        return this.newValue;       
+        return this.newValue;
     }
 
     /**
@@ -61,45 +61,45 @@ export class FundingEnvelopeControl implements ComponentFramework.ReactControl<I
         // console.log("index - destroy(): " + JSON.stringify({"this.newvalue": this.newValue},null,2));
     }
 
-    private onChangeAmount = (newValue: Object) : void => {
-		this.newValue =  Object.assign(this.newValue, newValue);
-		this.notifyOutputChanged();
-	}
+    private onChangeAmount = (newValue: Object): void => {
+        this.newValue = Object.assign(this.newValue, newValue);
+        this.notifyOutputChanged();
+    }
 
-    private renderControl(context: ComponentFramework.Context<IInputs>) : React.ReactElement  {
-        let isReadOnly = context.mode.isControlDisabled || (<any> context).page.isPageReadOnly;
+    private renderControl(context: ComponentFramework.Context<IInputs>): React.ReactElement {
+        let isReadOnly = context.mode.isControlDisabled || (<any>context).page.isPageReadOnly;
         let isMasked = context.mode.isVisible;
 
-        if(context.parameters.field0.security){
+        if (context.parameters.field0.security) {
             isReadOnly = isReadOnly || !context.parameters.field0.security.editable;
             isMasked = !context.parameters.field0.security.readable;
         }
 
-        const paramNames = Array(30).fill(null);
+        const paramNames = Array(60).fill(null);
 
-        let fields : IEnvelopeField[] = paramNames.map((name, index) => {
-            const ctrlName = `field${index + 1}`			
-            if((context.parameters as any)[ctrlName]?.type == null){
+        let fields: IEnvelopeField[] = paramNames.map((name, index) => {
+            const ctrlName = `field${index + 1}`
+            if ((context.parameters as any)[ctrlName]?.type == null) {
                 return null;
             }
             return {
-                control:(context.parameters as any)[ctrlName] as ComponentFramework.PropertyTypes.NumberProperty, 
-                name : ctrlName
+                control: (context.parameters as any)[ctrlName] as ComponentFramework.PropertyTypes.NumberProperty,
+                name: ctrlName
             }
         }).filter(isIEnvelopeField);
 
         // this.newValue = fields.reduce((result, current) => {      
         //         return Object.assign(result, {[current.name]: current.control.raw!});
         // }, {});
-        
-		let params : IEnvelopeProps = {		
-            pcfContext: context,	
-			fields: fields,
-			onValueChanged : this.onChangeAmount, 
-			isReadOnly : isReadOnly,
-			isMasked : isMasked, 
-		};
 
-		return React.createElement(EnvelopeCompositeControl, params);
-	}  
+        let params: IEnvelopeProps = {
+            pcfContext: context,
+            fields: fields,
+            onValueChanged: this.onChangeAmount,
+            isReadOnly: isReadOnly,
+            isMasked: isMasked,
+        };
+
+        return React.createElement(EnvelopeCompositeControl, params);
+    }
 }

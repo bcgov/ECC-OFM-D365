@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest>
-  <control namespace="ECC.PCF" constructor="FundingEnvelopeControl" version="0.0.12" display-name-key="FundingEnvelope" description-key="FundingEnvelope description" control-type="virtual">
+  <control namespace="ECC.PCF" constructor="FundingEnvelopeControl" version="0.0.39" display-name-key="FundingEnvelope" description-key="FundingEnvelope description" control-type="virtual">
     <!--external-service-usage node declares whether this 3rd party PCF control is using external service or not, if yes, this control will be considered as premium and please also add the external domain it is using.
     If it is not using any external service, please set the enabled="false" and DO NOT add any domain below. The "enabled" will be false by default.
     Example1:
@@ -19,33 +19,61 @@
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
     <property name="field0" display-name-key="field0_key" description-key="Binding field on the target MDA form." of-type="SingleLine.Text" usage="bound" required="true" />
-    <property name="field1" display-name-key="field1_key" description-key="Wages_Paid Time Off" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field2" display-name-key="field2_key" description-key="Wages_Paid Time Off (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field3" display-name-key="field3_key" description-key="Wages_Paid Time Off (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field4" display-name-key="field4_key" description-key="Benefits" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field5" display-name-key="field5_key" description-key="Benefits (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field6" display-name-key="field6_key" description-key="Benefits (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field7" display-name-key="field7_key" description-key="Employer Health Tax" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field8" display-name-key="field8_key" description-key="Employer Health Tax (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field9" display-name-key="field9_key" description-key="Employer Health Tax (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field10" display-name-key="field10_key" description-key="Professional Development Hours" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field11" display-name-key="field11_key" description-key="Professional Development Hours (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field12" display-name-key="field12_key" description-key="Professional Development Hours (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field13" display-name-key="field13_key" description-key="Professional Development Expenses" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field14" display-name-key="field14_key" description-key="Professional Development Expenses (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field15" display-name-key="field15_key" description-key="Professional Development Expenses (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field16" display-name-key="field16_key" description-key="Programming" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field17" display-name-key="field17_key" description-key="Programming (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field18" display-name-key="field18_key" description-key="Programming (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field19" display-name-key="field19_key" description-key="Administrative" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field20" display-name-key="field20_key" description-key="Administrative (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field21" display-name-key="field21_key" description-key="Administrative (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field22" display-name-key="field22_key" description-key="Operational" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field23" display-name-key="field23_key" description-key="Operational (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field24" display-name-key="field24_key" description-key="Operational (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field25" display-name-key="field25_key" description-key="Facility" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field26" display-name-key="field26_key" description-key="Facility (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
-    <property name="field27" display-name-key="field27_key" description-key="Facility (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field1" display-name-key="field1_key" description-key="Instructional Human Resources" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field2" display-name-key="field2_key" description-key="Instructional Human Resources (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field3" display-name-key="field3_key" description-key="Instructional Human Resources (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field4" display-name-key="field4_key" description-key="Instructional Human Resources Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field5" display-name-key="field5_key" description-key="Instructional Human Resources Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field6" display-name-key="field6_key" description-key="Wages_Paid Time Off" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field7" display-name-key="field7_key" description-key="Wages_Paid Time Off (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field8" display-name-key="field8_key" description-key="Wages_Paid Time Off (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field9" display-name-key="field9_key" description-key="Wages_Paid Time Off Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field10" display-name-key="field10_key" description-key="Wages_Paid Time Off Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field11" display-name-key="field11_key" description-key="Benefits" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field12" display-name-key="field12_key" description-key="Benefits (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field13" display-name-key="field13_key" description-key="Benefits (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field14" display-name-key="field14_key" description-key="Benefits Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field15" display-name-key="field15_key" description-key="Benefits Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field16" display-name-key="field16_key" description-key="Employer Health Tax" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field17" display-name-key="field17_key" description-key="Employer Health Tax (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field18" display-name-key="field18_key" description-key="Employer Health Tax (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field19" display-name-key="field19_key" description-key="Employer Health Tax Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field20" display-name-key="field20_key" description-key="Employer Health Tax Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field21" display-name-key="field21_key" description-key="Professional Development Hours" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field22" display-name-key="field22_key" description-key="Professional Development Hours (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field23" display-name-key="field23_key" description-key="Professional Development Hours (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field24" display-name-key="field24_key" description-key="Professional Development Hours Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field25" display-name-key="field25_key" description-key="Professional Development Hours Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field26" display-name-key="field26_key" description-key="Professional Development Expenses" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field27" display-name-key="field27_key" description-key="Professional Development Expenses (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field28" display-name-key="field28_key" description-key="Professional Development Expenses (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field29" display-name-key="field29_key" description-key="Professional Development Expenses Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field30" display-name-key="field30_key" description-key="Professional Development Expenses Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field31" display-name-key="field31_key" description-key="Programming" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field32" display-name-key="field32_key" description-key="Programming (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field33" display-name-key="field33_key" description-key="Programming (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field34" display-name-key="field34_key" description-key="Programming Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field35" display-name-key="field35_key" description-key="Programming Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field36" display-name-key="field36_key" description-key="Administrative" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field37" display-name-key="field37_key" description-key="Administrative (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field38" display-name-key="field38_key" description-key="Administrative (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field39" display-name-key="field39_key" description-key="Administrative Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field40" display-name-key="field40_key" description-key="Administrative Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field41" display-name-key="field41_key" description-key="Operational" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field42" display-name-key="field42_key" description-key="Operational (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field43" display-name-key="field43_key" description-key="Operational (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field44" display-name-key="field44_key" description-key="Operational Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field45" display-name-key="field45_key" description-key="Operational Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field46" display-name-key="field46_key" description-key="Facility" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field47" display-name-key="field47_key" description-key="Facility (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field48" display-name-key="field48_key" description-key="Facility (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field49" display-name-key="field49_key" description-key="Facility Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field50" display-name-key="field50_key" description-key="Facility Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
+    <property name="field51" display-name-key="field51_key" description-key="Total" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field52" display-name-key="field52_key" description-key="Total (PF)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field53" display-name-key="field53_key" description-key="Total (Projected)" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field54" display-name-key="field54_key" description-key="Total Topup" of-type="Currency" usage="bound" required="true" default-value="0" />
+    <property name="field55" display-name-key="field55_key" description-key="Total Projected + Topup" of-type="Decimal" usage="bound" required="true" default-value="0" />
     <!--
       Property node's of-type attribute can be of-type-group attribute.
       Example:

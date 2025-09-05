@@ -54,6 +54,7 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
     {
         get
         {
+
             string details = TrackingDetails;
             if (TrackingDetails.Length > maxLength)
                 details = TrackingDetails[..(maxLength - 1)];

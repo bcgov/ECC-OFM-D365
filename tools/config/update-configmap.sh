@@ -11,6 +11,8 @@ readonly D365_RECIPIENTS=$8
 readonly D365_BC_REGISTRY_API=$9
 readonly D365_BCCAS_API_URL=${10}
 readonly D365_CGI_BATCH_NUMBER=${11}
+readonly D365_INVOICE_LINES_DISTRIBUTION_ACK=${12}
+readonly D365_DEFAULT_USER_ID=${13}
 
 SERVER_FRONTEND="https://ofm-frontend-$ENV_VAL-$OPENSHIFT_NAMESPACE.apps.silver.devops.gov.bc.ca"
 if [ "$ENV_VAL" = "prod" ]; then
@@ -25,7 +27,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Error",
-    "OFM.Portal.ProviderProfile": "Error",
+    "OFM.Portal.ProviderProfile": "Warning",
     "OFM.D365.Process": "Error",
     "OFM.D365.Batch": "Error",
     "Microsoft.AspNetCore": "Error"
@@ -55,7 +57,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Warning",
-    "OFM.Portal.ProviderProfile": "Error",
+    "OFM.Portal.ProviderProfile": "Warning",
     "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Warning",
     "Microsoft.AspNetCore": "Warning"
@@ -85,7 +87,7 @@ D365_LOG_LEVEL=$(cat << JSON
 {
   "LogLevel": {
     "Default": "Error",
-    "OFM.Portal.ProviderProfile": "Error",
+    "OFM.Portal.ProviderProfile": "Warning",
     "OFM.D365.Process": "Information",
     "OFM.D365.Batch": "Error",
     "Microsoft.AspNetCore": "Error"
@@ -125,7 +127,7 @@ D365_CONFIGURATION=$(jq << JSON
   "AllowedHosts": "*",
   "AppSettings": {
     "PageSize": 50,
-    "MaxPageSize": 2000,
+    "MaxPageSize": 5000,
     "RetryEnabled": true,
     "MaxRetries": 5,
     "AutoRetryDelay": "00:00:08",
@@ -164,6 +166,11 @@ D365_CONFIGURATION=$(jq << JSON
       "FirstReminderInDays": 60,
       "SecondReminderInDays": 30,
       "ThirdReminderInDays": 18
+    }, 
+  "FundingRenewalReminderOptions": {
+   "FirstReminderInDays": 120,
+   "SecondReminderInDays": 60,
+   "ThirdReminderInDays": 30
     },
     "DefaultSenderId": "$D365_DEFAULT_SENDER_ID",
     "EmailTemplates": [
@@ -226,7 +233,15 @@ D365_CONFIGURATION=$(jq << JSON
       {
         "TemplateNumber": 285,
         "Description": "TransportationAllowanceDenied"
-      }
+      },
+      {
+        "TemplateNumber": 295,
+        "Description": " NewMonthlyReportOpen"
+      },
+     {
+    "TemplateNumber": 310,
+    "Description": "RenewalNotification"
+    }
     ],
     "CommunicationTypes": {
       "Information": 1,
@@ -238,6 +253,7 @@ D365_CONFIGURATION=$(jq << JSON
     "EmailSafeList": {
       "Enable": $D365_EMAIL_SAFE_LIST_ENABLE,
       "DefaultContactId": "$D365_DEFAULT_CONTACT_ID",
+      "DefaultUserId": "$D365_DEFAULT_USER_ID",
       "Recipients": $(cat "$D365_RECIPIENTS")
     },
     "fundingUrl": "$SERVER_FRONTEND/funding",
@@ -291,12 +307,12 @@ D365_CONFIGURATION=$(jq << JSON
         "remittanceCode": "00",
         "CAD": "CAD",
         "termsName": "Immediate",
-        "payflag": "Y"
+        "payflag": "N"
       },
       "InvoiceLines": {
         "linetransactionType": "IL",
         "lineCode": "D",
-        "distributionACK": "0622265006500650822007400000000000",
+        "distributionACK": "$D365_INVOICE_LINES_DISTRIBUTION_ACK",
         "unitPrice": "000000000000.00",
         "quantity": "0000000.00",
         "committmentLine": "0000"
@@ -320,4 +336,4 @@ echo
 echo Setting environment variables for "$APP_NAME-d365api-$ENV_VAL" application
 oc -n "$OPENSHIFT_NAMESPACE" set env \
   --from="configmap/$APP_NAME-d365api-$ENV_VAL-config-map" \
-  "dc/$APP_NAME-d365api-$ENV_VAL"
+  "deployment/$APP_NAME-d365api-$ENV_VAL"

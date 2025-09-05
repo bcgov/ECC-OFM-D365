@@ -6,7 +6,7 @@ public record AppSettings
 {
     public required APIKey[] ApiKeys { get; set; }
     public required Int16 PageSize { get; set; }
-    public required Int16 MaxPageSize { get; set; }
+   public required Int16 MaxPageSize { get; set; }
     public required bool RetryEnabled { get; set; }
     /// <summary>
     /// Maximum number of times to re-try when service protection limits hit
@@ -28,6 +28,7 @@ public record NotificationSettings
 {
     public required UnreadEmailOptions UnreadEmailOptions { get; set; }
     public required RenewalReminderOptions RenewalReminderOptions { get; set; }
+    public required FundingRenewalReminderOptions FundingRenewalReminderOptions { get; set; }
     public required string DefaultSenderId { get; set; }
     public required EmailTemplate[] EmailTemplates { get; set; }
     public required CommunicationTypes CommunicationTypes { get; set; }
@@ -41,6 +42,7 @@ public record NotificationSettings
         public required bool Enable { get; set; }
         public required string[] Recipients { get; set; }
         public required string DefaultContactId { get; set; }
+        public required string DefaultUserId { get; set; }
     }
 }
 
@@ -53,6 +55,12 @@ public record UnreadEmailOptions
 }
 
 public record RenewalReminderOptions
+{
+    public Int16 FirstReminderInDays { get; set; }
+    public Int16 SecondReminderInDays { get; set; }
+    public Int16 ThirdReminderInDays { get; set; }
+}
+public record FundingRenewalReminderOptions
 {
     public Int16 FirstReminderInDays { get; set; }
     public Int16 SecondReminderInDays { get; set; }
@@ -97,6 +105,7 @@ public record D365AuthSettings
     public required string RedirectUrl { get; set; }
     public required string ApiVersion { get; set; }
     public required Int16 TimeOutInSeconds { get; set; }
+    public required Int16 CRMBatchSize { get; set; }
     public required string SearchVersion { get; set; }
     public required List<AZAppUser> AZAppUsers { get; set; }
     public required string HttpClientName { get; set; }
@@ -161,6 +170,7 @@ public record BCRegistrySettings
     public required string KeyValue { get; set; }
     public int MinsToCache { get; set; }
     public int NoDuration { get; set; }
+    public int BatchSize { get; set; }
     public string batchtaskprocess { get; set; }
     public string singletaskprocess { get; set; }
     public required TaskActivity TaskActivity { get; set; }

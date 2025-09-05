@@ -1,5 +1,6 @@
 ﻿using ECC.Core.DataContext;
 using OFM.Infrastructure.WebAPI.Models.Fundings;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace OFM.Infrastructure.WebAPI.Models;
@@ -188,12 +189,14 @@ public class Supplementary : ofm_allowance
     public string _ofm_application_value { get; set; }
 
 }
+
+
 public record ofm_reminders
 {
     public required string ofm_reminderid { get; set; }
     public int ofm_template_number { get; set; }
     public int statuscode { get; set; }
-    public int ofm_year_number { get; set; }
+    public int? ofm_year_number { get; set; }
 
     public DateTime ofm_due_date { get; set; }
 }
@@ -210,6 +213,17 @@ public record D365Template
     public string? templatecode { get; set; }
 }
 
+public record D365AssistanceRequest
+{
+    public string? ofm_assistance_requestid { get; set; }
+    public string? ofm_name { get; set; }
+    public string? ofm_subject { get; set; }
+    public DateTime? ofm_submission_time { get; set; }
+    public string? _ofm_contact_value { get; set; }
+    public bool? ofm_is_read { get; set; }
+    [property: JsonPropertyName("contact.emailaddress1")]
+    public string? emailaddress1 { get; set; }
+}
 public record D365Email
 {
     public string? activityid { get; set; }
@@ -380,12 +394,12 @@ public record D365Reporting
 
 }
 
-public class D365FiscalYear: ofm_fiscal_year
+public class D365FiscalYear : ofm_fiscal_year
 {
     public new string ofm_financial_year { get; set; } = string.Empty;
 }
 
-public class ExpenseApplication: ofm_expense
+public class ExpenseApplication : ofm_expense
 {
     public new decimal? ofm_amount { get; set; }
 }
@@ -394,6 +408,7 @@ public class D365PaymentLine : ofm_payment
 {
     public new decimal? ofm_amount { get; set; }
     public new Facility? ofm_facility { get; set; }
+    public new Guid? _ofm_organization_value { get; set; }
     public new Application? ofm_application { get; set; }
     public new Funding? ofm_funding { get; set; }
     public new D365FiscalYear? ofm_fiscal_year { get; set; }
@@ -402,6 +417,58 @@ public class D365PaymentLine : ofm_payment
     public new string ofm_supplierid { get; set; } = string.Empty;
     public new int? ofm_payment_method { get; set; }
     public string _ofm_regardingid_value { get; set; } = string.Empty; // ToDo: a workaround for polymorphic lookup
+   
+}
+
+public class PaymentLine
+{
+    [Required(ErrorMessage = "Amount cannot be null.")]
+    public new decimal? ofm_amount { get; set; }
+
+    [Required(ErrorMessage = "A facility is mandatory, and its name must be provided.")]
+    [JsonPropertyName("ofm_facility.name")]
+    public new string ofm_facility { get; set; }
+
+     [Required(ErrorMessage = "Funding is required.")]
+    public new Guid? _ofm_funding_value { get; set; }
+
+    [Required(ErrorMessage = "Fiscal year is mandatory.")]
+    [JsonPropertyName("ofm_fiscal_year.ofm_financial_year")]
+    public new string? ofm_financial_year { get; set; }
+
+    [Required(ErrorMessage = "Invoice number is required.")]
+    public new string? ofm_invoice_number { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Site cannot be blank.")]
+    public new string? ofm_siteid { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Supplier details is missing.")]
+    public new string? ofm_supplierid { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Payment method is mandatory.")]
+    public new int? ofm_payment_method { get; set; }
+
+   [JsonPropertyName("Ack.ofm_cohortid")]
+    [Required(ErrorMessage = "Cohort cannot be blank on funding, and a corresponding acknowledgement number is required.")]
+    public string? ofm_cohort { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Line number is required.")]
+    public new int? ofm_invoice_line_number { get; set; }
+
+    [Required(ErrorMessage = "Effective date should be today date.")]
+    public new DateTime? ofm_effective_date { get; set; }
+
+    [Required(ErrorMessage = "Invoice date should be today date.")]
+    public new DateTime? ofm_invoice_date { get; set; }
+
+    [Required(ErrorMessage = "Invoice recieved date should be today date.")]
+    public new DateTime? ofm_invoice_received_date { get; set; }
+
+    [Required(ErrorMessage = "Organization detail is required.")]
+    public new Guid? _ofm_organization_value { get; set; }
+
+    [Required(ErrorMessage = "Payment type is required.")]
+    public new int? ofm_payment_type { get; set; }
 }
 
 public class ProviderStaff
@@ -436,6 +503,84 @@ public class ProviderStaff
     [JsonPropertyName("facility.ofm_primarycontact@OData.Community.Display.V1.FormattedValue")]
     public string FacilityContact_Name { get; set; }
 }
+
+public class TopUp : ofm_top_up_fund
+{
+    public new decimal? ofm_programming_amount { get; set; }
+    public Funding? ofm_funding { get; set; }
+    public string ofm_funding_number { get; set; }
+}
+
+public class User 
+{
+       public Guid systemuserid { get; set; }
+    public string internalemailaddress { get; set; }
+}
+public class QuestionResponse : ofm_question_response
+{
+    [property: JsonPropertyName("question.ofm_question_id")]
+    public string ofm_question_qid { get; set; }
+    [property: JsonPropertyName("header.ofm_question_id")]
+    public string ofm_header_qid { get; set; }
+}
+
+public class LicenceDetail
+{
+    [JsonPropertyName("Total_Enrolled_Spaces")]
+    public int Total_Enrolled_Spaces { get; set; }
+
+    [JsonPropertyName("Total_Licenced_Spaces")]
+    public int Total_Licenced_Spaces { get; set; }
+
+    [JsonPropertyName("Total_Operational_Spaces")]
+    public int Total_Operational_Spaces { get; set; }
+
+    [JsonPropertyName("Total_Under_Three")]
+    public decimal Total_Under_Three { get; set; }
+
+    [JsonPropertyName("Total_Three_to_Five")]
+    public decimal Total_Three_to_Five { get; set; }
+
+    [property: JsonPropertyName("type")]
+    public int Type { get; set; }
+
+    [property: JsonPropertyName("type@OData.Community.Display.V1.FormattedValue")]
+    public string TypeName { get; set; } = string.Empty;
+}
+
+
+public class D365LicenceDetail
+{
+    public int ofm_operational_spaces { get; set; }
+
+    public string ofm_program_session { get; set; }
+
+    public string ofm_default_program_session { get; set; }
+
+    public Guid ofm_licence_detailid { get; set; }
+
+    [property: JsonPropertyName("ofm_licence_type@OData.Community.Display.V1.FormattedValue")]
+    public string ofm_licence_typename { get; set; }
+
+    [JsonPropertyName("ofm_licence")]
+    public D365Licence ofm_licence { get; set; }
+
+    public decimal ofm_star_spaces_under_three_years { get; set; }
+
+    public decimal ofm_star_spaces_three_to_five_years { get; set; }
+
+    public decimal ofm_star_spaces_six_to_twelve_years { get; set; }
+
+
+
+}
+
+public class D365Licence
+{
+    [JsonPropertyName("ofm_licenceid")]
+    public Guid ofm_licenceid { get; set; }
+}
+
 
 #region External Parameters
 

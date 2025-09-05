@@ -95,6 +95,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_ack_codes"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_ack_codes> ofm_ack_codesSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_ack_codes>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_allowance"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_allowance> ofm_allowanceSet
@@ -524,6 +535,17 @@ namespace ECC.Core.DataContext
 		}
 		
 		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_stat_holiday"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_stat_holiday> ofm_stat_holidaySet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_stat_holiday>();
+			}
+		}
+		
+		/// <summary>
 		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_subcategory"/> entities.
 		/// </summary>
 		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_subcategory> ofm_subcategorySet
@@ -575,6 +597,28 @@ namespace ECC.Core.DataContext
 			get
 			{
 				return this.CreateQuery<ECC.Core.DataContext.ofm_system_configuration>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_system_message"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_system_message> ofm_system_messageSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_system_message>();
+			}
+		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="ECC.Core.DataContext.ofm_top_up_fund"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<ECC.Core.DataContext.ofm_top_up_fund> ofm_top_up_fundSet
+		{
+			get
+			{
+				return this.CreateQuery<ECC.Core.DataContext.ofm_top_up_fund>();
 			}
 		}
 		

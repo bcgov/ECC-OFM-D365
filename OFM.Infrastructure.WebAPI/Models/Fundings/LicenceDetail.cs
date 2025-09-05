@@ -99,10 +99,10 @@ public class LicenceDetail : ofm_licence_detail
     #endregion
 
     #region Parent Fees
-
+    public bool MultiplePartTimeSchoolAge { get; set; } = false;
     private ecc_care_types TimeSchedule => ofm_care_type ?? throw new NullReferenceException($"{nameof(LicenceDetail)}: ofm_care_type is empty. Value must be full-time or part-time."); // Full-Time or Part-Time
-    private decimal ParentFeesRatePerDay => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_day_ft!.Value : _rateSchedule!.ofm_parent_fee_per_day_pt!.Value;
-    private decimal ParentFeesRatePerMonth => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_month_ft!.Value : _rateSchedule!.ofm_parent_fee_per_month_pt!.Value;
+    private decimal ParentFeesRatePerDay => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_day_ft!.Value : (LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup1 || LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup2 || LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup3) && _rateSchedule!.ofm_parent_fee_per_day_pt_school_age != null && MultiplePartTimeSchoolAge ? _rateSchedule.ofm_parent_fee_per_day_pt_school_age.Value : _rateSchedule!.ofm_parent_fee_per_day_pt!.Value;
+    private decimal ParentFeesRatePerMonth => (TimeSchedule == ecc_care_types.FullTime) ? _rateSchedule!.ofm_parent_fee_per_month_ft!.Value : (LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup1 || LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup2 || LicenceType == ecc_licence_type.GroupChildCareSchoolAgeGroup3) && _rateSchedule!.ofm_parent_fee_per_month_pt_school_age != null && MultiplePartTimeSchoolAge ? _rateSchedule.ofm_parent_fee_per_month_pt_school_age.Value : _rateSchedule!.ofm_parent_fee_per_month_pt!.Value;
     private decimal AnnualParentFeesPerSpaceByHours => ParentFeesRatePerDay * DaysPerWeek * WeeksPerYear;
     private decimal AnnualParentFeesPerSpaceByMonths => ParentFeesRatePerMonth * 12; // 12 months in a year
     public decimal ParentFees => Math.Min(AnnualParentFeesPerSpaceByHours, AnnualParentFeesPerSpaceByMonths) * Spaces;

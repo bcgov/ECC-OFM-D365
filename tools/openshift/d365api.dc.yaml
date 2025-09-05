@@ -4,37 +4,36 @@ kind: Template
 labels:
   template: '${REPO_NAME}-template'
 metadata:
-  name: '${REPO_NAME}-d365api-dc'
+  name: '${REPO_NAME}-d365api-deployment'
 objects:
-  - apiVersion: v1
-    kind: DeploymentConfig
+  - apiVersion: apps/v1
+    kind: Deployment
     metadata:
       annotations:
         openshift.io/generated-by: OpenShiftNewApp
-      creationTimestamp:
       labels:
-        app: '${APP_NAME}-${BRANCH}'
+        app: '${APP_NAME}-d365api-${ENVIRONMENT}'
         branch: '${BRANCH}'
       name: '${APP_NAME}-d365api-${ENVIRONMENT}'
     spec:
       replicas: ${{MIN_REPLICAS}}
       selector:
-        app: '${APP_NAME}-${BRANCH}'
-        deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        matchLabels:
+          app: '${APP_NAME}-d365api-${ENVIRONMENT}'
       strategy:
-        resources: {}
-        type: Rolling
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 25%
+          maxSurge: 25%
       template:
         metadata:
           annotations:
             openshift.io/generated-by: OpenShiftNewApp
-          creationTimestamp:
           labels:
-            app: '${APP_NAME}-${BRANCH}'
-            deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
+            app: '${APP_NAME}-d365api-${ENVIRONMENT}'
         spec:
           containers:
-            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api:${TAG}
+            - image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/${REPO_NAME}api-${BRANCH_DOWNCASE}:${TAG}
               imagePullPolicy: Always
               volumeMounts:
                 # - name: tls-certs
@@ -88,17 +87,14 @@ objects:
           #   secret:
           #     secretName: ofm-backend-cert
       test: false
-      triggers:
-        - type: ConfigChange
   - apiVersion: v1
     kind: Service
     metadata:
       annotations:
         service.alpha.openshift.io/serving-cert-secret-name: 'ofm-backend-cert'
         openshift.io/generated-by: OpenShiftNewApp
-      creationTimestamp:
       labels:
-        app: '${APP_NAME}-${BRANCH}'
+        app: '${APP_NAME}-d365api-${ENVIRONMENT}'
       name: '${APP_NAME}-d365api-${ENVIRONMENT}'
     spec:
       ports:
@@ -111,14 +107,13 @@ objects:
           protocol: TCP
           targetPort: 443
       selector:
-        app: '${APP_NAME}-${BRANCH}'
-        deploymentconfig: '${APP_NAME}-d365api-${ENVIRONMENT}'
+        app: '${APP_NAME}-d365api-${ENVIRONMENT}'
   - apiVersion: v1
     kind: Route
     metadata:
       name: '${APP_NAME}-d365api-${ENVIRONMENT}'
       labels:
-        app: '${APP_NAME}-${BRANCH}'
+        app: '${APP_NAME}-d365api-${ENVIRONMENT}'
       annotations:
         openshift.io/host.generated: 'true'
         router.openshift.io/cookie-same-site: 'Strict'
@@ -141,8 +136,8 @@ objects:
       name: '${APP_NAME}-d365api-${ENVIRONMENT}-cpu-autoscaler'
     spec:
       scaleTargetRef:
-        apiVersion: apps.openshift.io/v1
-        kind: DeploymentConfig
+        apiVersion: apps/v1
+        kind: Deployment
         name: '${APP_NAME}-d365api-${ENVIRONMENT}'
         subresource: scale
       minReplicas: ${{MIN_REPLICAS}}
@@ -160,6 +155,9 @@ parameters:
     required: true
   - name: BRANCH
     description: Job identifier (i.e. 'pr-5' OR 'master')
+    required: true
+  - name: BRANCH_DOWNCASE
+    description: Job identifier (i.e. 'pr-5' OR 'master'), but in lowercase letters only
     required: true
   - name: NAMESPACE
     description: Target namespace reference (i.e. 'k8vopl-dev')

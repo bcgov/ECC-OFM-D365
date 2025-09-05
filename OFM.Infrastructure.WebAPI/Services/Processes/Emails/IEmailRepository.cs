@@ -8,6 +8,9 @@ using System.Text.Json.Nodes;
 using System.Net;
 using OFM.Infrastructure.WebAPI.Models;
 using Microsoft.Extensions.Options;
+using static OFM.Infrastructure.WebAPI.Extensions.Setup.Process;
+using Microsoft.Crm.Sdk.Messages;
+using System;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
@@ -16,7 +19,8 @@ public interface IEmailRepository
     Task<IEnumerable<D365CommunicationType>> LoadCommunicationTypeAsync();
     Task<Guid?> CreateAndUpdateEmail(string subject, string emailDescription, List<Guid> toRecipient, Guid? senderId, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId,string regarding="");
     Task<ProcessData> GetTemplateDataAsync(int templateNumber);
-    string StripHTML(string source);
+    Task<Guid?> CreateAndSendEmail(string subject, string emailDescription, JsonArray emailparties, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId, string regarding = "");
+        string StripHTML(string source);
     Task<JsonObject> CreateAllowanceEmail(SupplementaryApplication allowance, Guid? senderId, string communicationType, Int16 processId, ID365WebApiService d365WebApiService);
  }
 
@@ -28,7 +32,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
     private readonly ID365WebApiService _d365webapiservice = service;
     private readonly NotificationSettings _notificationSettings = notificationSettings.Value;
     private int _templateNumber;
-    Guid? newEmailId;
+    Guid newEmailId;
     
 
     #region Pre-Defined Queries
@@ -77,7 +81,7 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
                     <attribute name="body" />
                     <order attribute="title" descending="false" />
                     <filter type="or">
-                      <condition attribute="ccof_templateid" operator="eq"  uitype="template" value="{_templateNumber}" />
+                      <condition attribute="ccof_templateid" operator="eq" value="{_templateNumber}" />
                           </filter>
                   </entity>
                 </fetch>
@@ -131,7 +135,47 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
 
         return await Task.FromResult(deserializedData!);
     }
+    #region Create and send email
 
+    public async Task<Guid?> CreateAndSendEmail(string subject, string emailDescription, JsonArray emailParties, string communicationType, ID365AppUserService appUserService, ID365WebApiService d365WebApiService, Int16 processId, string regarding = "")
+    {
+          
+            var requestBody = new JsonObject(){
+                            {"subject",subject },
+                            {"description",emailDescription },
+                            {"email_activity_parties", emailParties },
+                            { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({communicationType})"},
+                            {"ofm_regarding_data",regarding }// field is used for email pdf generation. Format:entityname#entityguid
+                        };
+
+            var response = await d365WebApiService.SendCreateRequestAsync(appUserService.AZSystemAppUser, "emails", requestBody.ToString());
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError(CustomLogEvent.Process, "Failed to create the record with the server error {responseBody}", responseBody.CleanLog());
+
+                return Guid.Empty;
+            }
+            else
+            {
+
+               var newEmail = await response.Content.ReadFromJsonAsync<JsonObject>();
+               newEmailId = (Guid)newEmail?["activityid"];
+               var sendEmailBatchResult = await d365WebApiService.SendPostRequestAsync(appUserService.AZSystemAppUser, newEmailId);
+               if (!sendEmailBatchResult.IsSuccessStatusCode)
+                {
+                   var responseBody =  sendEmailBatchResult.Content.ReadFromJsonAsync<JsonObject>();
+                   _logger.LogError(CustomLogEvent.Process, "Failed to patch the record with the server error {responseBody}", responseBody);
+
+                    return Guid.Empty;
+                }
+            }
+        
+        return await Task.FromResult(newEmailId);
+    }
+
+    #endregion
 
     #region Create and Update Email
 
@@ -312,6 +356,9 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
         var effectiveDate = allowance.ofm_start_date;
         var retroActiveDate = allowance.ofm_retroactive_date;
         var VIN = allowance.ofm_transport_vehicle_vin;
+        var Organization = allowance.organizationname;
+        var originalfundingStartDate = allowance.funding_ofm_start_date;
+        var originalfundingNumber = allowance.funding_ofm_funding_number;
         // DateOnly retroActiveDate = allowance.ofm_ret;
 
         // funding status
@@ -344,8 +391,13 @@ public class EmailRepository(ID365AppUserService appUserService, ID365WebApiServ
             subject = StripHTML(subject);
 
             string? emaildescription = templateobj?.safehtml;
+            emaildescription = emaildescription?.Replace("{StartDate}", effectiveDate?.ToString("MM/dd/yyyy"));
+            emaildescription = emaildescription?.Replace("{OriginalStartDate}", originalfundingStartDate?.ToString("MM/dd/yyyy"));
+            emaildescription = emaildescription?.Replace("{Organization}", Organization);
             emaildescription = emaildescription?.Replace("[PrimaryContactName]", contactName);
-            if(allowanceType == ecc_allowance_type.SupportNeedsProgramming || allowanceType == ecc_allowance_type.IndigenousProgramming)
+            emaildescription = emaildescription?.Replace("{FANumber}", fundingNumber);
+            emaildescription = emaildescription?.Replace("{OriginalFANumber}", originalfundingNumber);
+            if (allowanceType == ecc_allowance_type.SupportNeedsProgramming || allowanceType == ecc_allowance_type.IndigenousProgramming)
             emaildescription = emaildescription?.Replace("{Amount}", fundingAmount?.ToString("########.00"));
             else
                 emaildescription = emaildescription?.Replace("{Amount}", MonthlyAmount?.ToString("########.00"));
