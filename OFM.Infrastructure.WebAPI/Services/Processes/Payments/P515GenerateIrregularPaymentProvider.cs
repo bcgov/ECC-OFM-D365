@@ -176,6 +176,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                         <attribute name="ofm_revised_invoice_received_date" />
                         <order attribute="ofm_invoice_line_number" descending="true" />
                         <filter type="and">
+                          <condition attribute="owningbusinessunitname" operator="like" value="%OFM%" /> 
                           <condition attribute="ofm_application" operator="eq" value="00000000-0000-0000-0000-000000000000" />
                         </filter>
                       </entity>
@@ -183,7 +184,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     """;
 
                 var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number,ofm_cas_response,ofm_invoice_received_date,ofm_payment_manual_review,_ofm_regardingid_value,ofm_remittance_message,ofm_revised_effective_date,ofm_revised_invoice_date,ofm_revised_invoice_received_date&$filter=(_ofm_application_value eq '{_baseApplicationId}')&$orderby=ofm_invoice_line_number desc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,createdon,statuscode,_ofm_funding_value,ofm_payment_type,ofm_effective_date,ofm_amount,_ofm_application_value,ofm_invoice_line_number,ofm_cas_response,ofm_invoice_received_date,ofm_payment_manual_review,_ofm_regardingid_value,ofm_remittance_message,ofm_revised_effective_date,ofm_revised_invoice_date,ofm_revised_invoice_received_date&$filter=(contains(owningbusinessunitname, 'OFM') and _ofm_application_value eq '{_baseApplicationId}')&$orderby=ofm_invoice_line_number desc
                          """;
 
                 return requestUri;

@@ -96,8 +96,9 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                         <attribute name="ofm_application" />
                         <order attribute="ofm_name" descending="false" />
                      <filter type="and">
-                    <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ProcessingPayment}" />
-                      </filter>
+                       <condition attribute="owningbusinessunitname" operator="like" value="%OFM%" />
+                       <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ProcessingPayment}" />
+                     </filter>
                      <link-entity name="ofm_fiscal_year" from="ofm_fiscal_yearid" to="ofm_fiscal_year" visible="false" link-type="outer" alias="ofm_fiscal_year">
                       <attribute name="ofm_financial_year" />                      
                     </link-entity>
@@ -112,7 +113,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                     </fetch>
                     """;
             var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,_ofm_fiscal_year_value,ofm_payment_type,statuscode,ofm_invoice_number,ofm_cas_response,_ofm_application_value&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application,ofm_applicationid),ofm_facility($select=name)&$filter=(statuscode eq {(int)ofm_payment_StatusCode.ProcessingPayment}) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,_ofm_fiscal_year_value,ofm_payment_type,statuscode,ofm_invoice_number,ofm_cas_response,_ofm_application_value&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application,ofm_applicationid),ofm_facility($select=name)&filter=(contains(owningbusinessunitname, 'OFM') and statuscode eq {(int)ofm_payment_StatusCode.ProcessingPayment}) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
                          """;
 
             return requestUri;
