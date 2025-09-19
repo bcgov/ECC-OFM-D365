@@ -72,7 +72,8 @@ public class P530ValidatePaymentRequest(IPaymentValidator paymentvalidator,IOpti
                        <attribute name="ofm_invoice_date"/>
                        <order attribute="ofm_name" descending="false"/>
                         <filter type="and">
-                        <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ApprovedforPayment}" />
+                           <condition attribute="owningbusinessunitname" operator="like" value="%OFM%" /> 
+                           <condition attribute="statuscode" operator="eq" value="{(int)ofm_payment_StatusCode.ApprovedforPayment}" />
                         <filter type="or">
                           <condition attribute="ofm_invoice_date" operator="eq" value="{localDateOnlyPST}" />
                           <condition attribute="ofm_revised_invoice_date" operator="eq" value="{localDateOnlyPST}" />
