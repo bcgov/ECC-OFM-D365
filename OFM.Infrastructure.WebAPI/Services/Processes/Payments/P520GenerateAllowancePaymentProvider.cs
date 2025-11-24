@@ -426,6 +426,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     decimal retroActiveAmount = retroActiveMonthsCount > 0 ? approvedSA.ofm_monthly_amount!.Value * retroActiveMonthsCount : 0;
                     var endTermLumpSumPayment = approvedSA.ofm_monthly_amount!.Value + retroActiveAmount;
                     await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, endTermLumpSumPayment, false, ecc_payment_type.Transportation, baseApplication!, processParams, fiscalYears, holidaysList, firstAnniversaryDate, secondAnniversaryDate, fundingEndDate);
+                    await SaveRetroactiveAmount(approvedSA, retroActiveAmount);
 
                     _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
                 }
