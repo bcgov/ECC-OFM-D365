@@ -363,7 +363,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             string? startDate = fundingRecord.FirstOrDefault()?.ofm_start_date?.ToString();
 
             subject = subject.Replace("[Funding Agreement #]", currentfundingNumber);
-            emailBody = emailBody?.Replace("[Funding Agreement #] ", currentfundingNumber);
+            emailBody = emailBody?.Replace("[Funding Agreement #]", currentfundingNumber);
             emailBody = emailBody?.Replace("[Organization]", organizationName);
             emailBody = emailBody?.Replace("[BaseFundingNumber]", baseFundingNumber);
             emailBody = emailBody?.Replace("[Approval Date]", currentDate);
