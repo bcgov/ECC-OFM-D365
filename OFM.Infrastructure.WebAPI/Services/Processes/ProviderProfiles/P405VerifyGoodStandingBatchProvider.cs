@@ -95,7 +95,7 @@ public class P405VerifyGoodStandingBatchProvider(IOptionsSnapshot<ExternalServic
                         <link-entity name="ofm_application" from="ofm_facility" to="accountid" link-type="inner" alias="ofm_app">
                           <link-entity name="ofm_funding" from="ofm_application" to="ofm_applicationid">
                             <filter>
-                              <condition attribute="statecode" operator="eq" value="0" />
+                              <condition attribute="statuscode" operator="eq" value="8" />
                             </filter>
                           </link-entity>
                         </link-entity>
