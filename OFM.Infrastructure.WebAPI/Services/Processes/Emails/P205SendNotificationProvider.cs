@@ -101,9 +101,10 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                     <attribute name="regardingobjectid" />
                     <order attribute="createdon" descending="true" />
                     <filter type="and">
-                      <condition attribute="createdon" operator="last-x-hours" value="3" />
+                      <condition attribute="createdon" operator="last-x-hours" value="1" />
                       <condition attribute="ofm_communication_type" operator="not-null" />
                       <condition attribute="statuscode" operator="eq" value="1" />
+                      <condition attribute="ofm_contact_list" operator="eq" value="{_processParams.Notification.MarketingListId}" />
                     </filter>
                     <link-entity name="activityparty" from="activityid" to="activityid" link-type="inner" alias="ae">
                     <filter type="and">
@@ -291,7 +292,7 @@ public class P205SendNotificationProvider : ID365ProcessProvider
                         }},
                         { "ofm_due_date", _processParams.Notification.DueDate?.ToString("yyyy-MM-dd") },
                         { "ofm_communication_type_Email@odata.bind", $"/ofm_communication_types({_processParams.Notification.CommunicationTypeId})"},
-
+                        { "ofm_contact_list_Email@odata.bind", $"/lists({_processParams.Notification.MarketingListId})"},
                 }));
         });
 
@@ -307,7 +308,16 @@ public class P205SendNotificationProvider : ID365ProcessProvider
 
         #endregion
 
-        #region Step 2: Update emails status.
+        #region Step 2: Linked with Attachments
+
+        if (!string.IsNullOrEmpty(_processParams.Notification.DocumentList)) 
+        {
+            await LinkEmailToSharedDocuments(appUserService, d365WebApiService, processParams);
+        }
+
+        #endregion
+
+        #region Step 3: Update emails status.
 
         await MarkEmailsAsComppleted(appUserService, d365WebApiService, processParams);
 
@@ -391,6 +401,40 @@ public class P205SendNotificationProvider : ID365ProcessProvider
         }
 
         return step2BatchResult.SimpleBatchResult;
+    }
+    private async Task<JsonObject> LinkEmailToSharedDocuments(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
+    {
+        var createdNotifications = await GetDataToUpdate();
+
+        var deserializedNotifications = JsonSerializer.Deserialize<List<D365Email>>(createdNotifications.Data.ToString());
+
+        String stringOfDocumentGUID = _processParams.Notification.DocumentList;
+        List<String> listOfDocumentGUID = stringOfDocumentGUID.Split(',').ToList<string>();
+        List<HttpRequestMessage> createSharedDocumentRelationshipRequest = [];
+        foreach (var item in listOfDocumentGUID)
+        {
+            deserializedNotifications?.ForEach(email =>
+            {
+                createSharedDocumentRelationshipRequest.Add(new CreateRequest("ofm_shared_documents",
+                    new JsonObject(){
+                        { "ofm_email@odata.bind", $"/emails({email.activityid})"},
+                        { "ofm_document@odata.bind", $"/ofm_documents({item})"},
+
+                    }));
+            });
+        }
+
+        var createdSharedDocumentRelationshipResult = await d365WebApiService.SendBatchMessageAsync(appUserService.AZSystemAppUser, createSharedDocumentRelationshipRequest, null);
+
+        if (createdSharedDocumentRelationshipResult.Errors.Any())
+        {
+            var errors = ProcessResult.Failure(ProcessId, createdSharedDocumentRelationshipResult.Errors, createdSharedDocumentRelationshipResult.TotalProcessed, createdSharedDocumentRelationshipResult.TotalRecords);
+            _logger.LogError(CustomLogEvent.Process, "Failed to update email notifications with an error: {error}", JsonValue.Create(errors)!.ToString());
+
+            return errors.SimpleProcessResult;
+        }
+
+        return createdSharedDocumentRelationshipResult.SimpleBatchResult;
     }
     #endregion
 }

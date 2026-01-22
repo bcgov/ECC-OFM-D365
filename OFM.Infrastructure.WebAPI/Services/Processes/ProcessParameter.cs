@@ -87,7 +87,7 @@ public record ProcessParameter
         [property: JsonPropertyName("paymentfileid")]
         public string? paymentfileId { get; set; }
     }
- 
+
     public record EmailParameter
     {
         [property: JsonPropertyName("templateId")]
@@ -119,6 +119,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("reportStartDate")]
         public DateTime? ReportStartDate { get; set; }
+
+        [property: JsonPropertyName("documentList")]
+        public string? DocumentList { get; set; }
     }
 
     public record OrganizationParameter
