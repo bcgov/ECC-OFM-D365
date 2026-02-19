@@ -44,6 +44,7 @@ OFM.Account.OrgFacility.Form = {
                 this.showOtherDescription(executionContext);
                 this.showBanner(executionContext);
                 this.notForProfitSection(executionContext);
+                this.facilityMessages(executionContext);
                 break;
 
             case 3: //readonly
@@ -57,6 +58,7 @@ OFM.Account.OrgFacility.Form = {
                 this.showOtherDescription(executionContext);
                 this.showBanner(executionContext);
                 this.notForProfitSection(executionContext);
+                this.facilityMessages(executionContext);
                 break;
 
             case 4: //disable
@@ -519,5 +521,64 @@ OFM.Account.OrgFacility.Form = {
             else
                 formContext.ui.tabs.get("tab_Overview").sections.get("tab_Overview_section_nfp").setVisible(false);
         }
-    }
+    },
+
+    facilityMessages: function (executionContext) {
+        debugger;
+        var formContext = executionContext.getFormContext();
+        var facilityId = formContext.data.entity.getId().replace("{", "").replace("}", "");
+        var formLabel = formContext.ui.formSelector.getCurrentItem().getLabel();	    // get current form's label
+        // get current form's label
+
+        if (formLabel === "Facility Information - OFM" && facilityId !== null) {
+            var conditionFetchXML = "";
+            Xrm.WebApi.retrieveMultipleRecords("ofm_facility_request", "?$select=_ofm_request_value&$filter=(_ofm_facility_value eq " + facilityId + ")").then(
+                function success(results) {
+                    console.log(results);
+                    if (results.entities.length > 0) {
+                        for (var i = 0; i < results.entities.length; i++) {
+                            var result = results.entities[i];
+                            if (result["_ofm_request_value"] !== null) {
+                                conditionFetchXML += "<value>{" + result["_ofm_request_value"] + "}</value>";
+                            }
+                        }
+                    }
+                    else {
+                        conditionFetchXML += "<value>{00000000-0000-0000-0000-000000000000}</value>"
+                    }
+                    var messagesfetchXml =
+                        "<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>" +
+                        "<entity name='ofm_conversation'>" +
+                        "<attribute name='ofm_message'/>" +
+                        "<attribute name='ofm_name'/>" +
+                        "<attribute name='ofm_request'/>" +
+                        "<attribute name='createdon'/>" +
+                        "<filter>" +
+                        "<condition attribute='ofm_request' operator='in'>" +
+                            conditionFetchXML +
+                        "</condition>" +
+                        "</filter>" +
+                        "</entity>" +
+                        "</fetch>";
+                    console.log(messagesfetchXml);
+                    OFM.Account.OrgFacility.Form.addSubgridEventListener(formContext, messagesfetchXml, "Subgrid_new_4");
+                },
+                function (error) {
+                    console.log(error.message);
+                }
+            );
+        }
+    },
+    // function to filter the subgrid grid based on record
+    addSubgridEventListener: function (formContext, filterFetchXML, subgridName) {
+        var gridContext = formContext.getControl(subgridName);
+        //ensure that the subgrid is ready, if not wait and call this function again
+        if (gridContext == null) {
+            setTimeout(function () { this.addSubgridEventListener(formContext, filterFetchXML, subgridName); }, 500);
+            return;
+        }
+
+        gridContext.setFilterXml(filterFetchXML);
+        gridContext.refresh();
+    },
 }
