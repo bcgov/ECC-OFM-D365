@@ -84,7 +84,7 @@ OFM.Application.Form = {
         }
         if (facilityId != null) {
             var conditionFetchXML = "";
-            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=((_ofm_facility_value eq " + facilityId + " and statecode eq 0 and ofm_start_date le " + date + ") or (ofm_end_date eq null and ofm_end_date ge " + date + "))").then(
+            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=((_ofm_facility_value eq " + facilityId + ") or (ofm_end_date eq null and ofm_end_date ge " + date + "))").then(
                 function success(results) {
                     console.log(results);
                     if (results.entities.length > 0) {
@@ -109,14 +109,8 @@ OFM.Application.Form = {
                         "<filter type='and' >" +
                         "<condition attribute = 'ofm_facility' operator = 'eq' uitype = 'account' value = '" + facilityId + "' />" +
                         "<filter type='or' >" +
-                        "<filter type='and' >" +
                         "<condition attribute='ofm_end_date' operator='null' />" +
-                        "<condition attribute='ofm_start_date' operator='on-or-before' value='" + date + "' />" +
-                        "</filter>" +
-                        "<filter type='and' >" +
                         "<condition attribute='ofm_end_date' operator='on-or-after' value='" + date + "' />" +
-                        "<condition attribute='ofm_start_date' operator='on-or-before' value='" + date + "' />" +
-                        "</filter>" +
                         "</filter>" +
                         "</filter >" +
                         "</entity >" +
