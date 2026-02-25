@@ -84,7 +84,7 @@ OFM.Application.Form = {
         }
         if (facilityId != null) {
             var conditionFetchXML = "";
-            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=((_ofm_facility_value eq " + facilityId + ") or (ofm_end_date eq null and ofm_end_date ge " + date + "))").then(
+            Xrm.WebApi.retrieveMultipleRecords("ofm_licence", "?$select=ofm_licence&$filter=((_ofm_facility_value eq " + facilityId + ") and (ofm_end_date eq null or ofm_end_date ge " + date + "))").then(
                 function success(results) {
                     console.log(results);
                     if (results.entities.length > 0) {
