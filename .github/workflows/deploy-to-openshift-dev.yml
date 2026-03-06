@@ -228,6 +228,5 @@ jobs:
         with:
           target: "https://ofm-d365api-${{ env.APP_ENVIRONMENT }}-${{ env.OPENSHIFT_NAMESPACE }}.apps.silver.devops.gov.bc.ca/swagger/v1/swagger.json"
           artifact_name: ccof_d365_api_zap
-          cmd_options: '-l HIGH'         # alert on high and critical priority issues only
           fail_action: true              # fail the job if alerts found
           allow_issue_writing: false     # don't open/update a GitHub Issue
