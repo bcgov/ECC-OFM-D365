@@ -226,7 +226,7 @@ jobs:
       - name: ZAP Scan
         uses: zaproxy/action-api-scan@v0.10.0
         with:
-          target: "https://ofm-frontend-${{ env.APP_ENVIRONMENT}}-${{ env.OPENSHIFT_NAMESPACE }}.apps.silver.devops.gov.bc.ca/swagger/v1/swagger.json"
+          target: "https://ofm-d365api-${{ env.APP_ENVIRONMENT }}-${{ env.OPENSHIFT_NAMESPACE }}.apps.silver.devops.gov.bc.ca/swagger/v1/swagger.json"
           artifact_name: ccof_d365_api_zap
           fail_action: true              # fail the job if alerts found
           allow_issue_writing: false     # don't open/update a GitHub Issue
