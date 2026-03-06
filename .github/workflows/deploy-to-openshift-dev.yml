@@ -217,7 +217,16 @@ jobs:
           # Get status, returns 0 if rollout is successful
           oc rollout status deployment/${{ env.APP_NAME }}-${{ env.APP_NAME_BACKEND }}-${{ env.APP_ENVIRONMENT }}
 
+  zap:
+    name: Run Zap Scan
+    needs: openshift-ci-cd
+    runs-on: ubuntu-24.04
+    environment: dev
+    steps:
       - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.12.0
+        uses: zaproxy/action-api-scan@v0.10.0
         with:
-          target: 'https://${{ env.HOST_ROUTE }}'
+          target: "https://ofm-frontend-${{ env.APP_ENVIRONMENT}}-${{ env.OPENSHIFT_NAMESPACE }}.apps.silver.devops.gov.bc.ca/swagger/v1/swagger.json"
+          artifact_name: ccof_d365_api_zap
+          fail_action: true              # fail the job if alerts found
+          allow_issue_writing: false     # don't open/update a GitHub Issue
