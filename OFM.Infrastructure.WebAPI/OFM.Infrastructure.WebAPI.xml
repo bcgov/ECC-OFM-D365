@@ -582,7 +582,7 @@
             <param name="facilityId">GUID of the facility record</param>
             <returns></returns>
         </member>
-        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetLicenseDataAsync(System.Guid,System.Nullable{System.DateTime})">
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore.IDataverseRepository.GetLicenseDataAsync(System.Guid)">
             <summary>
             Get License Data for Total Operational Spaces and Max ChildCare spaces
             </summary>
@@ -715,7 +715,7 @@
         <member name="T:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator">
             <summary>
             Funding Calculator Version 9
-            Changes made for version 9.1
+            Chnages made for version 9.1
             </summary>
         </member>
         <member name="P:OFM.Infrastructure.WebAPI.Services.Processes.Fundings.FundingCalculator.EmployerHealthTax">
@@ -771,6 +771,20 @@
             Processes the reminders generated from P255CreateRenewalNotificationProvider Endpoint for applications where no renewal is not submitted in th eystem
             Refer to : https://eccbc.atlassian.net/wiki/spaces/OOFMCC/pages/521405457/Send+Renewal+Notification
             </summary>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P265SendFundingEnvelopeChangeApprovalNotification.ContactRequestUri(System.String)">
+            <summary>
+            To frame ContactRequestUri
+            </summary>
+            <param name="contactId">GUID of contact</param>
+            <returns>ContactRequestUri</returns>
+        </member>
+        <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.Emails.P265SendFundingEnvelopeChangeApprovalNotification.GetContactDataAsync(System.String)">
+            <summary>
+            To get contact details
+            </summary>
+            <param name="contactId">GUID of contact</param>
+            <returns>Contact details</returns>
         </member>
         <member name="M:OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles.P405VerifyGoodStandingBatchProvider.CreateTaskForNotGoodStandingFrom90Days(OFM.Infrastructure.WebAPI.Services.AppUsers.ID365AppUserService,OFM.Infrastructure.WebAPI.Services.D365WebApi.ID365WebApiService,OFM.Infrastructure.WebAPI.Models.D365Organization_Account,System.String)">
             <summary>

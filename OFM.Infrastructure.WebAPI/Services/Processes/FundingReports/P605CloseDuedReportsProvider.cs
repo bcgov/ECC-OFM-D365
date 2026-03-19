@@ -45,6 +45,7 @@ public class P605CloseDuedReportsProvider : ID365ProcessProvider
                                       <condition attribute="ofm_duedate" operator="lt" value="{currentDateInUTC}" />
                                       <condition attribute="statecode" operator="eq" value="0" />
                                       <condition attribute="ofm_unlock" operator="eq" value="0" />
+                                      <condition attribute="ofm_submitted_on" operator="not-null" />
                                     </filter>
                                   </entity>
                                 </fetch>

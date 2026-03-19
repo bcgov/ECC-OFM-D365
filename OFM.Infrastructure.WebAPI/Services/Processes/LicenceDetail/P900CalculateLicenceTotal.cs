@@ -75,7 +75,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords
                     """;
 
                 var requestUri = $"""                                
-                               ofm_licence_details?$select=ofm_star_spaces_six_to_twelve_years,ofm_star_spaces_three_to_five_years,ofm_star_spaces_under_three_years,ofm_operational_spaces,ofm_program_session,ofm_default_program_session,ofm_licence_type&$filter=statecode eq 0 and (ofm_licence/ofm_end_date eq null or ofm_licence/ofm_end_date ge {DateTime.Parse(licenceFilterDate).ToString("yyyy-MM-dd")}) and ofm_licence/ofm_facility/accountid eq {_processParams.Application.facilityId}&$expand=ofm_licence($expand=ofm_facility)
+                               ofm_licence_details?$select=ofm_star_spaces_six_to_twelve_years,ofm_star_spaces_three_to_five_years,ofm_star_spaces_under_three_years,ofm_operational_spaces,ofm_program_session,ofm_default_program_session,ofm_licence_type&$filter=statecode eq 0 and ofm_licence/statecode eq 0 and (ofm_licence/ofm_end_date eq null or ofm_licence/ofm_end_date ge {DateTime.Parse(licenceFilterDate).ToString("yyyy-MM-dd")}) and ofm_licence/ofm_facility/accountid eq {_processParams.Application.facilityId}&$expand=ofm_licence($expand=ofm_facility)
                   """;
 
                 return requestUri.CleanCRLF();
