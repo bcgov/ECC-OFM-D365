@@ -64,7 +64,7 @@ export const RadialControlSpecial = React.memo(function PeopleRaw({ children, to
     //@ts-ignore
     if (people[0].ofm_application_score_errors > 0) {
 
-      color = "#a30805";
+      color = "#f2141b";
 
     }
 
