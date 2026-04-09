@@ -47,7 +47,8 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     </link-entity>
                     <link-entity name="ofm_application" to="ofm_application" from="ofm_applicationid" alias="ofm_application" link-type="outer">
                       <attribute name="ofm_contact" />
-                      <link-entity name="account" from="accountid" to="ofm_facility" alias="facility">
+                      <attribute name='ofm_funding_number_base' />
+                      <link-entity name="account" from="accountid" to="ofm_organization" alias="organization">
                         <attribute name="name" />
                       </link-entity>
                     </link-entity>
@@ -175,14 +176,22 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 if (statusReason == (int)ofm_expense_StatusCode.Approved) {
 
                     string? fundingNumber = localData.Data[0]?["ofm_funding_number"]?.ToString();
+                    string? baseFundingNumber = localData.Data[0]?["ofm_application.ofm_funding_number_base"]?.ToString();
                     string? currentDate = DateTime.UtcNow.ToLocalPST().ToString("MM/dd/yyyy");
-                    string? facilityName = localData.Data[0]?["facility.name"]?.ToString();
+                    //string? facilityName = localData.Data[0]?["facility.name"]?.ToString();
+                    string? organizationName = localData.Data[0]?["organization.name"]?.ToString();
                     string? requestSummary = localData.Data[0]?["ofm_request_summary"]?.ToString();
-                    string? fundingAmount = localData.Data[0]?["ofm_amount"]?.ToString();
+                    string? fundingAmount = localData.Data[0]?["ofm_amount@OData.Community.Display.V1.FormattedValue"]?.ToString();
+
+                    if (baseFundingNumber != null)
+                    {
+                        baseFundingNumber += "-00";
+                    }
 
                     subject = subject.Replace("#FANumber#", fundingNumber);
                     emailBody = emaildescription?.Replace("[Date]", currentDate);
-                    emailBody = emailBody?.Replace("[Facility]", facilityName);
+                    emailBody = emailBody?.Replace("[Organization]", organizationName);
+                    emailBody = emailBody?.Replace("[BaseFundingNumber]", baseFundingNumber);
                     emailBody = emailBody?.Replace("[RequestSummary]", requestSummary);
                     emailBody = emailBody?.Replace("[FundingAmount]", fundingAmount);
 

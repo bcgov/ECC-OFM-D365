@@ -25,6 +25,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         private ProcessParameter? _processParams;
         private Guid _baseApplicationId = Guid.Empty;
         private List<D365PaymentLine>? _allPayments;
+        private bool hasRetroPayment = false;
 
         public Int16 ProcessId => Setup.Process.Payments.GeneratePaymentLinesForSupplementaryAllowanceId;
         public string ProcessName => Setup.Process.Payments.GeneratePaymentLinesForSupplementaryAllowanceName;
@@ -426,16 +427,19 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
                     decimal retroActiveAmount = retroActiveMonthsCount > 0 ? approvedSA.ofm_monthly_amount!.Value * retroActiveMonthsCount : 0;
                     var endTermLumpSumPayment = approvedSA.ofm_monthly_amount!.Value + retroActiveAmount;
                     await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, endTermLumpSumPayment, false, ecc_payment_type.Transportation, baseApplication!, processParams, fiscalYears, holidaysList, firstAnniversaryDate, secondAnniversaryDate, fundingEndDate);
+                    await SaveRetroactiveAmount(approvedSA, retroActiveAmount);
 
                     _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
                 }
                 else
                 {
-                    // Process future payments
-                    await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, approvedSA.ofm_monthly_amount!.Value, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList, firstAnniversaryDate, secondAnniversaryDate, fundingEndDate);
+                    //await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, approvedSA.ofm_monthly_amount!.Value, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList, firstAnniversaryDate, secondAnniversaryDate, fundingEndDate);
                     // Process retroactive payment
                     int retroActiveMonthsCount = approvedSA.ofm_retroactive_date!.HasValue ? (approvedSA.ofm_start_date.Value.Year - approvedSA.ofm_retroactive_date!.Value.Year) * 12 + approvedSA.ofm_start_date.Value.Month - approvedSA.ofm_retroactive_date.Value.Month : 0;
                     await ProcessRetroActivePayment(baseApplication!, approvedSA, processParams, fiscalYears, holidaysList, approvedSA.ofm_monthly_amount!.Value, retroActiveMonthsCount, firstAnniversaryDate, secondAnniversaryDate, fundingEndDate);
+
+                    // Process future payments
+                    await CreatePaymentsInBatch(baseApplication!, approvedSA!, approvedSA.ofm_start_date.Value, approvedSA.ofm_end_date.Value, approvedSA.ofm_monthly_amount!.Value, false, ecc_payment_type.Transportation, processParams, fiscalYears, holidaysList, firstAnniversaryDate, secondAnniversaryDate, fundingEndDate);
                     _logger.LogInformation(CustomLogEvent.Process, "Finished payments generation for the {allowancetype} application with Id {allowanceId}", approvedSA.ofm_allowance_type, processParams.SupplementaryApplication!.allowanceId);
                 }
 
@@ -449,7 +453,11 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
             decimal retroActiveAmount = retroActiveMonthsCount > 0 ? monthlyPaymentAmount * retroActiveMonthsCount : 0;
             if (retroActiveAmount > 0)
             {
-                await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, retroActiveAmount, false, ecc_payment_type.Transportation, baseApplication, processParams, fiscalYears, holidaysList, firstAnniversaryDate, secondAnniversaryDate, fundingEndDate);
+                JsonObject singlePyamentResponse = await CreateSinglePayment(approvedSA, approvedSA.ofm_start_date!.Value, retroActiveAmount, false, ecc_payment_type.Transportation, baseApplication, processParams, fiscalYears, holidaysList, firstAnniversaryDate, secondAnniversaryDate, fundingEndDate);
+                if (singlePyamentResponse["status"]?.ToString() == "Completed")
+                {
+                    hasRetroPayment = true;
+                }
             }
 
             await SaveRetroactiveAmount(approvedSA, retroActiveAmount);
@@ -567,6 +575,12 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Payments
         {
             List<HttpRequestMessage> createPaymentRequests = [];
             int nextLineNumber = await GetNextInvoiceLineNumber();
+            
+            //Increment Line Number taken up by Retro Payment
+            if (hasRetroPayment == true)
+            {
+                nextLineNumber++;
+            }
 
             for (DateTime paymentDate = startDate; paymentDate <= endDate; paymentDate = paymentDate.AddMonths(1))
             {

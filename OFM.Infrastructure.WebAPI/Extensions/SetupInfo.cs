@@ -72,6 +72,8 @@ public static class Setup
             public const Int16 SendFundingExpiryNotificationsId = 260;
             public const string SendFundingExpiryNotificationsName = "Create Funding Expiry Reminders for Supplementary Application";
 
+            public const Int16 SendFundingEnvelopeChangeApprovalNotificationsId = 265;
+            public const string SendFundingEnvelopeChangeApprovalNotificationsIdName = "Create email for approved Funding Envelope Change Application";
         }
 
         public static class Fundings

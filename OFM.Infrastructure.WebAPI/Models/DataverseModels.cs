@@ -579,11 +579,93 @@ public class D365LicenceDetail
     public decimal ofm_star_spaces_three_to_five_years { get; set; }
 
     public decimal ofm_star_spaces_six_to_twelve_years { get; set; }
-
-
-
 }
 
+public class D365FundingEnvelope
+{
+    [JsonPropertyName("ofm_funding_envelope_from")]
+    public int ofm_funding_envelope_from { get; set; }
+    [JsonPropertyName("ofm_funding_envelope_to")]
+    public int ofm_funding_envelope_to { get; set; }
+    [JsonPropertyName("ofm_amount")]
+    public decimal ofm_amount { get; set; }
+}
+
+public class D365Funding
+{
+    [JsonPropertyName("ofm_envelope_administrative")]
+    public decimal ofm_envelope_administrative { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_administrative_pf")]
+    public decimal ofm_envelope_administrative_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_administrative_proj")]
+    public decimal ofm_envelope_administrative_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_facility")]
+    public decimal ofm_envelope_facility { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_facility_pf")]
+    public decimal ofm_envelope_facility_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_facility_proj")]
+    public decimal ofm_envelope_facility_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_grand_total")]
+    public decimal ofm_envelope_grand_total { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_grand_total_pf")]
+    public decimal ofm_envelope_grand_total_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_grand_total_proj")]
+    public decimal ofm_envelope_grand_total_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_benefits")]
+    public decimal ofm_envelope_hr_benefits { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_benefits_pf")]
+    public decimal ofm_envelope_hr_benefits_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_benefits_proj")]
+    public decimal ofm_envelope_hr_benefits_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_employerhealthtax")]
+    public decimal ofm_envelope_hr_employerhealthtax { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_employerhealthtax_pf")]
+    public decimal ofm_envelope_hr_employerhealthtax_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_employerhealthtax_proj")]
+    public decimal ofm_envelope_hr_employerhealthtax_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevexpenses")]
+    public decimal ofm_envelope_hr_prodevexpenses { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevexpenses_pf")]
+    public decimal ofm_envelope_hr_prodevexpenses_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevexpenses_proj")]
+    public decimal ofm_envelope_hr_prodevexpenses_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevhours")]
+    public decimal ofm_envelope_hr_prodevhours { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevhours_pf")]
+    public decimal ofm_envelope_hr_prodevhours_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevhours_proj")]
+    public decimal ofm_envelope_hr_prodevhours_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_total")]
+    public decimal ofm_envelope_hr_total { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_total_pf")]
+    public decimal ofm_envelope_hr_total_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_total_proj")]
+    public decimal ofm_envelope_hr_total_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_wages_paidtimeoff")]
+    public decimal ofm_envelope_hr_wages_paidtimeoff { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_wages_paidtimeoff_pf")]
+    public decimal ofm_envelope_hr_wages_paidtimeoff_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_wages_paidtimeoff_proj")]
+    public decimal ofm_envelope_hr_wages_paidtimeoff_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_operational")]
+    public decimal ofm_envelope_operational { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_operational_pf")]
+    public decimal ofm_envelope_operational_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_operational_proj")]
+    public decimal ofm_envelope_operational_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_programming")]
+    public decimal ofm_envelope_programming { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_programming_pf")]
+    public decimal ofm_envelope_programming_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_programming_proj")]
+    public decimal ofm_envelope_programming_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_funding_envelope")]
+    public decimal ofm_funding_envelope { get; set; } = 0;
+    [JsonPropertyName("ofm_funding_number")]
+    public string? ofm_funding_number { get; set; }
+    [JsonPropertyName("ofm_start_date")]
+    public string? ofm_start_date { get; set; }
+}
 public class D365Licence
 {
     [JsonPropertyName("ofm_licenceid")]

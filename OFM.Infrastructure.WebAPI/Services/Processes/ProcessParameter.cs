@@ -77,6 +77,8 @@ public record ProcessParameter
     public DateTime? LastScoreCalculationTimeStamp { get; set; }
     [property: JsonPropertyName("scoreCalculatorVersionId")]
     public Guid? ScoreCalculatorVersionId { get; set; }
+    [property: JsonPropertyName("fundingEnvelopeChange")]
+    public FundingEnvelopeChangeParameter? FundingEnvelopeChange { get; set; }
 
     #region Inner Parameter Record Objects
 
@@ -85,7 +87,7 @@ public record ProcessParameter
         [property: JsonPropertyName("paymentfileid")]
         public string? paymentfileId { get; set; }
     }
- 
+
     public record EmailParameter
     {
         [property: JsonPropertyName("templateId")]
@@ -117,6 +119,9 @@ public record ProcessParameter
 
         [property: JsonPropertyName("reportStartDate")]
         public DateTime? ReportStartDate { get; set; }
+
+        [property: JsonPropertyName("documentList")]
+        public string? DocumentList { get; set; }
     }
 
     public record OrganizationParameter
@@ -208,5 +213,20 @@ public record ProcessParameter
         public string? HRQuestions { get; set; }
     }
 
+    public record FundingEnvelopeChangeParameter
+    {
+        [property: JsonPropertyName("fundingEnvelopeChangeId")]
+        public Guid? fundingEnvelopeChangeId { get; set; }
+        [property: JsonPropertyName("fundingId")]
+        public Guid? fundingId { get; set; }
+        [property: JsonPropertyName("primaryContactId")]
+        public Guid? primaryContactId { get; set; }
+        [property: JsonPropertyName("requestorContactId")]
+        public Guid? requestorContactId { get; set; }
+        [property: JsonPropertyName("fundingVersionNumber")]
+        public string? fundingVersionNumber { get; set; }
+        [property: JsonPropertyName("organizationName")]
+        public string? organizationName { get; set; }
+    }
     #endregion
 }
