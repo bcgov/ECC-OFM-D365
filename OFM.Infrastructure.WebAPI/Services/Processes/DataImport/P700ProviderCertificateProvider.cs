@@ -6,6 +6,7 @@ using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using System.Globalization;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -397,6 +398,11 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         string deactiveMessages = string.Empty;
         bool upsertSucessfully = false;
         bool deactiveSucessfully = false;
+        TimeZoneInfo PSTZone2 = GetPSTTimeZoneInfo("Pacific Standard Time", "America/Los_Angeles");
+        var pstTime2 = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, PSTZone2);
+        bool isWindows2 = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        _logger.LogInformation(CustomLogEvent.Process, "PST Timezone, {0}", PSTZone2.StandardName);
+        _logger.LogInformation(CustomLogEvent.Process, "Is Windows: {0}", isWindows2);
         try
         {
             // retrieve csv file from crm and parse 
