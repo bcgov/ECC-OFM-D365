@@ -402,6 +402,8 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
         var pstTime2 = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, PSTZone2);
         bool isWindows2 = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         _logger.LogInformation(CustomLogEvent.Process, "PST Timezone, {0}", PSTZone2.StandardName);
+        _logger.LogInformation(CustomLogEvent.Process, "PST SupportsDaylightSavings, {0}", PSTZone2.SupportsDaylightSavingTime);
+        _logger.LogInformation(CustomLogEvent.Process, "PST Timezone, {0}", PSTZone2.BaseUtcOffset);
         _logger.LogInformation(CustomLogEvent.Process, "Is Windows: {0}", isWindows2);
         try
         {
