@@ -23,26 +23,26 @@ export const EnvelopeCompositeControl = React.memo(
 
         let fieldIndex = 0;
     const HRHeader = [
-        { column01: "Instructional Human Resources", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06:fields[fieldIndex++] }
+        { column01: "Instructional Human Resources", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06:fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] }
         ];
 
     const dataHR = [
-        { column01: "Wages & Paid Time Off", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] },
-        { column01: "Benefits", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] },
-        { column01: "Employer Health Tax", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] },    
-        { column01: "Professional Development Hours", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] }, 
-        { column01: "Professional Development Expenses", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] }
+        { column01: "Wages & Paid Time Off", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] },
+        { column01: "Benefits", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] },
+        { column01: "Employer Health Tax", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] },    
+        { column01: "Professional Development Hours", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] }, 
+        { column01: "Professional Development Expenses", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] }
     ];
 
     const dataNonHR = [
-        { column01: "Programming", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] },
-        { column01: "Administrative", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] },
-        { column01: "Operational", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] },
-        { column01: "Facility", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] }
+        { column01: "Programming", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] },
+        { column01: "Administrative", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] },
+        { column01: "Operational", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] },
+        { column01: "Facility", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] }
         ];
 
     const grandTotal = [
-        { column01: "Total", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++] }
+        { column01: "Total", column02: fields[fieldIndex++], column03: fields[fieldIndex++], column04: fields[fieldIndex++], column05: fields[fieldIndex++], column06: fields[fieldIndex++], column07:fields[fieldIndex++], column08:fields[fieldIndex++], column09:fields[fieldIndex++] }
         ];
 
     let HRTotal_Colum02 = dataHR.reduce((a,v) =>  a = a + v.column02.control.raw!, 0);
@@ -78,6 +78,9 @@ export const EnvelopeCompositeControl = React.memo(
                     <th>Projected Annual Parent Fees</th>
                     <th>Projected Annual Base Funding</th>
                     <th>Topup For Year 1</th>
+                    <th>Annual Province Base Funding Reallocations</th>
+                    <th>Projected Annual Parent Fees Reallocations</th>
+                    <th>Projected Annual Base Funding Reallocations</th>
                     <th>Projected Annual Base Funding with Topup</th>
                         </tr>
                         {HRHeader.map((val, key) => {
@@ -100,6 +103,15 @@ export const EnvelopeCompositeControl = React.memo(
                                     </td>
                                     <td>
                                         <Label>{pcfContext.formatting.formatCurrency(val.column06.control.raw!)}</Label>
+                                    </td>
+                                    <td>
+                                        <Label>{pcfContext.formatting.formatCurrency(val.column07.control.raw!)}</Label>
+                                    </td>
+                                    <td>
+                                        <Label>{pcfContext.formatting.formatCurrency(val.column08.control.raw!)}</Label>
+                                    </td>
+                                    <td>
+                                        <Label>{pcfContext.formatting.formatCurrency(val.column09.control.raw!)}</Label>
                                     </td>
                                 </tr>
                             )
@@ -125,6 +137,15 @@ export const EnvelopeCompositeControl = React.memo(
                             <td>
                                 <Label>{pcfContext.formatting.formatCurrency(val.column06.control.raw!)}</Label>
                             </td>         
+                            <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column07.control.raw!)}</Label>
+                            </td>
+                            <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column08.control.raw!)}</Label>
+                            </td>
+                            <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column09.control.raw!)}</Label>
+                            </td>
                         </tr>
                     )
                 })}
@@ -148,6 +169,15 @@ export const EnvelopeCompositeControl = React.memo(
                             </td>    
                             <td>
                                 <Label>{pcfContext.formatting.formatCurrency(val.column06.control.raw!)}</Label>
+                            </td>
+                            <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column07.control.raw!)}</Label>
+                            </td>
+                            <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column08.control.raw!)}</Label>
+                            </td>
+                            <td>
+                                <Label>{pcfContext.formatting.formatCurrency(val.column09.control.raw!)}</Label>
                             </td>
                           </tr>           
                           )
@@ -174,6 +204,15 @@ export const EnvelopeCompositeControl = React.memo(
                                 </td>
                                 <td>
                                     <Label>{pcfContext.formatting.formatCurrency(val.column06.control.raw!)}</Label>
+                                </td>
+                                <td>
+                                    <Label>{pcfContext.formatting.formatCurrency(val.column07.control.raw!)}</Label>
+                                </td>
+                                <td>
+                                    <Label>{pcfContext.formatting.formatCurrency(val.column08.control.raw!)}</Label>
+                                </td>
+                                <td>
+                                    <Label>{pcfContext.formatting.formatCurrency(val.column09.control.raw!)}</Label>
                                 </td>
                             </tr>
                         )
