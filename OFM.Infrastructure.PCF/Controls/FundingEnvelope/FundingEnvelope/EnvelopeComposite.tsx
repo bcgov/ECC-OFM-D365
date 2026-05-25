@@ -72,7 +72,7 @@ export const EnvelopeCompositeControl = React.memo(
             <table style={{width:"100%", padding:"3px"}} >
               <thead></thead>
                 <tbody>
-                <tr style={{textAlign: "left"}} >
+                <tr style={{textAlign: "center"}} >
                     <th>Funding Envelope</th>
                     <th>Annual Province Base Funding</th>
                     <th>Projected Annual Parent Fees</th>
@@ -81,7 +81,7 @@ export const EnvelopeCompositeControl = React.memo(
                     <th>Annual Province Base Funding Reallocations</th>
                     <th>Projected Annual Parent Fees Reallocations</th>
                     <th>Projected Annual Base Funding Reallocations</th>
-                    <th>Projected Annual Base Funding with Topup</th>
+                    <th>Total Projected Annual Base Funding</th>
                         </tr>
                         {HRHeader.map((val, key) => {
                             return (
@@ -98,7 +98,7 @@ export const EnvelopeCompositeControl = React.memo(
                                     <td>
                                         <Label>{pcfContext.formatting.formatCurrency(val.column04.control.raw!)}</Label>
                                     </td>
-                                    <td>
+                                    <td style={{minWidth: "100px" }}>
                                         <Label>{pcfContext.formatting.formatCurrency(val.column05.control.raw!)}</Label>
                                     </td>
                                     <td>
@@ -136,7 +136,7 @@ export const EnvelopeCompositeControl = React.memo(
                             </td>    
                             <td>
                                 <Label>{pcfContext.formatting.formatCurrency(val.column06.control.raw!)}</Label>
-                            </td>         
+                            </td>
                             <td>
                                 <Label>{pcfContext.formatting.formatCurrency(val.column07.control.raw!)}</Label>
                             </td>
@@ -223,7 +223,7 @@ export const EnvelopeCompositeControl = React.memo(
           <Stack style={{width:"100%"}} >   
             <table style={{width:"100%", padding:"3px"}} > 
               <thead>
-                <tr style={{textAlign: "left"}}>
+                <tr style={{textAlign: "center"}}>
                     <th>Monthly Base Funding</th>
                     <th>Monthly Province Base Funding</th>
                     <th>Projected Annual Parent Fees</th>
