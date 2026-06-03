@@ -76,12 +76,12 @@ export const EnvelopeCompositeControl = React.memo(
                     <th>Funding Envelope</th>
                     <th>Annual Province Base Funding</th>
                     <th>Projected Annual Parent Fees</th>
-                    <th>Projected Annual Base Funding</th>
+                    <th>Projected Annual Funding</th>
                     <th>Topup For Year 1</th>
                     <th>Annual Province Base Funding Reallocations</th>
                     <th>Projected Annual Parent Fees Reallocations</th>
-                    <th>Projected Annual Base Funding Reallocations</th>
-                    <th>Total Projected Annual Base Funding</th>
+                    <th>Projected Annual Funding Reallocations</th>
+                    <th>Total Projected Annual Funding</th>
                         </tr>
                         {HRHeader.map((val, key) => {
                             return (
@@ -226,9 +226,9 @@ export const EnvelopeCompositeControl = React.memo(
                 <tr style={{textAlign: "center"}}>
                     <th>Monthly Base Funding</th>
                     <th>Monthly Province Base Funding</th>
-                    <th>Projected Annual Parent Fees</th>
-                    <th>Projected Total Monthly Base Funding</th>
-                    <th>Projected Total Monthly Base Funding with Topup</th>
+                    <th>Projected Monthly Parent Fees</th>
+                    <th>Projected Total Monthly Funding</th>
+                    <th>Projected Total Monthly Funding with Topup</th>
                 </tr>
               </thead>
               <tbody>
