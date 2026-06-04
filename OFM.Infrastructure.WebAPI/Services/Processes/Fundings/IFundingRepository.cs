@@ -603,7 +603,7 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
             ofm_envelope_hr_prodevexpenses_reallo_proj = fm.Projected_HRProfessionalDevelopmentExpenses_Reallocation,
 
             ofm_envelope_programming_reallo_proj = fm.Projected_NonHRProgramming_Reallocation,
-            ofm_envelope_administrative_reallo_proj = fm.Projected_NonHRAdmistrative_Reallocation,
+            ofm_envelope_administrative_reallo_proj = fm.Projected_NonHRAdministrative_Reallocation,
             ofm_envelope_operational_reallo_proj = fm.Projected_NonHROperational_Reallocation,
             ofm_envelope_facility_reallo_proj = fm.Projected_NonHRFacility_Reallocation,
 

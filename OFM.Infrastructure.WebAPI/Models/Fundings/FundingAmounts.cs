@@ -59,7 +59,7 @@ public interface IFundingAmounts
     decimal Projected_NonHRAdmistrative { get; set; }
     decimal Base_NonHRAdmistrative_Reallocation { get; }
     decimal PF_NonHRAdmistrative_Reallocation { get; set; }
-    decimal Projected_NonHRAdmistrative_Reallocation { get; set; }
+    decimal Projected_NonHRAdministrative_Reallocation { get; set; }
 
     decimal Base_NonHRFacility { get; }
     decimal PF_NonHRFacility { get; set; }
@@ -148,7 +148,7 @@ public record FundingAmounts : IFundingAmounts
     public decimal Projected_NonHRProgramming_Reallocation { get; set; } = 0m;
     [Required(ErrorMessage = "Required")]
     [Range(LOWER_LIMIT_AMOUNT, UPPER_LIMIT_AMOUNT, ErrorMessage = "The value must be greater than or equal to 0 or less than 100_000_000")]
-    public decimal Projected_NonHRAdmistrative_Reallocation { get; set; } = 0m;
+    public decimal Projected_NonHRAdministrative_Reallocation { get; set; } = 0m;
     [Required(ErrorMessage = "Required")]
     [Range(LOWER_LIMIT_AMOUNT, UPPER_LIMIT_AMOUNT, ErrorMessage = "The value must be greater than or equal to 0 or less than 100_000_000")]
     public decimal Projected_NonHROperational_Reallocation { get; set; } = 0m;
@@ -242,7 +242,7 @@ public record FundingAmounts : IFundingAmounts
     public decimal Base_HRProfessionalDevelopmentExpenses_Reallocation => Projected_HRProfessionalDevelopmentExpenses_Reallocation - PF_HRProfessionalDevelopmentExpenses_Reallocation;
 
     public decimal Base_NonHRProgramming_Reallocation => Projected_NonHRProgramming_Reallocation - PF_NonHRProgramming_Reallocation;
-    public decimal Base_NonHRAdmistrative_Reallocation => Projected_NonHRAdmistrative_Reallocation - PF_NonHRAdmistrative_Reallocation;
+    public decimal Base_NonHRAdmistrative_Reallocation => Projected_NonHRAdministrative_Reallocation - PF_NonHRAdmistrative_Reallocation;
     public decimal Base_NonHROperational_Reallocation => Projected_NonHROperational_Reallocation - PF_NonHROperational_Reallocation;
     public decimal Base_NonHRFacility_Reallocation => Projected_NonHRFacility_Reallocation - PF_NonHRFacility_Reallocation;
     
@@ -302,7 +302,7 @@ public record EmptyFundingAmounts : IFundingAmounts {
     public decimal Projected_HRProfessionalDevelopmentHours_Reallocation { get; set; }
     public decimal Projected_HRProfessionalDevelopmentExpenses_Reallocation { get; set; }
     public decimal Projected_NonHRProgramming_Reallocation { get; set; }
-    public decimal Projected_NonHRAdmistrative_Reallocation { get; set; }
+    public decimal Projected_NonHRAdministrative_Reallocation { get; set; }
     public decimal Projected_NonHROperational_Reallocation { get; set; }
     public decimal Projected_NonHRFacility_Reallocation { get; set; }
     public decimal PF_HRTotal_Reallocation { get; set; }

@@ -583,11 +583,11 @@ public class D365LicenceDetail
 
 public class D365FundingEnvelope
 {
-    [JsonPropertyName("ofm_funding_envelope_from")]
+    [JsonPropertyName("ofm_funding_allocation1.ofm_funding_envelope_from")]
     public int ofm_funding_envelope_from { get; set; }
-    [JsonPropertyName("ofm_funding_envelope_to")]
+    [JsonPropertyName("ofm_funding_allocation1.ofm_funding_envelope_to")]
     public int ofm_funding_envelope_to { get; set; }
-    [JsonPropertyName("ofm_amount")]
+    [JsonPropertyName("ofm_funding_allocation1.ofm_amount")]
     public decimal ofm_amount { get; set; }
 }
 

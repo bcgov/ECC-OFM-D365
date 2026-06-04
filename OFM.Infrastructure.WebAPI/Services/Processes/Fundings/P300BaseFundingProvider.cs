@@ -23,6 +23,7 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
     private readonly TimeProvider _timeProvider = timeProvider;
     private ProcessData? _data;
     private Guid fundingID;
+    private string formattedApplicationID;
     private int fundingYear;
 
     public short ProcessId => Setup.Process.Fundings.CalculateBaseFundingId;
@@ -48,14 +49,17 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
                                 <fetch>
                                   <entity name="ofm_funding_envelope_change">
                                     <filter>
+                                      <condition attribute="ofm_applicationid" operator="eq" value="{formattedApplicationID}" />
                                       <condition attribute="statecode" operator="eq" value="0" />
                                       <condition attribute="ofm_year_of_agreement" operator="eq" value="{fundingYear}" />
-                                      <condition attribute="ofm_funding" operator="eq" value="{fundingID}" />
                                     </filter>
                                     <link-entity name="ofm_funding_allocation" from="ofm_funding_envelop" to="ofm_funding_envelope_changeid" link-type="inner">
                                       <attribute name="ofm_amount" />
                                       <attribute name="ofm_funding_envelope_from" />
                                       <attribute name="ofm_funding_envelope_to" />
+                                      <filter>
+                                        <condition attribute="statecode" operator="eq" value="0" />
+                                      </filter>
                                     </link-entity>
                                   </entity>
                                 </fetch>
@@ -170,15 +174,19 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
         }
 
         fundingID = new Guid(processParams.Funding!.FundingId!);
-
-        var fundingAllocationData = await GetFundingAllocationDataAsync();
-        List<D365FundingEnvelope> deserializedFundingAllocationData = null;
-        if (fundingAllocationData !=null && fundingAllocationData.Data != null)
-        {
-            deserializedFundingAllocationData = JsonSerializer.Deserialize<List<D365FundingEnvelope>>(fundingAllocationData.Data.ToString());
+        Guid applicationID = _funding!.ofm_application!.Id;
+        if (applicationID != Guid.Empty) {
+            formattedApplicationID = applicationID.ToString("D");
         }
 
-        FundingCalculator calculator = new(_fundingRepository, _funding, _rateSchedules, deserializedFundingAllocationData, _logger);
+        var fundingAllocationData = await GetFundingAllocationDataAsync();
+        List<D365FundingEnvelope> deserializedFundingReallocationData = null;
+        if (fundingAllocationData !=null && fundingAllocationData.Data != null)
+        {
+            deserializedFundingReallocationData = JsonSerializer.Deserialize<List<D365FundingEnvelope>>(fundingAllocationData.Data.ToString());
+        }
+
+        FundingCalculator calculator = new(_fundingRepository, _funding, _rateSchedules, deserializedFundingReallocationData, _logger);
         _ = await calculator.CalculateAsync();
         _ = await calculator.ProcessFundingResultAsync();
         await calculator.LogProgressAsync(_d365webapiservice!, _appUserService!, _logger!); // This line should always be at the end to avoid any impacts to the calculator's main functionalities

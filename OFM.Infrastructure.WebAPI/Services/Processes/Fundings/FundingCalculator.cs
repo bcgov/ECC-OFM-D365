@@ -33,13 +33,15 @@ public class FundingCalculator : IFundingCalculator
     private const decimal EHT_LOWER_THRESHOLD = 500_000m; //Todo: Load from rate schedule
     private RateSchedule? _rateSchedule;
     private FundingResult? _fundingResult;
-    private List<D365FundingEnvelope>? _deserializedFundingAllocationData;
+    private List<D365FundingEnvelope>? _deserializedFundingReallocationData;
     private List<NonHRStepAction> _noneHRStepActions = [];
 
     private decimal _nonHRProgrammingAmount = 0m;
     private decimal _nonHRAdministrativeAmount = 0m;
     private decimal _nonHROperationalAmount = 0m;
     private decimal _nonHRFacilityAmount = 0m;
+
+    Boolean hasReallocation = false;
 
     decimal instuctionHumanResources_Reallocation = 0;
     decimal wages_Reallocation = 0;
@@ -52,20 +54,20 @@ public class FundingCalculator : IFundingCalculator
     decimal operational_Reallocation = 0;
     decimal facility_Reallocation = 0;
 
-    decimal Projected_HRTotal_Reallocation = 0;
-    decimal Projected_HRWagesPaidTimeOff_Reallocation = 0;
-    decimal Projected_HRBenefits_Reallocation = 0;
-    decimal Projected_HREmployerHealthTax_Reallocation = 0;
-    decimal Projected_HRProfessionalDevelopmentHours_Reallocation = 0;
-    decimal Projected_HRProfessionalDevelopmentExpenses_Reallocation = 0;
+    //decimal Projected_HRTotal_Reallocation = 0;
+    //decimal Projected_HRWagesPaidTimeOff_Reallocation = 0;
+    //decimal Projected_HRBenefits_Reallocation = 0;
+    //decimal Projected_HREmployerHealthTax_Reallocation = 0;
+    //decimal Projected_HRProfessionalDevelopmentHours_Reallocation = 0;
+    //decimal Projected_HRProfessionalDevelopmentExpenses_Reallocation = 0;
 
-    decimal Projected_NonHRProgramming_Reallocation = 0;
-    decimal Projected_NonHRAdmistrative_Reallocation = 0;
-    decimal Projected_NonHROperational_Reallocation = 0;
-    decimal Projected_NonHRFacility_Reallocation = 0;
+    //decimal Projected_NonHRProgramming_Reallocation = 0;
+    //decimal Projected_NonHRAdministrative_Reallocation = 0;
+    //decimal Projected_NonHROperational_Reallocation = 0;
+    //decimal Projected_NonHRFacility_Reallocation = 0;
 
     public FundingCalculator(IFundingRepository fundingRepository, Funding funding, IEnumerable<RateSchedule> rateSchedules, 
-        List<D365FundingEnvelope> deserializedFundingAllocationData, ILogger logger)
+        List<D365FundingEnvelope> deserializedFundingReallocationData, ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(rateSchedules);
 
@@ -74,7 +76,7 @@ public class FundingCalculator : IFundingCalculator
         _fundingRepository = fundingRepository;
         _logger = logger;
         _rateSchedule = _rateSchedules.First(sch => sch.Id == _funding?.ofm_rate_schedule?.ofm_rate_scheduleid) ?? throw new InvalidDataException("No Rate Schedule matched.");
-        _deserializedFundingAllocationData = deserializedFundingAllocationData;
+        _deserializedFundingReallocationData = deserializedFundingReallocationData;
     }
 
     private DateTime ApplicationSubmittedOn => _funding.ofm_application!.ofm_summary_submittedon ?? _funding.ofm_application!.createdon ?? new DateTime();
@@ -282,10 +284,11 @@ public class FundingCalculator : IFundingCalculator
             _rateSchedule = _rateSchedules.First(sch => sch.Id == _funding!.ofm_rate_schedule!.ofm_rate_scheduleid);
 
             //Only Consider Reallocations for Active Funding Agreements
-            if (_funding.statuscode == ofm_funding_StatusCode.Active && _deserializedFundingAllocationData != null)
+            if (_funding.statuscode == ofm_funding_StatusCode.Active && _deserializedFundingReallocationData != null)
             {
-                foreach (var fundingAllocation in _deserializedFundingAllocationData)
+                foreach (var fundingAllocation in _deserializedFundingReallocationData)
                 {
+                    hasReallocation = true;
                     if (fundingAllocation.ofm_funding_envelope_to != null)
                     {
                         switch ((int)fundingAllocation.ofm_funding_envelope_to)
@@ -367,6 +370,18 @@ public class FundingCalculator : IFundingCalculator
                 }
             }
 
+            decimal _Projected_HRTotal_Reallocation = hasReallocation == true ? TotalHRRenumeration + EmployerHealthTax + instuctionHumanResources_Reallocation : 0;
+            decimal _Projected_HRWagesPaidTimeOff_Reallocation = hasReallocation == true ? TotalStaffingCost + wages_Reallocation : 0;
+            decimal _Projected_HRBenefits_Reallocation = hasReallocation == true ? TotalProjectedBenefitsCostPerYear + benefits_Reallocation : 0;
+            decimal _Projected_HREmployerHealthTax_Reallocation = hasReallocation == true ? EmployerHealthTax + employerHealthTax_Reallocation : 0;
+            decimal _Projected_HRProfessionalDevelopmentHours_Reallocation = hasReallocation == true ? TotalProfessionalDevelopmentHours + professionalDevelopmentHours_Reallocation : 0;
+            decimal _Projected_HRProfessionalDevelopmentExpenses_Reallocation = hasReallocation == true ? TotalProfessionalDevelopmentExpenses + professionalDevelopmentExpenses_Reallocation : 0;
+
+            decimal _Projected_NonHRProgramming_Reallocation = hasReallocation == true ? AdjustedNonHRProgrammingAmount + programming_Reallocation : 0;
+            decimal _Projected_NonHRAdministrative_Reallocation = hasReallocation == true ? AdjustedNonHRAdministrativeAmount + administrative_Reallocation : 0;
+            decimal _Projected_NonHROperational_Reallocation = hasReallocation == true ? AdjustedNonHROperationalAmount + operational_Reallocation : 0;
+            decimal _Projected_NonHRFacility_Reallocation = hasReallocation == true ? AdjustedNonHRFacilityAmount + facility_Reallocation : 0;
+
             FundingAmounts fundingAmounts = new()
             {
                 //Projected Amounts
@@ -382,18 +397,18 @@ public class FundingCalculator : IFundingCalculator
                 Projected_NonHROperational = AdjustedNonHROperationalAmount,
                 Projected_NonHRFacility = AdjustedNonHRFacilityAmount,
 
-                //Projected Reallocation Amounts
-                Projected_HRTotal_Reallocation = TotalHRRenumeration + EmployerHealthTax + instuctionHumanResources_Reallocation,
-                Projected_HRWagesPaidTimeOff_Reallocation = TotalStaffingCost + wages_Reallocation,
-                Projected_HRBenefits_Reallocation = TotalProjectedBenefitsCostPerYear + benefits_Reallocation,
-                Projected_HREmployerHealthTax_Reallocation = EmployerHealthTax + employerHealthTax_Reallocation,
-                Projected_HRProfessionalDevelopmentHours_Reallocation = TotalProfessionalDevelopmentHours + professionalDevelopmentHours_Reallocation,
-                Projected_HRProfessionalDevelopmentExpenses_Reallocation = TotalProfessionalDevelopmentExpenses + professionalDevelopmentExpenses_Reallocation,
+                //Projected Reallocation Amounts -- Do not show amount if there is no reallocation
+                Projected_HRTotal_Reallocation = _Projected_HRTotal_Reallocation,
+                Projected_HRWagesPaidTimeOff_Reallocation = _Projected_HRWagesPaidTimeOff_Reallocation,
+                Projected_HRBenefits_Reallocation = _Projected_HRBenefits_Reallocation,
+                Projected_HREmployerHealthTax_Reallocation = _Projected_HREmployerHealthTax_Reallocation,
+                Projected_HRProfessionalDevelopmentHours_Reallocation = _Projected_HRProfessionalDevelopmentHours_Reallocation,
+                Projected_HRProfessionalDevelopmentExpenses_Reallocation = _Projected_HRProfessionalDevelopmentExpenses_Reallocation,
 
-                Projected_NonHRProgramming_Reallocation = AdjustedNonHRProgrammingAmount,
-                Projected_NonHRAdmistrative_Reallocation = AdjustedNonHRAdministrativeAmount,
-                Projected_NonHROperational_Reallocation = AdjustedNonHROperationalAmount,
-                Projected_NonHRFacility_Reallocation = AdjustedNonHRFacilityAmount,
+                Projected_NonHRProgramming_Reallocation = _Projected_NonHRProgramming_Reallocation,
+                Projected_NonHRAdministrative_Reallocation = _Projected_NonHRAdministrative_Reallocation,
+                Projected_NonHROperational_Reallocation = _Projected_NonHROperational_Reallocation,
+                Projected_NonHRFacility_Reallocation = _Projected_NonHRFacility_Reallocation,
 
                 //Parent Fees
                 PF_HRWagesPaidTimeOff = TotalParentFees * (TotalStaffingCost / TotalProjectedFundingCost),
@@ -408,16 +423,16 @@ public class FundingCalculator : IFundingCalculator
                 PF_NonHRFacility = TotalParentFees * (AdjustedNonHRFacilityAmount / TotalProjectedFundingCost),
 
                 //Reallocated Parent Fees
-                PF_HRWagesPaidTimeOff_Reallocation = TotalParentFees * (Projected_HRWagesPaidTimeOff_Reallocation / TotalProjectedFundingCost),
-                PF_HRBenefits_Reallocation = TotalParentFees * (Projected_HRBenefits_Reallocation / TotalProjectedFundingCost),
-                PF_HREmployerHealthTax_Reallocation = TotalParentFees * (Projected_HREmployerHealthTax_Reallocation / TotalProjectedFundingCost),
-                PF_HRProfessionalDevelopmentExpenses_Reallocation = TotalParentFees * (Projected_HRProfessionalDevelopmentExpenses_Reallocation / TotalProjectedFundingCost),
-                PF_HRProfessionalDevelopmentHours_Reallocation = TotalParentFees * (Projected_HRProfessionalDevelopmentHours_Reallocation / TotalProjectedFundingCost),
+                PF_HRWagesPaidTimeOff_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_HRWagesPaidTimeOff_Reallocation / TotalProjectedFundingCost) : 0,
+                PF_HRBenefits_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_HRBenefits_Reallocation / TotalProjectedFundingCost) : 0,
+                PF_HREmployerHealthTax_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_HREmployerHealthTax_Reallocation / TotalProjectedFundingCost) : 0,
+                PF_HRProfessionalDevelopmentExpenses_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_HRProfessionalDevelopmentExpenses_Reallocation / TotalProjectedFundingCost) : 0,
+                PF_HRProfessionalDevelopmentHours_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_HRProfessionalDevelopmentHours_Reallocation / TotalProjectedFundingCost) : 0,
 
-                PF_NonHRProgramming_Reallocation = TotalParentFees * (Projected_NonHRProgramming_Reallocation / TotalProjectedFundingCost),
-                PF_NonHRAdmistrative_Reallocation = TotalParentFees * (Projected_NonHRAdmistrative_Reallocation / TotalProjectedFundingCost),
-                PF_NonHROperational_Reallocation = TotalParentFees * (Projected_NonHROperational_Reallocation / TotalProjectedFundingCost),
-                PF_NonHRFacility_Reallocation = TotalParentFees * (Projected_NonHRFacility_Reallocation / TotalProjectedFundingCost),
+                PF_NonHRProgramming_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_NonHRProgramming_Reallocation / TotalProjectedFundingCost) : 0,
+                PF_NonHRAdmistrative_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_NonHRAdministrative_Reallocation / TotalProjectedFundingCost) : 0,
+                PF_NonHROperational_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_NonHROperational_Reallocation / TotalProjectedFundingCost) : 0,
+                PF_NonHRFacility_Reallocation = hasReallocation == true ? TotalParentFees * (_Projected_NonHRFacility_Reallocation / TotalProjectedFundingCost) : 0,
 
                 //Base Amounts Column: auto calculated fields (Base = Projected Amount - Parent Fees)
 
@@ -426,8 +441,8 @@ public class FundingCalculator : IFundingCalculator
                 PF_GrandTotal = TotalParentFees,
 
                 //Reallocation Grand Totals
-                Projected_GrandTotal_Reallocation = TotalProjectedFundingCost,
-                PF_GrandTotal_Reallocation = TotalParentFees,
+                Projected_GrandTotal_Reallocation = hasReallocation == true ? TotalProjectedFundingCost : 0,
+                PF_GrandTotal_Reallocation = hasReallocation == true ? TotalParentFees : 0,
 
                 Adjusted_FTE = AdjustedFTE,
                 CalculatedOn = DateTime.UtcNow
