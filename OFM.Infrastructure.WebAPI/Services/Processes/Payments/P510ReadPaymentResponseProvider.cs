@@ -113,7 +113,7 @@ public class P510ReadPaymentResponseProvider(IOptionsSnapshot<ExternalServices> 
                     </fetch>
                     """;
             var requestUri = $"""
-                         ofm_payments?$select=ofm_paymentid,ofm_name,_ofm_fiscal_year_value,ofm_payment_type,statuscode,ofm_invoice_number,ofm_cas_response,_ofm_application_value&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application,ofm_applicationid),ofm_facility($select=name)&filter=(contains(owningbusinessunit/name, 'OFM') and statuscode eq {(int)ofm_payment_StatusCode.ProcessingPayment}) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
+                         ofm_payments?$select=ofm_paymentid,ofm_name,_ofm_fiscal_year_value,ofm_payment_type,statuscode,ofm_invoice_number,ofm_cas_response,_ofm_application_value&$expand=ofm_fiscal_year($select=ofm_financial_year),ofm_application($select=ofm_application,ofm_applicationid),ofm_facility($select=name)&$filter=(contains(owningbusinessunit/name, 'OFM') and statuscode eq {(int)ofm_payment_StatusCode.ProcessingPayment}) and (ofm_application/ofm_applicationid ne null)&$orderby=ofm_name asc
                          """;
 
             return requestUri;
