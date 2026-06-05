@@ -54,17 +54,17 @@ public class FundingCalculator : IFundingCalculator
     decimal operational_Reallocation = 0;
     decimal facility_Reallocation = 0;
 
-    //decimal Projected_HRTotal_Reallocation = 0;
-    //decimal Projected_HRWagesPaidTimeOff_Reallocation = 0;
-    //decimal Projected_HRBenefits_Reallocation = 0;
-    //decimal Projected_HREmployerHealthTax_Reallocation = 0;
-    //decimal Projected_HRProfessionalDevelopmentHours_Reallocation = 0;
-    //decimal Projected_HRProfessionalDevelopmentExpenses_Reallocation = 0;
+    decimal _Projected_HRTotal_Reallocation;
+    decimal _Projected_HRWagesPaidTimeOff_Reallocation;
+    decimal _Projected_HRBenefits_Reallocation;
+    decimal _Projected_HREmployerHealthTax_Reallocation;
+    decimal _Projected_HRProfessionalDevelopmentHours_Reallocation;
+    decimal _Projected_HRProfessionalDevelopmentExpenses_Reallocation;
 
-    //decimal Projected_NonHRProgramming_Reallocation = 0;
-    //decimal Projected_NonHRAdministrative_Reallocation = 0;
-    //decimal Projected_NonHROperational_Reallocation = 0;
-    //decimal Projected_NonHRFacility_Reallocation = 0;
+    decimal _Projected_NonHRProgramming_Reallocation;
+    decimal _Projected_NonHRAdministrative_Reallocation;
+    decimal _Projected_NonHROperational_Reallocation;
+    decimal _Projected_NonHRFacility_Reallocation;
 
     public FundingCalculator(IFundingRepository fundingRepository, Funding funding, IEnumerable<RateSchedule> rateSchedules, 
         List<D365FundingEnvelope> deserializedFundingReallocationData, ILogger logger)
@@ -370,17 +370,25 @@ public class FundingCalculator : IFundingCalculator
                 }
             }
 
-            decimal _Projected_HRTotal_Reallocation = hasReallocation == true ? TotalHRRenumeration + EmployerHealthTax + instuctionHumanResources_Reallocation : 0;
-            decimal _Projected_HRWagesPaidTimeOff_Reallocation = hasReallocation == true ? TotalStaffingCost + wages_Reallocation : 0;
-            decimal _Projected_HRBenefits_Reallocation = hasReallocation == true ? TotalProjectedBenefitsCostPerYear + benefits_Reallocation : 0;
-            decimal _Projected_HREmployerHealthTax_Reallocation = hasReallocation == true ? EmployerHealthTax + employerHealthTax_Reallocation : 0;
-            decimal _Projected_HRProfessionalDevelopmentHours_Reallocation = hasReallocation == true ? TotalProfessionalDevelopmentHours + professionalDevelopmentHours_Reallocation : 0;
-            decimal _Projected_HRProfessionalDevelopmentExpenses_Reallocation = hasReallocation == true ? TotalProfessionalDevelopmentExpenses + professionalDevelopmentExpenses_Reallocation : 0;
+            _Projected_HRTotal_Reallocation = hasReallocation == true ? TotalHRRenumeration + EmployerHealthTax + instuctionHumanResources_Reallocation : 0;
+            _Projected_HRWagesPaidTimeOff_Reallocation = hasReallocation == true ? TotalStaffingCost + wages_Reallocation : 0;
+            _Projected_HRBenefits_Reallocation = hasReallocation == true ? TotalProjectedBenefitsCostPerYear + benefits_Reallocation : 0;
+            _Projected_HREmployerHealthTax_Reallocation = hasReallocation == true ? EmployerHealthTax + employerHealthTax_Reallocation : 0;
+            _Projected_HRProfessionalDevelopmentHours_Reallocation = hasReallocation == true ? TotalProfessionalDevelopmentHours + professionalDevelopmentHours_Reallocation : 0;
+            _Projected_HRProfessionalDevelopmentExpenses_Reallocation = hasReallocation == true ? TotalProfessionalDevelopmentExpenses + professionalDevelopmentExpenses_Reallocation : 0;
 
-            decimal _Projected_NonHRProgramming_Reallocation = hasReallocation == true ? AdjustedNonHRProgrammingAmount + programming_Reallocation : 0;
-            decimal _Projected_NonHRAdministrative_Reallocation = hasReallocation == true ? AdjustedNonHRAdministrativeAmount + administrative_Reallocation : 0;
-            decimal _Projected_NonHROperational_Reallocation = hasReallocation == true ? AdjustedNonHROperationalAmount + operational_Reallocation : 0;
-            decimal _Projected_NonHRFacility_Reallocation = hasReallocation == true ? AdjustedNonHRFacilityAmount + facility_Reallocation : 0;
+            _Projected_NonHRProgramming_Reallocation = hasReallocation == true ? AdjustedNonHRProgrammingAmount + programming_Reallocation : 0;
+            _Projected_NonHRAdministrative_Reallocation = hasReallocation == true ? AdjustedNonHRAdministrativeAmount + administrative_Reallocation : 0;
+            _Projected_NonHROperational_Reallocation = hasReallocation == true ? AdjustedNonHROperationalAmount + operational_Reallocation : 0;
+            _Projected_NonHRFacility_Reallocation = hasReallocation == true ? AdjustedNonHRFacilityAmount + facility_Reallocation : 0;
+
+            if (hasReallocation == true)
+            {
+                _nonHRProgrammingAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Programming, TotalAdjustedNonHRSpaces, true);
+                _nonHRAdministrativeAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Administration, TotalAdjustedNonHRSpaces, true);
+                _nonHROperationalAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Operational, TotalAdjustedNonHRSpaces, true);
+                _nonHRFacilityAmount = GetNonHRScheduleAmount(OwnershipType, ecc_funding_envelope.Facility, TotalAdjustedNonHRSpaces, true);
+            }
 
             FundingAmounts fundingAmounts = new()
             {
@@ -494,18 +502,32 @@ public class FundingCalculator : IFundingCalculator
     /// <param name="fundingRates"></param>
     /// <param name="adjustedSpaces"></param>
     /// <returns></returns>
-    private IEnumerable<decimal> ComputeRate(IEnumerable<FundingRate> fundingRates, decimal adjustedSpaces)
+    private IEnumerable<decimal> ComputeRate(IEnumerable<FundingRate> fundingRates, decimal adjustedSpaces, Boolean isReallocationCalculation = false)
     {
         foreach (var step in fundingRates)
         {
             if (adjustedSpaces >= step.ofm_spaces_max!.Value)
             {
-                LogStepAction(step, (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1));
-                yield return (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
+                if (isReallocationCalculation != true)
+                {
+                    LogStepAction(step, (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1));
+                }
+                else
+                {
+                    LogStepActionReallocation(step, (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1));
+                }
+                    yield return (step.ofm_spaces_max!.Value - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
             }
             else
             {
-                LogStepAction(step, (adjustedSpaces - step.ofm_spaces_min!.Value + 1));
+                if (isReallocationCalculation == !true)
+                {
+                    LogStepAction(step, (adjustedSpaces - step.ofm_spaces_min!.Value + 1));
+                }
+                else
+                {
+                    LogStepActionReallocation(step, (adjustedSpaces - step.ofm_spaces_min!.Value + 1));
+                }
                 yield return (adjustedSpaces - step.ofm_spaces_min!.Value + 1) * step.ofm_rate!.Value;
             }
         }
@@ -542,7 +564,7 @@ public class FundingCalculator : IFundingCalculator
         }
     }
 
-    private decimal GetNonHRScheduleAmount(ecc_Ownership? ownershipType, ecc_funding_envelope envelope, decimal adjustedSpacesNonHR)
+    private decimal GetNonHRScheduleAmount(ecc_Ownership? ownershipType, ecc_funding_envelope envelope, decimal adjustedSpacesNonHR, Boolean isReallocationCalculation = false)
     {
         FundingRate[] fundingRates =
         [
@@ -553,7 +575,7 @@ public class FundingCalculator : IFundingCalculator
                         .OrderBy(rate => rate.ofm_step)
         ];
 
-        return ComputeRate(fundingRates, adjustedSpacesNonHR).Sum();
+        return ComputeRate(fundingRates, adjustedSpacesNonHR, isReallocationCalculation).Sum();
     }
 
     private void LogStepAction(FundingRate fundingRate, decimal allocatedSpace)
@@ -565,7 +587,37 @@ public class FundingCalculator : IFundingCalculator
                                             Envelope: fundingRate.ofm_nonhr_funding_envelope.GetValueOrDefault().ToString(),
                                             MinSpaces: fundingRate.ofm_spaces_min.GetValueOrDefault(),
                                             MaxSpaces: fundingRate.ofm_spaces_max.GetValueOrDefault(),
-                                            Ownership: _funding.ofm_application!.ofm_summary_ownership!.Value
+                                            Ownership: _funding.ofm_application!.ofm_summary_ownership!.Value,
+                                            Reallocation: false
+                            ));
+    }
+    private void LogStepActionReallocation (FundingRate fundingRate, decimal allocatedSpace)
+    {
+        decimal reallocatedAmount = 0;
+        switch (fundingRate.ofm_nonhr_funding_envelope.GetValueOrDefault().ToString())
+        {
+            case "Programming":
+                reallocatedAmount = _Projected_NonHRProgramming_Reallocation;
+                break;
+            case "Administration":
+                reallocatedAmount = _Projected_NonHRAdministrative_Reallocation;
+                break;
+            case "Operational":
+                reallocatedAmount = _Projected_NonHROperational_Reallocation;
+                break;
+            case "Facility":
+                reallocatedAmount = _Projected_NonHRFacility_Reallocation;
+                break;
+        }
+        NonHRStepActions.Add(new NonHRStepAction(Step: fundingRate.ofm_step.GetValueOrDefault(),
+                                            AllocatedSpaces: Math.Round(allocatedSpace, 2, MidpointRounding.AwayFromZero),
+                                            Rate: Math.Round(fundingRate.ofm_rate.GetValueOrDefault(), 2, MidpointRounding.AwayFromZero),
+                                            Cost: Math.Round(reallocatedAmount, 2, MidpointRounding.AwayFromZero),
+                                            Envelope: fundingRate.ofm_nonhr_funding_envelope.GetValueOrDefault().ToString(),
+                                            MinSpaces: fundingRate.ofm_spaces_min.GetValueOrDefault(),
+                                            MaxSpaces: fundingRate.ofm_spaces_max.GetValueOrDefault(),
+                                            Ownership: _funding.ofm_application!.ofm_summary_ownership!.Value,
+                                            Reallocation: true
                             ));
     }
 
