@@ -60989,6 +60989,7 @@ namespace ECC.Core.DataContext
             public const string ofm_subtitle = "ofm_subtitle";
             public const string ofm_table_name = "ofm_table_name";
             public const string ofm_table_sequence = "ofm_table_sequence";
+            public const string ofm_tool_tip = "ofm_tool_tip";
             public const string ofm_true_child_question_business_rule = "ofm_true_child_question_business_rule";
             public const string overriddencreatedon = "overriddencreatedon";
             public const string ownerid = "ownerid";
@@ -61917,6 +61918,21 @@ namespace ECC.Core.DataContext
             set
             {
                 this.SetAttributeValue("ofm_table_sequence", value);
+            }
+        }
+
+        [Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("ofm_tool_tip")]
+        public string ofm_tool_tip
+        {
+            [System.Diagnostics.DebuggerNonUserCode()]
+            get
+            {
+                return this.GetAttributeValue<string>("ofm_tool_tip");
+            }
+            [System.Diagnostics.DebuggerNonUserCode()]
+            set
+            {
+                this.SetAttributeValue("ofm_tool_tip", value);
             }
         }
 

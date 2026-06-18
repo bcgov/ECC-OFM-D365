@@ -191,6 +191,7 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
                         <attribute name='ofm_source_question_id' />
                         <attribute name='ofm_fixed_data' />
                         <attribute name='ofm_additional_info' />
+                        <attribute name='ofm_tool_tip' />
                         <filter>
                           <condition attribute='ofm_source_question_id' operator='in'>";
             for (var i = 0; i < _questionIdentifier.Length; i++)
@@ -752,7 +753,8 @@ public class P610CreateQuestionProvider(ID365AppUserService appUserService, ID36
                                             {ofm_question.Fields.ofm_fixed_response, getLatestActiveVersion.ofm_fixed_response },
                                             {ofm_question.Fields.ofm_question_id, getLatestActiveVersion.ofm_question_id ?? null},
                                             {ofm_question.Fields.ofm_fixed_data, getLatestActiveVersion.ofm_fixed_data ?? null},
-                                            {ofm_question.Fields.ofm_additional_info, getLatestActiveVersion.ofm_additional_info ?? null}
+                                            {ofm_question.Fields.ofm_additional_info, getLatestActiveVersion.ofm_additional_info ?? null},
+                                            {ofm_question.Fields.ofm_tool_tip, getLatestActiveVersion.ofm_tool_tip ?? null}
                                            }));
                     }
 
