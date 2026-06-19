@@ -124,6 +124,8 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
                                          {_hrQuestionIdsXML}
                                         </condition>
                                       </filter>
+                                      <link-entity name="ofm_section" from="ofm_sectionid" to="ofm_section">
+                                      </link-entity>
                                     </link-entity>
                                     <link-entity name="ofm_question" from="ofm_questionid" to="ofm_header" link-type="outer" alias="header" visible="false">
                                       <attribute name="ofm_question_id" />
