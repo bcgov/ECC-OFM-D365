@@ -65,7 +65,7 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
         }
     }
 
-    public string HRQuestionTemplateUri
+    public string QuestionTemplateUri
     {
         get
         {
@@ -100,7 +100,7 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
         }
     }
 
-    public string HRQuestionResponseUri
+    public string QuestionResponseUri
     {
         get
         {
@@ -125,9 +125,6 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
                                         </condition>
                                       </filter>
                                       <link-entity name="ofm_section" from="ofm_sectionid" to="ofm_section">
-                                        <filter>
-                                          <condition attribute="ofm_section_title" operator="begins-with" value="Human" />
-                                        </filter>
                                       </link-entity>
                                     </link-entity>
                                     <link-entity name="ofm_question" from="ofm_questionid" to="ofm_header" link-type="outer" alias="header" visible="false">
@@ -138,10 +135,10 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
                                 </fetch>
                                 """;
 
-            var previousHRQuestionResponseUri = $"""
+            var previousQuestionResponseUri = $"""
                             ofm_question_responses?fetchXml={WebUtility.UrlEncode(fetchXml)}
                             """.CleanCRLF();
-            return previousHRQuestionResponseUri;
+            return previousQuestionResponseUri;
         }
     }
 
@@ -401,8 +398,8 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
 
         //Get question template for current report template
 
-        var hrQuestionTemplateData = await GetReportDataAsync(HRQuestionTemplateUri);
-        var serializedHRQuestionTemplateData = System.Text.Json.JsonSerializer.Deserialize<List<Question>>(hrQuestionTemplateData.Data, Setup.s_writeOptionsForLogs);
+        var hrQuestionTemplateData = await GetReportDataAsync(QuestionTemplateUri);
+        var serializedQuestionTemplateData = System.Text.Json.JsonSerializer.Deserialize<List<Question>>(hrQuestionTemplateData.Data, Setup.s_writeOptionsForLogs);
 
         List<HttpRequestMessage> questionResponseRequests = [];
 
@@ -411,14 +408,14 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
             var uid = report["ofm_survey_responseid"].ToString();
             _facId = report["_ofm_facility_value"].ToString();
 
-            var previousHRQuestionResponseData = await GetReportDataAsync(HRQuestionResponseUri);
-            var serializedPreviousHRQuestionResponseData = System.Text.Json.JsonSerializer.Deserialize<List<QuestionResponse>>(previousHRQuestionResponseData.Data, Setup.s_writeOptionsForLogs);
+            var previousQuestionResponseData = await GetReportDataAsync(QuestionResponseUri);
+            var serializedPreviousQuestionResponseData = System.Text.Json.JsonSerializer.Deserialize<List<QuestionResponse>>(previousQuestionResponseData.Data, Setup.s_writeOptionsForLogs);
 
-            foreach(var questionResponse in serializedPreviousHRQuestionResponseData)
+            foreach(var questionResponse in serializedPreviousQuestionResponseData)
             {
 
-                var questionTemplateId = $"/ofm_questions({serializedHRQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_question_qid).FirstOrDefault().ofm_questionid})";
-                var headerTemplateId = String.IsNullOrEmpty(questionResponse.ofm_header_qid) ? null:$"/ofm_questions({serializedHRQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_header_qid).FirstOrDefault().ofm_questionid})";
+                var questionTemplateId = $"/ofm_questions({serializedQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_question_qid).FirstOrDefault().ofm_questionid})";
+                var headerTemplateId = String.IsNullOrEmpty(questionResponse.ofm_header_qid) ? null:$"/ofm_questions({serializedQuestionTemplateData?.Where(q => q.ofm_question_id == questionResponse.ofm_header_qid).FirstOrDefault().ofm_questionid})";
 
                 var newQuestionResponse = new JsonObject
                     {
@@ -437,7 +434,7 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
 
         if(questionResponseRequests.Count == 0)
         {
-            _logger.LogInformation(CustomLogEvent.Process, "Cannot find HR questions responses.");
+            _logger.LogInformation(CustomLogEvent.Process, "Cannot find questions responses.");
             return ProcessResult.Completed(ProcessId).SimpleProcessResult;
         }
         try
@@ -464,14 +461,14 @@ public class P615CreateMonthlyReportProvider( IOptionsSnapshot<D365AuthSettings>
         {
             var result = ProcessResult.Failure(ProcessId, questionResponseBatchResult.Errors, questionResponseBatchResult.TotalProcessed, questionResponseBatchResult.TotalRecords);
 
-            _logger.LogError(CustomLogEvent.Process, "Copy HR response process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
+            _logger.LogError(CustomLogEvent.Process, "Copy Question response process finished with an error {error}", JsonValue.Create(result)!.ToJsonString());
 
             return result.SimpleProcessResult;
         }
         }
         catch (Exception ex)
         {
-            _logger.LogError(CustomLogEvent.Process, "Faile to copy HR response isthrowing an error {error}", ex.Message.ToString());
+            _logger.LogError(CustomLogEvent.Process, "Faile to copy Question response isthrowing an error {error}", ex.Message.ToString());
 
         }
         #endregion
