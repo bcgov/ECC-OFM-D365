@@ -589,6 +589,11 @@ public class D365FundingEnvelope
     public int ofm_funding_envelope_to { get; set; }
     [JsonPropertyName("ofm_funding_allocation1.ofm_amount")]
     public decimal ofm_amount { get; set; }
+    [JsonPropertyName("ofm_year_of_agreement")]
+    public int ofm_year_of_agreement { get; set; }
+    [JsonPropertyName("ofm_pdf_funding_allocation_amount_text")]
+    public string? ofm_pdf_funding_allocation_amount_text { get; set; }
+
 }
 
 public class D365Funding
@@ -665,6 +670,80 @@ public class D365Funding
     public string? ofm_funding_number { get; set; }
     [JsonPropertyName("ofm_start_date")]
     public string? ofm_start_date { get; set; }
+    //Monthly Total
+    [JsonPropertyName("ofm_monthly_province_base_funding_y1")]
+    public decimal ofm_monthly_province_base_funding_y1 { get; set; } = 0;
+    [JsonPropertyName("ofm_projected_monthly_parent_fees_y1")]
+    public decimal ofm_projected_monthly_parent_fees_y1 { get; set; } = 0;
+    [JsonPropertyName("ofm_projected_total_monthly_base_funding_y1")]
+    public decimal ofm_projected_total_monthly_base_funding_y1 { get; set; } = 0;
+    //Reallocation fields
+    [JsonPropertyName("ofm_envelope_hr_total_reallo")]
+    public decimal ofm_envelope_hr_total_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_total_reallo_pf")]
+    public decimal ofm_envelope_hr_total_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_total_reallo_proj")]
+    public decimal ofm_envelope_hr_total_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_wages_paidtimeoff_reallo")]
+    public decimal ofm_envelope_hr_wages_paidtimeoff_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_wages_paidtimeoff_reallo_pf")]
+    public decimal ofm_envelope_hr_wages_paidtimeoff_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_wages_paidtimeoff_reallo_proj")]
+    public decimal ofm_envelope_hr_wages_paidtimeoff_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_benefits_reallo")]
+    public decimal ofm_envelope_hr_benefits_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_benefits_reallo_pf")]
+    public decimal ofm_envelope_hr_benefits_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_benefits_reallo_proj")]
+    public decimal ofm_envelope_hr_benefits_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_employerhealthtax_reallo")]
+    public decimal ofm_envelope_hr_employerhealthtax_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_employerhealthtax_reallo_pf")]
+    public decimal ofm_envelope_hr_employerhealthtax_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_employerhealthtax_reallo_proj")]
+    public decimal ofm_envelope_hr_employerhealthtax_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevhours_reallo")]
+    public decimal ofm_envelope_hr_prodevhours_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevhours_reallo_pf")]
+    public decimal ofm_envelope_hr_prodevhours_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevhours_reallo_proj")]
+    public decimal ofm_envelope_hr_prodevhours_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevexpenses_reallo")]
+    public decimal ofm_envelope_hr_prodevexpenses_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevexpenses_reallo_pf")]
+    public decimal ofm_envelope_hr_prodevexpenses_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_hr_prodevexpenses_reallo_proj")]
+    public decimal ofm_envelope_hr_prodevexpenses_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_programming_reallo")]
+    public decimal ofm_envelope_programming_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_programming_reallo_pf")]
+    public decimal ofm_envelope_programming_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_programming_reallo_proj")]
+    public decimal ofm_envelope_programming_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_administrative_reallo")]
+    public decimal ofm_envelope_administrative_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_administrative_reallo_pf")]
+    public decimal ofm_envelope_administrative_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_administrative_reallo_proj")]
+    public decimal ofm_envelope_administrative_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_operational_reallo")]
+    public decimal ofm_envelope_operational_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_operational_reallo_pf")]
+    public decimal ofm_envelope_operational_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_operational_reallo_proj")]
+    public decimal ofm_envelope_operational_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_facility_reallo")]
+    public decimal ofm_envelope_facility_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_facility_reallo_pf")]
+    public decimal ofm_envelope_facility_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_facility_reallo_proj")]
+    public decimal ofm_envelope_facility_reallo_proj { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_grand_total_reallo")]
+    public decimal ofm_envelope_grand_total_reallo { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_grand_total_reallo_pf")]
+    public decimal ofm_envelope_grand_total_reallo_pf { get; set; } = 0;
+    [JsonPropertyName("ofm_envelope_grand_total_reallo_proj")]
+    public decimal ofm_envelope_grand_total_reallo_proj { get; set; } = 0;
 }
 public class D365Licence
 {

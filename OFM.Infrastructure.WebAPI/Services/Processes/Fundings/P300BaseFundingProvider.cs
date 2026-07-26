@@ -73,6 +73,35 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
         }
     }
 
+    public string AllRelatedFundings
+    {
+        get
+        {
+            var allRelatedFundingFetchXML = $"""
+                                <fetch>
+                                  <entity name="ofm_funding">
+                                    <attribute name="ofm_fundingid" />
+                                    <attribute name="ofm_start_date" />
+                                    <attribute name="ofm_end_date" />
+                                    <attribute name="ofm_version_number" />
+                                    <attribute name="statecode" />
+                                    <attribute name="statuscode" />
+                                    <filter>
+                                      <condition attribute="ofm_application" operator="eq" value="{formattedApplicationID}" />
+                                    </filter>
+                                    <order attribute="ofm_version_number" />
+                                  </entity>
+                                </fetch>
+                                """;
+
+            var allRelatedFundingUri = $"""
+                         ofm_fundings?fetchXml={WebUtility.UrlEncode(allRelatedFundingFetchXML)}
+                         """;
+
+            return allRelatedFundingUri;
+        }
+    }
+
     public async Task<ProcessData> GetDataAsync()
     {
         _logger!.LogDebug(CustomLogEvent.Process, "Calling GetData of {nameof}", nameof(P300BaseFundingProvider));
@@ -107,6 +136,39 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
 
         return await Task.FromResult(_data);
     }
+    public async Task<ProcessData> GetAllRelatedFundingDataAsync()
+    {
+        HttpResponseMessage response = new HttpResponseMessage();
+
+        _logger.LogDebug(CustomLogEvent.Process, "Calling GetAllRelatedFundingDataAsync");
+
+        response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, AllRelatedFundings, formatted: true, isProcess: true);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogError(CustomLogEvent.Process, "Failed to retrieve Funding data with the following server error {responseBody}", responseBody.CleanLog());
+
+            return await Task.FromResult(new ProcessData(string.Empty));
+        }
+
+        var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
+
+        JsonNode d365Result = string.Empty;
+        if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
+        {
+            if (currentValue?.AsArray().Count == 0)
+            {
+                _logger.LogInformation(CustomLogEvent.Process, "No Funding Allocation data found with query {requestUri}", AllRelatedFundings.CleanLog());
+            }
+            d365Result = currentValue!;
+        }
+
+        _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
+
+        return await Task.FromResult(new ProcessData(d365Result));
+    }
+
     public async Task<ProcessData> GetFundingAllocationDataAsync()
     {
         HttpResponseMessage response = new HttpResponseMessage();
@@ -118,7 +180,7 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            _logger.LogError(CustomLogEvent.Process, "Failed to retrieve Funding Allocation data to send notification with the following server error {responseBody}", responseBody.CleanLog());
+            _logger.LogError(CustomLogEvent.Process, "Failed to retrieve Funding Allocation data with the following server error {responseBody}", responseBody.CleanLog());
 
             return await Task.FromResult(new ProcessData(string.Empty));
         }
@@ -140,19 +202,45 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
         return await Task.FromResult(new ProcessData(d365Result));
     }
 
-
     public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
     {
         Funding? _funding = await _fundingRepository!.GetFundingByIdAsync(new Guid(processParams.Funding!.FundingId!));
         IEnumerable<RateSchedule> _rateSchedules = await _fundingRepository!.LoadRateSchedulesAsync();
 
-        //Determine if Funding is in Year 1, 2 or 3
-        DateTime fundingStartDate = _funding.ofm_start_date ?? DateTime.UtcNow;
-        DateTime fundingStartDatePST = fundingStartDate.ToLocalPST().Date;
+        fundingID = new Guid(processParams.Funding!.FundingId!);
+        Guid applicationID = _funding!.ofm_application!.Id;
+        if (applicationID != Guid.Empty) {
+            formattedApplicationID = applicationID.ToString("D");
+        }
 
-        DateTime year1 = fundingStartDatePST.AddYears(1).AddDays(-1);
-        DateTime year2 = fundingStartDatePST.AddYears(2).AddDays(-1);
-        DateTime year3 = fundingStartDatePST.AddYears(3).AddDays(-1);
+        //To determine if Funding is in Year 1, 2 or 3
+        var allfundingData = await GetAllRelatedFundingDataAsync();
+        List<Funding> deserializedAllFundingData = null;
+        DateTime originalFundingStartDate = DateTime.UtcNow;
+        Guid latestActiveFundingID = Guid.Empty;
+
+        if (allfundingData != null && allfundingData.Data != null)
+        {
+            deserializedAllFundingData = JsonSerializer.Deserialize<List<Funding>>(allfundingData.Data.ToString());
+            foreach (var fundingRecord in deserializedAllFundingData)
+            {
+                if (fundingRecord.ofm_version_number == 0 && fundingRecord.ofm_start_date != null)
+                {
+                    //Original Funding Record
+                    originalFundingStartDate = (DateTime)fundingRecord.ofm_start_date;
+                }
+                if (fundingRecord.statuscode == ofm_funding_StatusCode.Active && latestActiveFundingID == Guid.Empty)
+                {
+                    latestActiveFundingID = fundingRecord.Id;
+                }
+            }
+        }
+
+        DateTime originalFundingStartDatePST = originalFundingStartDate.ToLocalPST().Date;
+
+        DateTime year1 = originalFundingStartDatePST.AddYears(1).AddDays(-1);
+        DateTime year2 = originalFundingStartDatePST.AddYears(2).AddDays(-1);
+        DateTime year3 = originalFundingStartDatePST.AddYears(3).AddDays(-1);
 
         DateTime currentDatePST = DateTime.UtcNow.ToLocalPST().Date;
 
@@ -173,15 +261,9 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
             fundingYear = 0;
         }
 
-        fundingID = new Guid(processParams.Funding!.FundingId!);
-        Guid applicationID = _funding!.ofm_application!.Id;
-        if (applicationID != Guid.Empty) {
-            formattedApplicationID = applicationID.ToString("D");
-        }
-
         var fundingAllocationData = await GetFundingAllocationDataAsync();
         List<D365FundingEnvelope> deserializedFundingReallocationData = null;
-        if (fundingAllocationData !=null && fundingAllocationData.Data != null)
+        if (fundingAllocationData !=null && fundingAllocationData.Data != null && fundingID == latestActiveFundingID)
         {
             deserializedFundingReallocationData = JsonSerializer.Deserialize<List<D365FundingEnvelope>>(fundingAllocationData.Data.ToString());
         }

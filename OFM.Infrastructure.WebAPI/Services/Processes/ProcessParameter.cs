@@ -227,6 +227,8 @@ public record ProcessParameter
         public string? fundingVersionNumber { get; set; }
         [property: JsonPropertyName("organizationName")]
         public string? organizationName { get; set; }
+        [property: JsonPropertyName("applicationId")]
+        public Guid? applicationId { get; set; }
     }
     #endregion
 }
