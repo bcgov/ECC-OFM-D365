@@ -51,6 +51,7 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
                                     <filter>
                                       <condition attribute="ofm_applicationid" operator="eq" value="{formattedApplicationID}" />
                                       <condition attribute="statecode" operator="eq" value="0" />
+                                      <condition attribute="statuscode" operator="eq" value="1" />
                                       <condition attribute="ofm_year_of_agreement" operator="eq" value="{fundingYear}" />
                                     </filter>
                                     <link-entity name="ofm_funding_allocation" from="ofm_funding_envelop" to="ofm_funding_envelope_changeid" link-type="inner">
