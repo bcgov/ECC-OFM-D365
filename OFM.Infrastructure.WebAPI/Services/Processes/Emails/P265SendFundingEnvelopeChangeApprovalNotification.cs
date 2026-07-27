@@ -109,6 +109,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                     <attribute name="ofm_envelope_grand_total_reallo" />
                     <attribute name="ofm_envelope_grand_total_reallo_pf" />
                     <attribute name="ofm_envelope_grand_total_reallo_proj" />
+                    <attribute name="ofm_monthly_province_base_funding_y1" />
+                    <attribute name="ofm_projected_monthly_parent_fees_y1" />
+                    <attribute name="ofm_projected_total_monthly_base_funding_y1" />
                     <filter>
                       <condition attribute="ofm_fundingid" operator="eq" value="{_processParams.FundingEnvelopeChange?.fundingId.ToString()?.Replace("{", "").Replace("}", "")}" />
                     </filter>
@@ -136,8 +139,9 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                                     <attribute name="ofm_version_number" />
                                     <attribute name="statecode" />
                                     <attribute name="statuscode" />
+                                    <attribute name="ofm_funding_number" />
                                     <filter>
-                                      <condition attribute="ofm_application" operator="eq" value="{_processParams.FundingEnvelopeChange?.applicationId.ToString()?.Replace("{", "").Replace("}", "")}" />
+                                      <condition attribute="ofm_application" operator="eq" value="{_processParams.Application.applicationId.ToString()?.Replace("{", "").Replace("}", "")}" />
                                       <condition attribute="ofm_version_number" operator="eq" value="0" />
                                     </filter>
                                   </entity>
@@ -162,7 +166,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                                     <attribute name="ofm_year_of_agreement" />
                                     <attribute name="ofm_pdf_funding_allocation_amount_text" />
                                     <filter>
-                                      <condition attribute="ofm_funding_envelope_changeid" operator="eq" value="{_processParams.FundingEnvelopeChange?.applicationId.ToString()?.Replace("{", "").Replace("}", "")}" />
+                                      <condition attribute="ofm_funding_envelope_changeid" operator="eq" value="{_processParams.FundingEnvelopeChange.fundingEnvelopeChangeId.ToString()?.Replace("{", "").Replace("}", "")}" />
                                     </filter>
                                   </entity>
                                 </fetch>
@@ -175,32 +179,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
                 return fundingEnvelopeFundingUri;
             }
         }
-        //private string RetrieveFundingAllocation
-        //{
-        //    get
-        //    {
-        //        // Note: FetchXMl limit is 5000 records per request
-        //        var fetchXml = $"""
-        //        <fetch>
-        //          <entity name="ofm_funding_allocation">
-        //            <attribute name="statecode" />
-        //            <attribute name="ofm_funding_envelope_from" />
-        //            <attribute name="ofm_funding_envelope_to" />
-        //            <attribute name="ofm_amount" />
-        //            <filter>
-        //              <condition attribute="ofm_funding_envelop" operator="eq" value="{_processParams.FundingEnvelopeChange?.fundingEnvelopeChangeId.ToString()?.Replace("{", "").Replace("}", "")}" />
-        //              <condition attribute="statecode" operator="eq" value="0" />
-        //            </filter>
-        //          </entity>
-        //        </fetch>
-        //        """;
-
-        //        var requestUri = $"""
-        //                 ofm_funding_allocations?fetchXml={WebUtility.UrlEncode(fetchXml)}
-        //                 """;
-        //        return requestUri.CleanCRLF();
-        //    }
-        //}
 
         /// <summary>
         /// To frame ContactRequestUri
@@ -329,39 +307,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             return await Task.FromResult(new ProcessData(d365Result));
         }
 
-        //public async Task<ProcessData> GetFundingAllocationDataAsync()
-        //{
-        //    HttpResponseMessage response = new HttpResponseMessage();
-
-        //    _logger.LogDebug(CustomLogEvent.Process, "Calling RetrieveFundingAllocation");
-
-        //    response = await _d365webapiservice.SendRetrieveRequestAsync(_appUserService.AZSystemAppUser, RetrieveFundingAllocation, formatted: true, isProcess: true);
-
-        //    if (!response.IsSuccessStatusCode)
-        //    {
-        //        var responseBody = await response.Content.ReadAsStringAsync();
-        //        _logger.LogError(CustomLogEvent.Process, "Failed to retrieve Funding Allocation data to send notification with the following server error {responseBody}", responseBody.CleanLog());
-
-        //        return await Task.FromResult(new ProcessData(string.Empty));
-        //    }
-
-        //    var jsonObject = await response.Content.ReadFromJsonAsync<JsonObject>();
-
-        //    JsonNode d365Result = string.Empty;
-        //    if (jsonObject?.TryGetPropertyValue("value", out var currentValue) == true)
-        //    {
-        //        if (currentValue?.AsArray().Count == 0)
-        //        {
-        //            _logger.LogInformation(CustomLogEvent.Process, "No Funding Allocation data found with query {requestUri}", RetrieveFundingAllocation.CleanLog());
-        //        }
-        //        d365Result = currentValue!;
-        //    }
-
-        //    _logger.LogDebug(CustomLogEvent.Process, "Query Result {queryResult}", d365Result.ToString().CleanLog());
-
-        //    return await Task.FromResult(new ProcessData(d365Result));
-        //}
-
         public async Task<JsonObject> RunProcessAsync(ID365AppUserService appUserService, ID365WebApiService d365WebApiService, ProcessParameter processParams)
         {
             _processParams = processParams;
@@ -379,98 +324,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             var fundingRecord = JsonSerializer.Deserialize<List<D365Funding>>(fundingData.Data.ToString());
             var originalFundingRecord = JsonSerializer.Deserialize<List<D365Funding>>(originalFundingData.Data.ToString());
             var fundingEnvelopeRecord = JsonSerializer.Deserialize<List<D365FundingEnvelope>>(fundingEnvelope.Data.ToString());
-
-            //var fundingAllocationData = await GetFundingAllocationDataAsync();
-
-            //if ({ _processParams.FundingEnvelopeChange?.applicationId.ToString()?.Replace("{", "").Replace("}", "")} == null || fundingAllocationData.Data == null)
-            //{
-            //    return ProcessResult.Completed(ProcessId).SimpleProcessResult;
-            //}
-
-            //decimal instuctionHumanResources = 0;
-            //decimal wages = 0;
-            //decimal benefits = 0;
-            //decimal employerHealthTax = 0;
-            //decimal professionalDevelopmentHours = 0;
-            //decimal professionalDevelopmentExpenses = 0;
-            //decimal programming = 0;
-            //decimal administrative = 0;
-            //decimal operational = 0;
-            //decimal facility = 0;
-
-            //var deserializedFundingAllocationData = JsonSerializer.Deserialize<List<D365FundingEnvelope>>(fundingAllocationData.Data.ToString());
-
-            //foreach (var fundingAllocation in deserializedFundingAllocationData)
-            //{
-            //    if (fundingAllocation.ofm_funding_envelope_to != null) 
-            //    {
-            //        switch ((int)fundingAllocation.ofm_funding_envelope_to)
-            //        {
-            //            //Adding 'TO' envelope
-            //            case 1:
-            //                wages += fundingAllocation.ofm_amount;
-            //                break;
-            //            case 2:
-            //                benefits += fundingAllocation.ofm_amount;
-            //                break;
-            //            case 3:
-            //                employerHealthTax += fundingAllocation.ofm_amount;
-            //                break;
-            //            case 4:
-            //                professionalDevelopmentHours += fundingAllocation.ofm_amount;
-            //                break;
-            //            case 5:
-            //                professionalDevelopmentExpenses += fundingAllocation.ofm_amount;
-            //                break;
-            //            case 6:
-            //                programming += fundingAllocation.ofm_amount;
-            //                break;
-            //            case 7:
-            //                administrative += fundingAllocation.ofm_amount;
-            //                break;
-            //            case 8:
-            //                operational += fundingAllocation.ofm_amount;
-            //                break;
-            //            case 9:
-            //                facility += fundingAllocation.ofm_amount;
-            //                break;
-            //        }
-            //    }
-            //    if (fundingAllocation.ofm_funding_envelope_from != null)
-            //    {
-            //        switch ((int)fundingAllocation.ofm_funding_envelope_from)
-            //        {
-            //            //Subtracting 'FROM' envelope
-            //            case 1:
-            //                wages -= fundingAllocation.ofm_amount;
-            //                break;
-            //            case 2:
-            //                benefits -= fundingAllocation.ofm_amount;
-            //                break;
-            //            case 3:
-            //                employerHealthTax -= fundingAllocation.ofm_amount;
-            //                break;
-            //            case 4:
-            //                professionalDevelopmentHours -= fundingAllocation.ofm_amount;
-            //                break;
-            //            case 5:
-            //                professionalDevelopmentExpenses -= fundingAllocation.ofm_amount;
-            //                break;
-            //            case 6:
-            //                programming -= fundingAllocation.ofm_amount;
-            //                break;
-            //            case 7:
-            //                administrative -= fundingAllocation.ofm_amount;
-            //                break;
-            //            case 8:
-            //                operational -= fundingAllocation.ofm_amount;
-            //                break;
-            //            case 9:
-            //                facility -= fundingAllocation.ofm_amount;
-            //                break;
-            //        }
-            //    }
-            //}
 
             Guid primaryContact = _processParams.FundingEnvelopeChange.primaryContactId != null ? (Guid)_processParams.FundingEnvelopeChange.primaryContactId : Guid.Empty;
             Guid requestorContact = _processParams.FundingEnvelopeChange.requestorContactId != null ? (Guid)_processParams.FundingEnvelopeChange.requestorContactId : Guid.Empty;
@@ -537,51 +390,6 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             emailBody = emailBody?.Replace("[StartDate]", startDate.ToString("MMMM dd, yyyy"));
             emailBody = emailBody?.Replace("[EndDate]", endDate.ToString("MMMM dd, yyyy"));
             emailBody = emailBody?.Replace("[FundingAllocation]", fundingEnvelopeRecord.FirstOrDefault().ofm_pdf_funding_allocation_amount_text);
-
-
-            //instuctionHumanResources = wages + benefits + employerHealthTax + professionalDevelopmentHours + professionalDevelopmentExpenses;
-
-            ////Envelopment Change only impacts 'Annual Base Funding' and 'Annual Total Funding for Core Services' column
-
-            //decimal wages_base = wages + fundingRecord.FirstOrDefault().ofm_envelope_hr_wages_paidtimeoff;
-            //decimal wages_pf = fundingRecord.FirstOrDefault().ofm_envelope_hr_wages_paidtimeoff_pf;
-            //decimal wages_proj = wages + fundingRecord.FirstOrDefault().ofm_envelope_hr_wages_paidtimeoff_proj;
-
-            //decimal benefits_base = benefits + fundingRecord.FirstOrDefault().ofm_envelope_hr_benefits;
-            //decimal benefits_pf = fundingRecord.FirstOrDefault().ofm_envelope_hr_benefits_pf;
-            //decimal benefits_proj = benefits + fundingRecord.FirstOrDefault().ofm_envelope_hr_benefits_proj;
-
-            //decimal employerHealthTax_base = employerHealthTax + fundingRecord.FirstOrDefault().ofm_envelope_hr_employerhealthtax;
-            //decimal employerHealthTax_pf = fundingRecord.FirstOrDefault().ofm_envelope_hr_employerhealthtax_pf;
-            //decimal employerHealthTax_proj = employerHealthTax + fundingRecord.FirstOrDefault().ofm_envelope_hr_employerhealthtax_proj;
-
-            //decimal professionalDevelopmentHours_base = professionalDevelopmentHours + fundingRecord.FirstOrDefault().ofm_envelope_hr_prodevhours;
-            //decimal professionalDevelopmentHours_pf = fundingRecord.FirstOrDefault().ofm_envelope_hr_prodevhours_pf;
-            //decimal professionalDevelopmentHours_proj = professionalDevelopmentHours + fundingRecord.FirstOrDefault().ofm_envelope_hr_prodevhours_proj;
-
-            //decimal professionalDevelopmentExpenses_base = professionalDevelopmentExpenses + fundingRecord.FirstOrDefault().ofm_envelope_hr_prodevexpenses;
-            //decimal professionalDevelopmentExpenses_pf = fundingRecord.FirstOrDefault().ofm_envelope_hr_prodevexpenses_pf;
-            //decimal professionalDevelopmentExpenses_proj = professionalDevelopmentExpenses + fundingRecord.FirstOrDefault().ofm_envelope_hr_prodevexpenses_proj;
-
-            //decimal programming_base = programming + fundingRecord.FirstOrDefault().ofm_envelope_programming;
-            //decimal programming_pf = fundingRecord.FirstOrDefault().ofm_envelope_programming_pf;
-            //decimal programming_proj = programming + fundingRecord.FirstOrDefault().ofm_envelope_programming_proj;
-
-            //decimal administrative_base = administrative + fundingRecord.FirstOrDefault().ofm_envelope_administrative;
-            //decimal administrative_pf = fundingRecord.FirstOrDefault().ofm_envelope_administrative_pf;
-            //decimal administrative_proj = administrative + fundingRecord.FirstOrDefault().ofm_envelope_administrative_proj;
-
-            //decimal operational_base = operational + fundingRecord.FirstOrDefault().ofm_envelope_operational;
-            //decimal operational_pf = fundingRecord.FirstOrDefault().ofm_envelope_operational_pf;
-            //decimal operational_proj = operational + fundingRecord.FirstOrDefault().ofm_envelope_operational_proj;
-
-            //decimal facility_base = facility + fundingRecord.FirstOrDefault().ofm_envelope_facility;
-            //decimal facility_pf = fundingRecord.FirstOrDefault().ofm_envelope_facility_pf;
-            //decimal facility_proj = facility + fundingRecord.FirstOrDefault().ofm_envelope_facility_proj;
-
-            //decimal instuctionHumanResources_base = instuctionHumanResources + fundingRecord.FirstOrDefault().ofm_envelope_hr_total;
-            //decimal instuctionHumanResources_pf = fundingRecord.FirstOrDefault().ofm_envelope_hr_total_pf;
-            //decimal instuctionHumanResources_proj = instuctionHumanResources + fundingRecord.FirstOrDefault().ofm_envelope_hr_total_proj;
 
             emailBody = emailBody?.Replace("ofm_envelope_hr_wages_paidtimeoff}", fundingRecord.FirstOrDefault()?.ofm_envelope_hr_wages_paidtimeoff.ToString("N2", CultureInfo.InvariantCulture));
             emailBody = emailBody?.Replace("ofm_envelope_hr_wages_paidtimeoff_pf", fundingRecord.FirstOrDefault()?.ofm_envelope_hr_wages_paidtimeoff_pf.ToString("N2", CultureInfo.InvariantCulture));
