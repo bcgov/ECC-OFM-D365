@@ -90,7 +90,7 @@ public class P300BaseFundingProvider(ID365AppUserService appUserService, ID365We
                                     <filter>
                                       <condition attribute="ofm_application" operator="eq" value="{formattedApplicationID}" />
                                     </filter>
-                                    <order attribute="ofm_version_number" />
+                                    <order attribute="ofm_version_number" descending="true" />
                                   </entity>
                                 </fetch>
                                 """;
