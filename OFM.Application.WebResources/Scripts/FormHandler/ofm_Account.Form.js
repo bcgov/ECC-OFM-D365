@@ -160,7 +160,8 @@ OFM.Account.OrgFacility.Form = {
         if (typeof (postalCode) != "undefined" && postalCode != null) {
             postalCode = postalCode.toString().trim().toUpperCase();
 
-            var regexp_ca = new RegExp("^(?!.*[DFIOQU])[A-VXY][0-9][A-Z] ?[0-9][A-Z][0-9]$");
+            //var regexp_ca = new RegExp("^(?!.*[DFIOQU])[A-VXY][0-9][A-Z] ?[0-9][A-Z][0-9]$");
+            var regexp_ca = new RegExp("^[A-Z][0-9][A-Z] ?[0-9][A-Z][0-9]$");
             var regexp_us = new RegExp("^[0-9]{5}(?:-[0-9]{4})?$");
 
             if (regexp_ca.test(postalCode))                // check for Canadian postal code
@@ -169,13 +170,13 @@ OFM.Account.OrgFacility.Form = {
                 //formContext.getAttribute(postalCodeLogicalName).setValue(postalCode.substr(0,3) + " " + postalCode.substr(postalCode.length-3,3));                
                 formContext.getAttribute(postalCodeLogicalName).setValue(postalCode.substr(0, 3) + postalCode.substr(postalCode.length - 3, 3));
             }
-            else if (regexp_us.test(postalCode))            // check for US ZIP code
-            {
-                formContext.getControl(postalCodeLogicalName).clearNotification("999");
-                formContext.getAttribute(postalCodeLogicalName).setValue(postalCode.replace(" ", "-"));
-            }
+            //else if (regexp_us.test(postalCode))            // check for US ZIP code
+            //{
+            //    formContext.getControl(postalCodeLogicalName).clearNotification("999");
+            //    formContext.getAttribute(postalCodeLogicalName).setValue(postalCode.replace(" ", "-"));
+            //}
             else {
-                formContext.getControl(postalCodeLogicalName).setNotification("Postal Code Format Validation fails. Please enter correct postal code", "999");
+                formContext.getControl(postalCodeLogicalName).setNotification("Incorrect Postal Code Format. Canadian Postal Code should be in A1A1A1 alphanumeric format.", "999");
             }
         }
         else {
