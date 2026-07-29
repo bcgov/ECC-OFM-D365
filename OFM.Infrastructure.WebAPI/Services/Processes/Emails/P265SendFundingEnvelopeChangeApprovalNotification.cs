@@ -369,11 +369,16 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Emails
             
             string? baseFundingNumber = originalFundingRecord.FirstOrDefault()?.ofm_funding_number?.ToString();
             string? originalFundingStartDateString = originalFundingRecord.FirstOrDefault()?.ofm_start_date.ToString();
-            DateTime originalFundingStartDate = DateTime.UtcNow;
+            DateTime originalFundingStartDate = new DateTime();
 
-            if (DateTime.TryParseExact(originalFundingStartDateString, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+            if (DateTime.TryParseExact(originalFundingStartDateString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
             {
                 originalFundingStartDate = result;
+            }
+            else
+            {
+                return ProcessResult.Failure(ProcessId, new String[] { "Unable to originalFundingStartDate" }, 0, 0).SimpleProcessResult;
+
             }
 
             string? organizationName = _processParams.FundingEnvelopeChange.organizationName;
