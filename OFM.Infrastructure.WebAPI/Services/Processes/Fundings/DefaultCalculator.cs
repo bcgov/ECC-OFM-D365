@@ -1,4 +1,7 @@
-﻿using OFM.Infrastructure.WebAPI.Models.Fundings;
+﻿using OFM.Infrastructure.WebAPI.Models;
+using OFM.Infrastructure.WebAPI.Models.Fundings;
+using System.Collections.Generic;
+using LicenceDetail = OFM.Infrastructure.WebAPI.Models.Fundings.LicenceDetail;
 
 namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 
@@ -10,7 +13,7 @@ namespace OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
 /// <param name="funding"></param>
 /// <param name="rateSchedules"></param>
 /// <param name="logger"></param>
-sealed class DefaultCalculator(IFundingRepository fundingRepository, Funding funding, IEnumerable<RateSchedule> rateSchedules, ILogger logger) : FundingCalculator(fundingRepository, funding, rateSchedules, logger)
+sealed class DefaultCalculator(IFundingRepository fundingRepository, Funding funding, IEnumerable<RateSchedule> rateSchedules, ILogger logger) : FundingCalculator(fundingRepository, funding, rateSchedules, null, logger)
 {
     public override IEnumerable<LicenceDetail> LicenceDetails
     {

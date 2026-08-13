@@ -593,7 +593,51 @@ public class FundingRepository(ID365AppUserService appUserService, ID365WebApiSe
             ofm_envelope_grand_total_proj = fm.Projected_GrandTotal,
             ofm_envelope_grand_total_pf = fm.PF_GrandTotal,
             ofm_envelope_grand_total = fm.Base_GrandTotal,
-            
+
+            //Projected Reallocation Amounts
+            ofm_envelope_hr_total_reallo_proj = fm.Projected_HRTotal_Reallocation,
+            ofm_envelope_hr_wages_paidtimeoff_reallo_proj = fm.Projected_HRWagesPaidTimeOff_Reallocation,
+            ofm_envelope_hr_benefits_reallo_proj = fm.Projected_HRBenefits_Reallocation,
+            ofm_envelope_hr_employerhealthtax_reallo_proj = fm.Projected_HREmployerHealthTax_Reallocation,
+            ofm_envelope_hr_prodevhours_reallo_proj = fm.Projected_HRProfessionalDevelopmentHours_Reallocation,
+            ofm_envelope_hr_prodevexpenses_reallo_proj = fm.Projected_HRProfessionalDevelopmentExpenses_Reallocation,
+
+            ofm_envelope_programming_reallo_proj = fm.Projected_NonHRProgramming_Reallocation,
+            ofm_envelope_administrative_reallo_proj = fm.Projected_NonHRAdministrative_Reallocation,
+            ofm_envelope_operational_reallo_proj = fm.Projected_NonHROperational_Reallocation,
+            ofm_envelope_facility_reallo_proj = fm.Projected_NonHRFacility_Reallocation,
+
+            //Reallocation Parent Fees
+            ofm_envelope_hr_total_reallo_pf = fm.PF_HRTotal_Reallocation,
+            ofm_envelope_hr_wages_paidtimeoff_reallo_pf = fm.PF_HRWagesPaidTimeOff_Reallocation,
+            ofm_envelope_hr_benefits_reallo_pf = fm.PF_HRBenefits_Reallocation,
+            ofm_envelope_hr_employerhealthtax_reallo_pf = fm.PF_HREmployerHealthTax_Reallocation,
+            ofm_envelope_hr_prodevexpenses_reallo_pf = fm.PF_HRProfessionalDevelopmentExpenses_Reallocation,
+            ofm_envelope_hr_prodevhours_reallo_pf = fm.PF_HRProfessionalDevelopmentHours_Reallocation,
+
+            ofm_envelope_programming_reallo_pf = fm.PF_NonHRProgramming_Reallocation,
+            ofm_envelope_administrative_reallo_pf = fm.PF_NonHRAdmistrative_Reallocation,
+            ofm_envelope_operational_reallo_pf = fm.PF_NonHROperational_Reallocation,
+            ofm_envelope_facility_reallo_pf = fm.PF_NonHRFacility_Reallocation,
+
+            //Reallocation Base Amounts
+            ofm_envelope_hr_total_reallo = fm.Base_HRTotal_Reallocation,
+            ofm_envelope_hr_wages_paidtimeoff_reallo = fm.Base_HRWagesPaidTimeOff_Reallocation,
+            ofm_envelope_hr_benefits_reallo = fm.Base_HRBenefits_Reallocation,
+            ofm_envelope_hr_employerhealthtax_reallo = fm.Base_HREmployerHealthTax_Reallocation,
+            ofm_envelope_hr_prodevhours_reallo = fm.Base_HRProfessionalDevelopmentHours_Reallocation,
+            ofm_envelope_hr_prodevexpenses_reallo = fm.Base_HRProfessionalDevelopmentExpenses_Reallocation,
+
+            ofm_envelope_programming_reallo = fm.Base_NonHRProgramming_Reallocation,
+            ofm_envelope_administrative_reallo = fm.Base_NonHRAdmistrative_Reallocation,
+            ofm_envelope_operational_reallo = fm.Base_NonHROperational_Reallocation,
+            ofm_envelope_facility_reallo = fm.Base_NonHRFacility_Reallocation,
+
+            //Reallocation Grand Totals
+            ofm_envelope_grand_total_reallo_proj = fm.Projected_GrandTotal_Reallocation,
+            ofm_envelope_grand_total_reallo_pf = fm.PF_GrandTotal_Reallocation,
+            ofm_envelope_grand_total_reallo = fm.Base_GrandTotal_Reallocation,
+
             ofm_calculated_on = fm.CalculatedOn,
             ofm_adjusted_fte=fm.Adjusted_FTE
            

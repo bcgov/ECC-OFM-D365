@@ -229,7 +229,9 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
     {
         get
         {
-            var facilityCost = Math.Round(_fundingResult!.FundingAmounts!.Projected_NonHRFacility, 2);
+            var facilityCost = Math.Round(_fundingResult!.FundingAmounts!.Projected_NonHRFacility_Reallocation, 2) != 0 ? 
+                Math.Round(_fundingResult!.FundingAmounts!.Projected_NonHRFacility_Reallocation, 2)
+                : Math.Round(_fundingResult!.FundingAmounts!.Projected_NonHRFacility, 2);
             var transposedCost = _nonHRactions.GroupBy(m => m.Step).Select(m => new
             {
                 m.First().Step,
@@ -429,7 +431,17 @@ public class CalculatorProgressTracker(ID365AppUserService appUserService, ID365
 
         _regardingId = funding.ofm_fundingid;
         _funding = funding;
-        _nonHRactions = [.. nonHRMessages.OrderBy(m => m.Step)];
+
+        _nonHRactions = [.. nonHRMessages.Where(m => m.Reallocation == true).OrderBy(m => m.Step)];
+        //If no Reallocation
+        if (_nonHRactions.Count == 0)
+        {
+            _nonHRactions = [.. nonHRMessages.OrderBy(m => m.Step)];
+        }
+        else
+        {
+            titlePrefix = "Reallocation";
+        }
 
         Handlebars.RegisterTemplate("rawFTEStep", RawFTEsPartialSource);
         Handlebars.RegisterTemplate("adjustedFTEStep", AdjustedFTEsPartialSource);
