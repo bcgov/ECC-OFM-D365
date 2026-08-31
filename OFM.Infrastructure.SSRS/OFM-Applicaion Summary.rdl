@@ -72,6 +72,7 @@
 &lt;attribute name="ofm_armslengthlease" /&gt;
 &lt;attribute name="ofm_union_cssea" /&gt;
 &lt;attribute name="ofm_unionized" /&gt;
+&lt;attribute name="ofm_application_type" /&gt;
     &lt;order attribute="ofm_application" descending="false" /&gt;
           &lt;filter type="and"&gt;
            &lt;condition attribute="ofm_applicationid" operator="eq" uitype="ofm_application" value="@ApplicationID" /&gt;
@@ -595,13 +596,29 @@
           <DataField>ofm_union_cssea</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="facility_ofm_is_mailing_address_different">
-          <DataField>facility_ofm_is_mailing_address_different</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
         <Field Name="ofm_union_csseaValue">
           <DataField>ofm_union_csseaValue</DataField>
           <rd:TypeName>System.Boolean</rd:TypeName>
+        </Field>
+        <Field Name="ofm_unionized">
+          <DataField>ofm_unionized</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ofm_unionizedValue">
+          <DataField>ofm_unionizedValue</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ofm_application_type">
+          <DataField>ofm_application_type</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ofm_application_typeValue">
+          <DataField>ofm_application_typeValue</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="facility_ofm_is_mailing_address_different">
+          <DataField>facility_ofm_is_mailing_address_different</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="facility_ofm_is_mailing_address_differentValue">
           <DataField>facility_ofm_is_mailing_address_differentValue</DataField>
@@ -611,17 +628,9 @@
           <DataField>facility_ofm_additional_address3</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="ofm_unionized">
-          <DataField>ofm_unionized</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
         <Field Name="facility_ofm_additional_address3Value">
           <DataField>facility_ofm_additional_address3Value</DataField>
           <rd:TypeName>System.Boolean</rd:TypeName>
-        </Field>
-        <Field Name="ofm_unionizedValue">
-          <DataField>ofm_unionizedValue</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="facility_ofm_address3_line1">
           <DataField>facility_ofm_address3_line1</DataField>
@@ -10895,42 +10904,6 @@
               <PaddingBottom>2pt</PaddingBottom>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox341">
-            <CanGrow>true</CanGrow>
-            <KeepTogether>true</KeepTogether>
-            <Paragraphs>
-              <Paragraph>
-                <TextRuns>
-                  <TextRun>
-                    <Value>Eligibility</Value>
-                    <Style>
-                      <FontStyle>Italic</FontStyle>
-                      <FontFamily>Verdana</FontFamily>
-                      <FontSize>12pt</FontSize>
-                      <FontWeight>Bold</FontWeight>
-                      <Color>DarkBlue</Color>
-                    </Style>
-                  </TextRun>
-                </TextRuns>
-                <Style />
-              </Paragraph>
-            </Paragraphs>
-            <rd:DefaultName>Textbox339</rd:DefaultName>
-            <Top>16.42678in</Top>
-            <Left>0.15033in</Left>
-            <Height>0.27365in</Height>
-            <Width>0.99324in</Width>
-            <ZIndex>25</ZIndex>
-            <Style>
-              <Border>
-                <Style>None</Style>
-              </Border>
-              <PaddingLeft>2pt</PaddingLeft>
-              <PaddingRight>2pt</PaddingRight>
-              <PaddingTop>2pt</PaddingTop>
-              <PaddingBottom>2pt</PaddingBottom>
-            </Style>
-          </Textbox>
           <Tablix Name="Tablix3">
             <TablixBody>
               <TablixColumns>
@@ -10942,6 +10915,98 @@
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
+                <TablixRow>
+                  <Height>0.28333in</Height>
+                  <TablixCells>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox12">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Eligibility</Value>
+                                  <Style>
+                                    <FontStyle>Italic</FontStyle>
+                                    <FontFamily>Verdana</FontFamily>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>DarkBlue</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox12</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <TopBorder>
+                              <Style>None</Style>
+                            </TopBorder>
+                            <LeftBorder>
+                              <Style>None</Style>
+                            </LeftBorder>
+                            <RightBorder>
+                              <Style>None</Style>
+                            </RightBorder>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox13">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Verdana</FontFamily>
+                                    <FontSize>9pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox13</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Color>LightGrey</Color>
+                              <Style>Solid</Style>
+                            </Border>
+                            <TopBorder>
+                              <Style>None</Style>
+                            </TopBorder>
+                            <LeftBorder>
+                              <Style>None</Style>
+                            </LeftBorder>
+                            <RightBorder>
+                              <Style>None</Style>
+                            </RightBorder>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                            <PaddingTop>2pt</PaddingTop>
+                            <PaddingBottom>2pt</PaddingBottom>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
+                  </TablixCells>
+                </TablixRow>
                 <TablixRow>
                   <Height>0.4in</Height>
                   <TablixCells>
@@ -11811,7 +11876,9 @@
             </TablixBody>
             <TablixColumnHierarchy>
               <TablixMembers>
-                <TablixMember />
+                <TablixMember>
+                  <HideIfNoRows>true</HideIfNoRows>
+                </TablixMember>
                 <TablixMember />
               </TablixMembers>
             </TablixColumnHierarchy>
@@ -11820,6 +11887,7 @@
                 <TablixMember>
                   <Group Name="Details4" />
                   <TablixMembers>
+                    <TablixMember />
                     <TablixMember />
                     <TablixMember>
                       <Visibility>
@@ -11841,11 +11909,14 @@
               </TablixMembers>
             </TablixRowHierarchy>
             <DataSetName>FacilityDetails</DataSetName>
-            <Top>16.70599in</Top>
-            <Left>0.15033in</Left>
-            <Height>4.49167in</Height>
+            <Top>16.46432in</Top>
+            <Left>0.1346in</Left>
+            <Height>4.775in</Height>
             <Width>8.58607in</Width>
-            <ZIndex>26</ZIndex>
+            <ZIndex>25</ZIndex>
+            <Visibility>
+              <Hidden>=IIF(First(Fields!ofm_application_typeValue.Value, "FacilityDetails") = 2, true, false)</Hidden>
+            </Visibility>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -11877,7 +11948,7 @@
             <Left>0.125in</Left>
             <Height>0.32921in</Height>
             <Width>3.0086in</Width>
-            <ZIndex>27</ZIndex>
+            <ZIndex>26</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -11909,7 +11980,7 @@
             <Left>0.11667in</Left>
             <Height>0.18333in</Height>
             <Width>0.175in</Width>
-            <ZIndex>28</ZIndex>
+            <ZIndex>27</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -11944,7 +12015,7 @@
             <Left>0.43056in</Left>
             <Height>0.18333in</Height>
             <Width>3.20038in</Width>
-            <ZIndex>29</ZIndex>
+            <ZIndex>28</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -12195,7 +12266,12 @@
                 <TablixMember>
                   <Group Name="Details5" />
                   <TablixMembers>
-                    <TablixMember />
+                    <TablixMember>
+                      <Visibility>
+                        <Hidden>=IIF(IsNothing(First(Fields!ofm_costs_lease_start_date.Value, "FacilityDetails")) 
+AND IsNothing(First(Fields!ofm_costs_lease_end_date.Value, "FacilityDetails")), true, false)</Hidden>
+                      </Visibility>
+                    </TablixMember>
                     <TablixMember />
                     <TablixMember />
                   </TablixMembers>
@@ -12207,7 +12283,7 @@
             <Left>0.10925in</Left>
             <Height>0.75in</Height>
             <Width>8.12594in</Width>
-            <ZIndex>30</ZIndex>
+            <ZIndex>29</ZIndex>
             <Visibility>
               <Hidden>=IIF(First(Fields!ofm_costs_facility_typeValue.Value, "FacilityDetails")=1,False,True)</Hidden>
             </Visibility>
@@ -12245,7 +12321,7 @@
             <Left>0.125in</Left>
             <Height>0.25in</Height>
             <Width>3.61337in</Width>
-            <ZIndex>31</ZIndex>
+            <ZIndex>30</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -12281,7 +12357,7 @@
             <Left>0.13333in</Left>
             <Height>0.3in</Height>
             <Width>5.80794in</Width>
-            <ZIndex>32</ZIndex>
+            <ZIndex>31</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -12322,7 +12398,7 @@
             <Left>0.125in</Left>
             <Height>0.25in</Height>
             <Width>5.81627in</Width>
-            <ZIndex>33</ZIndex>
+            <ZIndex>32</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -12363,7 +12439,7 @@
             <Left>0.125in</Left>
             <Height>0.25in</Height>
             <Width>5.81627in</Width>
-            <ZIndex>34</ZIndex>
+            <ZIndex>33</ZIndex>
             <Style>
               <Border>
                 <Style>None</Style>
@@ -12397,7 +12473,7 @@
             <Left>0.10925in</Left>
             <Height>0.25in</Height>
             <Width>2.97018in</Width>
-            <ZIndex>35</ZIndex>
+            <ZIndex>34</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12431,7 +12507,7 @@
             <Left>3.07943in</Left>
             <Height>0.25in</Height>
             <Width>2.86184in</Width>
-            <ZIndex>36</ZIndex>
+            <ZIndex>35</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12465,7 +12541,7 @@
             <Left>5.94127in</Left>
             <Height>0.25in</Height>
             <Width>2.7794in</Width>
-            <ZIndex>37</ZIndex>
+            <ZIndex>36</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12498,7 +12574,7 @@
             <Left>0.10925in</Left>
             <Height>0.25in</Height>
             <Width>2.97018in</Width>
-            <ZIndex>38</ZIndex>
+            <ZIndex>37</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12528,7 +12604,7 @@
             <Left>3.07943in</Left>
             <Height>0.25in</Height>
             <Width>2.86184in</Width>
-            <ZIndex>39</ZIndex>
+            <ZIndex>38</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12567,7 +12643,7 @@
             <Left>5.94127in</Left>
             <Height>0.25in</Height>
             <Width>2.7794in</Width>
-            <ZIndex>40</ZIndex>
+            <ZIndex>39</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12601,7 +12677,7 @@
             <Left>0.10925in</Left>
             <Height>0.25in</Height>
             <Width>2.97018in</Width>
-            <ZIndex>41</ZIndex>
+            <ZIndex>40</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12640,7 +12716,7 @@
             <Left>3.07943in</Left>
             <Height>0.25in</Height>
             <Width>2.86184in</Width>
-            <ZIndex>42</ZIndex>
+            <ZIndex>41</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12679,7 +12755,7 @@
             <Left>5.94127in</Left>
             <Height>0.25in</Height>
             <Width>2.7794in</Width>
-            <ZIndex>43</ZIndex>
+            <ZIndex>42</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12713,7 +12789,7 @@
             <Left>0.10925in</Left>
             <Height>0.25in</Height>
             <Width>2.97018in</Width>
-            <ZIndex>44</ZIndex>
+            <ZIndex>43</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12752,7 +12828,7 @@
             <Left>3.07943in</Left>
             <Height>0.25in</Height>
             <Width>2.86184in</Width>
-            <ZIndex>45</ZIndex>
+            <ZIndex>44</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12791,7 +12867,7 @@
             <Left>5.94127in</Left>
             <Height>0.25in</Height>
             <Width>2.7794in</Width>
-            <ZIndex>46</ZIndex>
+            <ZIndex>45</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12825,7 +12901,7 @@
             <Left>0.10925in</Left>
             <Height>0.25in</Height>
             <Width>2.97018in</Width>
-            <ZIndex>47</ZIndex>
+            <ZIndex>46</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12864,7 +12940,7 @@
             <Left>3.07943in</Left>
             <Height>0.25277in</Height>
             <Width>2.86184in</Width>
-            <ZIndex>48</ZIndex>
+            <ZIndex>47</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12903,7 +12979,7 @@
             <Left>5.94127in</Left>
             <Height>0.25in</Height>
             <Width>2.7794in</Width>
-            <ZIndex>49</ZIndex>
+            <ZIndex>48</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12938,7 +13014,7 @@
             <Left>0.10925in</Left>
             <Height>0.25in</Height>
             <Width>2.97018in</Width>
-            <ZIndex>50</ZIndex>
+            <ZIndex>49</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -12979,7 +13055,7 @@
             <Left>3.07943in</Left>
             <Height>0.25in</Height>
             <Width>2.86184in</Width>
-            <ZIndex>51</ZIndex>
+            <ZIndex>50</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
@@ -13020,7 +13096,7 @@
             <Left>5.94127in</Left>
             <Height>0.24722in</Height>
             <Width>2.7794in</Width>
-            <ZIndex>52</ZIndex>
+            <ZIndex>51</ZIndex>
             <Style>
               <Border>
                 <Style>Solid</Style>
