@@ -10370,7 +10370,7 @@
               <Paragraph>
                 <TextRuns>
                   <TextRun>
-                    <Value>="Date Submitted: " &amp; Format(CDate(First(Fields!ofm_summary_submittedon.Value, "FacilityDetails")),"dd/MM/yyyy")</Value>
+                    <Value>="Date Submitted: " &amp; Format(CDate(First(Fields!ofm_summary_submittedon.Value, "FacilityDetails")),"dd/MM/yyyy hh:mm tt")</Value>
                     <Style>
                       <FontFamily>Verdana</FontFamily>
                       <FontSize>12pt</FontSize>
@@ -13109,7 +13109,7 @@ AND IsNothing(First(Fields!ofm_costs_lease_end_date.Value, "FacilityDetails")), 
             </Style>
           </Textbox>
         </ReportItems>
-        <Height>40.10778in</Height>
+        <Height>38.44944in</Height>
         <Style>
           <Border>
             <Style>None</Style>
