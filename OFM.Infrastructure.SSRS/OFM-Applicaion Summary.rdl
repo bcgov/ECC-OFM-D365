@@ -9804,7 +9804,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=First(Fields!ofm_operation_from_time.Value, "LicenseDetails") + " - " + First(Fields!ofm_operations_to_time.Value, "LicenseDetails")</Value>
+                                  <Value>=Fields!ofm_operation_from_time.Value + " - " + Fields!ofm_operations_to_time.Value</Value>
                                   <Style>
                                     <FontFamily>Arial</FontFamily>
                                   </Style>
