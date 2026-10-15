@@ -29,6 +29,14 @@ builder.WebHost.ConfigureKestrel(serverOptions => serverOptions.AddServerHeader 
 var services = builder.Services;
 
 // Add services to the container.
+builder.Services.AddControllers();
+
+builder.Services.AddControllers(options =>
+{
+    options.ReturnHttpNotAcceptable = true;
+});
+
+// Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(config =>
