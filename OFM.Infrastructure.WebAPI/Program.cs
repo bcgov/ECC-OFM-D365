@@ -31,11 +31,6 @@ var services = builder.Services;
 // Add services to the container.
 builder.Services.AddControllers();
 
-builder.Services.AddControllers(options =>
-{
-    options.ReturnHttpNotAcceptable = true;
-});
-
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 services.AddEndpointsApiExplorer();
@@ -147,6 +142,8 @@ app.UseProblemDetails();
 app.MapFallback(() => Results.Redirect("/swagger"));
 app.UseHttpsRedirection();
 app.UseAuthentication();
+
+app.MapControllers();
 
 if (app.Configuration.GetValue<bool>("Features:Environment:Enable"))
     app.RegisterEnvironmentEndpoints();

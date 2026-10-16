@@ -99,10 +99,10 @@ public class PdfController : ControllerBase
                 // Footer
                 if (request.InsertPageNumbers == true)
                     gfx.DrawString($"Page {i + 1} of {outputDocument.PageCount}",
-                        new XFont("Calibri", 10, XFontStyleEx.Regular),
+                        new XFont("Times New Roman", 11, XFontStyleEx.Regular),
                         XBrushes.Black,
                         new XRect(20, page.Height - 40, page.Width - 40, 20),
-                        XStringFormats.BottomCenter);
+                        XStringFormats.BottomRight);
             }
             using var outputStream = new MemoryStream();
             outputDocument.Save(outputStream);
