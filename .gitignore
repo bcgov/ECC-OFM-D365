@@ -418,3 +418,4 @@ FodyWeavers.xsd
 # Vim
 Session.vim
 .vim/
+/OFM.Infrastructure.WebAPI/appsettings.json
