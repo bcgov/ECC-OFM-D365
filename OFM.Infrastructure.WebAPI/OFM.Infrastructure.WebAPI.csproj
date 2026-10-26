@@ -70,6 +70,17 @@
 
 
   
+  <ItemGroup>
+    <None Update="Fonts\Calibri-Bold.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Fonts\Calibri-Regular.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+
+  
   <Import Project="..\ECC.Core.DataContext\ECC.Core.DataContext.projitems" Label="Shared" />
 
 </Project>
