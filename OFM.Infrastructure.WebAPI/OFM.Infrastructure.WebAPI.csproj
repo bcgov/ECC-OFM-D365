@@ -64,6 +64,12 @@
 
 
   
+  <ItemGroup>
+    <Folder Include="Fonts\" />
+  </ItemGroup>
+
+
+  
   <Import Project="..\ECC.Core.DataContext\ECC.Core.DataContext.projitems" Label="Shared" />
 
 </Project>

@@ -52,12 +52,14 @@ public class PdfController : ControllerBase
             if (!string.IsNullOrWhiteSpace(request.File2Base64))
             {
                 // Decode and merge second PDF
-                if (!IsValidPdfBase64(request.File2Base64)) throw new FormatException("File 2 is not a valid PDF");
-                var file2Bytes = Convert.FromBase64String(request.File2Base64);
-                using var stream2 = new MemoryStream(file2Bytes);
-                var inputDocument2 = PdfReader.Open(stream2, PdfDocumentOpenMode.Import);
-                foreach (var page in inputDocument2.Pages)
-                    outputDocument.AddPage(page);
+                if (IsValidPdfBase64(request.File2Base64))
+                {
+                    var file2Bytes = Convert.FromBase64String(request.File2Base64);
+                    using var stream2 = new MemoryStream(file2Bytes);
+                    var inputDocument2 = PdfReader.Open(stream2, PdfDocumentOpenMode.Import);
+                    foreach (var page in inputDocument2.Pages)
+                        outputDocument.AddPage(page);
+                }
             }
 
             // Add header and footer to each page
@@ -68,9 +70,6 @@ public class PdfController : ControllerBase
                 // Header
                 if (request.Headers.Any())
                 {
-                    double headerTopMargin = 20;
-                    double headerLineHeight = 12;
-
                     for (int j = 0; j < request.Headers.Length; j++)
                     {
                         var header = request.Headers[j];
@@ -86,7 +85,6 @@ public class PdfController : ControllerBase
                             "right" => XStringFormats.CenterRight,
                             _ => XStringFormats.Center
                         };
-
 
                         gfx.DrawString(header.HeaderText,
                             new XFont("Calibri", 10, header.IsBold == true ? XFontStyleEx.Bold : XFontStyleEx.Regular),
