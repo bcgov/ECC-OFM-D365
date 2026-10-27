@@ -70,7 +70,7 @@ public class PdfController : ControllerBase
                 var page = outputDocument.Pages[i];
                 var gfx = XGraphics.FromPdfPage(page, XGraphicsPdfPageOptions.Append);
                 // Header
-                if (request.Headers.Any())
+                if (request.Headers != null && request.Headers.Any())
                 {
                     for (int j = 0; j < request.Headers.Length; j++)
                     {
@@ -96,7 +96,7 @@ public class PdfController : ControllerBase
                     }
 
                 }
-                if (request.Footer.Any())
+                if (request.Footer!= null && request.Footer.Any())
                 {
                     for (int j = 0; j < request.Footer.Length; j++)
                     {
@@ -117,7 +117,7 @@ public class PdfController : ControllerBase
                         gfx.DrawString(footer.Text,
                             new XFont("Calibri", 10, footer.IsBold == true ? XFontStyleEx.Bold : XFontStyleEx.Regular),
                             XBrushes.Black,
-                            new XRect(20, 20, page.Width - 40, 40),
+                            new XRect(20, page.Height - 40, page.Width - 40, 20),
                             alignment);
                     }
                 }
