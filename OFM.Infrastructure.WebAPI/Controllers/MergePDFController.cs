@@ -15,12 +15,14 @@ public class PdfMergeRequest
     [JsonProperty("insertPageNumbers")]
     public bool? InsertPageNumbers { get; set; } = false;
     [JsonProperty("headers")]
-    public PdfHeader[] Headers { get; set; }
+    public Pdf[]? Headers { get; set; }
+    [JsonProperty("footer")]
+    public Pdf[]? Footer { get; set; }
 }
-public class PdfHeader
+public class Pdf
 {
-    [JsonProperty("headerText")]
-    public string HeaderText { get; set; } = string.Empty;
+    [JsonProperty("text")]
+    public string Text { get; set; } = string.Empty;
     [JsonProperty("alignment")]
     public string Alignment { get; set; } = string.Empty;
     [JsonProperty("isBold")]
@@ -86,13 +88,38 @@ public class PdfController : ControllerBase
                             _ => XStringFormats.Center
                         };
 
-                        gfx.DrawString(header.HeaderText,
+                        gfx.DrawString(header.Text,
                             new XFont("Calibri", 10, header.IsBold == true ? XFontStyleEx.Bold : XFontStyleEx.Regular),
                             XBrushes.Black,
                             new XRect(20, 20, page.Width - 40, 40),
                             alignment);
                     }
 
+                }
+                if (request.Footer.Any())
+                {
+                    for (int j = 0; j < request.Footer.Length; j++)
+                    {
+                        var footer = request.Footer[j];
+                        XStringFormat alignment = footer.Alignment.ToLower() switch
+                        {
+                            "topcenter" => XStringFormats.TopCenter,
+                            "topright" => XStringFormats.TopRight,
+                            "topleft" => XStringFormats.TopLeft,
+                            "left" => XStringFormats.CenterLeft,
+                            "bottomcenter" => XStringFormats.BottomCenter,
+                            "bottomright" => XStringFormats.BottomRight,
+                            "bottomleft" => XStringFormats.BottomLeft,
+                            "right" => XStringFormats.CenterRight,
+                            _ => XStringFormats.Center
+                        };
+
+                        gfx.DrawString(footer.Text,
+                            new XFont("Calibri", 10, footer.IsBold == true ? XFontStyleEx.Bold : XFontStyleEx.Regular),
+                            XBrushes.Black,
+                            new XRect(20, 20, page.Width - 40, 40),
+                            alignment);
+                    }
                 }
                 // Footer
                 if (request.InsertPageNumbers == true)
