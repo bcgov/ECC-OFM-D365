@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using PdfSharp.Pdf.Advanced;
 using PdfSharp.Pdf.IO;
 using System.Text;
 
@@ -49,7 +50,12 @@ public class PdfController : ControllerBase
             using var stream1 = new MemoryStream(file1Bytes);
             var inputDocument1 = PdfReader.Open(stream1, PdfDocumentOpenMode.Import);
             foreach (var page in inputDocument1.Pages)
-                outputDocument.AddPage(page);
+            {
+                if (!Isblank(page))
+                {
+                    outputDocument.AddPage(page);
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(request.File2Base64))
             {
@@ -60,7 +66,12 @@ public class PdfController : ControllerBase
                     using var stream2 = new MemoryStream(file2Bytes);
                     var inputDocument2 = PdfReader.Open(stream2, PdfDocumentOpenMode.Import);
                     foreach (var page in inputDocument2.Pages)
-                        outputDocument.AddPage(page);
+                    {
+                        if (!Isblank(page))
+                        {
+                            outputDocument.AddPage(page);
+                        }
+                    }
                 }
             }
 
@@ -162,6 +173,21 @@ public class PdfController : ControllerBase
         {
             return false;
         }
+    }
+    private static bool Isblank(PdfPage page)
+    {
+        if (page.Contents.Elements.Count == 0)
+            return true;
+
+        long totalLength = 0;
+
+        foreach (PdfReference contentRef in page.Contents.Elements)
+        {
+            var content = (PdfDictionary)contentRef.Value;
+            totalLength += content.Stream?.Length ?? 0;
+        }
+
+        return totalLength < 40;
     }
 
 }
