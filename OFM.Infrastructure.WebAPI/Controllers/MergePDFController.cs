@@ -187,7 +187,7 @@ public class PdfController : ControllerBase
             totalLength += content.Stream?.Length ?? 0;
         }
 
-        return totalLength < 40;
+        return totalLength < 300;
     }
 
 }
