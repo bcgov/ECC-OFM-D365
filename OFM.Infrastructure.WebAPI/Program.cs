@@ -3,30 +3,34 @@ using Hellang.Middleware.ProblemDetails;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using OFM.Infrastructure.WebAPI.Caching;
 using OFM.Infrastructure.WebAPI.Extensions;
+using OFM.Infrastructure.WebAPI.Handlers;
 using OFM.Infrastructure.WebAPI.Models;
 using OFM.Infrastructure.WebAPI.Services.AppUsers;
 using OFM.Infrastructure.WebAPI.Services.Batches;
 using OFM.Infrastructure.WebAPI.Services.D365WebApi;
 using OFM.Infrastructure.WebAPI.Services.Documents;
 using OFM.Infrastructure.WebAPI.Services.Processes;
+using OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
+using OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
 using OFM.Infrastructure.WebAPI.Services.Processes.Emails;
+using OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
 using OFM.Infrastructure.WebAPI.Services.Processes.Fundings;
+using OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords;
 using OFM.Infrastructure.WebAPI.Services.Processes.Payments;
 using OFM.Infrastructure.WebAPI.Services.Processes.ProviderProfiles;
 using OFM.Infrastructure.WebAPI.Services.Processes.Requests;
-using OFM.Infrastructure.WebAPI.Services.Processes.FundingReports;
-using OFM.Infrastructure.WebAPI.Services.Processes.DataImports;
-using System.Reflection;
-using OFM.Infrastructure.WebAPI.Services.Processes.ApplicationScore;
+using PdfSharp.Fonts;
 using System.Collections;
-using OFM.Infrastructure.WebAPI.Handlers;
-using OFM.Infrastructure.WebAPI.Services.Processes.LicenceDetailRecords;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(serverOptions => serverOptions.AddServerHeader = false);
 //builder.Logging.AddFilter(LogCategory.ProviderProfile, LogLevel.Debug);
 
 var services = builder.Services;
+
+// Add services to the container.
+builder.Services.AddControllers();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -124,6 +128,9 @@ services.Configure<ExternalServices>(builder.Configuration.GetSection(nameof(Ext
 // Wait 30 seconds for graceful shutdown.
 builder.Host.ConfigureHostOptions(opts => opts.ShutdownTimeout = TimeSpan.FromSeconds(30));
 
+//Merge PDF Font Handling
+GlobalFontSettings.FontResolver = new CustomFontResolver();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -139,6 +146,8 @@ app.UseProblemDetails();
 app.MapFallback(() => Results.Redirect("/swagger"));
 app.UseHttpsRedirection();
 app.UseAuthentication();
+
+app.MapControllers();
 
 if (app.Configuration.GetValue<bool>("Features:Environment:Enable"))
     app.RegisterEnvironmentEndpoints();

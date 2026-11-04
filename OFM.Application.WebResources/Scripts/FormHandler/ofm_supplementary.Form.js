@@ -173,10 +173,12 @@ OFM.Supplementary.Form = {
             <entity name="ofm_funding">
               <attribute name="ofm_end_date" />
               <attribute name="ofm_start_date" />
+              <attribute name="ofm_version_number" />
               <filter>
                 <condition attribute="statecode" operator="eq" value="0" />
-                <condition attribute="ofm_version_number" operator="eq" value="0" />
+                <condition attribute="statuscode" operator="eq" value="8" />
               </filter>
+              <order attribute="ofm_version_number" descending="true" />
               <link-entity name="ofm_application" from="ofm_applicationid" to="ofm_application" link-type="inner">
                 <link-entity name="ofm_allowance" from="ofm_application" to="ofm_applicationid">
                   <filter>

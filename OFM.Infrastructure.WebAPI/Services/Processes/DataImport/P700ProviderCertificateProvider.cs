@@ -614,8 +614,8 @@ public class P700ProviderCertificateProvider(ID365AppUserService appUserService,
             if (upsertSucessfully && deactiveSucessfully)
             {
                 var localtime = _timeProvider.GetLocalNow();
-                TimeZoneInfo PSTZone = GetPSTTimeZoneInfo("Pacific Standard Time", "America/Los_Angeles");
-                var pstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, PSTZone);
+                //TimeZoneInfo PSTZone = GetPSTTimeZoneInfo("British Columbia Standard Time", "America/Los_Angeles");
+                var pstTime = DateTime.UtcNow.ToLocalPST();
                 var endtime = _timeProvider.GetTimestamp();
                 var timediff = _timeProvider.GetElapsedTime(startTime, endtime).TotalSeconds;
                 //dataImportMessages = localtime.ToString("yyyy-MM-dd HH:mm:ss") + " Total time:"+ Math.Round(timediff,2) + " seconds.\r\n" + "Upsert " + differenceCsvRecords.Count + " record(s) sucessfully\r\n" + "Deactive " + missingInCsv.Count + " records not existing in csv file sucessfully\r\n";

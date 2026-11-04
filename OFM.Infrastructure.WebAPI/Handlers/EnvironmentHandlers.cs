@@ -29,7 +29,7 @@ public static class EnvironmentHandlers
         bool isWindows = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         if (isWindows)
         {
-            timeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+            timeZone = TimeZoneInfo.FindSystemTimeZoneById("British Columbia Standard Time");
         }
         else
         {
